@@ -1,0 +1,36 @@
+---
+title: 'API Integration'
+description: ''
+icon: server
+---
+
+## Overview
+
+Layerswap API is set to enable fast and reliable crypto transfers for end-users directly in your app environment
+
+Layerswap handles millions of dollars in transactions every day across multiple networks. We ensure quick and reliable crypto transfers, giving the freedom to move crypto anywhere.
+Layerswap is a prebuilt, optimized gateway that lets anyone easily and securely process transactions across multiple networks - overcoming liquidity fragmentation and complex bridging steps. Layerswap’s built-in features allow you to reduce your development time. It supports 30+ networks. You can embed Layerswap directly into your website or direct customers to a Layerswap-hosted page.
+
+
+## Quickstart
+
+<Steps>
+  <Step title="Get Routes">
+    Get supported sources/networks, available routes and swap fees.
+  </Step>
+  <Step title="Create Swap">
+    Create Swap using the Layerswap API.
+  </Step>
+  <Step title="Transaction">
+    Layerswap will monitor the source network for a transaction and will try to match it with the corresponding swap
+  </Step>
+  <Step title="Match">
+    Once the transaction is matched and added to the swap, Layerswap will initiate a counterparty transaction to the destination_address
+  </Step>
+  <Step title="Status (Optional)">
+    Poll via Get Swap endpoint to see if the matching transaction Input was added to the swap
+  </Step>
+  <Step title="Webhook (Optional)">
+    If the webhook is configured, Layerswap will deliver a swap status update notification to the partner-specified URL
+  </Step>
+</Steps>

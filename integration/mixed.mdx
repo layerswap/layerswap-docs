@@ -1,0 +1,22 @@
+---
+title: 'Mixed Integration'
+description: ''
+icon: rectangles-mixed
+---
+
+You can programmatically generate a swap from your backend and then display the Layerswap UI to your users for transaction completion. This allows them to finalize the swap while benefiting from the Layerswap UX.
+
+<Steps>
+  <Step title="Create Swap">
+    Create a swap using the Layerswap API.
+  </Step>
+  <Step title="Swap Id">
+    Retrieve the `swap_id` from the response.
+  </Step>
+  <Step title="Generate UI Link">
+    Construct a link to the transaction using the following format: https://www.layerswap.io/app/swap/{SWAP_ID_FROM_PREVIOUS_STEP}
+  </Step>
+  <Step title="Redirect">
+    Either redirect the user to the Layerswap hosted page or set the URL in your embedded form.
+  </Step>
+</Steps>

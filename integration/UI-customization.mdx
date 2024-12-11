@@ -1,0 +1,84 @@
+---
+title: 'UI Customization'
+description: ''
+icon: pallete
+---
+
+Customization
+Check out the Interactive builder to see how it looks and feels.
+
+Parameters
+from - One of the supported platforms
+
+Source network or exchange you want the users to transfer from, for example IMMUTABLEX_MAINNET.  
+
+to - One of the supported platforms
+
+Destination network or exchange you want the users to transfer from, for example ETHEREUM_MAINNET. 
+
+asset
+
+The asset that you want to be preselected. NOTE: available assets depend on the selected network, for example, the asset IMX is only available in the IMMUTABLEX_MAINNET network.
+
+destAddress
+
+The destination address the funds should reach at the end of the swap.
+
+hideAddress - true/false
+
+If set to true, destination address will be hidden in the UI.
+
+lockAddress - true/false
+
+If set to true, the destination address will be locked for editing.
+
+hideFrom - true/false
+
+If set to true, the source will be hidden in the UI.
+
+lockFrom - true/false
+
+If set to true, the source will be locked for editing.
+
+hideTo - true/false
+
+If set to true, the destination will be hidden in the UI.
+
+lockTo - true/false
+
+If set to true, the destination will be locked for editing.
+
+lockAsset - true/false
+
+If set to true, the asset will be locked for editing.
+
+hideRefuel - true/false
+
+If set to true, refuel feature will be disabled and not shown in the UI.
+
+clientId
+
+Clinet Id from partner setup. 
+
+If the destAddress parameter is provided, the Partner's logo will be shown next to the address.
+
+
+amount
+
+Use to pre-fill the amount field.
+
+Users will still be able to change it in the UI. The parameter will be skipped if the asset parameter was not passed.
+
+externalId
+
+A unique ID representing the user's transfer session in the partner's system. This can later be used to query the status of the transfer and will be included in the webhook notifications sent to the partner. Refer to the API Reference section to learn more.
+
+account
+
+User account name or address that will be shown as a source.
+
+hideFrom should be set to true
+
+actionButtonText
+
+Use to replace Swap now button text. For example, it can be changed to Deposit or Withdraw.
