@@ -3,3 +3,23 @@ title: 'Swap lifecycle'
 description: ''
 icon: arrows-spin
 ---
+
+![HTLC](/images/swap-life.png)
+
+### User transfer pending (user_transfer_pending)
+Whenever the swap is created, either programmatically or from the Layerswap UI, the swap has  user_transfer_pending status. At this stage, Layerswap is awaiting the incoming transaction to the deposit address in the source network to match it with the corresponding swap. Users have the option to cancel the swap.
+
+### Cancelled (cancelled)
+If the user decides to cancel the swap, the swap status will be changed to cancelled. The swap can still be retrieved for historical purposes, however, no incoming transaction will be matched against the swap. 
+
+### Expired (expired)
+If the user does not cancel the swap and also does not initiate the transaction in the source network within 4 days, the Swap status will be changed to expired.
+
+### Layerswap Transfer Pending (ls_transfer_pending)
+After the user has initiated the transfer to the deposit address in the source network, Layerswap will monitor the blockchain network to verify that a transaction has been received. After receiving the transaction and matching it with the corresponding swap, Layerswap will create an Input transaction object, which will describe the transaction sent by the user and connect it with the corresponding swap. The swap status will be changed to ls_transfer_pending.
+
+### Completed (completed)
+After receiving the transaction and setting the swap status to ls_transfer_pending, Layerswap will initiate the outgoing transaction to the user-specified destination address in the destination network and the swap status will be changed to completed.
+
+### Failed (failed)
+If there is an issue with Layerswap and the outgoing transaction to the user-specified destination address could not be initiated, the swap status will be changed to failed.

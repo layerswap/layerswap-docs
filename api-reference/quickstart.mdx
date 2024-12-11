@@ -3,3 +3,32 @@ title: 'Quickstart'
 description: ''
 icon: rocket
 ---
+
+### Quickstart
+
+
+### Get Available Networks
+
+```bash
+curl -X 'GET' \
+  'https://api.layerswap.io/api/available_networks' \
+  -H 'accept: application/json'
+```
+
+### Create Swap
+
+```bash
+curl --location 'https://api.layerswap.io/api/swap' \
+--header 'X-LS-APIKEY: {YOUR_APP_APIKEY}' \
+--header 'Content-Type: application/json' \
+--data '{
+    "source": "ETHEREUM_MAINNET",
+    "destination": "IMX_MAINNET",
+    "amount": 0.001,
+    "asset": "ETH",
+    "source_address": "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
+    "destination_address": "0xe688b84b23f322a994A53dbF8E15FA82CDB71127",
+    "refuel": false,
+    "reference_id": "1"
+}'
+```

@@ -3,3 +3,19 @@ title: 'Webhooks'
 description: 'Describes the mainnet and tesnet enviorments'
 icon: webhook
 ---
+
+### Setup
+Layerswap provides a webhook configuration functionality so that Partners can receive notifications on any swap status change. Webhooks can be set up per partner application. In order to configure a webhook the following steps must be performed:
+
+1. Login to https://layerswap.io/dashboard
+2. Select the organization/app
+3. From left pane select Webhooks, then provide the URL where the webhook should be received and click Create Webhook
+4. The newly created webhook should appear under the app
+5. Copy the webhook secret for future verification
+
+
+### Verification
+Layerswaps uses Svix for Webhook Management. In order to verify an incoming webhook from Svix please refer to https://docs.svix.com/receiving/verifying-payloads/how. Use the webhook secret from the dashboard as a Svix secret.
+
+For the structure of the swap notification, please refer to the Swap Data object. Please note that the complete information webhook will be sent only when the swap status is completed. For other statuses, notification will include a subset of this information (whatever is available at that time).
+
