@@ -74,6 +74,7 @@
       "group": "Integration",
       "pages": [
         "integration/UI",
+        "integration/UI-customization",
         "integration/API",
         "integration/mixed",
         {
