@@ -92,7 +92,6 @@
       "pages": [
         "api-reference/quickstart",
         "api-reference/api-keys",
-        "api-reference/environment",
         "api-reference/routes",
         "api-reference/manual-and-wallet",
         "api-reference/swap-lifecycle",
