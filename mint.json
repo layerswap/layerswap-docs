@@ -6,11 +6,10 @@
     "light": "/logo/light.svg"
   },
   "feedback": {
-    "thumbsRating" : true
+    "thumbsRating": true
   },
   "favicon": "/favicon.svg",
-  "background": {
-  },
+  "background": {},
   "colors": {
     "primary": "#FF0093",
     "light": "#FF0093",
@@ -20,10 +19,10 @@
       "to": "#FF0093"
     }
   },
-  "sidebar" : {
+  "sidebar": {
     "items": "border"
   },
-  "modeToggle" : {
+  "modeToggle": {
     "default": "dark",
     "isHidden": true
   },
@@ -60,14 +59,14 @@
       "url": "changelog"
     }
   ],
-  "anchors": [
-  ],
+  "anchors": [],
   "navigation": [
     {
       "group": "Layerswap V0 Bridge",
       "pages": [
         "introduction",
-        "security"
+        "security",
+        "protocol-overview"
       ]
     },
     {
@@ -79,7 +78,7 @@
         "integration/mixed",
         {
           "group": "Cookbooks",
-          "icon" : "book",
+          "icon": "book",
           "pages": [
             "integration/cookbooks/wallet",
             "integration/cookbooks/website"
@@ -101,7 +100,9 @@
     },
     {
       "group": "Changelog",
-      "pages": ["changelog/api"]
+      "pages": [
+        "changelog/api"
+      ]
     }
   ],
   "footer": {
@@ -116,33 +117,54 @@
       {
         "title": "Resources",
         "links": [
-          { "label": "Brand Assets", "url": "https://layerswap.notion.site/Layerswap-brand-guide-0822bc4f1a2d4af7bc2f1acbb05119e2?pvs=74" },
-          { "label": "Public Roadmap", "url": "https://layerswap.ducalis.io/layerswap-roadmap" }
+          {
+            "label": "Brand Assets",
+            "url": "https://layerswap.notion.site/Layerswap-brand-guide-0822bc4f1a2d4af7bc2f1acbb05119e2?pvs=74"
+          },
+          {
+            "label": "Public Roadmap",
+            "url": "https://layerswap.ducalis.io/layerswap-roadmap"
+          }
         ]
-      }, 
+      },
       {
         "title": "Layerswap V0",
         "links": [
-          { "label": "App", "url": "https://layerswap.io/app" },
-          { "label": "Docs", "url": "https://docs.layerswap.io" },
-          { "label": "Explorer", "url": "https://layerswap.io/explorer" }
+          {
+            "label": "App",
+            "url": "https://layerswap.io/app"
+          },
+          {
+            "label": "Docs",
+            "url": "https://docs.layerswap.io"
+          },
+          {
+            "label": "Explorer",
+            "url": "https://layerswap.io/explorer"
+          }
         ]
       },
       {
         "title": "Layerswap V8",
         "links": [
-          { "label": "App", "url": "https://layerswap.io/v8" },
-          { "label": "Docs", "url": "https://v8-docs.layerswap.io" }
+          {
+            "label": "App",
+            "url": "https://layerswap.io/v8"
+          },
+          {
+            "label": "Docs",
+            "url": "https://v8-docs.layerswap.io"
+          }
         ]
       }
     ]
   },
-  "api" : {
-    "baseUrl" : "https://api.layerswap.io/"
+  "api": {
+    "baseUrl": "https://api.layerswap.io/"
   },
   "metadata": {
     "og:title": "Layerswap V0 | Cross-Chain Bridge",
-    "og:description" : "Layerswap V0 is a cross-chain bridge that enables users to swap assets across different blockchains.",
-    "og:logo" : "/logo/dark.svg"
+    "og:description": "Layerswap V0 is a cross-chain bridge that enables users to swap assets across different blockchains.",
+    "og:logo": "/logo/dark.svg"
   }
 }
