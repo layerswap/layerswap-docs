@@ -1,0 +1,169 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Layerswap V0 Developer Portal",
+  "colors": {
+    "primary": "#FF0093",
+    "light": "#FF0093",
+    "dark": "#FF0093"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Layerswap V0 Bridge",
+            "pages": [
+              "introduction",
+              "security"
+            ]
+          },
+          {
+            "group": "Integration",
+            "pages": [
+              "integration/UI",
+              "integration/UI-customization",
+              "integration/API",
+              "integration/mixed",
+              {
+                "group": "Cookbooks",
+                "icon": "book",
+                "pages": [
+                  "integration/cookbooks/wallet",
+                  "integration/cookbooks/website"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": {
+          "source": "https://api.layerswap.io/swagger/v2/swagger.json",
+          "directory": "api-reference"
+        },
+        "groups": [
+          {
+            "group": "API Documentation ",
+            "pages": [
+              "api-reference/quickstart",
+              "api-reference/api-keys",
+              "api-reference/routes",
+              "api-reference/manual-and-wallet",
+              "api-reference/swap-lifecycle",
+              "api-reference/webhook",
+              "api-reference/sdk"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog/api"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "api": {
+    "mdx": {
+      "server": "https://api.layerswap.io/"
+    }
+  },
+  "appearance": {
+    "default": "dark",
+    "strict": true
+  },
+  "background": {},
+  "navbar": {
+    "links": [
+      {
+        "label": "Dev Community",
+        "href": "https://t.me/layerswap_dev"
+      },
+      {
+        "label": "Github",
+        "href": "https://github.com/layerswap/layerswapapp"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Use App",
+      "href": "https://layerswap.io/app"
+    }
+  },
+  "seo": {
+    "metatags": {
+      "og:title": "Layerswap V0 | Cross-Chain Bridge",
+      "og:description": "Layerswap V0 is a cross-chain bridge that enables users to swap assets across different blockchains.",
+      "og:logo": "/logo/dark.svg"
+    },
+    "indexing": "navigable"
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/layerswap",
+      "github": "https://github.com/layerswap",
+      "telegram": "https://t.me/layerswap_io",
+      "discord": "https://discord.gg/layerswap",
+      "linkedin": "https://linkedin.com/company/layerswap"
+    },
+    "links": [
+      {
+        "header": "Resources",
+        "items": [
+          {
+            "label": "Brand Assets",
+            "href": "https://layerswap.notion.site/Layerswap-brand-guide-0822bc4f1a2d4af7bc2f1acbb05119e2?pvs=74"
+          },
+          {
+            "label": "Public Roadmap",
+            "href": "https://layerswap.ducalis.io/layerswap-roadmap"
+          }
+        ]
+      },
+      {
+        "header": "Layerswap V0",
+        "items": [
+          {
+            "label": "App",
+            "href": "https://layerswap.io/app"
+          },
+          {
+            "label": "Docs",
+            "href": "https://docs.layerswap.io"
+          },
+          {
+            "label": "Explorer",
+            "href": "https://layerswap.io/explorer"
+          }
+        ]
+      },
+      {
+        "header": "Layerswap V8",
+        "items": [
+          {
+            "label": "App",
+            "href": "https://layerswap.io/v8"
+          },
+          {
+            "label": "Docs",
+            "href": "https://v8-docs.layerswap.io"
+          }
+        ]
+      }
+    ]
+  }
+}
