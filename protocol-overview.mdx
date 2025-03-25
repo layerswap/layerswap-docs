@@ -1,0 +1,96 @@
+---
+title: 'Protocol Overview'
+description: 'End-to-end explanation of Layerswap protocol operations'
+icon: diagram-project
+---
+
+Layerswap enables seamless crypto transfers across different networks and exchanges through a robust protocol that handles millions of dollars in daily transactions. Here's how it works from end to end:
+
+<Steps>
+  <Step title="Initial Setup">
+    Partners must first:
+    1. Register at layerswap.io/dashboard
+    2. Create an organization and app
+    3. Obtain API keys for either mainnet or testnet environments
+  </Step>
+
+  <Step title="Transfer Initiation">
+    Transfers can be initiated in two ways:
+    
+    <CardGroup cols={2}>
+      <Card title="API Integration" icon="server">
+        Create programmatic swaps using the API:
+        ```bash
+        curl --location 'https://api.layerswap.io/api/swap' \
+        --header 'X-LS-APIKEY: {YOUR_APP_APIKEY}' \
+        --header 'Content-Type: application/json' \
+        --data '{
+            "source": "ETHEREUM_MAINNET",
+            "destination": "IMX_MAINNET",
+            "amount": 0.001,
+            "asset": "ETH",
+            "source_address": "0x...",
+            "destination_address": "0x...",
+            "refuel": false
+        }'
+        ```
+      </Card>
+      <Card title="UI Integration" icon="browser">
+        Embed Layerswap directly or redirect to hosted page:
+        ```javascript
+        <iframe src="https://layerswap.io/app/?
+            clientId=YOUR_CLIENT_ID
+            &to=STARKNET_MAINNET
+            &from=ETHEREUM_MAINNET
+            &destAddress=0x...">
+        </iframe>
+        ```
+      </Card>
+    </CardGroup>
+  </Step>
+
+  <Step title="Transfer Methods">
+    Layerswap supports two transfer methods:
+
+    <Accordion title="Wallet Transfers">
+      Direct wallet connections where the dApp composes and sends transactions for signing and execution. Used when wallet connection is available.
+    </Accordion>
+
+    <Accordion title="Manual Transfers">
+      Layerswap generates a unique deposit address for each swap. Any transaction sent to this address completes the swap - ideal when direct wallet connection isn't possible.
+    </Accordion>
+  </Step>
+
+  <Step title="Swap Lifecycle">
+    <Frame>
+      <img src="/images/swap-life.png" />
+    </Frame>
+
+    1. **User Transfer Pending**: Initial state after swap creation
+    2. **LS Transfer Pending**: After user transaction is received and matched
+    3. **Completed**: After successful destination network transaction
+    4. **Failed**: If destination transaction cannot be processed
+    5. **Cancelled/Expired**: If user cancels or 4-day window expires
+  </Step>
+
+  <Step title="Status Tracking">
+    Partners can track swap status through:
+    
+    <CardGroup cols={2}>
+      <Card title="API Polling" icon="rotate">
+        Query swap status endpoints periodically
+      </Card>
+      <Card title="Webhooks" icon="webhook">
+        Receive real-time notifications for status changes
+      </Card>
+    </CardGroup>
+  </Step>
+</Steps>
+
+<Note>
+For production deployments, always use mainnet API keys. Testnet keys should only be used for development and testing purposes.
+</Note>
+
+<Warning>
+API keys should be stored securely and never exposed in client-side code. Always make API calls from your backend services.
+</Warning>
