@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Layerswap V0 Developer Portal",
+  "name": "Layerswap Developer Portal",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -64,7 +64,7 @@
   ],
   "navigation": [
     {
-      "group": "Layerswap V0 Bridge",
+      "group": "Layerswap Bridge",
       "pages": [
         "introduction",
         "security"
@@ -121,7 +121,7 @@
         ]
       }, 
       {
-        "title": "Layerswap V0",
+        "title": "Layerswap",
         "links": [
           { "label": "App", "url": "https://layerswap.io/app" },
           { "label": "Docs", "url": "https://docs.layerswap.io" },
@@ -141,8 +141,8 @@
     "baseUrl" : "https://api.layerswap.io/"
   },
   "metadata": {
-    "og:title": "Layerswap V0 | Cross-Chain Bridge",
-    "og:description" : "Layerswap V0 is a cross-chain bridge that enables users to swap assets across different blockchains.",
+    "og:title": "Layerswap | Cross-Chain Bridge",
+    "og:description" : "Layerswap is a cross-chain bridge that enables users to swap assets across different blockchains.",
     "og:logo" : "/logo/dark.svg"
   }
 }
