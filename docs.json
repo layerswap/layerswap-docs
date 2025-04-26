@@ -24,30 +24,28 @@
             "group": "Integration",
             "pages": [
               "integration/UI",
-              "integration/UI-customization",
-              "integration/API",
-              "integration/mixed"
+              "integration/API"
             ]
           }
         ]
       },
       {
         "tab": "API Reference",
-        "openapi": {
-          "source": "https://api.layerswap.io/swagger/v2/swagger.json",
-          "directory": "api-reference"
-        },
         "groups": [
           {
-            "group": "API Documentation ",
+            "group": "Documentation",
             "pages": [
-              "api-reference/quickstart",
               "api-reference/api-keys",
-              "api-reference/routes",
-              "api-reference/manual-and-wallet",
               "api-reference/swap-lifecycle",
               "api-reference/webhook"
             ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": {
+              "source": "https://api.layerswap.io/swagger/v2/swagger.json",
+              "directory": "api-reference"
+            }
           }
         ]
       },
