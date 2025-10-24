@@ -50,7 +50,7 @@
         "tab": "UI Integration",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "integration/UI/Widget/Quickstart"
             ]

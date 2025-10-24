@@ -1,5 +1,37 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "New file"
+description: "Description of your new file."
 ---
 
+## Embedded form
+
+You can embed the Layerswap widget directly in your app and customize it to fit your specific use case.
+
+```javascript
+<iframe src="https://layerswap.io/app/?
+    clientId=YOUR_CLIENT_ID
+    &to=STARKNET_MAINNET
+    &from=ETHEREUM_MAINNET
+    &destAddress=0x0000000000000000000000000000000000000000
+    &amount=27
+    &asset=IMX
+    &actionButtonText=Deposit">
+</iframe>
+```
+
+## Customization
+
+You can pass various parameters to modify the look and UX of the Layerswap Hosted App. Example:
+
+```javascript
+https://layerswap.io/app/?
+    clientId=YOUR_CLIENT_ID
+    &to=STARKNET_MAINNET
+    &from=ETHEREUM_MAINNET
+    &destAddress=0x0000000000000000000000000000000000000000
+    &amount=27
+    &asset=IMX
+    &actionButtonText=Deposit
+```
+
+### 
