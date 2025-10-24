@@ -24,8 +24,7 @@
           {
             "group": "Integration",
             "pages": [
-              "integration/UI",
-              "integration/API"
+              "integration/UI"
             ]
           }
         ]
@@ -37,6 +36,7 @@
           {
             "group": "Documentation",
             "pages": [
+              "integration/API",
               "api-reference/api-keys",
               "api-reference/swap-lifecycle",
               "api-reference/webhook"
