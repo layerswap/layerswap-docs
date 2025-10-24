@@ -1,0 +1,74 @@
+---
+title: "Query Params"
+description: "Description of your new file."
+---
+
+### 
+
+<ResponseField name="from" type="string">
+  Source network or exchange you want the users to transfer from, for example IMMUTABLEX_MAINNET.
+</ResponseField>
+
+<ResponseField name="to" type="string">
+  Destination network or exchange you want the users to transfer from, for example ETHEREUM_MAINNET.
+</ResponseField>
+
+<ResponseField name="asset" type="string">
+  The asset that you want to be preselected. NOTE: available assets depend on the selected network, for example, the asset IMX is only available in the IMMUTABLEX_MAINNET network.
+</ResponseField>
+
+<ResponseField name="destAddress" type="string">
+  The destination address the funds should reach at the end of the swap.
+</ResponseField>
+
+<ResponseField name="hideAddress" type="true or false">
+  If set to true, destination address will be hidden in the UI.
+</ResponseField>
+
+<ResponseField name="lockAddress" type="true or false">
+  If set to true, the destination address will be locked for editing.
+</ResponseField>
+
+<ResponseField name="hideFrom" type="true or false">
+  If set to true, the source will be hidden in the UI.
+</ResponseField>
+
+<ResponseField name="lockFrom" type="true or false">
+  If set to true, the source will be locked for editing.
+</ResponseField>
+
+<ResponseField name="hideTo" type="true or false">
+  If set to true, the destination will be hidden in the UI.
+</ResponseField>
+
+<ResponseField name="lockTo" type="true or false">
+  If set to true, the destination will be locked for editing.
+</ResponseField>
+
+<ResponseField name="lockAsset" type="true or false">
+  If set to true, the asset will be locked for editing.
+</ResponseField>
+
+<ResponseField name="hideRefuel" type="true or false">
+  If set to true, refuel feature will be disabled and not shown in the UI.
+</ResponseField>
+
+<ResponseField name="clientId" type="string">
+  Clinet Id from partner setup. And if the destAddress parameter is provided, the Partner's logo will be shown next to the address.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Use to pre-fill the amount field. Users will still be able to change it in the UI. The parameter will be skipped if the asset parameter was not passed.
+</ResponseField>
+
+<ResponseField name="externalId" type="string">
+  A unique ID representing the user's transfer session in the partner's system. This can later be used to query the status of the transfer and will be included in the webhook notifications sent to the partner. Refer to the API Reference section to learn more.
+</ResponseField>
+
+<ResponseField name="account" type="string">
+  User account name or address that will be shown as a source. `hideFrom` should be set to true
+</ResponseField>
+
+<ResponseField name="actionButtonText" type="string">
+  Use to replace Swap now button text. For example, it can be changed to Deposit or Withdraw.
+</ResponseField>
