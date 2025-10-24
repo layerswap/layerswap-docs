@@ -3,10 +3,11 @@
   "theme": "mint",
   "name": "Layerswap Developer Portal",
   "colors": {
-    "primary": "#FF0093",
-    "light": "#FF0093",
-    "dark": "#FF0093"
+    "primary": "#CC2D5D",
+    "light": "#CC2D5D",
+    "dark": "#CC2D5D"
   },
+  "styles": ["./.mintlify/custom.css"],
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
@@ -24,7 +25,8 @@
             "group": "Integration",
             "pages": [
               "integration/UI",
-              "integration/API"
+              "integration/API",
+              "integration/UI/Widget/Quickstart"
             ]
           }
         ]

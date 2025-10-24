@@ -1,0 +1,13 @@
+/* .mintlify/custom.css */
+:root {
+    --background: linear-gradient(180deg, #070C17 0%, #171F31 100%);
+  }
+  
+  html,
+  body {
+    background: var(--background);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
