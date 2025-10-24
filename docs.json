@@ -7,7 +7,9 @@
     "light": "#CC2D5D",
     "dark": "#CC2D5D"
   },
-  "styles": ["./.mintlify/custom.css"],
+  "styles": [
+    "./.mintlify/custom.css"
+  ],
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
@@ -18,7 +20,7 @@
             "group": "About Layerswap",
             "pages": [
               "introduction",
-              "integrate"
+              "integration/integrate"
             ]
           }
         ]
@@ -52,7 +54,28 @@
           {
             "group": "Getting Started",
             "pages": [
-              "integration/UI/Widget/Quickstart"
+              "integration/UI/Widget/Quickstart",
+              "integration/UI/IFrame",
+              "integration/UI/Configurations"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              {
+                "group": "Event Callbacks",
+                "icon": "book-open",
+                "pages": [
+                  "integration/UI/Widget/EventCallbacks/EventsIntroduction",
+                  "integration/UI/Widget/EventCallbacks/onFormChange",
+                  "integration/UI/Widget/EventCallbacks/onSwapCreate",
+                  "integration/UI/Widget/EventCallbacks/onSwapComplete",
+                  "integration/UI/Widget/EventCallbacks/onSwapIdChange",
+                  "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
+                  "integration/UI/Widget/EventCallbacks/onBackClick",
+                  "integration/UI/Widget/EventCallbacks/onError"
+                ]
+              }
             ]
           }
         ]

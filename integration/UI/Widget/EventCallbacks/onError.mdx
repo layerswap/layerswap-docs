@@ -1,0 +1,26 @@
+---
+title: onError
+description: Triggered when an error occurs during the swap flow.
+---
+
+The `onError` event fires when the widget encounters an unexpected error — for example, during API calls or network failures.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onError: (error) => {
+      console.error("Swap error:", error)
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+error: {
+    //TODO
+}
+```

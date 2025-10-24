@@ -1,0 +1,26 @@
+---
+title: onSwapCreate
+description: Triggered when a new swap is created.
+---
+
+The `onSwapCreate` event is called when the user submits the form and a swap is successfully created through the API.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onSwapCreate: (swap) => {
+      console.log("Swap created:", swap)
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+SwapResponse: {
+    //TODO
+}
+```

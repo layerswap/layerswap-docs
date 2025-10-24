@@ -1,0 +1,24 @@
+---
+title: onSwapModalStateChange
+description: Triggered when the swap modal opens or closes.
+---
+
+The `onSwapModalStateChange` event fires whenever the Layerswap modal is opened or closed.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onSwapModalStateChange: (open) => {
+      console.log("Modal state:", open ? "open" : "closed")
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+open: boolean
+```

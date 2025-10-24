@@ -1,0 +1,22 @@
+---
+title: onBackClick
+description: Triggered when the user clicks the back button.
+---
+
+The `onBackClick` event fires when the user clicks the back button inside the widget.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onBackClick: () => {
+      console.log("User navigated back")
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+None

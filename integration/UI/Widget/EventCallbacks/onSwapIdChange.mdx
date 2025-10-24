@@ -1,0 +1,24 @@
+---
+title: onSwapIdChange
+description: Triggered whenever the active swap ID changes.
+---
+
+The `onSwapIdChange` event is called when the swap ID changes — for example, when a new swap is created or reset.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onSwapIdChange: (swapId) => {
+      console.log("Active swap ID:", swapId)
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+swapId: string
+```

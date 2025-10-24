@@ -1,0 +1,26 @@
+---
+title: onSwapComplete
+description: Triggered when a swap completes successfully.
+---
+
+The `onSwapComplete` event fires when a swap transitions to a **completed** state.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onSwapComplete: (swap) => {
+      console.log("Swap completed:", swap)
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+SwapResponse: {
+    //TODO
+}
+```

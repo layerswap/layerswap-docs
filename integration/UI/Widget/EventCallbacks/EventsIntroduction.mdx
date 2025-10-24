@@ -1,0 +1,31 @@
+---
+title: "Events Introduction"
+description: "Events are a way to listen for SDK events and run your own code at certain points."
+---
+
+You do not need to import anything extra to make use of event callbacks, instead simply add them using the events field inside the settings prop on [LayerswapProvider](/react-sdk/providers/dynamiccontextprovider).
+
+```jsx  theme={"system"}
+<LayerswapProvider
+    callbacks={{
+      // events callbacks go here
+    }}
+>
+  ...
+</LayerswapProvider>
+```
+
+
+[**onFormChange**](/integration/UI/Widget/EventCallbacks/onFormChange): Called whenever the swap form values change — for example, when the user updates the asset, amount, or destination network.
+
+[**onSwapCreate**](/integration/UI/Widget/EventCallbacks/onSwapCreate): Called when a new swap is successfully created after submitting the form.
+
+[**onSwapComplete**](/integration/UI/Widget/EventCallbacks/onSwapComplete): Called when a swap completes successfully on-chain or via an integrated exchange.
+
+[**onSwapIdChange**](/integration/UI/Widget/EventCallbacks/onSwapIdChange): Called whenever the active swap ID changes — for example, when a new swap is created or the current swap resets.
+
+[**onSwapModalStateChange**](/integration/UI/Widget/EventCallbacks/onSwapModalStateChange): Called when the swap modal is opened or closed.
+
+[**onBackClick**](/integration/UI/Widget/EventCallbacks/onBackClick): Called when the user clicks the back button in the swap flow.
+
+[**onError**](/integration/UI/Widget/EventCallbacks/onError): Called whenever an unexpected error occurs during the swap flow — such as network or API issues.
