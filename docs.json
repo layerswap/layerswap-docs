@@ -12,7 +12,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Overview",
         "groups": [
           {
             "group": "Layerswap Bridge",
@@ -25,14 +25,14 @@
             "group": "Integration",
             "pages": [
               "integration/UI",
-              "integration/API",
-              "integration/UI/Widget/Quickstart"
+              "integration/API"
             ]
           }
         ]
       },
       {
         "tab": "API Reference",
+        "hidden": true,
         "groups": [
           {
             "group": "Documentation",
@@ -52,7 +52,19 @@
         ]
       },
       {
+        "tab": "UI Integration",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "integration/UI/Widget/Quickstart"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
+        "hidden": true,
         "groups": [
           {
             "group": "Changelog",
