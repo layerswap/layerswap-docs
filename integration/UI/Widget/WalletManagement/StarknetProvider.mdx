@@ -1,0 +1,62 @@
+---
+title: "Starknet Wallet"
+description: "Short description"
+---
+
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { StarknetProvider } from "@layerswap/wallet-starknet"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[StarknetProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+### `StarknetProvider` object
+
+```TypeScript  theme={"system"}
+const StarknetProvider: WalletProvider = {
+    id: "starknet",
+    wrapper: StarknetProviderWrapper,
+    walletConnectionProvider: useStarknetConnection,
+    addressUtilsProvider: new StarknetAddressUtilsProvider(),
+    balanceProvider: new StarknetBalanceProvider(),
+    gasProvider: new StarknetGasProvider(),
+    nftProvider: new StarknetNftProvider(),
+}
+```
+
+The example below shows how to preconfigure a basic wallet management using custom implementation.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { StarknetProvider } from "@layerswap/wallet-starknet"
+import { useCustomStarknet } from "./useCustomStarknet"
+
+export const WidgetPage = () => {
+  const starknetProvider = {
+    ...StarknetProvider,
+    walletConnectionProvider: useCustomStarknet
+  }
+  
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[starknetProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+Implementation of useCustomStarknet you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

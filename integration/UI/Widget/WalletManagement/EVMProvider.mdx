@@ -1,0 +1,86 @@
+---
+title: "EVM Wallet"
+description: "Short description"
+---
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { EVMProvider } from "@layerswap/wallet-evm"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+### `EVMProvider` object
+
+```TypeScript  theme={"system"}
+const EVMProvider: WalletProvider = {
+    id: "evm",
+    wrapper: EVMProviderWrapper,
+    walletConnectionProvider: useEVMConnection,
+    addressUtilsProvider: [
+        new EVMAddressUtilsProvider()
+    ],
+    gasProvider: [
+        new EVMGasProvider(),
+        new LoopringGasProvider(),
+        new ZkSyncGasProvider()],
+    balanceProvider: [
+        new EVMBalanceProvider(),
+        new HyperliquidBalanceProvider(),
+        new LoopringBalanceProvider(),
+        new ZkSyncBalanceProvider()
+    ],
+}
+```
+
+
+The example below shows how to preconfigure a basic wallet management using Wagmi.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { EVMProvider } from "@layerswap/wallet-evm"
+import { createClient } from "viem";
+import { WagmiProvider, createConfig, http } from "wagmi";
+import { mainnet, arbitrum, optimism, scroll } from "wagmi/chains";
+import { injected } from "wagmi/connectors";
+import { useCustomEVM } from "./useCustomEVM"
+
+const wagmiConfig = createConfig({
+  chains: [mainnet, arbitrum, optimism, scroll],
+  connectors: [injected()],
+  client({ chain }) {
+    return createClient({ chain, transport: http() });
+  },
+});
+
+export const WidgetPage = () => {
+  const evmProvider = {
+    ...EVMProvider,
+    walletConnectionProvider: useCustomEVM
+  }
+  
+  return (
+    <WagmiProvider config={wagmiConfig} reconnectOnMount>
+      <LayerswapProvider 
+        configs={configs}
+        walletProviders={[evmProvider]}
+      >
+        <Swap/>
+      </LayerswapProvider>
+    </WagmiProvider>
+  );
+};
+```
+
+Implementation of useCustomEVM you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

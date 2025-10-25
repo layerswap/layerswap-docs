@@ -1,0 +1,62 @@
+---
+title: "SVM (Solana) Wallet"
+description: "Short description"
+---
+
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { SVMProvider } from "@layerswap/wallet-solana"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[SVMProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+### `SVMProvider` object
+
+```TypeScript  theme={"system"}
+const SVMProvider: WalletProvider = {
+    id: "solana",
+    wrapper: SVMProviderWrapper,
+    walletConnectionProvider: useSVMConnection,
+    addressUtilsProvider: new SolanaAddressUtilsProvider(),
+    balanceProvider: new SolanaBalanceProvider(),
+    gasProvider: new SolanaGasProvider(),
+}
+```
+
+The example below shows how to preconfigure a basic wallet management using custom implementation.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { SolanaPrSVMProviderovider } from "@layerswap/wallet-solana"
+import { useCustomSolana } from "./useCustomSolana"
+
+export const WidgetPage = () => {
+  const solanaProvider = {
+    ...SVMProvider,
+    walletConnectionProvider: useCustomSolana
+  }
+  
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[solanaProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+Implementation of useCustomSolana you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

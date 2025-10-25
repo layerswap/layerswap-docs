@@ -1,0 +1,62 @@
+---
+title: "Tron Wallet"
+description: "Short description"
+---
+
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { TronProvider } from "@layerswap/wallet-tron"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[TronProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+### `TronProvider` object
+
+```TypeScript  theme={"system"}
+const TronProvider: WalletProvider = {
+    id: "tron",
+    wrapper: TronProviderWrapper,
+    walletConnectionProvider: useTronConnection,
+    addressUtilsProvider: new TronAddressUtilsProvider(),
+    balanceProvider: new TronBalanceProvider(),
+    gasProvider: new TronGasProvider(),
+}
+```
+
+The example below shows how to preconfigure a basic wallet management using custom implementation.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { TronProvider } from "@layerswap/wallet-tron"
+import { useCustomTron } from "./useCustomTron"
+
+export const WidgetPage = () => {
+  const tronProvider = {
+    ...TronProvider,
+    walletConnectionProvider: useCustomTron
+  }
+  
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[tronProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+Implementation of useCustomTron you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

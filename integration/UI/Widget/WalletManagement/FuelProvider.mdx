@@ -1,0 +1,63 @@
+---
+title: "Fuel Wallet"
+description: "Short description"
+---
+
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { FuelProvider } from "@layerswap/wallet-fuel"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[FuelProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+### `FuelProvider` object
+
+```TypeScript  theme={"system"}
+const FuelProvider: WalletProvider = {
+    id: "fuel",
+    wrapper: FuelProviderWrapper,
+    walletConnectionProvider: useFuelConnection,
+    addressUtilsProvider: new FuelAddressUtilsProvider(),
+    balanceProvider: new FuelBalanceProvider(),
+    gasProvider: new FuelGasProvider(),
+}
+```
+
+
+The example below shows how to preconfigure a basic wallet management using custom implementation.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { FuelProvider } from "@layerswap/wallet-fuel"
+import { useCustomFuel } from "./useCustomFuel"
+
+export const WidgetPage = () => {
+  const fuelProvider = {
+    ...FuelProvider,
+    walletConnectionProvider: useCustomFuel
+  }
+  
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[fuelProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+Implementation of useCustomFuel you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

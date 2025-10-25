@@ -1,0 +1,61 @@
+---
+title: "Bitcoin Wallet"
+description: "Short description"
+---
+
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { BitcoinProvider } from "@layerswap/wallet-bitcoin"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[BitcoinProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+### `BitcoinProvider` object
+
+```TypeScript  theme={"system"}
+const BitcoinProvider: WalletProvider = {
+    id: "bitcoin",
+    wrapper: BitcoinProviderWrapper,
+    walletConnectionProvider: useBitcoinConnection,
+    addressUtilsProvider: new BitcoinAddressUtilsProvider(),
+    balanceProvider: new BitcoinBalanceProvider(),
+    gasProvider: new BitcoinGasProvider(),
+}
+```
+
+The example below shows how to preconfigure a basic wallet management using custom implementation.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { BitcoinProvider } from "@layerswap/wallet-bitcoin"
+import { useCustomBitcoin } from "./useCustomBitcoin"
+
+export const WidgetPage = () => {
+  const bitcoinProvider = {
+    ...BitcoinProvider,
+    walletConnectionProvider: useCustomBitcoin
+  }
+  
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[bitcoinProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+Implementation of useCustomBitcoin you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

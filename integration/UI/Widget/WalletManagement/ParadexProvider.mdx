@@ -1,0 +1,37 @@
+---
+title: "Paradex Wallet"
+description: "Short description"
+---
+
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { EVMProvider } from "@layerswap/wallet-evm";
+import { StarknetProvider } from "@layerswap/wallet-starknet";
+import { ParadexProvider } from "@layerswap/wallet-paradex";
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      configs={configs}
+      walletProviders={[EVMProvider, StarknetProvider, ParadexProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+<Note>ParadexProvider is dependant on EVMProvider and StarknetProvider</Note>
+
+### `ParadexProvider` object
+
+```TypeScript  theme={"system"}
+const ParadexProvider: WalletProvider = {
+    id: "paradex",
+    wrapper: ActiveParadexAccountProvider,
+    walletConnectionProvider: useParadexConnection,
+    balanceProvider: new ParadexBalanceProvider()
+}
+```
