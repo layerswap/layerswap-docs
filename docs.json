@@ -55,7 +55,7 @@
             "group": "Getting Started",
             "pages": [
               "integration/UI/Widget/Quickstart",
-              "integration/UI/IFrame",
+              "integration/UI/iFrame",
               "integration/UI/Configurations"
             ]
           },
