@@ -1,17 +1,16 @@
 ---
 title: "Widget Quickstart"
-description: "Interactive quick-start for the Layerswap Widget React SDK."
+description: "Interactive quick-start for the Layerswap Widget."
 ---
 
 export const QuickstartEmbed = () => {
   const [packageManager, setPackageManager] = useState('npm');
-  const [selectedWallets, setSelectedWallets] = useState(['EVM']);
+  const [selectedWallets, setSelectedWallets] = useState(['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex']);
   const [copiedInstall, setCopiedInstall] = useState(false);
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
   const PACKAGE_MANAGERS = ['npm', 'yarn', 'pnpm'];
   const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex'];
-
   const providerImportMap = {
     EVM: { import: 'EVMProvider', from: '@layerswap/wallet-evm', install: '@layerswap/wallet-evm wagmi viem @tanstack/react-query' },
     Starknet: { import: 'StarknetProvider', from: '@layerswap/wallet-starknet' },
@@ -52,9 +51,15 @@ export const QuickstartEmbed = () => {
     "export default function App() {",
     "  return (",
     "    <LayerswapProvider",
-    "      configs={{",
+    "      config={{",
     "        apiKey: 'YOUR_API_KEY',",
-    "        version: 'APP_VERSION' //'mainnet' or 'testnet'",
+    "        version: 'mainnet' //'mainnet' or 'testnet'",
+    "        initialSettings: {",
+    "           defaultTab='swap' //'swap' or 'cex'",    
+    "           to='IMMUTABLEZK_MAINNET'",    
+    "           toAsset='USDC'",    
+    "           destination_address='0x1234567890abcdef1234567890abcdef12345678'",    
+    "        }",    
     "      }}",
     `      walletProviders={[${providersArray}]},`,
     "    >",
@@ -146,24 +151,29 @@ export const QuickstartEmbed = () => {
       {/* Wallet Providers (multiselect) */}
       <div style={{ ...row, marginBottom: 8 }}>
         <span style={label}>Wallet providers:</span>
-        {WALLET_OPTIONS.map((w) => (
-          <label key={w} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <input
-              type="checkbox"
-              checked={selectedWallets.includes(w)}
-              onChange={() => toggleWallet(w)}
-            />
-            {w}
-          </label>
-        ))}
+        {WALLET_OPTIONS.map((w) => {
+          const isSelected = selectedWallets.includes(w);
+          return (
+            <button
+              key={w}
+              onClick={() => toggleWallet(w)}
+              style={{
+                padding: '0.35rem 0.65rem',
+                border: isSelected ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                background: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                color: isSelected ? '#818cf8' : '#a1a1aa',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: isSelected ? 600 : 400,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {w}
+            </button>
+          );
+        })}
       </div>
-
-      {/* Small helper note when Paradex is selected */}
-      {selectedWallets.includes('Paradex') && (
-        <div style={{ color: '#a1a1aa', fontSize: '0.85rem', marginBottom: 12 }}>
-          Paradex depends on <strong>EVM</strong> and <strong>Starknet</strong>. We’ve added them automatically.
-        </div>
-      )}
 
       {/* Install Command with Copy */}
       <div style={{ marginBottom: 12 }}>
@@ -195,17 +205,10 @@ export const QuickstartEmbed = () => {
 };
 
 <QuickstartEmbed />
-
-[**Zustand**](https://zustand.docs.pmnd.rs/getting-started/introduction) is a lightweight state management library for React applications.
-
-[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
-
-[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
-
-[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
+<Note>ParadexProvider is dependant on EVMProvider and StarknetProvider</Note>
 
 ### Configuration
 
-`YOUR_API_KEY` is used for accessing the widget and should be stored privately. You can generate and input it from the [**Dashboard**](https://layerswap.io/dashboard).
+`YOUR_API_KEY` is used for accessing the widget and should be stored privately. You can generate and input the [**API key**](/api-reference/api-keys) from the Partner Dashboard.
 
-//TODO Add link to all configurations
+For further adjustments, refer to the optional [configurations](/integration/UI/Configurations) list.

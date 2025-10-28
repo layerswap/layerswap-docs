@@ -13,7 +13,7 @@ import { SVMProvider } from "@layerswap/wallet-solana"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[SVMProvider]}
     >
       <Swap/>
@@ -50,7 +50,7 @@ export const WidgetPage = () => {
   
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[solanaProvider]}
     >
       <Swap/>

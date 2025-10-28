@@ -13,7 +13,7 @@ import { BitcoinProvider } from "@layerswap/wallet-bitcoin"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[BitcoinProvider]}
     >
       <Swap/>
@@ -49,7 +49,7 @@ export const WidgetPage = () => {
   
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[bitcoinProvider]}
     >
       <Swap/>

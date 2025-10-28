@@ -13,7 +13,7 @@ import { FuelProvider } from "@layerswap/wallet-fuel"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[FuelProvider]}
     >
       <Swap/>
@@ -51,7 +51,7 @@ export const WidgetPage = () => {
   
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[fuelProvider]}
     >
       <Swap/>

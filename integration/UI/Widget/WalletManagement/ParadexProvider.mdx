@@ -15,7 +15,7 @@ import { ParadexProvider } from "@layerswap/wallet-paradex";
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[EVMProvider, StarknetProvider, ParadexProvider]}
     >
       <Swap/>

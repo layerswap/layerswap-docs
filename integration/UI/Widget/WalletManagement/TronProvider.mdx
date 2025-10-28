@@ -13,7 +13,7 @@ import { TronProvider } from "@layerswap/wallet-tron"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[TronProvider]}
     >
       <Swap/>
@@ -50,7 +50,7 @@ export const WidgetPage = () => {
   
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[tronProvider]}
     >
       <Swap/>

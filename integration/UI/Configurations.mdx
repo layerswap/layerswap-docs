@@ -1,12 +1,10 @@
 ---
 title: "Configurations"
-description: "Description of your new file."
 ---
 
-### 
 
 <ResponseField name="defaultTab" type="swap | cex">
-  //TODO generate text
+  Set to swap or cex to switch between "Swap" and "Deposit from CEX" flows.
 </ResponseField>
 
 <ResponseField name="from" type="string">
@@ -18,11 +16,11 @@ description: "Description of your new file."
 </ResponseField>
 
 <ResponseField name="fromAsset" type="string">
-  The asset that you want to be preselected. NOTE: available assets depend on the selected network, for example, the asset IMX is only available in the IMMUTABLEX_MAINNET network.
+  The asset that you want to be preselected in the "From" field. NOTE: available assets depend on the selected network, for example, the asset IMX is only available in the IMMUTABLEX_MAINNET network.
 </ResponseField>
 
 <ResponseField name="toAsset" type="string">
-  The asset that you want to be preselected. NOTE: available assets depend on the selected network, for example, the asset IMX is only available in the IMMUTABLEX_MAINNET network.
+  The asset that you want to be preselected in the "To" field. NOTE: available assets depend on the selected network, for example, the asset IMX is only available in the IMMUTABLEX_MAINNET network.
 </ResponseField>
 
 <ResponseField name="amount" type="number">
@@ -54,11 +52,11 @@ description: "Description of your new file."
 </ResponseField>
 
 <ResponseField name="lockFromAsset" type="true or false">
-  If set to true, the asset will be locked for editing.
+  If set to true, the source asset will be locked for editing.
 </ResponseField>
 
 <ResponseField name="lockToAsset" type="true or false">
-  If set to true, the asset will be locked for editing.
+  If set to true, the destination asset will be locked for editing.
 </ResponseField>
 
 <ResponseField name="hideRefuel" type="true or false">
@@ -74,9 +72,9 @@ description: "Description of your new file."
 </ResponseField>
 
 <ResponseField name="account" type="string">
-  User account name or address that will be shown as a source. `hideFrom` should be set to true
+  User account name or address that will be shown as a source. hideFrom should be set to true
 </ResponseField>
 
 <ResponseField name="actionButtonText" type="string">
-  Use to replace Swap now button text. For example, it can be changed to Deposit or Withdraw.
+  Use to replace Swap now button text. For example, it can be changed to Deposit, Withdraw, Transfer or anything relevant to your app.
 </ResponseField>

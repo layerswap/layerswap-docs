@@ -13,7 +13,7 @@ import { StarknetProvider } from "@layerswap/wallet-starknet"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[StarknetProvider]}
     >
       <Swap/>
@@ -50,7 +50,7 @@ export const WidgetPage = () => {
   
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[starknetProvider]}
     >
       <Swap/>

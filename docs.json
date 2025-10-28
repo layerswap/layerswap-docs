@@ -20,31 +20,8 @@
             "group": "About Layerswap",
             "pages": [
               "introduction",
-              "integration/Integrate"
+              "Integrate"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "hidden": true,
-        "groups": [
-          {
-            "group": "Documentation",
-            "pages": [
-              "integration/API",
-              "api-reference/api-keys",
-              "api-reference/swap-lifecycle",
-              "api-reference/webhook",
-              "security"
-            ]
-          },
-          {
-            "group": "Endpoints",
-            "openapi": {
-              "source": "https://api.layerswap.io/swagger/v2/swagger.json",
-              "directory": "api-reference"
-            }
           }
         ]
       },
@@ -90,6 +67,28 @@
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Documentation",
+            "pages": [
+              "integration/API",
+              "api-reference/api-keys",
+              "api-reference/swap-lifecycle",
+              "api-reference/webhook",
+              "security"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": {
+              "source": "https://api.layerswap.io/swagger/v2/swagger.json",
+              "directory": "api-reference"
+            }
           }
         ]
       },

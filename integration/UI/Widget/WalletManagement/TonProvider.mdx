@@ -13,7 +13,7 @@ import { TonProvider } from "@layerswap/wallet-ton"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[TonProvider]}
     >
       <Swap/>
@@ -51,7 +51,7 @@ export const WidgetPage = () => {
   
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[tonProvider]}
     >
       <Swap/>

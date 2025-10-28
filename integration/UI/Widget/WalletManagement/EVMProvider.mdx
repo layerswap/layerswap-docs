@@ -12,7 +12,7 @@ import { EVMProvider } from "@layerswap/wallet-evm"
 export const WidgetPage = () => {
   return (
     <LayerswapProvider 
-      configs={configs}
+      config={config}
       walletProviders={[EVMProvider]}
     >
       <Swap/>
@@ -73,7 +73,7 @@ export const WidgetPage = () => {
   return (
     <WagmiProvider config={wagmiConfig} reconnectOnMount>
       <LayerswapProvider 
-        configs={configs}
+        config={config}
         walletProviders={[evmProvider]}
       >
         <Swap/>
