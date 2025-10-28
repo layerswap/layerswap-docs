@@ -63,7 +63,9 @@
                   "integration/UI/Widget/WalletManagement/FuelProvider",
                   "integration/UI/Widget/WalletManagement/TonProvider",
                   "integration/UI/Widget/WalletManagement/TronProvider",
-                  "integration/UI/Widget/WalletManagement/ParadexProvider"
+                  "integration/UI/Widget/WalletManagement/ParadexProvider",
+                  "integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
+                  "integration/UI/Widget/WalletManagement/ImmutableXProvider"
                 ]
               }
             ]

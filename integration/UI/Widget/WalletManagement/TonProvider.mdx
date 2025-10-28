@@ -1,8 +1,26 @@
 ---
 title: "Ton Wallet"
-description: "Short description"
 ---
 
+### Install Ton wallet package
+
+To get started, install the latest version of Ton package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-ton
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-ton
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-ton
+  ```
+</CodeGroup>
+
+### Basic example
 
 The example below shows how to preconfigure a basic wallet management with native widget package.
 
@@ -21,43 +39,3 @@ export const WidgetPage = () => {
   );
 };
 ```
-
-### `TonProvider` object
-
-```TypeScript  theme={"system"}
-const TonProvider: WalletProvider = {
-    id: "ton",
-    wrapper: TonProviderWrapper,
-    walletConnectionProvider: useTONConnection,
-    addressUtilsProvider: new TonAddressUtilsProvider(),
-    balanceProvider: new TonBalanceProvider(),
-    gasProvider: new TonGasProvider(),
-}
-```
-
-
-The example below shows how to preconfigure a basic wallet management using custom implementation.
-
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { TonProvider } from "@layerswap/wallet-ton"
-import { useCustomTon } from "./useCustomTon"
-
-export const WidgetPage = () => {
-  const tonProvider = {
-    ...TonProvider,
-    walletConnectionProvider: useCustomTon
-  }
-  
-  return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[tonProvider]}
-    >
-      <Swap/>
-    </LayerswapProvider>
-  );
-};
-```
-
-Implementation of useCustomTon you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.

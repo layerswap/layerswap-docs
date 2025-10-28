@@ -1,8 +1,34 @@
 ---
 title: "Paradex Wallet"
-description: "Short description"
 ---
 
+### Install EVM wallet package
+
+To get started, install the latest version of Paradex, EVM and Starknet packages.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-paradex @layerswap/wallet-evm @layerswap/wallet-starknet wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-paradex @layerswap/wallet-evm @layerswap/wallet-starknet wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-paradex @layerswap/wallet-evm @layerswap/wallet-starknet wagmi viem @tanstack/react-query
+  ```
+</CodeGroup>
+
+[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
+
+[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
+
+[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
+
+<Note>ParadexProvider is dependant on EVMProvider and StarknetProvider</Note>
+
+### Basic example
 
 The example below shows how to preconfigure a basic wallet management with native widget package.
 
@@ -22,16 +48,4 @@ export const WidgetPage = () => {
     </LayerswapProvider>
   );
 };
-```
-<Note>ParadexProvider is dependant on EVMProvider and StarknetProvider</Note>
-
-### `ParadexProvider` object
-
-```TypeScript  theme={"system"}
-const ParadexProvider: WalletProvider = {
-    id: "paradex",
-    wrapper: ActiveParadexAccountProvider,
-    walletConnectionProvider: useParadexConnection,
-    balanceProvider: new ParadexBalanceProvider()
-}
 ```

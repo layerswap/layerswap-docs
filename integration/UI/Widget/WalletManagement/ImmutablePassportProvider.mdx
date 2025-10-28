@@ -1,0 +1,110 @@
+---
+title: "Immutable Passport Wallet"
+---
+
+### Install Immutable Passport wallet package
+
+To get started, install the latest version of Immutable Passport and EVM packages.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+</CodeGroup>
+
+[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
+
+[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
+
+[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
+
+### Setting up Immutable Passport
+
+Before you can use Immutable Passport in your application, you need to create and configure your Passport credentials:
+
+1. Go to [https://hub.immutable.com/](https://hub.immutable.com/) and log in
+2. Create a new Passport configuration for your application
+3. Configure the `redirectUri` with the correct path where you'll create your redirect page
+   - This URI must match the path where you implement the `ImtblRedirectPage` component (shown in the example below)
+   - For example, if you set `redirectUri: "https://yourapp.com/imtbl-redirect"`, you need to create a page at that path that renders the `ImtblRedirectPage` component
+
+<Note>
+The redirect page is essential for the Immutable Passport authentication flow. Make sure the `redirectUri` in your Immutable Hub configuration exactly matches the path where you deploy the `ImtblRedirectPage` component.
+</Note>
+
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+<CodeGroup>
+```typescript WidgetPage.tsx theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { EVMProvider } from "@layerswap/wallet-evm"
+import { ImtblPassportProvider } from "@layerswap/wallet-imtbl-passport"
+import { imtblPassportConfigs } from "./configs"
+
+export const WidgetPage = () => {
+
+  return (
+    <LayerswapProvider 
+      config={{
+        imtblPassportConfigs
+      }}
+      walletProviders={[EVMProvider, ImtblPassportProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+
+```typescript ImtblRedirectPage.tsx theme={"system"}
+import { LayerswapProvider } from "@layerswap/widget";
+import { EVMProvider } from "@layerswap/wallet-evm"
+import { ImtblPassportProvider, ImtblRedirect } from "@layerswap/wallet-imtbl-passport"
+import { imtblPassportConfigs } from "./configs"
+
+export const ImtblRedirectPage = () => {
+
+  return (
+    <LayerswapProvider 
+      config={{
+        imtblPassportConfigs
+      }}
+      walletProviders={[EVMProvider, ImtblPassportProvider]}
+    >
+      <ImtblRedirect/>
+    </LayerswapProvider>
+  );
+};
+```
+
+```typescript configs.ts theme={"system"}
+export const imtblPassportConfigs = {
+    clientId: {YOUR_CLIENT_ID},
+    publishableKey: {YOUR_PUBLISHABE_KEY},
+    redirectUri: {REDIRECT_PAGE_URI},
+    logoutRedirectUri: {LOGOUT_REDIRECT_URI}
+}
+```
+</CodeGroup>
+
+### Immutable Passport configs
+
+```TypeScript  theme={"system"}
+imtblPassportConfigs: {
+    publishableKey: string,
+    clientId: string,
+    redirectUri: string,
+    logoutRedirectUri: string
+}
+```

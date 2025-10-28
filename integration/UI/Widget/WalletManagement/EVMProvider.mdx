@@ -1,7 +1,32 @@
 ---
 title: "EVM Wallet"
-description: "Short description"
 ---
+
+### Install EVM wallet package
+
+To get started, install the latest version of EVM package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+</CodeGroup>
+
+[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
+
+[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
+
+[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
+
+### Basic example
 
 The example below shows how to preconfigure a basic wallet management with native widget package.
 
@@ -10,9 +35,20 @@ import { LayerswapProvider, Swap } from "@layerswap/widget";
 import { EVMProvider } from "@layerswap/wallet-evm"
 
 export const WidgetPage = () => {
+
+  const walletConnect = {
+    projectId: {YOUR_PROJECT_ID},
+    name: {YOUR_APP_NAME},
+    description: {YOUR_APP_DESCRIPTION},
+    url: {YOUR_APP_URL},
+    icons: [{YOUR_LOGO_URL}],
+  }
+
   return (
     <LayerswapProvider 
-      config={config}
+      config={{
+        walletConnect
+      }}
       walletProviders={[EVMProvider]}
     >
       <Swap/>
@@ -20,67 +56,14 @@ export const WidgetPage = () => {
   );
 };
 ```
-
-### `EVMProvider` object
+### WalletConnect config
 
 ```TypeScript  theme={"system"}
-const EVMProvider: WalletProvider = {
-    id: "evm",
-    wrapper: EVMProviderWrapper,
-    walletConnectionProvider: useEVMConnection,
-    addressUtilsProvider: [
-        new EVMAddressUtilsProvider()
-    ],
-    gasProvider: [
-        new EVMGasProvider(),
-        new LoopringGasProvider(),
-        new ZkSyncGasProvider()],
-    balanceProvider: [
-        new EVMBalanceProvider(),
-        new HyperliquidBalanceProvider(),
-        new LoopringBalanceProvider(),
-        new ZkSyncBalanceProvider()
-    ],
+walletConnect: {
+  projectId: string
+  name: string
+  description: string
+  url: string
+  icons: string[]
 }
 ```
-
-
-The example below shows how to preconfigure a basic wallet management using Wagmi.
-
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { EVMProvider } from "@layerswap/wallet-evm"
-import { createClient } from "viem";
-import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet, arbitrum, optimism, scroll } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
-import { useCustomEVM } from "./useCustomEVM"
-
-const wagmiConfig = createConfig({
-  chains: [mainnet, arbitrum, optimism, scroll],
-  connectors: [injected()],
-  client({ chain }) {
-    return createClient({ chain, transport: http() });
-  },
-});
-
-export const WidgetPage = () => {
-  const evmProvider = {
-    ...EVMProvider,
-    walletConnectionProvider: useCustomEVM
-  }
-  
-  return (
-    <WagmiProvider config={wagmiConfig} reconnectOnMount>
-      <LayerswapProvider 
-        config={config}
-        walletProviders={[evmProvider]}
-      >
-        <Swap/>
-      </LayerswapProvider>
-    </WagmiProvider>
-  );
-};
-```
-
-Implementation of useCustomEVM you can see in our [**examples**](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples) folder.
