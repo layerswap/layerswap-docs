@@ -137,8 +137,8 @@
   },
   "seo": {
     "metatags": {
-      "og:title": "Layerswap | Cross-Chain Bridge",
-      "og:description": "Layerswap is a cross-chain bridge that enables users to swap assets across different blockchains.",
+      "og:title": "Layerswap Docs",
+      "og:description": "The Layerswap Widget and API are built to enable instant swapping and bridging across networks, directly within your app’s environment.",
       "og:logo": "/logo/dark.svg"
     },
     "indexing": "navigable"
@@ -171,10 +171,6 @@
           {
             "label": "App",
             "href": "https://layerswap.io/app"
-          },
-          {
-            "label": "Docs",
-            "href": "https://docs.layerswap.io"
           },
           {
             "label": "Explorer",
