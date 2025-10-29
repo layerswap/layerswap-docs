@@ -1,9 +1,7 @@
 ---
-title: "Immutable Integration Guide"
-description: "Complete guide for integrating Layerswap Widget with Immutable zkEVM and ImmutableX networks"
+title: "Layerswap Widget Integration Guide for Immuatable"
+description: "Complete guide for integrating and customizing the new version of Layerswap Widget"
 ---
-
-This guide provides everything you need to integrate Layerswap Widget for Immutable networks, including configuration examples, wallet setup, and best practices.
 
 ## Quick Start
 
@@ -12,24 +10,27 @@ This guide provides everything you need to integrate Layerswap Widget for Immuta
 Install the Layerswap Widget along with the necessary wallet providers for Immutable:
 
 <CodeGroup>
-  ```typescript npm
-  npm install @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
-  ```
 
-  ```typescript yarn
-  yarn add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
-  ```
+```typescript npm
+npm install @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+```
 
-  ```typescript pnpm
-  pnpm add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
-  ```
+
+```typescript yarn
+yarn add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+```
+
+
+```typescript pnpm
+pnpm add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+```
+
 </CodeGroup>
 
-### Basic Configuration
-
-Here's a complete example for integrating with Immutable zkEVM:
+### Initial Configuration
 
 <CodeGroup>
+
 ```typescript App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
@@ -44,11 +45,15 @@ export default function App() {
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet', // or 'testnet'
         initialSettings: {
-          defaultTab: 'swap', // or 'cex'
+		  // Set the default tab (swap or cex)
+          defaultTab: 'swap',
           to: 'IMMUTABLEZK_MAINNET',
+		  // Lock destination asset
           toAsset: 'USDC',
+		  // Lock destination to Immutable zkEVM and $USDC
           lockTo: true,
           lockToAsset: true,
+		  // Pre-fill destination address (optional)
           destination_address: '0x1234567890abcdef1234567890abcdef12345678',
         },
         imtblPassportConfigs
@@ -61,6 +66,7 @@ export default function App() {
 }
 ```
 
+
 ```typescript configs.ts
 export const imtblPassportConfigs = {
   clientId: 'YOUR_CLIENT_ID',
@@ -69,6 +75,7 @@ export const imtblPassportConfigs = {
   logoutRedirectUri: 'https://yourapp.com'
 };
 ```
+
 
 ```typescript ImtblRedirectPage.tsx
 import { LayerswapProvider } from '@layerswap/widget';
@@ -89,15 +96,16 @@ export const ImtblRedirectPage = () => {
   );
 };
 ```
+
 </CodeGroup>
 
 <Note>
   You need to generate an API key from the [Partner Dashboard](/api-reference/api-keys) to use the widget.
 </Note>
 
-## Network Configuration
+For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
 
-Layerswap supports both Immutable zkEVM and ImmutableX networks:
+## Network Configuration
 
 ### Immutable zkEVM (Mainnet)
 
@@ -132,45 +140,20 @@ initialSettings: {
 }
 ```
 
-## Initial Settings
-
-Configure the widget to provide the best user experience for your Immutable integration:
-
-### Recommended Configuration
-
-```typescript
-initialSettings: {
-  // Set the default tab (swap or cex)
-  defaultTab: 'swap',
-
-  // Lock destination to Immutable network
-  to: 'IMMUTABLEZK_MAINNET',
-  lockTo: true,
-  hideTo: false,
-
-  // Lock destination asset
-  toAsset: 'USDC',
-  lockToAsset: true,
-
-  // Pre-fill destination address (optional)
-  destAddress: '0x1234567890abcdef1234567890abcdef12345678',
-
-  // Customize action button text
-  actionButtonText: 'Deposit to Immutable'
-}
-```
-
-For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
-
 ## Theme Configuration
 
-Customize the widget's appearance to match Immutable's branding or your application's design:
+Customize the widget's appearance to match Immutable's branding:
 
 ### Immutable Theme
 
-Apply the official Immutable theme configuration for a consistent brand experience:
+Apply one of the configurations for Immutable theme:
+
+`themeConfigsNew.ts`: Immutable theme with transparent background, hidden menu and wallet icons
+
+`themeConfigsOld.ts`: Immutable theme without adjustments
 
 <CodeGroup>
+
 ```typescript App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
@@ -193,6 +176,7 @@ export default function App() {
   );
 }
 ```
+
 
 ```typescript themeConfigsNew.ts
 export const immutableTheme = {
@@ -240,11 +224,6 @@ export const immutableTheme = {
 export const immutableTheme = {
   tertiary: '182, 182, 182',
   buttonTextColor: '19, 19, 19',
-  header: {
-    hideMenu: true,
-    hideTabs: true,
-    hideWallets: true,
-  },
   primary: {
     DEFAULT: '243, 243, 243',
     '100': '255, 255, 255',
@@ -273,6 +252,7 @@ export const immutableTheme = {
   },
 };
 ```
+
 </CodeGroup>
 
 ### Theme Properties
@@ -299,6 +279,7 @@ export const immutableTheme = {
 
 <ResponseField name="header" type="object">
   Header visibility controls:
+
   - `hideMenu`: Hide the menu button
   - `hideTabs`: Hide navigation tabs
   - `hideWallets`: Hide wallet connection display
@@ -312,33 +293,28 @@ export const immutableTheme = {
 
 ### Immutable Passport
 
-Immutable Passport is the recommended wallet for Immutable zkEVM. It provides a seamless authentication experience with social logins.
-
 <Card title="Immutable Passport Setup" icon="passport" href="/integration/UI/Widget/WalletManagement/ImmutablePassportProvider">
-  Learn how to configure Immutable Passport, including setting up credentials at the Immutable Hub and implementing the redirect page.
+  Immutable Passport Provider configurations.
 </Card>
 
 ### ImmutableX Wallet
 
-For ImmutableX network support, include the ImmutableX wallet provider:
-
 <Card title="ImmutableX Wallet Setup" icon="wallet" href="/integration/UI/Widget/WalletManagement/ImmutableXProvider">
-  Learn how to integrate the ImmutableX wallet provider for Layer 2 trading and NFT functionality.
+  ImmutableX Wallet Provider configurations
 </Card>
 
 ### EVM Wallets
 
-The EVM provider enables support for MetaMask, WalletConnect, and other standard Ethereum wallets:
-
 <Card title="EVM Wallet Setup" icon="ethereum" href="/integration/UI/Widget/WalletManagement/EVMProvider">
-  Configure EVM wallet support for MetaMask, WalletConnect, Coinbase Wallet, and more.
+  EVM Wallets Provider configurations.
 </Card>
 
 ## Complete Example
 
-Here's a full implementation example for a game using Immutable zkEVM:
+Here's a full implementation example with Immutable theme, transparent background, hidden menu and wallet icons.
 
 <CodeGroup>
+
 ```typescript App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
@@ -419,6 +395,7 @@ export default function ImmutableDepositWidget() {
 }
 ```
 
+
 ```typescript configs.ts
 export const imtblPassportConfigs = {
   clientId: 'YOUR_IMMUTABLE_CLIENT_ID',
@@ -427,6 +404,7 @@ export const imtblPassportConfigs = {
   logoutRedirectUri: 'https://yourgame.com'
 };
 ```
+
 
 ```typescript ImtblRedirectPage.tsx
 import { LayerswapProvider } from '@layerswap/widget';
@@ -449,6 +427,7 @@ export default function ImmutableRedirectPage() {
   );
 }
 ```
+
 </CodeGroup>
 
 ## Testing
