@@ -44,7 +44,7 @@ export default function App() {
       config={{
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet', // or 'testnet'
-        initialSettings: {
+        initialValues: {
 		  // Set the default tab (swap or cex)
           defaultTab: 'swap',
           to: 'IMMUTABLEZK_MAINNET',
@@ -109,7 +109,7 @@ For a complete list of configuration options, see [Configurations](/integration/
 ### Immutable zkEVM (Mainnet)
 
 ```typescript
-initialSettings: {
+initialValues: {
   to: 'IMMUTABLEZK_MAINNET',
   toAsset: 'USDC', // or 'IMX', 'ETH', etc.
   lockTo: true,
@@ -119,7 +119,7 @@ initialSettings: {
 ### Immutable zkEVM (Testnet)
 
 ```typescript
-initialSettings: {
+initialValues: {
   to: 'IMMUTABLEZK_TESTNET',
   toAsset: 'USDC',
   lockTo: true,
@@ -129,7 +129,7 @@ initialSettings: {
 ### ImmutableX (Mainnet)
 
 ```typescript
-initialSettings: {
+initialValues: {
   to: 'IMMUTABLEX_MAINNET',
   toAsset: 'IMX', // or 'ETH', 'USDC', etc.
   lockTo: true,
@@ -368,7 +368,7 @@ export default function ImmutableDepositWidget() {
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet',
         theme: immutableTheme,
-        initialSettings: {
+        initialValues: {
           defaultTab: 'swap', //or 'cex'
           to: 'IMMUTABLEZK_MAINNET',
           lockTo: true,
@@ -435,7 +435,7 @@ Test your integration on testnet before going live:
 config={{
   apiKey: 'YOUR_TESTNET_API_KEY',
   version: 'testnet',
-  initialSettings: {
+  initialValues: {
     to: 'IMMUTABLEZK_TESTNET',
     toAsset: 'USDC'
   },
