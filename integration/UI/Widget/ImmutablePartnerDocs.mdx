@@ -12,31 +12,26 @@ Install the Layerswap Widget along with the necessary wallet providers for Immut
 <CodeGroup>
 
 ```typescript npm
-npm install @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+npm install @layerswap/widget zustand @layerswap/wallet-evm wagmi viem @tanstack/react-query
 ```
 
 
 ```typescript yarn
-yarn add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+yarn add @layerswap/widget zustand @layerswap/wallet-evm wagmi viem @tanstack/react-query
 ```
 
 
 ```typescript pnpm
-pnpm add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+pnpm add @layerswap/widget zustand @layerswap/wallet-evm wagmi viem @tanstack/react-query
 ```
 
 </CodeGroup>
 
 ### Initial Configuration
 
-<CodeGroup>
-
-```typescript App.tsx
+```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
-import { ImtblPassportProvider } from '@layerswap/wallet-imtbl-passport';
-import { ImmutableXProvider } from '@layerswap/wallet-imtbl-x';
-import { imtblPassportConfigs } from './configs';
 
 export default function App() {
   return (
@@ -51,13 +46,11 @@ export default function App() {
 		  // Lock destination asset
           toAsset: 'USDC',
 		  // Lock destination to Immutable zkEVM
-          lockTo: true,
+          lockTo: true
 		  // Pre-fill destination address (optional)
-          destination_address: '0x1234567890abcdef1234567890abcdef12345678',
         },
-        imtblPassportConfigs
       }}
-      walletProviders={[EVMProvider, ImtblPassportProvider, ImmutableXProvider]}
+      walletProviders={[EVMProvider]}
     >
       <Swap />
     </LayerswapProvider>
@@ -65,76 +58,11 @@ export default function App() {
 }
 ```
 
-
-```typescript configs.ts
-export const imtblPassportConfigs = {
-  clientId: 'YOUR_CLIENT_ID',
-  publishableKey: 'YOUR_PUBLISHABLE_KEY',
-  redirectUri: 'https://yourapp.com/imtbl-redirect',
-  logoutRedirectUri: 'https://yourapp.com'
-};
-```
-
-
-```typescript ImtblRedirectPage.tsx
-import { LayerswapProvider } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
-import { ImtblPassportProvider, ImtblRedirect } from '@layerswap/wallet-imtbl-passport';
-import { imtblPassportConfigs } from './configs';
-
-export const ImtblRedirectPage = () => {
-  return (
-    <LayerswapProvider
-      config={{
-        imtblPassportConfigs
-      }}
-      walletProviders={[EVMProvider, ImtblPassportProvider]}
-    >
-      <ImtblRedirect />
-    </LayerswapProvider>
-  );
-};
-```
-
-</CodeGroup>
-
 <Note>
   You need to generate an API key from the [Partner Dashboard](/api-reference/api-keys) to use the widget.
 </Note>
 
 For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
-
-## Network Configuration
-
-### Immutable zkEVM (Mainnet)
-
-```typescript
-initialSettings: {
-  to: 'IMMUTABLEZK_MAINNET',
-  toAsset: 'USDC', // or 'IMX', 'ETH', etc.
-  lockTo: true,
-}
-```
-
-### Immutable zkEVM (Testnet)
-
-```typescript
-initialSettings: {
-  to: 'IMMUTABLEZK_TESTNET',
-  toAsset: 'USDC',
-  lockTo: true,
-}
-```
-
-### ImmutableX (Mainnet)
-
-```typescript
-initialSettings: {
-  to: 'IMMUTABLEX_MAINNET',
-  toAsset: 'IMX', // or 'ETH', 'USDC', etc.
-  lockTo: true,
-}
-```
 
 ## Theme Configuration
 
@@ -153,8 +81,6 @@ Apply one of the configurations for Immutable theme:
 ```typescript App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
-import { ImtblPassportProvider } from '@layerswap/wallet-imtbl-passport';
-import { ImmutableXProvider } from '@layerswap/wallet-imtbl-x';
 import { immutableTheme } from './themeConfigsNew'; // or themeConfigsOld
 
 export default function App() {
@@ -165,7 +91,7 @@ export default function App() {
         ...config,
         theme: immutableTheme,
       }}
-      walletProviders={[EVMProvider, ImtblPassportProvider, ImmutableXProvider]}
+      walletProviders={[EVMProvider]}
     >
       <Swap />
     </LayerswapProvider>
@@ -309,8 +235,6 @@ export const immutableTheme = {
 
 Here's a full implementation example with Immutable theme, transparent background, hidden menu and wallet icons.
 
-<CodeGroup>
-
 ```typescript App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
@@ -390,41 +314,6 @@ export default function ImmutableDepositWidget() {
 }
 ```
 
-
-```typescript configs.ts
-export const imtblPassportConfigs = {
-  clientId: 'YOUR_IMMUTABLE_CLIENT_ID',
-  publishableKey: 'YOUR_IMMUTABLE_PUBLISHABLE_KEY',
-  redirectUri: 'https://yourgame.com/auth/imtbl-redirect',
-  logoutRedirectUri: 'https://yourgame.com'
-};
-```
-
-
-```typescript ImtblRedirectPage.tsx
-import { LayerswapProvider } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
-import { ImtblPassportProvider, ImtblRedirect } from '@layerswap/wallet-imtbl-passport';
-import { imtblPassportConfigs } from './configs';
-
-// This page must be accessible at the redirectUri path
-// e.g., https://yourgame.com/auth/imtbl-redirect
-export default function ImmutableRedirectPage() {
-  return (
-    <LayerswapProvider
-      config={{
-        imtblPassportConfigs
-      }}
-      walletProviders={[EVMProvider, ImtblPassportProvider]}
-    >
-      <ImtblRedirect />
-    </LayerswapProvider>
-  );
-}
-```
-
-</CodeGroup>
-
 ## Testing
 
 ### Testnet Configuration
@@ -432,18 +321,12 @@ export default function ImmutableRedirectPage() {
 Test your integration on testnet before going live:
 
 ```typescript
-config={{
+const config={
   apiKey: 'YOUR_TESTNET_API_KEY',
   version: 'testnet',
-  initialSettings: {
+  initialValues: {
     to: 'IMMUTABLEZK_TESTNET',
     toAsset: 'USDC'
   },
-  imtblPassportConfigs: {
-    clientId: 'YOUR_TESTNET_CLIENT_ID',
-    publishableKey: 'YOUR_TESTNET_PUBLISHABLE_KEY',
-    redirectUri: 'https://yourgame.com/auth/imtbl-redirect',
-    logoutRedirectUri: 'https://yourgame.com'
-  }
-}}
+}
 ```
