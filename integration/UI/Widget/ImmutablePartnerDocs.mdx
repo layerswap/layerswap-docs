@@ -68,6 +68,52 @@ For a complete list of configuration options, see [Configurations](/integration/
 This example only uses EVM networks.
 To enable support for more networks like Bitcoin, Solana, ImmutableX and others, install the respective packages of each network type and pass it to walletProviders. For more details see the [quickstart](/integration/UI/Widget/Quickstart).
 
+## Wagmi Configuration
+
+If your application already uses wagmi, you need to integrate Layerswap's network configurations with your existing wagmi setup. Use the `useSettings` hook to fetch Layerswap settings and the `useChainConfigs` hook to get chain configurations, then pass them to your wagmi config.
+
+```typescript
+import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
+import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
+import { createConfig, WagmiProvider } from "wagmi"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
+const queryClient = new QueryClient()
+
+const App = () => {
+  const apiKey = 'YOUR_API_KEY'
+  const { settings, loading } = useSettings(apiKey) // or you can use getSettings(apiKey) for server-side rendering
+  const { chains, transports } = useChainConfigs(settings.networks)
+
+  if (loading) return <WidgetLoading />
+
+  const wagmiConfig = createConfig({
+    chains,
+    transports,
+    connectors // Your configured connectors
+  })
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <LayerswapProvider
+          config={{
+            settings
+          }}
+          walletProviders={[EVMProvider]}
+        >
+          <Swap/>
+        </LayerswapProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+<Note>
+  This approach ensures that Layerswap's supported networks are properly configured in your wagmi instance, enabling seamless wallet connections and transactions.
+</Note>
+
 ## Theme Configuration
 
 Customize the widget's appearance to match Immutable's branding:
@@ -219,13 +265,56 @@ export const immutableTheme = {
 
 Here's a full implementation example with Immutable theme, transparent background, hidden menu and wallet icons.
 
+<CodeGroup>
 ```typescript App.tsx
-import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
-import { ImtblPassportProvider } from '@layerswap/wallet-imtbl-passport';
-import { ImmutableXProvider } from '@layerswap/wallet-imtbl-x';
-import { imtblPassportConfigs } from './configs';
+import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
+import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
+import { createConfig, WagmiProvider } from "wagmi"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { immutableTheme } from './themeConfigs'
 
+const queryClient = new QueryClient()
+
+export default function ImmutableDepositWidget() {
+  const apiKey = 'YOUR_API_KEY'
+
+  const { settings, loading } = useSettings(apiKey) // or you can use getSettings(apiKey) for server-side rendering
+  const { chains, transports } = useChainConfigs(settings.networks)
+
+  if (loading) return <WidgetLoading />
+
+  const wagmiConfig = createConfig({
+    chains,
+    transports,
+    connectors // Your configured connectors
+  })
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <LayerswapProvider
+          config={{
+            apiKey: apiKey,
+            version: 'mainnet',
+            theme: immutableTheme,
+            initialSettings: {
+              defaultTab: 'swap', //or 'cex'
+              to: 'IMMUTABLEZK_MAINNET',
+              lockTo: true,
+              toAsset: 'USDC',
+              actionButtonText: 'Deposit to Immutable',
+            },
+          }}
+          walletProviders={[EVMProvider]}
+        >
+          <Swap />
+        </LayerswapProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}
+```
+```typescript themeConfigs.ts
 // Immutable theme configuration
 const immutableTheme = {
   tertiary: '182, 182, 182',
@@ -265,39 +354,8 @@ const immutableTheme = {
     'text': '182, 182, 182',
   },
 };
-
-export default function ImmutableDepositWidget() {
-  // Get user's game wallet address
-  const userGameWallet = '0x1234567890abcdef1234567890abcdef12345678';
-
-  return (
-    <LayerswapProvider
-      config={{
-        apiKey: 'YOUR_API_KEY',
-        version: 'mainnet',
-        theme: immutableTheme,
-        initialSettings: {
-          defaultTab: 'swap', //or 'cex'
-          to: 'IMMUTABLEZK_MAINNET',
-          lockTo: true,
-          toAsset: 'USDC',
-          destAddress: userGameWallet,
-          actionButtonText: 'Deposit to Immutable',
-        },
-        imtblPassportConfigs
-      }}
-      walletProviders={[
-        EVMProvider,
-        ImtblPassportProvider,
-        ImmutableXProvider
-      ]}
-    >
-      <Swap />
-    </LayerswapProvider>
-  );
-}
 ```
-
+</CodeGroup>
 ## Testing
 
 ### Testnet Configuration

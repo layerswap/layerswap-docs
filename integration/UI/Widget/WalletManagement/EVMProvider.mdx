@@ -67,3 +67,49 @@ walletConnect: {
   icons: string[]
 }
 ```
+
+## Wagmi Configuration
+
+If your application already uses wagmi, you need to integrate Layerswap's network configurations with your existing wagmi setup. Use the `useSettings` hook to fetch Layerswap settings and the `useChainConfigs` hook to get chain configurations, then pass them to your wagmi config.
+
+```typescript
+import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
+import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
+import { createConfig, WagmiProvider } from "wagmi"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
+const queryClient = new QueryClient()
+
+const App = () => {
+  const apiKey = 'YOUR_API_KEY'
+  const { settings, loading } = useSettings(apiKey) // or you can use getSettings(apiKey) for server-side rendering
+  const { chains, transports } = useChainConfigs(settings.networks)
+
+  if (loading) return <WidgetLoading />
+
+  const wagmiConfig = createConfig({
+    chains,
+    transports,
+    connectors // Your configured connectors
+  })
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <LayerswapProvider
+          config={{
+            settings
+          }}
+          walletProviders={[EVMProvider]}
+        >
+          <Swap/>
+        </LayerswapProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+<Note>
+  This approach ensures that Layerswap's supported networks are properly configured in your wagmi instance, enabling seamless wallet connections and transactions.
+</Note>
