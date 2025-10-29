@@ -1,0 +1,43 @@
+---
+title: "Bitcoin Wallet"
+---
+
+### Install Bitcoin wallet package
+
+To get started, install the latest version of Bitcoin package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-bitcoin @bigmi/client @bigmi/core @bigmi/react
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-bitcoin @bigmi/client @bigmi/core @bigmi/react
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-bitcoin @bigmi/client @bigmi/core @bigmi/react
+  ```
+</CodeGroup>
+
+[Bigmi](https://github.com/lifinance/bigmi) is modular TypeScript library that provides reactive primitives for building Bitcoin applications.
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { BitcoinProvider } from "@layerswap/wallet-bitcoin"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      config={config}
+      walletProviders={[BitcoinProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```

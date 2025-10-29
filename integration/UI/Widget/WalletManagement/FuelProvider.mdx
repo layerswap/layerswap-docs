@@ -1,0 +1,41 @@
+---
+title: "Fuel Wallet"
+---
+
+### Install Fuel wallet package
+
+To get started, install the latest version of Fuel package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-fuel
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-fuel
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-fuel
+  ```
+</CodeGroup>
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { FuelProvider } from "@layerswap/wallet-fuel"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      config={config}
+      walletProviders={[FuelProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```

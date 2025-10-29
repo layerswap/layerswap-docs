@@ -1,0 +1,41 @@
+---
+title: "Starknet Wallet"
+---
+
+### Install Starknet wallet package
+
+To get started, install the latest version of Starknet package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-starknet
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-starknet
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-starknet
+  ```
+</CodeGroup>
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { StarknetProvider } from "@layerswap/wallet-starknet"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      config={config}
+      walletProviders={[StarknetProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```

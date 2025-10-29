@@ -1,0 +1,41 @@
+---
+title: "ImmutableX Wallet"
+---
+
+### Install ImmutableX wallet package
+
+To get started, install the latest version of ImmutableX package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-imtbl-x
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-imtbl-x
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-imtbl-x
+  ```
+</CodeGroup>
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { ImmutableXProvider } from "@layerswap/wallet-imtbl-x"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      config={config}
+      walletProviders={[ImmutableXProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```

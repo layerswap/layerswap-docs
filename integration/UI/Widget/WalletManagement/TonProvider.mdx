@@ -1,0 +1,41 @@
+---
+title: "Ton Wallet"
+---
+
+### Install Ton wallet package
+
+To get started, install the latest version of Ton package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-ton
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-ton
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-ton
+  ```
+</CodeGroup>
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { TonProvider } from "@layerswap/wallet-ton"
+
+export const WidgetPage = () => {
+  return (
+    <LayerswapProvider 
+      config={config}
+      walletProviders={[TonProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```

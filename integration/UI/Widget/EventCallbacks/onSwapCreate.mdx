@@ -1,0 +1,208 @@
+---
+title: onSwapCreate
+description: Triggered when a new swap is created.
+---
+
+The `onSwapCreate` event is called when the user submits the form and a swap is successfully created through the API.
+
+```tsx
+<LayerswapProvider
+  callbacks={{
+    onSwapCreate: (swap: SwapResponse) => {
+      console.log("Swap created:", swap)
+    },
+  }}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+type SwapResponse = {
+  deposit_actions?: DepositAction[];
+  swap: SwapItem;
+  quote: SwapQuote
+  refuel?: Refuel,
+}
+```
+
+```TypeScript  theme={"system"}
+type DepositAction = {
+  amount: number,
+  amount_in_base_units: string,
+  call_data: string,
+  fee: number | null,
+  network: Network,
+  order: number,
+  to_address?: string,
+  token: Token,
+  fee_token: Token,
+  type: 'transfer' | 'manual_transfer',
+}
+```
+
+```TypeScript  theme={"system"}
+type SwapItem = {
+  id: string,
+  created_date: string,
+  source_network: Network,
+  source_token: Token,
+  source_exchange?: Exchange,
+  destination_network: Network,
+  destination_token: Token,
+  destination_address: string,
+  requested_amount: number,
+  use_deposit_address: boolean
+  status: SwapStatus,
+  transactions: Transaction[]
+  exchange_account_connected: boolean;
+  exchange_account_name?: string;
+  fail_reason?: string;
+  metadata: {
+      reference_id: string | null;
+      app: string | null;
+      sequence_number: number
+  },
+  destination_exchange?: Exchange,
+}
+
+enum SwapStatus {
+  Created = 'created',
+  
+  UserTransferPending= 'user_transfer_pending',
+  UserTransferDelayed = 'user_transfer_delayed',
+  LsTransferPending = "ls_transfer_pending",
+  Completed = 'completed',
+  Failed = 'failed',
+  Expired = "expired",
+  Cancelled = "cancelled",
+  PendingRefund = "pending_refund",
+  Refunded = "refunded",
+}
+
+type Transaction = {
+  type: TransactionType,
+  from: string,
+  to: string,
+  created_date: string,
+  amount: number,
+  transaction_hash: string,
+  confirmations: number,
+  max_confirmations: number,
+  usd_value: number,
+  usd_price: number,
+  status: BackendTransactionStatus,
+  fee_amount?: number | null,
+  fee_token?: Token,
+  timestamp?: string,
+}
+
+enum TransactionType {
+  Input = 'input',
+  Output = 'output',
+  Refuel = 'refuel',
+  Refund = 'refund'
+}
+
+enum BackendTransactionStatus {
+  Completed = 'completed',
+  Failed = 'failed',
+  Initiated = 'initiated',
+  Pending = 'pending'
+}
+
+```
+
+```TypeScript  theme={"system"}
+type Network = {
+  name: string;
+  display_name: string;
+  logo: string;
+  chain_id: string | null;
+  node_url: string;
+  type: NetworkType;
+  transaction_explorer_template: string;
+  account_explorer_template: string;
+  metadata?: Metadata;
+  deposit_methods: string[]
+  token?: Token
+  source_rank?: number | null;
+  destination_rank?: number | null;
+}
+
+enum NetworkType {
+  EVM = "evm",
+  Starknet = "starknet",
+  Solana = "solana",
+  Cosmos = "cosmos",
+  StarkEx = "starkex",
+  ZkSyncLite = "zksynclite",
+  TON = 'ton',
+  Fuel = 'fuel',
+  Bitcoin = 'bitcoin'
+}
+
+type Metadata = {
+  evm_oracle_contract?: string | null
+  evm_multicall_contract?: string | null
+  listing_date: string
+  zks_paymaster_contract?: string | null
+  watchdog_contract?: string | null
+}
+
+type Token = {
+  symbol: string;
+  display_asset?: string
+  logo: string;
+  contract: string | null;
+  decimals: number;
+  price_in_usd: number;
+  precision: number;
+  listing_date: string;
+  status?: 'active' | 'inactive' | 'not_found';
+  source_rank?: number | null;
+  destination_rank?: number | null;
+}
+
+type Exchange = {
+  display_name: string;
+  name: string;
+  logo: string;
+}
+
+type ExchangeNetwork = {
+  token: Token;
+  network: Network;
+}
+```
+
+```TypeScript  theme={"system"}
+type SwapQuote = {
+  source_network?: Network,
+  source_token?: Token,
+  destination_network?: Network,
+  destination_token?: Token,
+  requested_amount?: number
+  receive_amount: number,
+  min_receive_amount: number,
+  fee_discount?: number
+  total_fee: number,
+  total_fee_in_usd: number,
+  blockchain_fee: number,
+  service_fee: number,
+  avg_completion_time: string,
+  refuel_in_source?: number,
+  slippage?: number,
+}
+```
+
+```TypeScript  theme={"system"}
+type Refuel = {
+  network: Network
+  token: Token,
+  amount: number,
+  amount_in_usd: number
+}
+```

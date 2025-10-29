@@ -1,0 +1,69 @@
+---
+title: "EVM Wallet"
+---
+
+### Install EVM wallet package
+
+To get started, install the latest version of EVM package.
+
+<CodeGroup>
+  ```typescript yarn theme={"system"}
+  yarn add @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript pnpm theme={"system"}
+  pnpm add @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript npm theme={"system"}
+  npm install @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+</CodeGroup>
+
+[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
+
+[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
+
+[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
+
+### Basic example
+
+The example below shows how to preconfigure a basic wallet management with native widget package.
+
+```typescript  theme={"system"}
+import { LayerswapProvider, Swap } from "@layerswap/widget";
+import { EVMProvider } from "@layerswap/wallet-evm"
+
+export const WidgetPage = () => {
+
+  const walletConnect = {
+    projectId: {YOUR_PROJECT_ID},
+    name: {YOUR_APP_NAME},
+    description: {YOUR_APP_DESCRIPTION},
+    url: {YOUR_APP_URL},
+    icons: [{YOUR_LOGO_URL}],
+  }
+
+  return (
+    <LayerswapProvider 
+      config={{
+        walletConnect
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap/>
+    </LayerswapProvider>
+  );
+};
+```
+### WalletConnect config
+
+```TypeScript  theme={"system"}
+walletConnect: {
+  projectId: string
+  name: string
+  description: string
+  url: string
+  icons: string[]
+}
+```

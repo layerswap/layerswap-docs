@@ -1,30 +1,69 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "willow",
   "name": "Layerswap Developer Portal",
   "colors": {
-    "primary": "#FF0093",
-    "light": "#FF0093",
-    "dark": "#FF0093"
+    "primary": "#CC2D5D",
+    "light": "#CC2D5D",
+    "dark": "#CC2D5D"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Overview",
         "groups": [
           {
-            "group": "Layerswap Bridge",
+            "group": "About Layerswap",
             "pages": [
               "introduction",
-              "security"
+              "Integrate"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "UI Integration",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "integration/UI/Widget/Quickstart",
+              "integration/UI/iFrame",
+              "integration/UI/Configurations"
             ]
           },
           {
-            "group": "Integration",
+            "group": "Advanced",
             "pages": [
-              "integration/UI",
-              "integration/API"
+              {
+                "group": "Event Callbacks",
+                "pages": [
+                  "integration/UI/Widget/EventCallbacks/EventsIntroduction",
+                  "integration/UI/Widget/EventCallbacks/onFormChange",
+                  "integration/UI/Widget/EventCallbacks/onSwapCreate",
+                  "integration/UI/Widget/EventCallbacks/onSwapComplete",
+                  "integration/UI/Widget/EventCallbacks/onSwapIdChange",
+                  "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
+                  "integration/UI/Widget/EventCallbacks/onBackClick"
+                ]
+              },
+              {
+                "group": "Wallets",
+                "pages": [
+                  "integration/UI/Widget/WalletManagement/WalletManagement",
+                  "integration/UI/Widget/WalletManagement/EVMProvider",
+                  "integration/UI/Widget/WalletManagement/BitcoinProvider",
+                  "integration/UI/Widget/WalletManagement/SolanaProvider",
+                  "integration/UI/Widget/WalletManagement/StarknetProvider",
+                  "integration/UI/Widget/WalletManagement/FuelProvider",
+                  "integration/UI/Widget/WalletManagement/TonProvider",
+                  "integration/UI/Widget/WalletManagement/TronProvider",
+                  "integration/UI/Widget/WalletManagement/ParadexProvider",
+                  "integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
+                  "integration/UI/Widget/WalletManagement/ImmutableXProvider"
+                ]
+              }
             ]
           }
         ]
@@ -35,9 +74,11 @@
           {
             "group": "Documentation",
             "pages": [
+              "integration/API",
               "api-reference/api-keys",
               "api-reference/swap-lifecycle",
-              "api-reference/webhook"
+              "api-reference/webhook",
+              "security"
             ]
           },
           {
@@ -51,6 +92,7 @@
       },
       {
         "tab": "Changelog",
+        "hidden": true,
         "groups": [
           {
             "group": "Changelog",
