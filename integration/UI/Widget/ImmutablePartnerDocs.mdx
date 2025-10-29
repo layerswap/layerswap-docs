@@ -64,6 +64,10 @@ export default function App() {
 
 For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
 
+### More network types
+This example only uses EVM networks.
+To enable support for more networks like Bitcoin, Solana, TON and others, install the respective packages of each network type and pass it to walletProviders. For more details see the [quickstart](/integration/UI/Widget/Quickstart).
+
 ## Theme Configuration
 
 Customize the widget's appearance to match Immutable's branding:
@@ -210,26 +214,6 @@ export const immutableTheme = {
 <Note>
   All colors use RGB format without the `rgb()` wrapper (e.g., '243, 243, 243' instead of 'rgb(243, 243, 243)'). The widget internally applies the appropriate formatting.
 </Note>
-
-## Wallet Integration
-
-### Immutable Passport
-
-<Card title="Immutable Passport Setup" icon="passport" href="/integration/UI/Widget/WalletManagement/ImmutablePassportProvider">
-  Immutable Passport Provider configurations.
-</Card>
-
-### ImmutableX Wallet
-
-<Card title="ImmutableX Wallet Setup" icon="wallet" href="/integration/UI/Widget/WalletManagement/ImmutableXProvider">
-  ImmutableX Wallet Provider configurations
-</Card>
-
-### EVM Wallets
-
-<Card title="EVM Wallet Setup" icon="ethereum" href="/integration/UI/Widget/WalletManagement/EVMProvider">
-  EVM Wallets Provider configurations.
-</Card>
 
 ## Complete Example
 
