@@ -52,7 +52,6 @@ export default function App() {
           toAsset: 'USDC',
 		  // Lock destination to Immutable zkEVM and $USDC
           lockTo: true,
-          lockToAsset: true,
 		  // Pre-fill destination address (optional)
           destination_address: '0x1234567890abcdef1234567890abcdef12345678',
         },
@@ -114,7 +113,6 @@ initialSettings: {
   to: 'IMMUTABLEZK_MAINNET',
   toAsset: 'USDC', // or 'IMX', 'ETH', etc.
   lockTo: true,
-  lockToAsset: true
 }
 ```
 
@@ -125,7 +123,6 @@ initialSettings: {
   to: 'IMMUTABLEZK_TESTNET',
   toAsset: 'USDC',
   lockTo: true,
-  lockToAsset: true
 }
 ```
 
@@ -136,7 +133,6 @@ initialSettings: {
   to: 'IMMUTABLEX_MAINNET',
   toAsset: 'IMX', // or 'ETH', 'USDC', etc.
   lockTo: true,
-  lockToAsset: true
 }
 ```
 
@@ -377,7 +373,6 @@ export default function ImmutableDepositWidget() {
           to: 'IMMUTABLEZK_MAINNET',
           lockTo: true,
           toAsset: 'USDC',
-          lockToAsset: true,
           destAddress: userGameWallet,
           actionButtonText: 'Deposit to Immutable',
         },
