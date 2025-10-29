@@ -112,19 +112,31 @@ export const QuickstartEmbed = () => {
   };
 
   // --- Wallet selection logic
-  // If user selects Paradex, auto-include EVM and Starknet as well.
-  const ensureParadexDeps = (list) => {
-    if (list.includes('Paradex')) {
-      const withDeps = new Set(list.concat(['EVM', 'Starknet']));
-      return Array.from(withDeps);
-    }
-    return list;
-  };
-
+  // Paradex requires both EVM and Starknet as dependencies
   const toggleWallet = (key) => {
     const has = selectedWallets.includes(key);
-    const base = has ? selectedWallets.filter(w => w !== key) : [...selectedWallets, key];
-    setSelectedWallets(ensureParadexDeps(base));
+    let newSelection;
+
+    if (has) {
+      // Deselecting a wallet
+      newSelection = selectedWallets.filter(w => w !== key);
+
+      // If deselecting EVM or Starknet, also remove Paradex since it depends on both
+      if ((key === 'EVM' || key === 'Starknet') && selectedWallets.includes('Paradex')) {
+        newSelection = newSelection.filter(w => w !== 'Paradex');
+      }
+    } else {
+      // Selecting a wallet
+      newSelection = [...selectedWallets, key];
+
+      // If selecting Paradex, auto-include its dependencies (EVM and Starknet)
+      if (key === 'Paradex') {
+        const withDeps = new Set(newSelection.concat(['EVM', 'Starknet']));
+        newSelection = Array.from(withDeps);
+      }
+    }
+
+    setSelectedWallets(newSelection);
   };
 
   return (
@@ -159,9 +171,9 @@ export const QuickstartEmbed = () => {
               onClick={() => toggleWallet(w)}
               style={{
                 padding: '0.35rem 0.65rem',
-                border: isSelected ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid rgba(255,255,255,0.12)',
-                background: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                color: isSelected ? '#818cf8' : '#a1a1aa',
+                border: isSelected ? '1px solid rgba(204, 45, 93, 0.5)' : '1px solid rgba(255,255,255,0.12)',
+                background: isSelected ? 'rgba(204, 45, 93, 0.15)' : 'transparent',
+                color: isSelected ? '#f2f2f2' : '#a1a1aa',
                 borderRadius: 8,
                 cursor: 'pointer',
                 fontSize: '0.875rem',
@@ -205,6 +217,9 @@ export const QuickstartEmbed = () => {
 };
 
 <QuickstartEmbed />
+
+[**Zustand**](https://zustand.docs.pmnd.rs/getting-started/introduction) is a lightweight state management library for React applications.
+
 <Note>ParadexProvider is dependant on EVMProvider and StarknetProvider</Note>
 
 ### Configuration

@@ -7,9 +7,6 @@
     "light": "#CC2D5D",
     "dark": "#CC2D5D"
   },
-  "styles": [
-    "./.mintlify/custom.css"
-  ],
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
@@ -48,8 +45,7 @@
                   "integration/UI/Widget/EventCallbacks/onSwapComplete",
                   "integration/UI/Widget/EventCallbacks/onSwapIdChange",
                   "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
-                  "integration/UI/Widget/EventCallbacks/onBackClick",
-                  "integration/UI/Widget/EventCallbacks/onError"
+                  "integration/UI/Widget/EventCallbacks/onBackClick"
                 ]
               },
               {

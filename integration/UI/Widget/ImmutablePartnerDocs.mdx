@@ -1,0 +1,475 @@
+---
+title: "Immutable Integration Guide"
+description: "Complete guide for integrating Layerswap Widget with Immutable zkEVM and ImmutableX networks"
+---
+
+This guide provides everything you need to integrate Layerswap Widget for Immutable networks, including configuration examples, wallet setup, and best practices.
+
+## Quick Start
+
+### Installation
+
+Install the Layerswap Widget along with the necessary wallet providers for Immutable:
+
+<CodeGroup>
+  ```typescript npm
+  npm install @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript yarn
+  yarn add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+  ```
+
+  ```typescript pnpm
+  pnpm add @layerswap/widget zustand @layerswap/wallet-evm @layerswap/wallet-imtbl-passport @layerswap/wallet-imtbl-x wagmi viem @tanstack/react-query
+  ```
+</CodeGroup>
+
+### Basic Configuration
+
+Here's a complete example for integrating with Immutable zkEVM:
+
+<CodeGroup>
+```typescript App.tsx
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { ImtblPassportProvider } from '@layerswap/wallet-imtbl-passport';
+import { ImmutableXProvider } from '@layerswap/wallet-imtbl-x';
+import { imtblPassportConfigs } from './configs';
+
+export default function App() {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet', // or 'testnet'
+        initialSettings: {
+          defaultTab: 'swap', // or 'cex'
+          to: 'IMMUTABLEZK_MAINNET',
+          toAsset: 'USDC',
+          lockTo: true,
+          lockToAsset: true,
+          destination_address: '0x1234567890abcdef1234567890abcdef12345678',
+        },
+        imtblPassportConfigs
+      }}
+      walletProviders={[EVMProvider, ImtblPassportProvider, ImmutableXProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+```typescript configs.ts
+export const imtblPassportConfigs = {
+  clientId: 'YOUR_CLIENT_ID',
+  publishableKey: 'YOUR_PUBLISHABLE_KEY',
+  redirectUri: 'https://yourapp.com/imtbl-redirect',
+  logoutRedirectUri: 'https://yourapp.com'
+};
+```
+
+```typescript ImtblRedirectPage.tsx
+import { LayerswapProvider } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { ImtblPassportProvider, ImtblRedirect } from '@layerswap/wallet-imtbl-passport';
+import { imtblPassportConfigs } from './configs';
+
+export const ImtblRedirectPage = () => {
+  return (
+    <LayerswapProvider
+      config={{
+        imtblPassportConfigs
+      }}
+      walletProviders={[EVMProvider, ImtblPassportProvider]}
+    >
+      <ImtblRedirect />
+    </LayerswapProvider>
+  );
+};
+```
+</CodeGroup>
+
+<Note>
+  You need to generate an API key from the [Partner Dashboard](/api-reference/api-keys) to use the widget.
+</Note>
+
+## Network Configuration
+
+Layerswap supports both Immutable zkEVM and ImmutableX networks:
+
+### Immutable zkEVM (Mainnet)
+
+```typescript
+initialSettings: {
+  to: 'IMMUTABLEZK_MAINNET',
+  toAsset: 'USDC', // or 'IMX', 'ETH', etc.
+  lockTo: true,
+  lockToAsset: true
+}
+```
+
+### Immutable zkEVM (Testnet)
+
+```typescript
+initialSettings: {
+  to: 'IMMUTABLEZK_TESTNET',
+  toAsset: 'USDC',
+  lockTo: true,
+  lockToAsset: true
+}
+```
+
+### ImmutableX (Mainnet)
+
+```typescript
+initialSettings: {
+  to: 'IMMUTABLEX_MAINNET',
+  toAsset: 'IMX', // or 'ETH', 'USDC', etc.
+  lockTo: true,
+  lockToAsset: true
+}
+```
+
+## Initial Settings
+
+Configure the widget to provide the best user experience for your Immutable integration:
+
+### Recommended Configuration
+
+```typescript
+initialSettings: {
+  // Set the default tab (swap or cex)
+  defaultTab: 'swap',
+
+  // Lock destination to Immutable network
+  to: 'IMMUTABLEZK_MAINNET',
+  lockTo: true,
+  hideTo: false,
+
+  // Lock destination asset
+  toAsset: 'USDC',
+  lockToAsset: true,
+
+  // Pre-fill destination address (optional)
+  destAddress: '0x1234567890abcdef1234567890abcdef12345678',
+
+  // Customize action button text
+  actionButtonText: 'Deposit to Immutable'
+}
+```
+
+For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
+
+## Theme Configuration
+
+Customize the widget's appearance to match Immutable's branding or your application's design:
+
+### Immutable Theme
+
+Apply the official Immutable theme configuration for a consistent brand experience:
+
+<CodeGroup>
+```typescript App.tsx
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { ImtblPassportProvider } from '@layerswap/wallet-imtbl-passport';
+import { ImmutableXProvider } from '@layerswap/wallet-imtbl-x';
+import { immutableTheme } from './themeConfigsNew'; // or themeConfigsOld
+
+export default function App() {
+
+  return (
+    <LayerswapProvider
+      config={{
+        ...config,
+        theme: immutableTheme,
+      }}
+      walletProviders={[EVMProvider, ImtblPassportProvider, ImmutableXProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+```typescript themeConfigsNew.ts
+export const immutableTheme = {
+  tertiary: '182, 182, 182',
+  buttonTextColor: '19, 19, 19',
+  cardBackgroundStyle: {
+    backgroundColor: 'transparent',
+  },
+  header: {
+    hideMenu: true,
+    hideTabs: true,
+    hideWallets: true,
+  },
+  primary: {
+    DEFAULT: '243, 243, 243',
+    '100': '255, 255, 255',
+    '200': '255, 255, 255',
+    '300': '255, 255, 255',
+    '400': '255, 255, 255',
+    '500': '243, 243, 243',
+    '600': '215, 215, 215',
+    '700': '187, 187, 187',
+    '800': '159, 159, 159',
+    '900': '131, 131, 131',
+    'text': '243, 243, 243',
+  },
+  secondary: {
+    DEFAULT: '37, 37, 37',
+    '100': '119, 119, 119',
+    '200': '98, 98, 98',
+    '300': '78, 78, 78',
+    '400': '57, 57, 57',
+    '500': '37, 37, 37',
+    '600': '13, 13, 13',
+    '700': '13, 13, 13',
+    '800': '13, 13, 13',
+    '900': '0, 0, 0',
+    'text': '182, 182, 182',
+  },
+};
+```
+
+
+```typescript themeConfigsOld.ts
+export const immutableTheme = {
+  tertiary: '182, 182, 182',
+  buttonTextColor: '19, 19, 19',
+  header: {
+    hideMenu: true,
+    hideTabs: true,
+    hideWallets: true,
+  },
+  primary: {
+    DEFAULT: '243, 243, 243',
+    '100': '255, 255, 255',
+    '200': '255, 255, 255',
+    '300': '255, 255, 255',
+    '400': '255, 255, 255',
+    '500': '243, 243, 243',
+    '600': '215, 215, 215',
+    '700': '187, 187, 187',
+    '800': '159, 159, 159',
+    '900': '131, 131, 131',
+    'text': '243, 243, 243',
+  },
+  secondary: {
+    DEFAULT: '37, 37, 37',
+    '100': '119, 119, 119',
+    '200': '98, 98, 98',
+    '300': '78, 78, 78',
+    '400': '57, 57, 57',
+    '500': '37, 37, 37',
+    '600': '13, 13, 13',
+    '700': '13, 13, 13',
+    '800': '13, 13, 13',
+    '900': '0, 0, 0',
+    'text': '182, 182, 182',
+  },
+};
+```
+</CodeGroup>
+
+### Theme Properties
+
+<ResponseField name="primary" type="object">
+  Primary color palette for buttons, links, and key UI elements. Colors are specified as RGB values (e.g., '243, 243, 243').
+</ResponseField>
+
+<ResponseField name="secondary" type="object">
+  Secondary color palette for backgrounds, cards, and supporting UI elements.
+</ResponseField>
+
+<ResponseField name="tertiary" type="string">
+  Tertiary color for subtle UI elements and borders (RGB format).
+</ResponseField>
+
+<ResponseField name="buttonTextColor" type="string">
+  Text color for buttons (RGB format).
+</ResponseField>
+
+<ResponseField name="cardBackgroundStyle" type="object">
+  Custom CSS styles for card backgrounds. Use `backgroundColor: 'transparent'` for seamless integration.
+</ResponseField>
+
+<ResponseField name="header" type="object">
+  Header visibility controls:
+  - `hideMenu`: Hide the menu button
+  - `hideTabs`: Hide navigation tabs
+  - `hideWallets`: Hide wallet connection display
+</ResponseField>
+
+<Note>
+  All colors use RGB format without the `rgb()` wrapper (e.g., '243, 243, 243' instead of 'rgb(243, 243, 243)'). The widget internally applies the appropriate formatting.
+</Note>
+
+## Wallet Integration
+
+### Immutable Passport
+
+Immutable Passport is the recommended wallet for Immutable zkEVM. It provides a seamless authentication experience with social logins.
+
+<Card title="Immutable Passport Setup" icon="passport" href="/integration/UI/Widget/WalletManagement/ImmutablePassportProvider">
+  Learn how to configure Immutable Passport, including setting up credentials at the Immutable Hub and implementing the redirect page.
+</Card>
+
+### ImmutableX Wallet
+
+For ImmutableX network support, include the ImmutableX wallet provider:
+
+<Card title="ImmutableX Wallet Setup" icon="wallet" href="/integration/UI/Widget/WalletManagement/ImmutableXProvider">
+  Learn how to integrate the ImmutableX wallet provider for Layer 2 trading and NFT functionality.
+</Card>
+
+### EVM Wallets
+
+The EVM provider enables support for MetaMask, WalletConnect, and other standard Ethereum wallets:
+
+<Card title="EVM Wallet Setup" icon="ethereum" href="/integration/UI/Widget/WalletManagement/EVMProvider">
+  Configure EVM wallet support for MetaMask, WalletConnect, Coinbase Wallet, and more.
+</Card>
+
+## Complete Example
+
+Here's a full implementation example for a game using Immutable zkEVM:
+
+<CodeGroup>
+```typescript App.tsx
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { ImtblPassportProvider } from '@layerswap/wallet-imtbl-passport';
+import { ImmutableXProvider } from '@layerswap/wallet-imtbl-x';
+import { imtblPassportConfigs } from './configs';
+
+// Immutable theme configuration
+const immutableTheme = {
+  tertiary: '182, 182, 182',
+  buttonTextColor: '19, 19, 19',
+  cardBackgroundStyle: {
+    backgroundColor: 'transparent',
+  },
+  header: {
+    hideMenu: true,
+    hideTabs: true,
+    hideWallets: true,
+  },
+  primary: {
+    DEFAULT: '243, 243, 243',
+    '100': '255, 255, 255',
+    '200': '255, 255, 255',
+    '300': '255, 255, 255',
+    '400': '255, 255, 255',
+    '500': '243, 243, 243',
+    '600': '215, 215, 215',
+    '700': '187, 187, 187',
+    '800': '159, 159, 159',
+    '900': '131, 131, 131',
+    'text': '243, 243, 243',
+  },
+  secondary: {
+    DEFAULT: '37, 37, 37',
+    '100': '119, 119, 119',
+    '200': '98, 98, 98',
+    '300': '78, 78, 78',
+    '400': '57, 57, 57',
+    '500': '37, 37, 37',
+    '600': '13, 13, 13',
+    '700': '13, 13, 13',
+    '800': '13, 13, 13',
+    '900': '0, 0, 0',
+    'text': '182, 182, 182',
+  },
+};
+
+export default function ImmutableDepositWidget() {
+  // Get user's game wallet address
+  const userGameWallet = '0x1234567890abcdef1234567890abcdef12345678';
+
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        theme: immutableTheme,
+        initialSettings: {
+          defaultTab: 'swap', //or 'cex'
+          to: 'IMMUTABLEZK_MAINNET',
+          lockTo: true,
+          toAsset: 'USDC',
+          lockToAsset: true,
+          destAddress: userGameWallet,
+          actionButtonText: 'Deposit to Immutable',
+        },
+        imtblPassportConfigs
+      }}
+      walletProviders={[
+        EVMProvider,
+        ImtblPassportProvider,
+        ImmutableXProvider
+      ]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+```typescript configs.ts
+export const imtblPassportConfigs = {
+  clientId: 'YOUR_IMMUTABLE_CLIENT_ID',
+  publishableKey: 'YOUR_IMMUTABLE_PUBLISHABLE_KEY',
+  redirectUri: 'https://yourgame.com/auth/imtbl-redirect',
+  logoutRedirectUri: 'https://yourgame.com'
+};
+```
+
+```typescript ImtblRedirectPage.tsx
+import { LayerswapProvider } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { ImtblPassportProvider, ImtblRedirect } from '@layerswap/wallet-imtbl-passport';
+import { imtblPassportConfigs } from './configs';
+
+// This page must be accessible at the redirectUri path
+// e.g., https://yourgame.com/auth/imtbl-redirect
+export default function ImmutableRedirectPage() {
+  return (
+    <LayerswapProvider
+      config={{
+        imtblPassportConfigs
+      }}
+      walletProviders={[EVMProvider, ImtblPassportProvider]}
+    >
+      <ImtblRedirect />
+    </LayerswapProvider>
+  );
+}
+```
+</CodeGroup>
+
+## Testing
+
+### Testnet Configuration
+
+Test your integration on testnet before going live:
+
+```typescript
+config={{
+  apiKey: 'YOUR_TESTNET_API_KEY',
+  version: 'testnet',
+  initialSettings: {
+    to: 'IMMUTABLEZK_TESTNET',
+    toAsset: 'USDC'
+  },
+  imtblPassportConfigs: {
+    clientId: 'YOUR_TESTNET_CLIENT_ID',
+    publishableKey: 'YOUR_TESTNET_PUBLISHABLE_KEY',
+    redirectUri: 'https://yourgame.com/auth/imtbl-redirect',
+    logoutRedirectUri: 'https://yourgame.com'
+  }
+}}
+```
