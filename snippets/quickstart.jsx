@@ -41,6 +41,7 @@ export const QuickstartEmbed = () => {
     .filter(Boolean)
     .join(', ');
   const snippetLines = [
+    "import '@layerswap/widget/index.css';",
     ...importLines,
     "",
     "export default function App() {",

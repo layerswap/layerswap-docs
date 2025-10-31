@@ -32,6 +32,7 @@ pnpm add @layerswap/widget zustand @layerswap/wallet-evm wagmi viem @tanstack/re
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { EVMProvider } from '@layerswap/wallet-evm';
+import '@layerswap/widget/index.css';
 
 export default function App() {
   return (
@@ -267,6 +268,7 @@ Here's a full implementation example with Immutable theme, transparent backgroun
 
 <CodeGroup>
 ```typescript App.tsx
+import '@layerswap/widget/index.css';
 import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
 import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
 import { createConfig, WagmiProvider } from "wagmi"
