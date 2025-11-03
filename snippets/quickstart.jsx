@@ -57,7 +57,7 @@ export const QuickstartEmbed = () => {
     "           destination_address: '0x1234567890abcdef1234567890abcdef12345678'",    
     "        }",    
     "      }}",
-    `      walletProviders={[${providersArray}]},`,
+    `      walletProviders={[${providersArray}]}`,
     "    >",
     "      <Swap />",
     "    </LayerswapProvider>",
