@@ -9,7 +9,7 @@ export const QuickstartEmbed = () => {
   const providerImportMap = {
     EVM: { import: 'EVMProvider', from: '@layerswap/wallet-evm', install: '@layerswap/wallet-evm wagmi viem @tanstack/react-query' },
     Starknet: { import: 'StarknetProvider', from: '@layerswap/wallet-starknet' },
-    Solana: { import: 'SolanaProvider', from: '@layerswap/wallet-svm' },
+    Solana: { import: 'SVMProvider', from: '@layerswap/wallet-svm' },
     Bitcoin: { import: 'BitcoinProvider', from: '@layerswap/wallet-bitcoin' },
     Fuel: { import: 'FuelProvider', from: '@layerswap/wallet-fuel' },
     Ton:  { import: 'TonProvider', from: '@layerswap/wallet-ton' },
