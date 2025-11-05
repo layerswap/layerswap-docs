@@ -5,12 +5,12 @@ export const QuickstartEmbed = () => {
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
   const PACKAGE_MANAGERS = ['npm', 'yarn', 'pnpm'];
-  const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex'];
+  const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Paradex'];
   const providerImportMap = {
     EVM: { import: 'EVMProvider', from: '@layerswap/wallet-evm', install: '@layerswap/wallet-evm wagmi viem @tanstack/react-query' },
     Starknet: { import: 'StarknetProvider', from: '@layerswap/wallet-starknet' },
     Solana: { import: 'SVMProvider', from: '@layerswap/wallet-svm' },
-    Bitcoin: { import: 'BitcoinProvider', from: '@layerswap/wallet-bitcoin' },
+    Bitcoin: { import: 'BitcoinProvider', from: '@layerswap/wallet-bitcoin', install: '@layerswap/wallet-bitcoin @bigmi/client @bigmi/core @bigmi/react' },
     Fuel: { import: 'FuelProvider', from: '@layerswap/wallet-fuel' },
     Ton:  { import: 'TonProvider', from: '@layerswap/wallet-ton' },
     Tron: { import: 'TronProvider', from: '@layerswap/wallet-tron' },
