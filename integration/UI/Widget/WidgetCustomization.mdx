@@ -1,0 +1,617 @@
+---
+title: "Widget Customization"
+description: "Comprehensive guide to customizing the Layerswap Widget appearance and behavior to match your brand"
+---
+
+## Overview
+
+The Layerswap Widget offers extensive customization options, allowing you to tailor both the appearance and behavior to match your application's needs. Customize colors, layouts, header visibility, border radius, and more to create a seamless, branded user experience.
+
+## Interactive Playground
+
+<Card title="Try the Customization Playground" icon="palette" href="https://playground.layerswap.io">
+  Experiment with all customization options in real-time. Test colors, layouts, styles, and configurations with live preview before implementing in your application.
+</Card>
+
+## Quick Start
+
+Here's a basic example of customizing the widget with a custom theme:
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+
+export default function App() {
+  const customTheme = {
+    primary: {
+      DEFAULT: '99, 102, 241',
+      '500': '99, 102, 241',
+      'text': '255, 255, 255',
+    },
+    secondary: {
+      DEFAULT: '30, 41, 59',
+      '500': '30, 41, 59',
+      'text': '148, 163, 184',
+    }
+  };
+
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        theme: customTheme,
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Generating Color Palettes
+
+Creating consistent color shades (100-900) for your theme is easy with **Tailwind Shades**:
+
+<Card title="Tailwind Shades Generator" icon="swatchbook" href="https://tailwindshades.app/">
+  Generate beautiful color palettes with 10 shades from a single base color. Perfect for creating consistent primary and secondary color schemes.
+</Card>
+
+### How to Use Tailwind Shades
+
+1. Visit [tailwindshades.app](https://tailwindshades.app/)
+2. Enter your brand's primary color (hex, RGB, or HSL)
+3. The tool generates 10 shades (100-900) plus a DEFAULT shade
+4. Copy the generated colors and convert to Layerswap format
+
+### Converting Tailwind Colors to Layerswap Format
+
+Tailwind Shades provides colors in various formats. For Layerswap, use the **RGB values without the `rgb()` wrapper**:
+
+**Tailwind Shades Output:**
+```
+rgb(99, 102, 241)
+```
+
+**Layerswap Format:**
+```typescript
+'99, 102, 241'
+```
+
+**Complete Example:**
+
+```typescript
+// From Tailwind Shades
+const tailwindColor = {
+  100: 'rgb(224, 231, 255)',
+  200: 'rgb(199, 210, 254)',
+  500: 'rgb(99, 102, 241)',
+  // ... etc
+}
+
+// Convert to Layerswap format
+const layerswapPrimary = {
+  '100': '224, 231, 255',
+  '200': '199, 210, 254',
+  '500': '99, 102, 241',
+  // ... etc
+}
+```
+
+## Theme Type Definition
+
+The complete theme configuration type:
+
+```typescript
+export type ThemeData = {
+  buttonTextColor?: string,
+  tertiary?: string,
+  primary?: ThemeColor,
+  secondary?: ThemeColor,
+  warning?: StatusColor,
+  error?: StatusColor,
+  success?: StatusColor,
+  borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'extraLarge' | 'default',
+  header?: {
+    hideMenu?: boolean,
+    hideTabs?: boolean,
+    hideWallets?: boolean,
+  },
+  cardBackgroundStyle?: React.CSSProperties,
+  hidePoweredBy?: boolean
+}
+
+export type ThemeColor = {
+  DEFAULT: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+  text: string;
+}
+
+export type StatusColor = {
+  Foreground: string;
+  Background: string;
+}
+```
+
+## Theme Properties Reference
+
+### Primary Colors
+
+<ResponseField name="primary" type="ThemeColor">
+  Primary color palette used for main UI elements like buttons, links, and highlights. Includes 10 shades (100-900), a DEFAULT value, and a text color.
+</ResponseField>
+
+```typescript
+primary: {
+  DEFAULT: '99, 102, 241',    // Main primary color
+  '100': '224, 231, 255',     // Lightest shade
+  '200': '199, 210, 254',
+  '300': '165, 180, 252',
+  '400': '129, 140, 248',
+  '500': '99, 102, 241',      // Base shade
+  '600': '79, 70, 229',
+  '700': '67, 56, 202',
+  '800': '55, 48, 163',
+  '900': '49, 46, 129',       // Darkest shade
+  'text': '255, 255, 255',    // Text color on primary backgrounds
+}
+```
+
+### Secondary Colors
+
+<ResponseField name="secondary" type="ThemeColor">
+  Secondary color palette used for backgrounds, cards, and supporting UI elements. Follows the same structure as primary colors.
+</ResponseField>
+
+```typescript
+secondary: {
+  DEFAULT: '30, 41, 59',
+  '100': '241, 245, 249',
+  '200': '226, 232, 240',
+  '300': '203, 213, 225',
+  '400': '148, 163, 184',
+  '500': '100, 116, 139',
+  '600': '71, 85, 105',
+  '700': '51, 65, 85',
+  '800': '30, 41, 59',
+  '900': '15, 23, 42',
+  'text': '148, 163, 184',
+}
+```
+
+### Tertiary Color
+
+<ResponseField name="tertiary" type="string">
+  Tertiary color used for borders, dividers, and subtle UI elements. Single RGB value.
+</ResponseField>
+
+```typescript
+tertiary: '148, 163, 184'
+```
+
+### Button Text Color
+
+<ResponseField name="buttonTextColor" type="string">
+  Text color specifically for buttons. Overrides the primary text color for button labels.
+</ResponseField>
+
+```typescript
+buttonTextColor: '255, 255, 255'
+```
+
+### Status Colors
+
+Status colors are used for displaying different states like warnings, errors, and success messages.
+
+<ResponseField name="warning" type="StatusColor">
+  Warning color with foreground (text) and background values.
+</ResponseField>
+
+<ResponseField name="error" type="StatusColor">
+  Error color with foreground (text) and background values.
+</ResponseField>
+
+<ResponseField name="success" type="StatusColor">
+  Success color with foreground (text) and background values.
+</ResponseField>
+
+```typescript
+warning: {
+  Foreground: '234, 179, 8',   // Warning text color
+  Background: '254, 252, 232'  // Warning background color
+}
+
+error: {
+  Foreground: '239, 68, 68',
+  Background: '254, 242, 242'
+}
+
+success: {
+  Foreground: '34, 197, 94',
+  Background: '240, 253, 244'
+}
+```
+
+### Border Radius
+
+<ResponseField name="borderRadius" type="'none' | 'small' | 'medium' | 'large' | 'extraLarge' | 'default'">
+  Controls the roundness of corners for cards, buttons, and other UI elements.
+</ResponseField>
+
+**Available Options:**
+
+- `'none'` - No rounded corners (0px)
+- `'small'` - Slightly rounded (4px)
+- `'medium'` - Moderately rounded (8px)
+- `'large'` - More rounded (12px)
+- `'extraLarge'` - Very rounded (16px)
+- `'default'` - Widget's default border radius
+
+```typescript
+borderRadius: 'medium'
+```
+
+### Header Customization
+
+<ResponseField name="header" type="object">
+  Configuration for widget header visibility options.
+</ResponseField>
+
+<ResponseField name="header.hideMenu" type="boolean">
+  Hide the menu button in the widget header.
+</ResponseField>
+
+<ResponseField name="header.hideTabs" type="boolean">
+  Hide the tab switcher (swap/cex) in the widget header. Useful when you want users to stay in a specific flow.
+</ResponseField>
+
+<ResponseField name="header.hideWallets" type="boolean">
+  Hide the wallet connection display in the widget header.
+</ResponseField>
+
+```typescript
+header: {
+  hideMenu: true,
+  hideTabs: true,
+  hideWallets: true,
+}
+```
+
+### Card Background Style
+
+<ResponseField name="cardBackgroundStyle" type="React.CSSProperties">
+  Custom CSS styles for card backgrounds. Useful for creating transparent or custom-styled cards.
+</ResponseField>
+
+```typescript
+cardBackgroundStyle: {
+  backgroundColor: 'transparent',
+  backdropFilter: 'blur(10px)',
+}
+```
+
+### Hide Powered By
+
+<ResponseField name="hidePoweredBy" type="boolean">
+  Remove the "Powered by Layerswap" branding from the widget footer.
+</ResponseField>
+
+```typescript
+hidePoweredBy: true
+```
+
+## Complete Theme Examples
+
+### Dark Theme
+
+A complete dark theme with full color palette:
+
+```typescript
+const darkTheme = {
+  tertiary: '148, 163, 184',
+  buttonTextColor: '255, 255, 255',
+  borderRadius: 'medium',
+  primary: {
+    DEFAULT: '99, 102, 241',
+    '100': '224, 231, 255',
+    '200': '199, 210, 254',
+    '300': '165, 180, 252',
+    '400': '129, 140, 248',
+    '500': '99, 102, 241',
+    '600': '79, 70, 229',
+    '700': '67, 56, 202',
+    '800': '55, 48, 163',
+    '900': '49, 46, 129',
+    'text': '255, 255, 255',
+  },
+  secondary: {
+    DEFAULT: '30, 41, 59',
+    '100': '241, 245, 249',
+    '200': '226, 232, 240',
+    '300': '203, 213, 225',
+    '400': '148, 163, 184',
+    '500': '100, 116, 139',
+    '600': '71, 85, 105',
+    '700': '51, 65, 85',
+    '800': '30, 41, 59',
+    '900': '15, 23, 42',
+    'text': '148, 163, 184',
+  },
+  warning: {
+    Foreground: '234, 179, 8',
+    Background: '254, 252, 232'
+  },
+  error: {
+    Foreground: '239, 68, 68',
+    Background: '254, 242, 242'
+  },
+  success: {
+    Foreground: '34, 197, 94',
+    Background: '240, 253, 244'
+  }
+};
+```
+
+### Light Theme
+
+A complete light theme optimized for bright backgrounds:
+
+```typescript
+const lightTheme = {
+  tertiary: '203, 213, 225',
+  buttonTextColor: '15, 23, 42',
+  borderRadius: 'large',
+  primary: {
+    DEFAULT: '59, 130, 246',
+    '100': '219, 234, 254',
+    '200': '191, 219, 254',
+    '300': '147, 197, 253',
+    '400': '96, 165, 250',
+    '500': '59, 130, 246',
+    '600': '37, 99, 235',
+    '700': '29, 78, 216',
+    '800': '30, 64, 175',
+    '900': '30, 58, 138',
+    'text': '255, 255, 255',
+  },
+  secondary: {
+    DEFAULT: '241, 245, 249',
+    '100': '15, 23, 42',
+    '200': '30, 41, 59',
+    '300': '51, 65, 85',
+    '400': '71, 85, 105',
+    '500': '100, 116, 139',
+    '600': '148, 163, 184',
+    '700': '203, 213, 225',
+    '800': '226, 232, 240',
+    '900': '241, 245, 249',
+    'text': '51, 65, 85',
+  },
+  warning: {
+    Foreground: '217, 119, 6',
+    Background: '254, 243, 199'
+  },
+  error: {
+    Foreground: '220, 38, 38',
+    Background: '254, 226, 226'
+  },
+  success: {
+    Foreground: '22, 163, 74',
+    Background: '220, 252, 231'
+  }
+};
+```
+
+### Brand Theme with Custom Styling
+
+A themed example matching specific brand colors with custom card styling:
+
+```typescript
+const brandTheme = {
+  tertiary: '163, 163, 163',
+  buttonTextColor: '19, 19, 19',
+  borderRadius: 'extraLarge',
+  cardBackgroundStyle: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+  },
+  header: {
+    hideMenu: false,
+    hideTabs: false,
+    hideWallets: false,
+  },
+  primary: {
+    DEFAULT: '204, 45, 93',
+    '100': '255, 241, 242',
+    '200': '254, 205, 211',
+    '300': '252, 165, 165',
+    '400': '248, 113, 113',
+    '500': '204, 45, 93',
+    '600': '185, 28, 28',
+    '700': '153, 27, 27',
+    '800': '127, 29, 29',
+    '900': '105, 29, 29',
+    'text': '255, 255, 255',
+  },
+  secondary: {
+    DEFAULT: '25, 25, 28',
+    '100': '212, 212, 216',
+    '200': '161, 161, 170',
+    '300': '113, 113, 122',
+    '400': '63, 63, 70',
+    '500': '39, 39, 42',
+    '600': '30, 30, 33',
+    '700': '24, 24, 27',
+    '800': '18, 18, 21',
+    '900': '9, 9, 11',
+    'text': '163, 163, 163',
+  },
+  hidePoweredBy: false
+};
+```
+
+### Minimalist Transparent Theme
+
+Perfect for seamless integration into existing applications:
+
+```typescript
+const minimalistTheme = {
+  tertiary: '148, 163, 184',
+  buttonTextColor: '255, 255, 255',
+  borderRadius: 'small',
+  cardBackgroundStyle: {
+    backgroundColor: 'transparent',
+  },
+  header: {
+    hideMenu: true,
+    hideTabs: true,
+    hideWallets: true,
+  },
+  primary: {
+    DEFAULT: '99, 102, 241',
+    '100': '224, 231, 255',
+    '200': '199, 210, 254',
+    '300': '165, 180, 252',
+    '400': '129, 140, 248',
+    '500': '99, 102, 241',
+    '600': '79, 70, 229',
+    '700': '67, 56, 202',
+    '800': '55, 48, 163',
+    '900': '49, 46, 129',
+    'text': '255, 255, 255',
+  },
+  secondary: {
+    DEFAULT: '30, 41, 59',
+    '100': '241, 245, 249',
+    '200': '226, 232, 240',
+    '300': '203, 213, 225',
+    '400': '148, 163, 184',
+    '500': '100, 116, 139',
+    '600': '71, 85, 105',
+    '700': '51, 65, 85',
+    '800': '30, 41, 59',
+    '900': '15, 23, 42',
+    'text': '148, 163, 184',
+  },
+  hidePoweredBy: true
+};
+```
+
+## Best Practices
+
+### Color Format Requirements
+
+<Warning>
+  **Important**: All colors must be in RGB format **without** the `rgb()` wrapper. Use `'99, 102, 241'` instead of `'rgb(99, 102, 241)'`.
+</Warning>
+
+The widget internally handles the color formatting, so you only need to provide the numeric RGB values as strings.
+
+### Using Tailwind Shades for Consistency
+
+For the best results, use [Tailwind Shades](https://tailwindshades.app/) to generate your color palettes:
+
+1. **Primary Color**: Choose your brand's main color
+2. **Secondary Color**: Select a complementary neutral color (grays work well)
+3. **Generate Shades**: Let the tool create consistent 100-900 shades
+4. **Convert Format**: Remove `rgb()` wrapper and use values as strings
+
+This ensures:
+- Consistent color progression
+- Proper contrast ratios between shades
+- Professional-looking color schemes
+
+### Test in the Playground First
+
+<Card title="Test Your Theme" icon="flask" href="https://playground.layerswap.io">
+  Before implementing your theme in production, test it in the interactive playground to see how it looks with real widget components.
+</Card>
+
+**Benefits of testing in playground:**
+- See changes in real-time
+- Test with different network/asset combinations
+- Verify accessibility and readability
+- Export working configuration
+
+### Accessibility Considerations
+
+When customizing your theme, ensure:
+
+- **Sufficient Contrast**: Text should have at least 4.5:1 contrast ratio with backgrounds
+- **Button Visibility**: Primary buttons should be clearly distinguishable
+- **Error States**: Error colors should be clearly visible and different from success colors
+- **Text Readability**: Ensure `text` properties provide good contrast on their respective backgrounds
+
+### Color Palette Tips
+
+**Primary Colors:**
+- Use your brand's primary color as the base (500)
+- Ensure button text is readable on primary backgrounds
+
+**Secondary Colors:**
+- Typically use neutral grays
+- These affect most of the widget's surface area
+
+**Status Colors:**
+- Keep semantic meaning (red for errors, green for success, yellow/orange for warnings)
+- Ensure foreground colors are readable on their backgrounds
+
+## Complete Integration Example
+
+Here's a complete example showing widget customization with theme, initial settings, and configuration:
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { customTheme } from './theme';
+
+export default function App() {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        theme: customTheme,
+        initialSettings: {
+          defaultTab: 'swap',
+          to: 'ARBITRUM_MAINNET',
+          toAsset: 'USDC',
+        }
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Tailwind Shades" icon="palette" href="https://tailwindshades.app/">
+    Generate beautiful color palettes from a single color
+  </Card>
+
+  <Card title="Theme Playground" icon="flask" href="https://playground.layerswap.io">
+    Test theme configurations interactively
+  </Card>
+
+  <Card title="Configuration Options" icon="gear" href="/integration/UI/Configurations">
+    View all widget configuration options
+  </Card>
+
+  <Card title="Tab Options" icon="window" href="/integration/UI/Widget/TabOptions">
+    Learn about swap and CEX flows
+  </Card>
+</CardGroup>
