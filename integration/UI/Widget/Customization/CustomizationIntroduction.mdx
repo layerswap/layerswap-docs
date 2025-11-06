@@ -75,30 +75,6 @@ Configure layout, borders, header visibility, and advanced styling options. Lear
 ### Complete Examples
 Browse ready-to-use theme examples including dark, light, brand, and minimalist themes. See the [Theme Examples](/integration/UI/Widget/Customization/ThemeExamples) section.
 
-## Theme Structure
-
-The theme configuration follows this TypeScript structure:
-
-```typescript
-export type ThemeData = {
-  buttonTextColor?: string,
-  tertiary?: string,
-  primary?: ThemeColor,
-  secondary?: ThemeColor,
-  warning?: StatusColor,
-  error?: StatusColor,
-  success?: StatusColor,
-  borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'extraLarge' | 'default',
-  header?: {
-    hideMenu?: boolean,
-    hideTabs?: boolean,
-    hideWallets?: boolean,
-  },
-  cardBackgroundStyle?: React.CSSProperties,
-  hidePoweredBy?: boolean
-}
-```
-
 All colors use RGB format without the `rgb()` wrapper (e.g., `'99, 102, 241'` instead of `'rgb(99, 102, 241)'`).
 
 ## Next Steps
