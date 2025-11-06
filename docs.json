@@ -29,7 +29,16 @@
             "group": "Getting Started",
             "pages": [
               "integration/UI/Widget/Quickstart",
-              "integration/UI/Widget/WidgetCustomization",
+              {
+                "group": "Customization",
+                "pages": [
+                  "integration/UI/Widget/Customization/CustomizationIntroduction",
+                  "integration/UI/Widget/Customization/Colors",
+                  "integration/UI/Widget/Customization/ThemeConfiguration",
+                  "integration/UI/Widget/Customization/ThemeExamples",
+                  "integration/UI/Widget/Customization/BestPractices"
+                ]
+              },
               "integration/UI/iFrame",
               "integration/UI/Configurations"
             ]

@@ -1,0 +1,137 @@
+---
+title: "Customization Overview"
+description: "Introduction to customizing the Layerswap Widget appearance and behavior"
+---
+
+## Overview
+
+The Layerswap Widget offers extensive customization options, allowing you to tailor both the appearance and behavior to match your application's needs. Customize colors, layouts, header visibility, border radius, and more to create a seamless, branded user experience.
+
+## Interactive Playground
+
+<Card title="Try the Customization Playground" icon="palette" href="https://playground.layerswap.io">
+  Experiment with all customization options in real-time. Test colors, layouts, styles, and configurations with live preview before implementing in your application.
+</Card>
+
+## Quick Start
+
+Here's a basic example of customizing the widget with a custom theme:
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+
+export default function App() {
+  const customTheme = {
+    primary: {
+      DEFAULT: '99, 102, 241',
+      '500': '99, 102, 241',
+      'text': '255, 255, 255',
+    },
+    secondary: {
+      DEFAULT: '30, 41, 59',
+      '500': '30, 41, 59',
+      'text': '148, 163, 184',
+    }
+  };
+
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        theme: customTheme,
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Customization Options
+
+The Layerswap Widget supports the following customization areas:
+
+### Colors & Theming
+Customize the entire color palette of the widget to match your brand. Learn more in the [Colors](/integration/UI/Widget/Customization/Colors) section.
+
+**Key Features:**
+- Primary and secondary color palettes (10 shades each)
+- Status colors for warnings, errors, and success states
+- Button and text colors
+- Seamless integration with [Tailwind Shades](https://tailwindshades.app/) for generating color palettes
+
+### Theme Configuration
+Configure layout, borders, header visibility, and advanced styling options. Learn more in the [Theme Configuration](/integration/UI/Widget/Customization/ThemeConfiguration) section.
+
+**Key Features:**
+- Border radius options (none, small, medium, large, extraLarge)
+- Header customization (hide menu, tabs, wallets)
+- Card background styling with custom CSS
+- Remove "Powered by Layerswap" branding
+
+### Complete Examples
+Browse ready-to-use theme examples including dark, light, brand, and minimalist themes. See the [Theme Examples](/integration/UI/Widget/Customization/ThemeExamples) section.
+
+### Best Practices
+Learn about accessibility, testing, and optimization techniques. Check out the [Best Practices](/integration/UI/Widget/Customization/BestPractices) section.
+
+## Theme Structure
+
+The theme configuration follows this TypeScript structure:
+
+```typescript
+export type ThemeData = {
+  buttonTextColor?: string,
+  tertiary?: string,
+  primary?: ThemeColor,
+  secondary?: ThemeColor,
+  warning?: StatusColor,
+  error?: StatusColor,
+  success?: StatusColor,
+  borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'extraLarge' | 'default',
+  header?: {
+    hideMenu?: boolean,
+    hideTabs?: boolean,
+    hideWallets?: boolean,
+  },
+  cardBackgroundStyle?: React.CSSProperties,
+  hidePoweredBy?: boolean
+}
+```
+
+All colors use RGB format without the `rgb()` wrapper (e.g., `'99, 102, 241'` instead of `'rgb(99, 102, 241)'`).
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Color Customization" icon="palette" href="/integration/UI/Widget/Customization/Colors">
+    Learn how to customize colors and generate color palettes
+  </Card>
+
+  <Card title="Theme Configuration" icon="gear" href="/integration/UI/Widget/Customization/ThemeConfiguration">
+    Configure borders, headers, and advanced styling options
+  </Card>
+
+  <Card title="Theme Examples" icon="swatchbook" href="/integration/UI/Widget/Customization/ThemeExamples">
+    Browse complete theme examples for different use cases
+  </Card>
+
+  <Card title="Best Practices" icon="lightbulb" href="/integration/UI/Widget/Customization/BestPractices">
+    Follow guidelines for accessibility and optimal styling
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Customization Playground" icon="flask" href="https://playground.layerswap.io">
+    Test configurations interactively with live preview
+  </Card>
+
+  <Card title="Tailwind Shades" icon="swatchbook" href="https://tailwindshades.app/">
+    Generate beautiful color palettes from a single color
+  </Card>
+</CardGroup>

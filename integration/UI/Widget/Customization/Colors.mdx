@@ -1,0 +1,352 @@
+---
+title: "Color Customization"
+description: "Complete guide to customizing widget colors and generating color palettes"
+---
+
+## Overview
+
+Color customization is the foundation of matching the Layerswap Widget to your brand. The widget supports comprehensive color theming including primary and secondary palettes, status colors, and text colors.
+
+## Generating Color Palettes
+
+Creating consistent color shades (100-900) for your theme is easy with **Tailwind Shades**:
+
+<Card title="Tailwind Shades Generator" icon="swatchbook" href="https://tailwindshades.app/">
+  Generate beautiful color palettes with 10 shades from a single base color. Perfect for creating consistent primary and secondary color schemes.
+</Card>
+
+### How to Use Tailwind Shades
+
+1. Visit [tailwindshades.app](https://tailwindshades.app/)
+2. Enter your brand's primary color (hex, RGB, or HSL)
+3. The tool generates 10 shades (100-900) plus a DEFAULT shade
+4. Copy the generated colors and convert to Layerswap format
+
+### Converting Tailwind Colors to Layerswap Format
+
+Tailwind Shades provides colors in various formats. For Layerswap, use the **RGB values without the `rgb()` wrapper**:
+
+**Tailwind Shades Output:**
+```
+rgb(99, 102, 241)
+```
+
+**Layerswap Format:**
+```typescript
+'99, 102, 241'
+```
+
+**Complete Example:**
+
+```typescript
+// From Tailwind Shades
+const tailwindColor = {
+  100: 'rgb(224, 231, 255)',
+  200: 'rgb(199, 210, 254)',
+  500: 'rgb(99, 102, 241)',
+  // ... etc
+}
+
+// Convert to Layerswap format
+const layerswapPrimary = {
+  '100': '224, 231, 255',
+  '200': '199, 210, 254',
+  '500': '99, 102, 241',
+  // ... etc
+}
+```
+
+## Color Types
+
+### ThemeColor Type
+
+Primary and secondary colors follow the `ThemeColor` structure with 10 shades:
+
+```typescript
+export type ThemeColor = {
+  DEFAULT: string;
+  100: string;    // Lightest
+  200: string;
+  300: string;
+  400: string;
+  500: string;    // Base shade
+  600: string;
+  700: string;
+  800: string;
+  900: string;    // Darkest
+  text: string;   // Text color for this palette
+}
+```
+
+### StatusColor Type
+
+Status colors (warning, error, success) use a simpler structure:
+
+```typescript
+export type StatusColor = {
+  Foreground: string;  // Text color
+  Background: string;  // Background color
+}
+```
+
+## Primary Colors
+
+<ResponseField name="primary" type="ThemeColor">
+  Primary color palette used for main UI elements like buttons, links, and highlights. Includes 10 shades (100-900), a DEFAULT value, and a text color.
+</ResponseField>
+
+**Example:**
+
+```typescript
+primary: {
+  DEFAULT: '99, 102, 241',    // Main primary color
+  '100': '224, 231, 255',     // Lightest shade
+  '200': '199, 210, 254',
+  '300': '165, 180, 252',
+  '400': '129, 140, 248',
+  '500': '99, 102, 241',      // Base shade
+  '600': '79, 70, 229',
+  '700': '67, 56, 202',
+  '800': '55, 48, 163',
+  '900': '49, 46, 129',       // Darkest shade
+  'text': '255, 255, 255',    // Text color on primary backgrounds
+}
+```
+
+**Usage:**
+- Main action buttons
+- Links and interactive elements
+- Primary highlights and accents
+- Progress indicators
+
+## Secondary Colors
+
+<ResponseField name="secondary" type="ThemeColor">
+  Secondary color palette used for backgrounds, cards, and supporting UI elements. Follows the same structure as primary colors.
+</ResponseField>
+
+**Example:**
+
+```typescript
+secondary: {
+  DEFAULT: '30, 41, 59',
+  '100': '241, 245, 249',     // Lightest (for light themes)
+  '200': '226, 232, 240',
+  '300': '203, 213, 225',
+  '400': '148, 163, 184',
+  '500': '100, 116, 139',
+  '600': '71, 85, 105',
+  '700': '51, 65, 85',
+  '800': '30, 41, 59',        // Darkest (for dark themes)
+  '900': '15, 23, 42',
+  'text': '148, 163, 184',    // Text color on secondary backgrounds
+}
+```
+
+**Usage:**
+- Card backgrounds
+- Panel surfaces
+- Secondary text and labels
+- Borders and dividers
+
+## Tertiary Color
+
+<ResponseField name="tertiary" type="string">
+  Tertiary color used for borders, dividers, and subtle UI elements. Single RGB value.
+</ResponseField>
+
+**Example:**
+
+```typescript
+tertiary: '148, 163, 184'
+```
+
+**Usage:**
+- Borders
+- Dividers
+- Input field outlines
+- Subtle decorative elements
+
+## Button Text Color
+
+<ResponseField name="buttonTextColor" type="string">
+  Text color specifically for buttons. Overrides the primary text color for button labels.
+</ResponseField>
+
+**Example:**
+
+```typescript
+buttonTextColor: '255, 255, 255'
+```
+
+**Usage:**
+- All button text labels
+- Icon buttons text
+- Call-to-action elements
+
+## Status Colors
+
+Status colors are used for displaying different states like warnings, errors, and success messages. Each status color has foreground (text) and background values.
+
+### Warning Colors
+
+<ResponseField name="warning" type="StatusColor">
+  Warning color with foreground (text) and background values for warning messages and states.
+</ResponseField>
+
+```typescript
+warning: {
+  Foreground: '234, 179, 8',   // Warning text color (yellow/amber)
+  Background: '254, 252, 232'  // Warning background color (light yellow)
+}
+```
+
+### Error Colors
+
+<ResponseField name="error" type="StatusColor">
+  Error color with foreground (text) and background values for error messages and states.
+</ResponseField>
+
+```typescript
+error: {
+  Foreground: '239, 68, 68',   // Error text color (red)
+  Background: '254, 242, 242'  // Error background color (light red)
+}
+```
+
+### Success Colors
+
+<ResponseField name="success" type="StatusColor">
+  Success color with foreground (text) and background values for success messages and states.
+</ResponseField>
+
+```typescript
+success: {
+  Foreground: '34, 197, 94',   // Success text color (green)
+  Background: '240, 253, 244'  // Success background color (light green)
+}
+```
+
+## Color Format Requirements
+
+<Warning>
+  **Important**: All colors must be in RGB format **without** the `rgb()` wrapper. Use `'99, 102, 241'` instead of `'rgb(99, 102, 241)'`.
+</Warning>
+
+The widget internally handles the color formatting, so you only need to provide the numeric RGB values as strings.
+
+**Correct Format:**
+```typescript
+primary: {
+  DEFAULT: '99, 102, 241',
+  '500': '99, 102, 241',
+  // ...
+}
+```
+
+**Incorrect Format:**
+```typescript
+primary: {
+  DEFAULT: 'rgb(99, 102, 241)',     // ❌ Don't include rgb()
+  '500': '#6366f1',                 // ❌ Don't use hex
+  // ...
+}
+```
+
+## Complete Color Configuration Example
+
+Here's a complete example with all color options:
+
+```typescript
+const colorTheme = {
+  // Primary palette
+  primary: {
+    DEFAULT: '99, 102, 241',
+    '100': '224, 231, 255',
+    '200': '199, 210, 254',
+    '300': '165, 180, 252',
+    '400': '129, 140, 248',
+    '500': '99, 102, 241',
+    '600': '79, 70, 229',
+    '700': '67, 56, 202',
+    '800': '55, 48, 163',
+    '900': '49, 46, 129',
+    'text': '255, 255, 255',
+  },
+
+  // Secondary palette
+  secondary: {
+    DEFAULT: '30, 41, 59',
+    '100': '241, 245, 249',
+    '200': '226, 232, 240',
+    '300': '203, 213, 225',
+    '400': '148, 163, 184',
+    '500': '100, 116, 139',
+    '600': '71, 85, 105',
+    '700': '51, 65, 85',
+    '800': '30, 41, 59',
+    '900': '15, 23, 42',
+    'text': '148, 163, 184',
+  },
+
+  // Single colors
+  tertiary: '148, 163, 184',
+  buttonTextColor: '255, 255, 255',
+
+  // Status colors
+  warning: {
+    Foreground: '234, 179, 8',
+    Background: '254, 252, 232'
+  },
+  error: {
+    Foreground: '239, 68, 68',
+    Background: '254, 242, 242'
+  },
+  success: {
+    Foreground: '34, 197, 94',
+    Background: '240, 253, 244'
+  }
+};
+```
+
+## Tips for Choosing Colors
+
+### Primary Colors
+- Use your brand's main color as the base (500 shade)
+- Ensure button text is readable on primary backgrounds
+- Test at different shades for hover and active states
+
+### Secondary Colors
+- Typically use neutral grays for maximum versatility
+- These affect most of the widget's surface area
+- Consider both light and dark theme scenarios
+
+### Status Colors
+- Maintain semantic meaning (red=error, green=success, yellow/orange=warning)
+- Ensure sufficient contrast between foreground and background
+- Test visibility on both primary and secondary backgrounds
+
+### Color Accessibility
+- Aim for at least 4.5:1 contrast ratio for normal text
+- Aim for at least 3:1 contrast ratio for large text (18px+)
+- Use tools like [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) to verify
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Theme Configuration" icon="gear" href="/integration/UI/Widget/Customization/ThemeConfiguration">
+    Learn about borders, headers, and layout options
+  </Card>
+
+  <Card title="Theme Examples" icon="swatchbook" href="/integration/UI/Widget/Customization/ThemeExamples">
+    Browse complete theme examples with full color palettes
+  </Card>
+
+  <Card title="Test in Playground" icon="flask" href="https://playground.layerswap.io">
+    Experiment with colors in real-time
+  </Card>
+
+  <Card title="Generate Palettes" icon="palette" href="https://tailwindshades.app/">
+    Create color schemes with Tailwind Shades
+  </Card>
+</CardGroup>
