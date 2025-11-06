@@ -17,7 +17,7 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
   config={{
     apiKey: 'YOUR_API_KEY',
     version: 'mainnet',
-    initialSettings: {
+    initialValues: {
       defaultTab: 'swap' // or 'cex'
     }
   }}
@@ -40,7 +40,7 @@ If you want to lock users into a specific flow and prevent them from switching t
   config={{
     apiKey: 'YOUR_API_KEY',
     version: 'mainnet',
-    initialSettings: {
+    initialValues: {
       defaultTab: 'swap'
     },
     theme: {
@@ -78,7 +78,7 @@ export default function App() {
       config={{
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet',
-        initialSettings: {
+        initialValues: {
           defaultTab: 'swap',
           from: 'ETHEREUM_MAINNET',
           to: 'ARBITRUM_MAINNET',
@@ -135,7 +135,7 @@ export default function App() {
       config={{
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet',
-        initialSettings: {
+        initialValues: {
           defaultTab: 'cex',
           from: 'COINBASE',
           to: 'ARBITRUM_MAINNET',
@@ -174,7 +174,7 @@ export default function App() {
   config={{
     apiKey: 'YOUR_API_KEY',
     version: 'mainnet',
-    initialSettings: {
+    initialValues: {
       defaultTab: 'swap'
     },
     theme: {
