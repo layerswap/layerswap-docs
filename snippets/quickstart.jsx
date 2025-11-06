@@ -28,6 +28,9 @@ export const QuickstartEmbed = () => {
         width: 100% !important;
         overflow: hidden !important;
         box-sizing: border-box !important;
+        font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
       }
       code[class*="language-"],
       code[class*="language-"] * {
@@ -36,6 +39,7 @@ export const QuickstartEmbed = () => {
         overflow-wrap: anywhere !important;
         display: inline !important;
         max-width: 100% !important;
+        font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       code[class*="language-"] {
         display: block !important;
