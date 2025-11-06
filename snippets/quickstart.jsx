@@ -131,7 +131,7 @@ export const QuickstartEmbed = () => {
     "      config={{",
     "        apiKey: {YOUR_API_KEY},",
     "        version: 'mainnet', //'mainnet' or 'testnet'",
-    "        initialSettings: {",
+    "        initialValues: {",
     "           defaultTab: 'swap', //'swap' or 'cex'",    
     "           to: 'IMMUTABLEZK_MAINNET',",    
     "           toAsset: 'USDC'",    
