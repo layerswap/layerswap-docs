@@ -1,0 +1,191 @@
+---
+title: "Tab Options: Swap or Deposit from CEX"
+description: "Configuring the Swap and Deposit from CEX flows in Layerswap Widget"
+---
+
+Layerswap Widget supports two main flows that can be configured using the `defaultTab` parameter:
+
+- **Swap**: Cross-chain token transfers and swaps across blockchain networks
+- **Deposit from CEX**: Direct deposits from centralized exchange accounts to networks
+
+## Default Tab Configuration
+
+You can control which flow is displayed initially by setting the `defaultTab` parameter in your widget configuration:
+
+```typescript
+<LayerswapProvider
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    initialSettings: {
+      defaultTab: 'swap' // or 'cex'
+    }
+  }}
+  walletProviders={[EVMProvider]}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+## Switching Between Tabs
+
+Users can switch between Swap and Deposit from CEX flows directly in the widget UI, regardless of which tab is set as default. The `defaultTab` parameter only controls which flow is displayed when the widget first loads.
+
+### Hiding the Tab Switcher
+
+If you want to lock users into a specific flow and prevent them from switching tabs, you can hide the tab switcher using theme configuration:
+
+```typescript
+<LayerswapProvider
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    initialSettings: {
+      defaultTab: 'swap'
+    },
+    theme: {
+      ...theme,
+      header: {
+        hideTabs: true
+      }
+    }
+  }}
+  walletProviders={[EVMProvider]}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+<ResponseField name="header.hideTabs" type="boolean">
+  Set to `true` to hide the tab switcher UI. Users will only see the flow specified in `defaultTab` and won't be able to switch between the Swap and Deposit from CEX flows.
+</ResponseField>
+
+<Note>
+  Hiding tabs is useful when you want to create a focused experience for a specific use case, such as a bridge-only interface or a CEX deposit-only flow.
+</Note>
+
+## Swap Flow
+
+### Configuration Example
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+
+export default function App() {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        initialSettings: {
+          defaultTab: 'swap',
+          from: 'ETHEREUM_MAINNET',
+          to: 'ARBITRUM_MAINNET',
+          fromAsset: 'USDC',
+          toAsset: 'USDC',
+          destAddress: '0x1234567890abcdef1234567890abcdef12345678'
+        }
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+### Features
+
+<ResponseField name="from" type="string">
+  Source blockchain network (e.g., 'ETHEREUM_MAINNET', 'POLYGON_MAINNET')
+</ResponseField>
+
+<ResponseField name="to" type="string">
+  Destination blockchain network (e.g., 'ARBITRUM_MAINNET', 'OPTIMISM_MAINNET')
+</ResponseField>
+
+<ResponseField name="fromAsset" type="string">
+  Token to be transferred from the source network (e.g., 'USDC', 'ETH')
+</ResponseField>
+
+<ResponseField name="toAsset" type="string">
+  Token to be received on the destination network (e.g., 'USDC', 'ETH')
+</ResponseField>
+
+<ResponseField name="destAddress" type="string">
+  Destination wallet address where funds will be received
+</ResponseField>
+
+## Deposit from CEX Flow
+
+This flow allows users to deposit tokens directly from their exchange accounts to a blockchain wallet. 
+
+Users select the exchange, then pick an intermediary network through which the transaction will be processed. Layerswap generates a deposit address on that network and waits for the user to do a manual withdrawal from their CEX account. After the deposit is detected, the transaction is being processed and funds arrive at the destination you or the user set.  Users will get detailed instructions in the UI during the transaction process.
+
+### Configuration Example
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+
+export default function App() {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        initialSettings: {
+          defaultTab: 'cex',
+          from: 'COINBASE',
+          to: 'ARBITRUM_MAINNET',
+          toAsset: 'USDC',
+          destAddress: '0x1234567890abcdef1234567890abcdef12345678'
+        }
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+### Features
+
+<ResponseField name="from" type="string">
+  Source centralized exchange (e.g., 'COINBASE', 'BINANCE', 'KRAKEN')
+</ResponseField>
+
+<ResponseField name="to" type="string">
+  Destination blockchain network
+</ResponseField>
+
+<ResponseField name="toAsset" type="string">
+  Token to be received on the destination network
+</ResponseField>
+
+<ResponseField name="destAddress" type="string">
+  Destination wallet address where funds will be received
+</ResponseField>
+
+```typescript
+<LayerswapProvider
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    initialSettings: {
+      defaultTab: 'swap'
+    },
+    theme: {
+      ...theme,
+      header: {
+        hideTabs: true
+      }
+    }
+  }}
+  walletProviders={[EVMProvider]}
+>
+  <Swap />
+</LayerswapProvider>
+```

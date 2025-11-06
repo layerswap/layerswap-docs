@@ -39,6 +39,7 @@
                   "integration/UI/Widget/Customization/BestPractices"
                 ]
               },
+              "integration/UI/Widget/TabOptions",
               "integration/UI/iFrame",
               "integration/UI/Configurations"
             ]
