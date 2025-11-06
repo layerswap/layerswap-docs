@@ -35,8 +35,7 @@
                   "integration/UI/Widget/Customization/CustomizationIntroduction",
                   "integration/UI/Widget/Customization/Colors",
                   "integration/UI/Widget/Customization/ThemeConfiguration",
-                  "integration/UI/Widget/Customization/ThemeExamples",
-                  "integration/UI/Widget/Customization/BestPractices"
+                  "integration/UI/Widget/Customization/ThemeExamples"
                 ]
               },
               "integration/UI/Widget/TabOptions",

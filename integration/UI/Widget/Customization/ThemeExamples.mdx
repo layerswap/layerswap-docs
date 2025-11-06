@@ -62,12 +62,6 @@ const darkTheme = {
 };
 ```
 
-**Best For:**
-- Modern web applications
-- Dark mode interfaces
-- Developer tools
-- Crypto/DeFi applications
-
 ## Light Theme
 
 A complete light theme optimized for bright backgrounds:
@@ -122,13 +116,6 @@ const lightTheme = {
   }
 };
 ```
-
-**Best For:**
-- Light mode interfaces
-- Professional applications
-- Financial services
-- E-commerce platforms
-
 ## Brand Theme
 
 A custom branded theme with glassmorphism effects:
@@ -198,12 +185,6 @@ const brandTheme = {
 };
 ```
 
-**Best For:**
-- Brand-specific integrations
-- Marketing sites
-- Custom applications
-- Unique visual identities
-
 ## Minimalist Transparent Theme
 
 Perfect for seamless integration with transparent backgrounds:
@@ -271,78 +252,6 @@ const minimalistTheme = {
 };
 ```
 
-**Best For:**
-- Embedded widgets
-- Seamless integrations
-- Overlay implementations
-- Minimal UI designs
-
-## Gaming Theme
-
-Vibrant theme optimized for gaming applications:
-
-```typescript
-const gamingTheme = {
-  tertiary: '124, 58, 237',
-  buttonTextColor: '255, 255, 255',
-  borderRadius: 'medium',
-
-  cardBackgroundStyle: {
-    background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%)',
-    border: '1px solid rgba(124, 58, 237, 0.3)',
-  },
-
-  primary: {
-    DEFAULT: '124, 58, 237',
-    '100': '237, 233, 254',
-    '200': '221, 214, 254',
-    '300': '196, 181, 253',
-    '400': '167, 139, 250',
-    '500': '124, 58, 237',
-    '600': '109, 40, 217',
-    '700': '91, 33, 182',
-    '800': '76, 29, 149',
-    '900': '59, 7, 100',
-    'text': '255, 255, 255',
-  },
-
-  secondary: {
-    DEFAULT: '17, 24, 39',
-    '100': '249, 250, 251',
-    '200': '243, 244, 246',
-    '300': '229, 231, 235',
-    '400': '156, 163, 175',
-    '500': '107, 114, 128',
-    '600': '75, 85, 99',
-    '700': '55, 65, 81',
-    '800': '31, 41, 55',
-    '900': '17, 24, 39',
-    'text': '156, 163, 175',
-  },
-
-  warning: {
-    Foreground: '245, 158, 11',
-    Background: '254, 243, 199'
-  },
-
-  error: {
-    Foreground: '239, 68, 68',
-    Background: '254, 226, 226'
-  },
-
-  success: {
-    Foreground: '16, 185, 129',
-    Background: '209, 250, 229'
-  }
-};
-```
-
-**Best For:**
-- Gaming platforms
-- NFT marketplaces
-- Metaverse applications
-- Entertainment apps
-
 ## Complete Integration Example
 
 Here's how to use these themes in your application:
@@ -359,7 +268,7 @@ export default function App() {
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet',
         theme: darkTheme, // Apply the theme
-        initialSettings: {
+        initialValues: {
           defaultTab: 'swap',
           to: 'ARBITRUM_MAINNET',
           toAsset: 'USDC',
@@ -374,117 +283,11 @@ export default function App() {
 }
 ```
 
-## Industry-Specific Examples
-
-### DeFi Platform Theme
-
-```typescript
-initialSettings: {
-  defaultTab: 'swap',
-  to: 'ARBITRUM_MAINNET',
-  toAsset: 'USDC',
-  lockToAsset: true,
-  actionButtonText: 'Bridge to Arbitrum'
-}
-// Use: darkTheme or lightTheme
-```
-
-### NFT Marketplace Theme
-
-```typescript
-initialSettings: {
-  defaultTab: 'cex',
-  to: 'ETHEREUM_MAINNET',
-  toAsset: 'ETH',
-  lockTo: true,
-  actionButtonText: 'Fund Wallet'
-}
-// Use: brandTheme or gamingTheme
-```
-
-### Gaming Application Theme
-
-```typescript
-initialSettings: {
-  defaultTab: 'swap',
-  to: 'IMMUTABLEZK_MAINNET',
-  toAsset: 'USDC',
-  lockTo: true,
-  actionButtonText: 'Deposit to Game'
-}
-// Use: gamingTheme or brandTheme
-```
-
-### Embedded Widget Theme
-
-```typescript
-initialSettings: {
-  defaultTab: 'swap',
-  from: 'ETHEREUM_MAINNET',
-  to: 'OPTIMISM_MAINNET',
-}
-// Use: minimalistTheme
-```
-
-## Customizing These Examples
-
-Each theme can be customized to better match your brand:
-
-### Changing Primary Color
-
-1. Visit [Tailwind Shades](https://tailwindshades.app/)
-2. Enter your brand color
-3. Generate the palette
-4. Replace the primary color values
-
-### Adjusting Border Radius
-
-```typescript
-const customTheme = {
-  ...darkTheme,
-  borderRadius: 'large' // Change from 'medium' to 'large'
-}
-```
-
-### Adding Custom Card Styling
-
-```typescript
-const customTheme = {
-  ...lightTheme,
-  cardBackgroundStyle: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
-  }
-}
-```
-
-### Hiding Header Elements
-
-```typescript
-const customTheme = {
-  ...brandTheme,
-  header: {
-    hideMenu: true,
-    hideTabs: true,
-    hideWallets: false,
-  }
-}
-```
-
 ## Testing Your Theme
 
 <Card title="Test in Playground" icon="flask" href="https://playground.layerswap.io">
   Copy any of these themes into the playground to see how they look with real widget components before implementing.
 </Card>
-
-**Testing Checklist:**
-- [ ] Colors look correct on your application background
-- [ ] Text is readable in all states
-- [ ] Buttons have sufficient contrast
-- [ ] Status messages are visible
-- [ ] Theme works in both light and dark environments
-- [ ] Mobile display looks good
-- [ ] Performance is acceptable
 
 ## Next Steps
 
@@ -495,10 +298,6 @@ const customTheme = {
 
   <Card title="Theme Configuration" icon="gear" href="/integration/UI/Widget/Customization/ThemeConfiguration">
     Explore all configuration options
-  </Card>
-
-  <Card title="Best Practices" icon="lightbulb" href="/integration/UI/Widget/Customization/BestPractices">
-    Follow guidelines for optimal theming
   </Card>
 
   <Card title="Tailwind Shades" icon="swatchbook" href="https://tailwindshades.app/">

@@ -105,7 +105,7 @@ header: {
 - When using `defaultTab` to set a specific flow
 
 <Note>
-  When `hideTabs` is `true`, users can only access the flow specified in `initialSettings.defaultTab`. See [Tab Options](/integration/UI/Widget/TabOptions) for more details.
+  When `hideTabs` is `true`, users can only access the flow specified in `initialValues.defaultTab`. See [Tab Options](/integration/UI/Widget/TabOptions) for more details.
 </Note>
 
 ### Hide Wallets
@@ -264,7 +264,7 @@ export default function App() {
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet',
         theme: customTheme,
-        initialSettings: {
+        initialValues: {
           defaultTab: 'swap',
           to: 'ARBITRUM_MAINNET',
         }
