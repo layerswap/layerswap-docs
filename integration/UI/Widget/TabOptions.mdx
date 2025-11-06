@@ -1,14 +1,12 @@
 ---
-title: "Tab Options: Swap vs CEX"
-description: "Understanding and configuring the swap and CEX deposit flows in Layerswap Widget"
+title: "Tab Options: Swap or Deposit from CEX"
+description: "Configuring the Swap and Deposit from CEX flows in Layerswap Widget"
 ---
-
-## Overview
 
 Layerswap Widget supports two main flows that can be configured using the `defaultTab` parameter:
 
-- **Swap**: Cross-chain token transfers between different blockchain networks
-- **CEX**: Direct deposits from centralized exchanges to your wallet
+- **Swap**: Cross-chain token transfers and swaps across blockchain networks
+- **Deposit from CEX**: Direct deposits from centralized exchange accounts to networks
 
 ## Default Tab Configuration
 
@@ -29,16 +27,46 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
 </LayerswapProvider>
 ```
 
+## Switching Between Tabs
+
+Users can switch between Swap and Deposit from CEX flows directly in the widget UI, regardless of which tab is set as default. The `defaultTab` parameter only controls which flow is displayed when the widget first loads.
+
+### Hiding the Tab Switcher
+
+If you want to lock users into a specific flow and prevent them from switching tabs, you can hide the tab switcher using theme configuration:
+
+```typescript
+<LayerswapProvider
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    initialSettings: {
+      defaultTab: 'swap'
+    },
+    theme: {
+      ...theme,
+      header: {
+        hideTabs: true
+      }
+    }
+  }}
+  walletProviders={[EVMProvider]}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+<ResponseField name="header.hideTabs" type="boolean">
+  Set to `true` to hide the tab switcher UI. Users will only see the flow specified in `defaultTab` and won't be able to switch between the Swap and Deposit from CEX flows.
+</ResponseField>
+
+<Note>
+  Hiding tabs is useful when you want to create a focused experience for a specific use case, such as a bridge-only interface or a CEX deposit-only flow.
+</Note>
+
 ## Swap Flow
 
-The swap flow enables users to transfer tokens between different blockchain networks. This is ideal for:
-
-- Moving assets from one blockchain to another
-- Bridge functionality
-- Cross-chain token transfers
-- Layer 2 to Layer 1 (or vice versa) transfers
-
-### Swap Configuration Example
+### Configuration Example
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
@@ -67,7 +95,7 @@ export default function App() {
 }
 ```
 
-### Swap Flow Features
+### Features
 
 <ResponseField name="from" type="string">
   Source blockchain network (e.g., 'ETHEREUM_MAINNET', 'POLYGON_MAINNET')
@@ -78,27 +106,24 @@ export default function App() {
 </ResponseField>
 
 <ResponseField name="fromAsset" type="string">
-  Token to transfer from the source network (e.g., 'USDC', 'ETH')
+  Token to be transferred from the source network (e.g., 'USDC', 'ETH')
 </ResponseField>
 
 <ResponseField name="toAsset" type="string">
-  Token to receive on the destination network (e.g., 'USDC', 'ETH')
+  Token to be received on the destination network (e.g., 'USDC', 'ETH')
 </ResponseField>
 
 <ResponseField name="destAddress" type="string">
   Destination wallet address where funds will be received
 </ResponseField>
 
-## CEX Flow
+## Deposit from CEX Flow
 
-The CEX (Centralized Exchange) flow allows users to deposit tokens directly from their exchange accounts to a blockchain wallet. This is perfect for:
+This flow allows users to deposit tokens directly from their exchange accounts to a blockchain wallet. 
 
-- Onboarding users from exchanges
-- Simplifying the deposit process
-- Reducing the number of steps for users
-- Direct exchange-to-wallet transfers
+Users select the exchange, then pick an intermediary network through which the transaction will be processed. Layerswap generates a deposit address on that network and waits for the user to do a manual withdrawal from their CEX account. After the deposit is detected, the transaction is being processed and funds arrive at the destination you or the user set.  Users will get detailed instructions in the UI during the transaction process.
 
-### CEX Configuration Example
+### Configuration Example
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
@@ -126,35 +151,23 @@ export default function App() {
 }
 ```
 
-### CEX Flow Features
+### Features
 
 <ResponseField name="from" type="string">
   Source centralized exchange (e.g., 'COINBASE', 'BINANCE', 'KRAKEN')
 </ResponseField>
 
 <ResponseField name="to" type="string">
-  Destination blockchain network where funds will be deposited
+  Destination blockchain network
 </ResponseField>
 
 <ResponseField name="toAsset" type="string">
-  Token to receive on the destination network
+  Token to be received on the destination network
 </ResponseField>
 
 <ResponseField name="destAddress" type="string">
-  Destination wallet address for the deposit
+  Destination wallet address where funds will be received
 </ResponseField>
-
-<Note>
-  When using the CEX flow, users will receive instructions for transferring funds from their exchange account to their blockchain wallet through Layerswap's managed deposit process.
-</Note>
-
-## Switching Between Tabs
-
-Users can switch between swap and CEX flows directly in the widget UI, regardless of which tab is set as default. The `defaultTab` parameter only controls which flow is displayed when the widget first loads.
-
-### Hiding the Tab Switcher
-
-If you want to lock users into a specific flow and prevent them from switching tabs, you can hide the tab switcher using theme configuration:
 
 ```typescript
 <LayerswapProvider
@@ -176,12 +189,3 @@ If you want to lock users into a specific flow and prevent them from switching t
   <Swap />
 </LayerswapProvider>
 ```
-
-<ResponseField name="header.hideTabs" type="boolean">
-  Set to `true` to hide the tab switcher UI. Users will only see the flow specified in `defaultTab` and won't be able to switch between swap and CEX flows.
-</ResponseField>
-
-<Note>
-  Hiding tabs is useful when you want to create a focused experience for a specific use case, such as a bridge-only interface or a CEX deposit-only flow.
-</Note>
-
