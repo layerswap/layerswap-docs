@@ -5,7 +5,7 @@ export const QuickstartEmbed = () => {
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
   const PACKAGE_MANAGERS = ['npm', 'yarn', 'pnpm'];
-  const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Paradex'];
+  const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex'];
   const providerImportMap = {
     EVM: { import: 'EVMProvider', from: '@layerswap/wallet-evm', install: '@layerswap/wallet-evm wagmi viem @tanstack/react-query' },
     Starknet: { import: 'StarknetProvider', from: '@layerswap/wallet-starknet' },
