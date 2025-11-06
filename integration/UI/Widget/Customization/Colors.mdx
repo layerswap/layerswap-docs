@@ -5,14 +5,14 @@ description: "Complete guide to customizing widget colors and generating color p
 
 ## Overview
 
-Color customization is the foundation of matching the Layerswap Widget to your brand. The widget supports comprehensive color theming including primary and secondary palettes, status colors, and text colors.
+Color customization is the foundation of matching the Layerswap Widget to your branding. The widget supports comprehensive color theming including primary and secondary palettes, status colors, and text colors.
 
 ## Generating Color Palettes
 
 Creating consistent color shades (100-900) for your theme is easy with **Tailwind Shades**:
 
 <Card title="Tailwind Shades Generator" icon="swatchbook" href="https://tailwindshades.app/">
-  Generate beautiful color palettes with 10 shades from a single base color. Perfect for creating consistent primary and secondary color schemes.
+  Generate color palettes with 10 shades from a single base color. Ideal for creating consistent primary and secondary color schemes.
 </Card>
 
 ### How to Use Tailwind Shades
@@ -24,19 +24,21 @@ Creating consistent color shades (100-900) for your theme is easy with **Tailwin
 
 ### Converting Tailwind Colors to Layerswap Format
 
-Tailwind Shades provides colors in various formats. For Layerswap, use the **RGB values without the `rgb()` wrapper**:
+Tailwind Shades provides colors in various formats. For Layerswap, use the **`RGB values without the rgb() wrapper`**:
 
 **Tailwind Shades Output:**
+
 ```
 rgb(99, 102, 241)
 ```
 
 **Layerswap Format:**
+
 ```typescript
 '99, 102, 241'
 ```
 
-**Complete Example:**
+**Example:**
 
 ```typescript
 // From Tailwind Shades
@@ -92,7 +94,7 @@ export type StatusColor = {
 ## Primary Colors
 
 <ResponseField name="primary" type="ThemeColor">
-  Primary color palette used for main UI elements like buttons, links, and highlights. Includes 10 shades (100-900), a DEFAULT value, and a text color.
+  Primary color palette used for main UI elements. Includes 10 shades (100-900), a DEFAULT value, and a text color.
 </ResponseField>
 
 **Example:**
@@ -114,6 +116,7 @@ primary: {
 ```
 
 **Usage:**
+
 - Main action buttons
 - Links and interactive elements
 - Primary highlights and accents
@@ -144,6 +147,7 @@ secondary: {
 ```
 
 **Usage:**
+
 - Card backgrounds
 - Panel surfaces
 - Secondary text and labels
@@ -162,10 +166,11 @@ tertiary: '148, 163, 184'
 ```
 
 **Usage:**
+
 - Borders
 - Dividers
 - Input field outlines
-- Subtle decorative elements
+- Decorative elements
 
 ## Button Text Color
 
@@ -179,11 +184,6 @@ tertiary: '148, 163, 184'
 buttonTextColor: '255, 255, 255'
 ```
 
-**Usage:**
-- All button text labels
-- Icon buttons text
-- Call-to-action elements
-
 ## Status Colors
 
 Status colors are used for displaying different states like warnings, errors, and success messages. Each status color has foreground (text) and background values.
@@ -191,7 +191,7 @@ Status colors are used for displaying different states like warnings, errors, an
 ### Warning Colors
 
 <ResponseField name="warning" type="StatusColor">
-  Warning color with foreground (text) and background values for warning messages and states.
+  Warning color with foreground (text) and background values.
 </ResponseField>
 
 ```typescript
@@ -204,7 +204,7 @@ warning: {
 ### Error Colors
 
 <ResponseField name="error" type="StatusColor">
-  Error color with foreground (text) and background values for error messages and states.
+  Error color with foreground (text) and background values.
 </ResponseField>
 
 ```typescript
@@ -217,7 +217,7 @@ error: {
 ### Success Colors
 
 <ResponseField name="success" type="StatusColor">
-  Success color with foreground (text) and background values for success messages and states.
+  Success color with foreground (text) and background values.
 </ResponseField>
 
 ```typescript
@@ -236,6 +236,7 @@ success: {
 The widget internally handles the color formatting, so you only need to provide the numeric RGB values as strings.
 
 **Correct Format:**
+
 ```typescript
 primary: {
   DEFAULT: '99, 102, 241',
@@ -245,6 +246,7 @@ primary: {
 ```
 
 **Incorrect Format:**
+
 ```typescript
 primary: {
   DEFAULT: 'rgb(99, 102, 241)',     // ❌ Don't include rgb()
@@ -254,8 +256,6 @@ primary: {
 ```
 
 ## Complete Color Configuration Example
-
-Here's a complete example with all color options:
 
 ```typescript
 const colorTheme = {
@@ -313,17 +313,14 @@ const colorTheme = {
 
 <CardGroup cols={2}>
   <Card title="Theme Configuration" icon="gear" href="/integration/UI/Widget/Customization/ThemeConfiguration">
-    Learn about borders, headers, and layout options
+    Configure borders, headers, and other theme elements
   </Card>
-
   <Card title="Theme Examples" icon="swatchbook" href="/integration/UI/Widget/Customization/ThemeExamples">
-    Browse complete theme examples with full color palettes
+    Browse complete theme examples
   </Card>
-
   <Card title="Test in Playground" icon="flask" href="https://playground.layerswap.io">
     Experiment with colors in real-time
   </Card>
-
   <Card title="Generate Palettes" icon="palette" href="https://tailwindshades.app/">
     Create color schemes with Tailwind Shades
   </Card>

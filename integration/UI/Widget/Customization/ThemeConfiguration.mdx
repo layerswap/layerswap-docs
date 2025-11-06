@@ -1,6 +1,6 @@
 ---
 title: "Theme Configuration"
-description: "Configure borders, headers, layouts, and advanced styling options"
+description: "Configure borders, headers, layouts, and other elements"
 ---
 
 ## Overview
@@ -39,14 +39,14 @@ export type ThemeData = {
 
 ### Available Options
 
-| Value | Border Radius | Use Case |
-|-------|---------------|----------|
-| `'none'` | 0px | Sharp, modern designs |
-| `'small'` | 4px | Subtle roundness |
-| `'medium'` | 8px | Balanced appearance |
-| `'large'` | 12px | Soft, friendly design |
-| `'extraLarge'` | 16px | Maximum roundness |
-| `'default'` | Widget default | Use widget's built-in style |
+| Value          | Border Radius  | Use Case                    |
+| -------------- | -------------- | --------------------------- |
+| `'none'`       | 0px            | Sharp, modern designs       |
+| `'small'`      | 4px            | Subtle roundness            |
+| `'medium'`     | 8px            | Balanced appearance         |
+| `'large'`      | 12px           | Soft, friendly design       |
+| `'extraLarge'` | 16px           | Maximum roundness           |
+| `'default'`    | Widget default | Use widget's built-in style |
 
 **Example:**
 
@@ -58,6 +58,7 @@ const theme = {
 ```
 
 **Visual Impact:**
+
 - Affects all cards, modals, and containers
 - Applies to buttons and interactive elements
 - Influences input fields and dropdowns
@@ -81,11 +82,6 @@ header: {
 }
 ```
 
-**Use Cases:**
-- Embedded widgets where menu is not needed
-- Simplified user interfaces
-- Custom navigation implementations
-
 ### Hide Tabs
 
 <ResponseField name="header.hideTabs" type="boolean">
@@ -97,12 +93,6 @@ header: {
   hideTabs: true
 }
 ```
-
-**Use Cases:**
-- Single-purpose interfaces (swap-only or cex-only)
-- Focused user experiences
-- Custom tab implementations
-- When using `defaultTab` to set a specific flow
 
 <Note>
   When `hideTabs` is `true`, users can only access the flow specified in `initialValues.defaultTab`. See [Tab Options](/integration/UI/Widget/TabOptions) for more details.
@@ -119,11 +109,6 @@ header: {
   hideWallets: true
 }
 ```
-
-**Use Cases:**
-- Clean, minimalist interfaces
-- Pre-connected wallet scenarios
-- Custom wallet display implementations
 
 ### Complete Header Example
 
@@ -184,6 +169,7 @@ cardBackgroundStyle: {
 ```
 
 **Supported Properties:**
+
 - `backgroundColor` / `background`
 - `backdropFilter`
 - `border` / `borderRadius`
@@ -207,11 +193,6 @@ const theme = {
   // ... other theme properties
 }
 ```
-
-**Use Cases:**
-- White-label implementations
-- Branded integrations
-- Clean, minimal footers
 
 ## Complete Configuration Example
 
@@ -280,6 +261,5 @@ export default function App() {
 ## Testing Your Configuration
 
 <Card title="Test in Playground" icon="flask" href="https://playground.layerswap.io">
-  Experiment with all configuration options in real-time before implementing in your application.
+  Experiment with the configuration options in real-time before implementing in your application.
 </Card>
-
