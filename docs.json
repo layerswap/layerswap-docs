@@ -93,6 +93,7 @@
       },
       {
         "tab": "Deposit Address",
+        "hidden": true,
          "pages": [
               "integration/UI/Widget/CustomMode"
             ]
