@@ -29,6 +29,7 @@
             "group": "Getting Started",
             "pages": [
               "integration/UI/Widget/Quickstart",
+              "integration/UI/Widget/TabOptions",
               "integration/UI/iFrame",
               "integration/UI/Configurations"
             ]
@@ -123,7 +124,11 @@
     "default": "dark",
     "strict": false
   },
-  "background": {},
+  "background": {
+    "color": {
+      "dark": "#000000"
+    }
+  },
   "navbar": {
     "links": [
       {

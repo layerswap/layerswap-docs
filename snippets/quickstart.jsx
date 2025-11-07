@@ -1,4 +1,4 @@
-const { useState, useEffect } = React;
+import { useState, useEffect, useRef } from 'react';
 
 export const QuickstartEmbed = () => {
   const [theme, setTheme] = useState(() => {
@@ -40,6 +40,75 @@ export const QuickstartEmbed = () => {
     observer.observe(html, { attributes: true, attributeFilter: ['class', 'data-theme'] });
 
     return () => observer.disconnect();
+  }, []);
+
+  // Load Prism.js CSS and script from CDN with proper sequencing
+  useEffect(() => {
+    // Check if already loaded
+    if (window.Prism) return;
+
+    // Load Prism CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css';
+    document.head.appendChild(link);
+
+    // Add custom CSS to force word wrapping
+    const style = document.createElement('style');
+    style.textContent = `
+      pre[class*="language-"] {
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: anywhere !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+        font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
+      }
+      code[class*="language-"],
+      code[class*="language-"] * {
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: anywhere !important;
+        display: inline !important;
+        max-width: 100% !important;
+        font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+      }
+      code[class*="language-"] {
+        display: block !important;
+      }
+      .token {
+        word-break: normal !important;
+        white-space: pre-wrap !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Load Prism core script first
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js';
+    script.onload = () => {
+      // After core loads, load language components
+      const jsxScript = document.createElement('script');
+      jsxScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js';
+      jsxScript.onload = () => {
+        // Load bash after JSX
+        const bashScript = document.createElement('script');
+        bashScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js';
+        bashScript.onload = () => {
+          // Trigger initial highlighting after all scripts loaded
+          if (window.Prism) {
+            window.Prism.highlightAll();
+          }
+        };
+        document.head.appendChild(bashScript);
+      };
+      document.head.appendChild(jsxScript);
+    };
+    document.head.appendChild(script);
   }, []);
 
   const palette =
@@ -86,15 +155,15 @@ export const QuickstartEmbed = () => {
           walletBgActive: 'rgba(204,45,93,0.14)',
           walletColor: '#475569',
           walletColorActive: '#c81d56',
-          codeBg: 'rgba(15,23,42,0.08)',
-          codeColor: '#0f172a',
-          copyBorder: '1px solid rgba(148,163,184,0.35)',
-          copyBg: 'rgba(148,163,184,0.18)',
-          copyColor: '#0f172a',
+          codeBg: 'rgba(15,23,42,0.9)',
+          codeColor: '#f8fafc',
+          copyBorder: '1px solid rgba(255,255,255,0.3)',
+          copyBg: 'rgba(255,255,255,0.15)',
+          copyColor: '#f8fafc',
         };
 
   const PACKAGE_MANAGERS = ['npm', 'yarn', 'pnpm'];
-  const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Paradex'];
+  const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex'];
   const providerImportMap = {
     EVM: {
       import: 'EVMProvider',
@@ -135,35 +204,68 @@ export const QuickstartEmbed = () => {
     const cfg = providerImportMap[wallet];
     if (cfg) importLines.push(`import { ${cfg.import} } from '${cfg.from}';`);
   });
-  const providersArray = selectedWallets
+  const providersList = selectedWallets
     .map((wallet) => providerImportMap[wallet]?.import)
     .filter(Boolean)
-    .join(', ');
+    .map((provider, index, array) => {
+      const indent = '        ';
+      const isLast = index === array.length - 1;
+      return `${indent}${provider}${isLast ? '' : ','}`;
+    })
+    .join('\n');
+  
+  const walletProvidersLine = selectedWallets.length > 0
+    ? `      walletProviders={[\n${providersList}\n      ]}`
+    : null;
+  
   const snippetLines = [
     "import '@layerswap/widget/index.css';",
     ...importLines,
-    '',
-    'export default function App() {',
-    '  return (',
-    '    <LayerswapProvider',
-    '      config={{',
-    '        apiKey: {YOUR_API_KEY},',
-    "        version: 'mainnet' ,//'mainnet' or 'testnet'",
-    '        initialSettings: {',
-    "           defaultTab: 'swap' //'swap' or 'cex'",
+    "",
+    "export default function App() {",
+    "  return (",
+    "    <LayerswapProvider",
+    "      config={{",
+    "        apiKey: {YOUR_API_KEY},",
+    "        version: 'mainnet', //'mainnet' or 'testnet'",
+    "        initialValues: {",
+    "           defaultTab: 'swap', //'swap' or 'cex'",
     "           to: 'IMMUTABLEZK_MAINNET',",
-    "           toAsset: 'USDC',",
-    "           destination_address: '0x1234567890abcdef1234567890abcdef12345678'",
-    '        }',
-    '      }}',
-    `      walletProviders={[${providersArray}]}`,
-    '    >',
-    '      <Swap />',
-    '    </LayerswapProvider>',
-    '  );',
-    '}',
+    "           toAsset: 'USDC'",
+    "        }",
+    "      }}",
+    ...(walletProvidersLine ? [walletProvidersLine] : []),
+    "    >",
+    "      <Swap />",
+    "    </LayerswapProvider>",
+    "  );",
+    "}"
   ];
   const starterSnippet = snippetLines.join('\n');
+
+  // Refs for code blocks
+  const installCodeRef = useRef(null);
+  const snippetCodeRef = useRef(null);
+
+  // Trigger Prism highlighting when code content changes
+  useEffect(() => {
+    const highlight = () => {
+      if (window.Prism) {
+        // Use highlightAllUnder for specific elements
+        if (installCodeRef.current) {
+          window.Prism.highlightElement(installCodeRef.current);
+        }
+        if (snippetCodeRef.current) {
+          window.Prism.highlightElement(snippetCodeRef.current);
+        }
+      } else {
+        // If Prism not loaded yet, try again
+        setTimeout(highlight, 100);
+      }
+    };
+    
+    highlight();
+  }, [installCommand, starterSnippet]);
 
   // --- Styles
   const chip = (active) => ({
@@ -180,7 +282,7 @@ export const QuickstartEmbed = () => {
   const preWrap = { position: 'relative' };
   const copyBtn = {
     position: 'absolute',
-    top: -50,
+    top: 15,
     right: 8,
     padding: '0.25rem 0.5rem',
     borderRadius: 8,
@@ -247,6 +349,8 @@ export const QuickstartEmbed = () => {
         padding: '1rem',
         color: palette.textColor,
         transition: 'background 0.3s ease, color 0.3s ease, border 0.3s ease',
+        maxWidth: '100%',
+        overflow: 'hidden'
       }}
     >
       {/* Package Manager */}
@@ -287,20 +391,24 @@ export const QuickstartEmbed = () => {
       </div>
 
       {/* Install Command with Copy */}
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 12, maxWidth: '100%', overflow: 'hidden' }}>
         <div style={{ ...label, color: palette.sectionLabelColor, marginBottom: 6 }}>Install</div>
-        <div style={preWrap}>
-          <pre
-            style={{
-              background: palette.codeBg,
-              padding: 12,
-              paddingRight: 50,
-              borderRadius: 10,
-              overflowX: 'auto',
-              color: palette.codeColor,
-            }}
-          >
-            <code>{installCommand}</code>
+        <div style={{ ...preWrap, maxWidth: '100%', overflow: 'hidden' }}>
+          <pre style={{
+            background: palette.codeBg,
+            padding: 12,
+            paddingRight: 50,
+            borderRadius: 10,
+            overflow: 'hidden',
+            whiteSpace: 'pre-wrap',
+            wordWrap: 'break-word',
+            overflowWrap: 'anywhere',
+            maxWidth: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+            color: palette.codeColor
+          }}>
+            <code ref={installCodeRef} className="language-bash" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'anywhere', display: 'block', maxWidth: '100%' }}>{installCommand}</code>
           </pre>
           <button style={copyBtn} onClick={() => copy(installCommand, 'install')}>
             {copiedInstall ? 'Copied!' : 'Copy'}
@@ -309,19 +417,23 @@ export const QuickstartEmbed = () => {
       </div>
 
       {/* Starter Snippet with Copy */}
-      <div>
+      <div style={{ maxWidth: '100%', overflow: 'hidden' }}>
         <div style={{ ...label, color: palette.sectionLabelColor, marginBottom: 6 }}>Initialize the SDK</div>
-        <div style={preWrap}>
-          <pre
-            style={{
-              background: palette.codeBg,
-              padding: 12,
-              borderRadius: 10,
-              overflowX: 'auto',
-              color: palette.codeColor,
-            }}
-          >
-            <code>{starterSnippet}</code>
+        <div style={{ ...preWrap, maxWidth: '100%', overflow: 'hidden' }}>
+          <pre style={{
+            background: palette.codeBg,
+            padding: 12,
+            borderRadius: 10,
+            overflow: 'hidden',
+            whiteSpace: 'pre-wrap',
+            wordWrap: 'break-word',
+            overflowWrap: 'anywhere',
+            maxWidth: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+            color: palette.codeColor
+          }}>
+            <code ref={snippetCodeRef} className="language-jsx" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'anywhere', display: 'block', maxWidth: '100%' }}>{starterSnippet}</code>
           </pre>
           <button style={copyBtn} onClick={() => copy(starterSnippet, 'snippet')}>
             {copiedSnippet ? 'Copied!' : 'Copy'}
