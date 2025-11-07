@@ -44,7 +44,7 @@
             ]
           },
           {
-            "group": "Advanced",
+            "group": "Widget Setup",
             "pages": [
               {
                 "group": "Event Callbacks",
