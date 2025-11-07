@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "willow",
+  "theme": "aspen",
   "name": "Layerswap Developer Portal",
   "colors": {
     "primary": "#CC2D5D",
     "light": "#CC2D5D",
-    "dark": "#CC2D5D"
+    "dark": "#E53E7B"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -92,6 +92,12 @@
         ]
       },
       {
+        "tab": "Deposit Address",
+         "pages": [
+              "integration/UI/Widget/CustomMode"
+            ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "groups": [
@@ -116,9 +122,13 @@
   },
   "appearance": {
     "default": "dark",
-    "strict": true
+    "strict": false
   },
-  "background": {},
+  "background": {
+    "color": {
+      "dark": "#000000"
+    }
+  },
   "navbar": {
     "links": [
       {
