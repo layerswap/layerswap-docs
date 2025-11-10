@@ -69,7 +69,6 @@
                   "integration/UI/Widget/EventCallbacks/onFormChange",
                   "integration/UI/Widget/EventCallbacks/onSwapCreate",
                   "integration/UI/Widget/EventCallbacks/onSwapComplete",
-                  "integration/UI/Widget/EventCallbacks/onSwapIdChange",
                   "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
                   "integration/UI/Widget/EventCallbacks/onBackClick"
                 ]
