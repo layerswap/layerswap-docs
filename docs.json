@@ -28,26 +28,15 @@
           {
             "group": "Getting Started",
             "pages": [
+              "integration/UI/IntegrationOverview",
               "integration/UI/Widget/Quickstart",
-              "integration/UI/Widget/TabOptions",
-              "integration/UI/iFrame",
               "integration/UI/Configurations"
             ]
           },
           {
-            "group": "Advanced",
+            "group": "Widget Setup",
             "pages": [
-              {
-                "group": "Event Callbacks",
-                "pages": [
-                  "integration/UI/Widget/EventCallbacks/EventsIntroduction",
-                  "integration/UI/Widget/EventCallbacks/onFormChange",
-                  "integration/UI/Widget/EventCallbacks/onSwapCreate",
-                  "integration/UI/Widget/EventCallbacks/onSwapComplete",
-                  "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
-                  "integration/UI/Widget/EventCallbacks/onBackClick"
-                ]
-              },
+              "integration/UI/Widget/TabOptions",
               {
                 "group": "Wallets",
                 "pages": [
@@ -63,7 +52,33 @@
                   "integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
                   "integration/UI/Widget/WalletManagement/ImmutableXProvider"
                 ]
+              },
+              {
+                "group": "Customization",
+                "pages": [
+                  "integration/UI/Widget/Customization/CustomizationIntroduction",
+                  "integration/UI/Widget/Customization/Colors",
+                  "integration/UI/Widget/Customization/ThemeConfiguration",
+                  "integration/UI/Widget/Customization/ThemeExamples"
+                ]
+              },
+              {
+                "group": "Event Callbacks",
+                "pages": [
+                  "integration/UI/Widget/EventCallbacks/EventsIntroduction",
+                  "integration/UI/Widget/EventCallbacks/onFormChange",
+                  "integration/UI/Widget/EventCallbacks/onSwapCreate",
+                  "integration/UI/Widget/EventCallbacks/onSwapComplete",
+                  "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
+                  "integration/UI/Widget/EventCallbacks/onBackClick"
+                ]
               }
+            ]
+          },
+          {
+            "group": "IFrame Setup",
+            "pages": [
+              "integration/UI/iFrame"
             ]
           }
         ]

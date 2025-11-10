@@ -1,0 +1,305 @@
+---
+title: "Theme Examples"
+description: "Ready-to-use theme examples for different use cases"
+---
+
+## Overview
+
+This page provides complete, production-ready theme examples that you can use as starting points for your own customization. Each example includes full color palettes, configuration options, and usage guidance.
+
+## Dark Theme
+
+A dark theme with indigo accents:
+
+```typescript
+const darkTheme = {
+  tertiary: '148, 163, 184',
+  buttonTextColor: '255, 255, 255',
+  borderRadius: 'medium',
+
+  primary: {
+    DEFAULT: '99, 102, 241',
+    '100': '224, 231, 255',
+    '200': '199, 210, 254',
+    '300': '165, 180, 252',
+    '400': '129, 140, 248',
+    '500': '99, 102, 241',
+    '600': '79, 70, 229',
+    '700': '67, 56, 202',
+    '800': '55, 48, 163',
+    '900': '49, 46, 129',
+    'text': '255, 255, 255',
+  },
+
+  secondary: {
+    DEFAULT: '30, 41, 59',
+    '100': '241, 245, 249',
+    '200': '226, 232, 240',
+    '300': '203, 213, 225',
+    '400': '148, 163, 184',
+    '500': '100, 116, 139',
+    '600': '71, 85, 105',
+    '700': '51, 65, 85',
+    '800': '30, 41, 59',
+    '900': '15, 23, 42',
+    'text': '148, 163, 184',
+  },
+
+  warning: {
+    Foreground: '234, 179, 8',
+    Background: '254, 252, 232'
+  },
+
+  error: {
+    Foreground: '239, 68, 68',
+    Background: '254, 242, 242'
+  },
+
+  success: {
+    Foreground: '34, 197, 94',
+    Background: '240, 253, 244'
+  }
+};
+```
+
+## Light Theme
+
+A light theme optimized for bright backgrounds:
+
+```typescript
+const lightTheme = {
+  tertiary: '203, 213, 225',
+  buttonTextColor: '15, 23, 42',
+  borderRadius: 'large',
+
+  primary: {
+    DEFAULT: '59, 130, 246',
+    '100': '219, 234, 254',
+    '200': '191, 219, 254',
+    '300': '147, 197, 253',
+    '400': '96, 165, 250',
+    '500': '59, 130, 246',
+    '600': '37, 99, 235',
+    '700': '29, 78, 216',
+    '800': '30, 64, 175',
+    '900': '30, 58, 138',
+    'text': '255, 255, 255',
+  },
+
+  secondary: {
+    DEFAULT: '241, 245, 249',
+    '100': '15, 23, 42',
+    '200': '30, 41, 59',
+    '300': '51, 65, 85',
+    '400': '71, 85, 105',
+    '500': '100, 116, 139',
+    '600': '148, 163, 184',
+    '700': '203, 213, 225',
+    '800': '226, 232, 240',
+    '900': '241, 245, 249',
+    'text': '51, 65, 85',
+  },
+
+  warning: {
+    Foreground: '217, 119, 6',
+    Background: '254, 243, 199'
+  },
+
+  error: {
+    Foreground: '220, 38, 38',
+    Background: '254, 226, 226'
+  },
+
+  success: {
+    Foreground: '22, 163, 74',
+    Background: '220, 252, 231'
+  }
+};
+```
+
+## Brand Theme
+
+A branded theme with glassmorphism effects:
+
+```typescript
+const brandTheme = {
+  tertiary: '163, 163, 163',
+  buttonTextColor: '19, 19, 19',
+  borderRadius: 'extraLarge',
+
+  cardBackgroundStyle: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+  },
+
+  header: {
+    hideMenu: false,
+    hideTabs: false,
+    hideWallets: false,
+  },
+
+  primary: {
+    DEFAULT: '204, 45, 93',
+    '100': '255, 241, 242',
+    '200': '254, 205, 211',
+    '300': '252, 165, 165',
+    '400': '248, 113, 113',
+    '500': '204, 45, 93',
+    '600': '185, 28, 28',
+    '700': '153, 27, 27',
+    '800': '127, 29, 29',
+    '900': '105, 29, 29',
+    'text': '255, 255, 255',
+  },
+
+  secondary: {
+    DEFAULT: '25, 25, 28',
+    '100': '212, 212, 216',
+    '200': '161, 161, 170',
+    '300': '113, 113, 122',
+    '400': '63, 63, 70',
+    '500': '39, 39, 42',
+    '600': '30, 30, 33',
+    '700': '24, 24, 27',
+    '800': '18, 18, 21',
+    '900': '9, 9, 11',
+    'text': '163, 163, 163',
+  },
+
+  warning: {
+    Foreground: '251, 191, 36',
+    Background: '254, 249, 195'
+  },
+
+  error: {
+    Foreground: '239, 68, 68',
+    Background: '254, 242, 242'
+  },
+
+  success: {
+    Foreground: '34, 197, 94',
+    Background: '240, 253, 244'
+  },
+
+  hidePoweredBy: false
+};
+```
+
+## Minimalist Transparent Theme
+
+A seamless integration with transparent background:
+
+```typescript
+const minimalistTheme = {
+  tertiary: '148, 163, 184',
+  buttonTextColor: '255, 255, 255',
+  borderRadius: 'small',
+
+  cardBackgroundStyle: {
+    backgroundColor: 'transparent',
+  },
+
+  header: {
+    hideMenu: true,
+    hideTabs: true,
+    hideWallets: true,
+  },
+
+  primary: {
+    DEFAULT: '99, 102, 241',
+    '100': '224, 231, 255',
+    '200': '199, 210, 254',
+    '300': '165, 180, 252',
+    '400': '129, 140, 248',
+    '500': '99, 102, 241',
+    '600': '79, 70, 229',
+    '700': '67, 56, 202',
+    '800': '55, 48, 163',
+    '900': '49, 46, 129',
+    'text': '255, 255, 255',
+  },
+
+  secondary: {
+    DEFAULT: '30, 41, 59',
+    '100': '241, 245, 249',
+    '200': '226, 232, 240',
+    '300': '203, 213, 225',
+    '400': '148, 163, 184',
+    '500': '100, 116, 139',
+    '600': '71, 85, 105',
+    '700': '51, 65, 85',
+    '800': '30, 41, 59',
+    '900': '15, 23, 42',
+    'text': '148, 163, 184',
+  },
+
+  warning: {
+    Foreground: '234, 179, 8',
+    Background: '254, 252, 232'
+  },
+
+  error: {
+    Foreground: '239, 68, 68',
+    Background: '254, 242, 242'
+  },
+
+  success: {
+    Foreground: '34, 197, 94',
+    Background: '240, 253, 244'
+  },
+
+  hidePoweredBy: true
+};
+```
+
+## Complete Integration Example
+
+Here's how to use these themes in your application:
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+import { darkTheme } from './themes/darkTheme'; // Import your chosen theme
+
+export default function App() {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        theme: darkTheme, // Apply the theme
+        initialValues: {
+          defaultTab: 'swap',
+          to: 'ARBITRUM_MAINNET',
+          toAsset: 'USDC',
+          destAddress: '0x1234567890abcdef1234567890abcdef12345678'
+        }
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Testing Your Theme
+
+<Card title="Test in Playground" icon="flask" href="https://playground.layerswap.io">
+  Copy any of these themes into the playground to see how they look with real widget components before implementing.
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Color Customization" icon="palette" href="/integration/UI/Widget/Customization/Colors">
+    Customize colors and generate color palettes
+  </Card>
+  <Card title="Theme Configuration" icon="gear" href="/integration/UI/Widget/Customization/ThemeConfiguration">
+    Explore all configuration options
+  </Card>
+  <Card title="Tailwind Shades" icon="swatchbook" href="https://tailwindshades.app/">
+    Generate custom color palettes from a single color
+  </Card>
+</CardGroup>

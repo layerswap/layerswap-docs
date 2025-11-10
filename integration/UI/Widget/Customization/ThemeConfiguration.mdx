@@ -1,0 +1,265 @@
+---
+title: "Theme Configuration"
+description: "Configure borders, headers, layouts, and other elements"
+---
+
+## Overview
+
+Beyond colors, the Layerswap Widget offers extensive configuration options for layout, borders, header visibility, and custom styling. These options allow you to control the widget's structure and behavior to match your application's design system.
+
+## Theme Type Definition
+
+The complete theme configuration type:
+
+```typescript
+export type ThemeData = {
+  buttonTextColor?: string,
+  tertiary?: string,
+  primary?: ThemeColor,
+  secondary?: ThemeColor,
+  warning?: StatusColor,
+  error?: StatusColor,
+  success?: StatusColor,
+  borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'extraLarge' | 'default',
+  header?: {
+    hideMenu?: boolean,
+    hideTabs?: boolean,
+    hideWallets?: boolean,
+  },
+  cardBackgroundStyle?: React.CSSProperties,
+  hidePoweredBy?: boolean
+}
+```
+
+## Border Radius
+
+<ResponseField name="borderRadius" type="'none' | 'small' | 'medium' | 'large' | 'extraLarge' | 'default'">
+  Controls the roundness of corners for cards, buttons, and other UI elements throughout the widget.
+</ResponseField>
+
+### Available Options
+
+| Value          | Border Radius  | Use Case                    |
+| -------------- | -------------- | --------------------------- |
+| `'none'`       | 0px            | Sharp, modern designs       |
+| `'small'`      | 4px            | Subtle roundness            |
+| `'medium'`     | 8px            | Balanced appearance         |
+| `'large'`      | 12px           | Soft, friendly design       |
+| `'extraLarge'` | 16px           | Maximum roundness           |
+| `'default'`    | Widget default | Use widget's built-in style |
+
+**Example:**
+
+```typescript
+const theme = {
+  borderRadius: 'medium',
+  // ... other theme properties
+}
+```
+
+**Visual Impact:**
+
+- Affects all cards, modals, and containers
+- Applies to buttons and interactive elements
+- Influences input fields and dropdowns
+- Consistent across all widget components
+
+## Header Customization
+
+<ResponseField name="header" type="object">
+  Configuration object for widget header visibility options. Control which elements appear in the widget header.
+</ResponseField>
+
+### Hide Menu
+
+<ResponseField name="header.hideMenu" type="boolean">
+  Hide the menu button in the widget header. Set to `true` to remove the menu icon.
+</ResponseField>
+
+```typescript
+header: {
+  hideMenu: true
+}
+```
+
+### Hide Tabs
+
+<ResponseField name="header.hideTabs" type="boolean">
+  Hide the tab switcher (swap/cex) in the widget header. Set to `true` to lock users into a specific flow.
+</ResponseField>
+
+```typescript
+header: {
+  hideTabs: true
+}
+```
+
+<Note>
+  When `hideTabs` is `true`, users can only access the flow specified in `initialValues.defaultTab`. See [Tab Options](/integration/UI/Widget/TabOptions) for more details.
+</Note>
+
+### Hide Wallets
+
+<ResponseField name="header.hideWallets" type="boolean">
+  Hide the wallet connection display in the widget header. Set to `true` to remove the wallet indicator.
+</ResponseField>
+
+```typescript
+header: {
+  hideWallets: true
+}
+```
+
+### Complete Header Example
+
+```typescript
+const theme = {
+  header: {
+    hideMenu: true,
+    hideTabs: true,
+    hideWallets: true,
+  },
+  // ... other theme properties
+}
+```
+
+This configuration creates a minimal header with no menu, no tab switcher, and no wallet display.
+
+## Card Background Style
+
+<ResponseField name="cardBackgroundStyle" type="React.CSSProperties">
+  Custom CSS styles for card backgrounds. Accepts any valid React CSS properties, enabling transparent backgrounds, blur effects, borders, and more.
+</ResponseField>
+
+### Basic Transparent Background
+
+```typescript
+cardBackgroundStyle: {
+  backgroundColor: 'transparent',
+}
+```
+
+### Glassmorphism Effect
+
+```typescript
+cardBackgroundStyle: {
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backdropFilter: 'blur(20px)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+}
+```
+
+### Custom Gradient
+
+```typescript
+cardBackgroundStyle: {
+  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+  border: '1px solid rgba(99, 102, 241, 0.2)',
+}
+```
+
+### With Shadow
+
+```typescript
+cardBackgroundStyle: {
+  backgroundColor: '#1a1a2e',
+  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
+}
+```
+
+**Supported Properties:**
+
+- `backgroundColor` / `background`
+- `backdropFilter`
+- `border` / `borderRadius`
+- `boxShadow`
+- `padding` / `margin`
+- Any valid CSS property that works with React's `style` prop
+
+<Note>
+  The `cardBackgroundStyle` applies to the main widget card container. It does not override the `borderRadius` theme property - use the `borderRadius` field for consistent corner styling.
+</Note>
+
+## Hide Powered By
+
+<ResponseField name="hidePoweredBy" type="boolean">
+  Remove the "Powered by Layerswap" branding from the widget footer. Set to `true` to hide the attribution.
+</ResponseField>
+
+```typescript
+const theme = {
+  hidePoweredBy: true,
+  // ... other theme properties
+}
+```
+
+## Complete Configuration Example
+
+Here's a complete example combining all configuration options:
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { EVMProvider } from '@layerswap/wallet-evm';
+
+export default function App() {
+  const customTheme = {
+    // Colors (see Colors documentation)
+    primary: {
+      DEFAULT: '99, 102, 241',
+      '500': '99, 102, 241',
+      'text': '255, 255, 255',
+    },
+    secondary: {
+      DEFAULT: '30, 41, 59',
+      '500': '30, 41, 59',
+      'text': '148, 163, 184',
+    },
+    tertiary: '148, 163, 184',
+    buttonTextColor: '255, 255, 255',
+
+    // Layout & Structure
+    borderRadius: 'large',
+
+    // Header Configuration
+    header: {
+      hideMenu: true,
+      hideTabs: false,
+      hideWallets: false,
+    },
+
+    // Advanced Styling
+    cardBackgroundStyle: {
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+    },
+
+    // Branding
+    hidePoweredBy: false,
+  };
+
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        theme: customTheme,
+        initialValues: {
+          defaultTab: 'swap',
+          to: 'ARBITRUM_MAINNET',
+        }
+      }}
+      walletProviders={[EVMProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Testing Your Configuration
+
+<Card title="Test in Playground" icon="flask" href="https://playground.layerswap.io">
+  Experiment with the configuration options in real-time before implementing in your application.
+</Card>
