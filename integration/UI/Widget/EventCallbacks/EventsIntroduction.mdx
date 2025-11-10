@@ -1,10 +1,13 @@
 ---
 title: "Events Introduction"
+description: "Subscribe to widget events and receive swap status updates"
 ---
+
+Events provide a way to receive updates on the status of swaps and handle errors through custom callbacks.
 
 You do not need to import anything extra to make use of event callbacks, instead simply add them using the events field inside the settings prop on LayerswapProvider.
 
-```jsx  theme={"system"}
+```jsx
 <LayerswapProvider
     callbacks={{
       // events callbacks go here
@@ -13,7 +16,6 @@ You do not need to import anything extra to make use of event callbacks, instead
   ...
 </LayerswapProvider>
 ```
-
 
 [**onFormChange**](/integration/UI/Widget/EventCallbacks/onFormChange): Called whenever the swap form values change — for example, when the user updates the asset, amount, or destination network.
 
