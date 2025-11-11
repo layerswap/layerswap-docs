@@ -78,6 +78,15 @@ export const NetworksTokensEmbed = () => {
         return String(value).trim().toLowerCase();
     };
 
+    const isDecimalNumber = (value) => {
+        if (!hasChainId(value)) return false;
+        const normalized = String(value).trim();
+        if (/^0x/i.test(normalized)) return false;
+        if (/[a-fA-F]/.test(normalized)) return false;
+        const parsed = Number(normalized);
+        return !Number.isNaN(parsed) && Number.isFinite(parsed);
+    };
+
     const compareChainIds = (a, b) => {
         const aHas = hasChainId(a.chain_id);
         const bHas = hasChainId(b.chain_id);
@@ -594,7 +603,7 @@ export const NetworksTokensEmbed = () => {
                                                 >
                                                     {networkTypeLabel}
                                                 </span>
-                                                {parseChainIdNumber(network.chain_id) !== null && (
+                                                {isDecimalNumber(network.chain_id) && (
                                                     <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
                                                 )}
                                             </div>
