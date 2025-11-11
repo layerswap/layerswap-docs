@@ -135,7 +135,7 @@ This configuration creates a minimal header with no menu, no tab switcher, and n
 
 ```typescript
 cardBackgroundStyle: {
-  backgroundColor: 'transparent',
+  backgroundColor: "transparent"
 }
 ```
 
@@ -143,9 +143,9 @@ cardBackgroundStyle: {
 
 ```typescript
 cardBackgroundStyle: {
-  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  backdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
+  backgroundColor: "rgba(255, 255, 255, 0.01)",
+  backdropFilter: "blur(20px)",
+  border: "1px solid rgba(255, 255, 255, 0.1)"
 }
 ```
 
@@ -153,8 +153,8 @@ cardBackgroundStyle: {
 
 ```typescript
 cardBackgroundStyle: {
-  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-  border: '1px solid rgba(99, 102, 241, 0.2)',
+  background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)",
+  border: "1px solid rgba(99, 102, 241, 0.2)"
 }
 ```
 
@@ -162,9 +162,9 @@ cardBackgroundStyle: {
 
 ```typescript
 cardBackgroundStyle: {
-  backgroundColor: '#1a1a2e',
-  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-  border: '1px solid rgba(255, 255, 255, 0.05)',
+  backgroundColor: "#1a1a2e",
+  boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+  border: "1px solid rgba(255, 255, 255, 0.05)"
 }
 ```
 
@@ -206,20 +206,20 @@ export default function App() {
   const customTheme = {
     // Colors (see Colors documentation)
     primary: {
-      DEFAULT: '99, 102, 241',
-      '500': '99, 102, 241',
-      'text': '255, 255, 255',
+      DEFAULT: "99, 102, 241",
+      500: "99, 102, 241",
+      text: "255, 255, 255"
     },
     secondary: {
-      DEFAULT: '30, 41, 59',
-      '500': '30, 41, 59',
-      'text': '148, 163, 184',
+      DEFAULT: "30, 41, 59",
+      500: "30, 41, 59",
+      text: "148, 163, 184"
     },
-    tertiary: '148, 163, 184',
-    buttonTextColor: '255, 255, 255',
+    tertiary: "148, 163, 184",
+    buttonTextColor: "255, 255, 255",
 
     // Layout & Structure
-    borderRadius: 'large',
+    borderRadius: "large",
 
     // Header Configuration
     header: {
@@ -230,13 +230,13 @@ export default function App() {
 
     // Advanced Styling
     cardBackgroundStyle: {
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      backdropFilter: "blur(10px)",
+      border: "1px solid rgba(255, 255, 255, 0.1)"
     },
 
     // Branding
-    hidePoweredBy: false,
+    hidePoweredBy: false
   };
 
   return (
