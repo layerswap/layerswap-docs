@@ -9,249 +9,165 @@ This page provides complete, production-ready theme examples that you can use as
 
 ## Dark Theme
 
-A dark theme with indigo accents:
+<Card title="Dark Theme" img="/images/darkTheme.svg" />
+
+<Accordion title="View dark theme configuration">
 
 ```typescript
-const darkTheme = {
-  tertiary: '148, 163, 184',
-  buttonTextColor: '255, 255, 255',
-  borderRadius: 'medium',
-
-  primary: {
-    DEFAULT: '99, 102, 241',
-    '100': '224, 231, 255',
-    '200': '199, 210, 254',
-    '300': '165, 180, 252',
-    '400': '129, 140, 248',
-    '500': '99, 102, 241',
-    '600': '79, 70, 229',
-    '700': '67, 56, 202',
-    '800': '55, 48, 163',
-    '900': '49, 46, 129',
-    'text': '255, 255, 255',
-  },
-
-  secondary: {
-    DEFAULT: '30, 41, 59',
-    '100': '241, 245, 249',
-    '200': '226, 232, 240',
-    '300': '203, 213, 225',
-    '400': '148, 163, 184',
-    '500': '100, 116, 139',
-    '600': '71, 85, 105',
-    '700': '51, 65, 85',
-    '800': '30, 41, 59',
-    '900': '15, 23, 42',
-    'text': '148, 163, 184',
-  },
-
-  warning: {
-    Foreground: '234, 179, 8',
-    Background: '254, 252, 232'
-  },
-
-  error: {
-    Foreground: '239, 68, 68',
-    Background: '254, 242, 242'
-  },
-
-  success: {
-    Foreground: '34, 197, 94',
-    Background: '240, 253, 244'
+const config = {
+  theme: {
+    tertiary: "118, 128, 147",
+    buttonTextColor: "228, 229, 240",
+    borderRadius: "medium",
+    warning: {
+      Foreground: "255, 201, 74",
+      Background: "47, 43, 29"
+    },
+    error: {
+      Foreground: "255, 97, 97",
+      Background: "46, 27, 27"
+    },
+    success: {
+      Foreground: "89, 224, 125",
+      Background: "14, 43, 22"
+    },
+    primary: {
+      100: "255, 148, 176",
+      200: "245, 103, 141",
+      300: "235, 84, 129",
+      400: "229, 64, 114",
+      500: "204, 45, 93",
+      600: "178, 29, 74",
+      700: " 143, 23, 59",
+      800: "89, 14, 37",
+      900: "46, 7, 19",
+      DEFAULT: "204, 45, 93",
+      text: "225, 227, 230"
+    },
+    secondary: {
+      100: "60, 72, 97",
+      200: "52, 63, 87",
+      300: "40, 50, 71",
+      400: "31, 40, 61",
+      500: "23, 31, 49",
+      600: "18, 25, 41",
+      700: "14, 21, 36",
+      800: "11, 17, 31",
+      900: "7, 12, 23",
+      DEFAULT: "17, 29, 54",
+      text: "163, 173, 194"
+    }
   }
 };
 ```
-
+</Accordion>
 ## Light Theme
 
 A light theme optimized for bright backgrounds:
 
+<Card title="Light Theme" img="/images/lightTheme.svg" />
+
+<Accordion title="View light theme configuration">
 ```typescript
-const lightTheme = {
-  tertiary: '203, 213, 225',
-  buttonTextColor: '15, 23, 42',
-  borderRadius: 'large',
-
-  primary: {
-    DEFAULT: '59, 130, 246',
-    '100': '219, 234, 254',
-    '200': '191, 219, 254',
-    '300': '147, 197, 253',
-    '400': '96, 165, 250',
-    '500': '59, 130, 246',
-    '600': '37, 99, 235',
-    '700': '29, 78, 216',
-    '800': '30, 64, 175',
-    '900': '30, 58, 138',
-    'text': '255, 255, 255',
-  },
-
-  secondary: {
-    DEFAULT: '241, 245, 249',
-    '100': '15, 23, 42',
-    '200': '30, 41, 59',
-    '300': '51, 65, 85',
-    '400': '71, 85, 105',
-    '500': '100, 116, 139',
-    '600': '148, 163, 184',
-    '700': '203, 213, 225',
-    '800': '226, 232, 240',
-    '900': '241, 245, 249',
-    'text': '51, 65, 85',
-  },
-
-  warning: {
-    Foreground: '217, 119, 6',
-    Background: '254, 243, 199'
-  },
-
-  error: {
-    Foreground: '220, 38, 38',
-    Background: '254, 226, 226'
-  },
-
-  success: {
-    Foreground: '22, 163, 74',
-    Background: '220, 252, 231'
+const config = {
+  theme: {
+    tertiary: "86, 97, 123",
+    buttonTextColor: "17, 17, 17",
+    borderRadius: "medium",
+    warning: {
+      Foreground: "200, 130, 0",
+      Background: "255, 250, 230"
+    },
+    error: {
+      Foreground: "220, 50, 50",
+      Background: "255, 240, 240"
+    },
+    success: {
+      Foreground: "40, 180, 80",
+      Background: "235, 255, 240"
+    },
+    primary: {
+      100: "255, 240, 248",
+      200: "252, 210, 230",
+      300: "247, 173, 210",
+      400: "239, 131, 178",
+      500: "228, 37, 117",
+      600: "195, 30, 95",
+      700: "156, 24, 76",
+      800: "117, 18, 57",
+      900: "78, 12, 38",
+      DEFAULT: "228, 37, 117",
+      text: "10, 10, 10"
+    },
+    secondary: {
+      100: "255, 255, 255",
+      200: "245, 247, 252",
+      300: "235, 238, 245",
+      400: "223, 227, 238",
+      500: "210, 215, 230",
+      600: "190, 196, 214",
+      700: "168, 176, 199",
+      800: "140, 150, 175",
+      900: "110, 121, 150",
+      DEFAULT: "240, 243, 248",
+      text: "40, 50, 70"
+    }
   }
 };
 ```
-
+</Accordion>
 ## Brand Theme
-
-A branded theme with glassmorphism effects:
-
-```typescript
-const brandTheme = {
-  tertiary: '163, 163, 163',
-  buttonTextColor: '19, 19, 19',
-  borderRadius: 'extraLarge',
-
-  cardBackgroundStyle: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-  },
-
-  header: {
-    hideMenu: false,
-    hideTabs: false,
-    hideWallets: false,
-  },
-
-  primary: {
-    DEFAULT: '204, 45, 93',
-    '100': '255, 241, 242',
-    '200': '254, 205, 211',
-    '300': '252, 165, 165',
-    '400': '248, 113, 113',
-    '500': '204, 45, 93',
-    '600': '185, 28, 28',
-    '700': '153, 27, 27',
-    '800': '127, 29, 29',
-    '900': '105, 29, 29',
-    'text': '255, 255, 255',
-  },
-
-  secondary: {
-    DEFAULT: '25, 25, 28',
-    '100': '212, 212, 216',
-    '200': '161, 161, 170',
-    '300': '113, 113, 122',
-    '400': '63, 63, 70',
-    '500': '39, 39, 42',
-    '600': '30, 30, 33',
-    '700': '24, 24, 27',
-    '800': '18, 18, 21',
-    '900': '9, 9, 11',
-    'text': '163, 163, 163',
-  },
-
-  warning: {
-    Foreground: '251, 191, 36',
-    Background: '254, 249, 195'
-  },
-
-  error: {
-    Foreground: '239, 68, 68',
-    Background: '254, 242, 242'
-  },
-
-  success: {
-    Foreground: '34, 197, 94',
-    Background: '240, 253, 244'
-  },
-
-  hidePoweredBy: false
-};
-```
 
 ## Minimalist Transparent Theme
 
 A seamless integration with transparent background:
 
+<Card title="Minimalist Transparent Theme" img="/images/transparentTheme.svg" />
+
+<Accordion title="View minimalist transparent theme configuration">
 ```typescript
-const minimalistTheme = {
-  tertiary: '148, 163, 184',
-  buttonTextColor: '255, 255, 255',
-  borderRadius: 'small',
-
-  cardBackgroundStyle: {
-    backgroundColor: 'transparent',
-  },
-
-  header: {
-    hideMenu: true,
-    hideTabs: true,
-    hideWallets: true,
-  },
-
-  primary: {
-    DEFAULT: '99, 102, 241',
-    '100': '224, 231, 255',
-    '200': '199, 210, 254',
-    '300': '165, 180, 252',
-    '400': '129, 140, 248',
-    '500': '99, 102, 241',
-    '600': '79, 70, 229',
-    '700': '67, 56, 202',
-    '800': '55, 48, 163',
-    '900': '49, 46, 129',
-    'text': '255, 255, 255',
-  },
-
-  secondary: {
-    DEFAULT: '30, 41, 59',
-    '100': '241, 245, 249',
-    '200': '226, 232, 240',
-    '300': '203, 213, 225',
-    '400': '148, 163, 184',
-    '500': '100, 116, 139',
-    '600': '71, 85, 105',
-    '700': '51, 65, 85',
-    '800': '30, 41, 59',
-    '900': '15, 23, 42',
-    'text': '148, 163, 184',
-  },
-
-  warning: {
-    Foreground: '234, 179, 8',
-    Background: '254, 252, 232'
-  },
-
-  error: {
-    Foreground: '239, 68, 68',
-    Background: '254, 242, 242'
-  },
-
-  success: {
-    Foreground: '34, 197, 94',
-    Background: '240, 253, 244'
-  },
-
-  hidePoweredBy: true
+const config = {
+  theme: {
+    tertiary: "182, 182, 182",
+    buttonTextColor: "19, 19, 19",
+    cardBackgroundStyle: {
+      backgroundColor: "transparent"
+    },
+    header: {
+      hideMenu: true,
+      hideTabs: true,
+      hideWallets: true
+    },
+    primary: {
+      100: "255, 255, 255",
+      200: "255, 255, 255",
+      300: "255, 255, 255",
+      400: "255, 255, 255",
+      500: "243, 243, 243",
+      600: "215, 215, 215",
+      700: "187, 187, 187",
+      800: "159, 159, 159",
+      900: "131, 131, 131",
+      DEFAULT: "243, 243, 243",
+      text: "243, 243, 243"
+    },
+    secondary: {
+      100: "119, 119, 119",
+      200: "98, 98, 98",
+      300: "78, 78, 78",
+      400: "57, 57, 57",
+      500: "37, 37, 37",
+      600: "13, 13, 13",
+      700: "13, 13, 13",
+      800: "13, 13, 13",
+      900: "0, 0, 0",
+      DEFAULT: "37, 37, 37",
+      text: "182, 182, 182"
+    }
+  }
 };
 ```
+</Accordion>
 
 ## Complete Integration Example
 
