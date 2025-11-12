@@ -250,13 +250,13 @@ export const NetworksTokensEmbed = () => {
 
     const allTokens = useMemo(() => {
         const tokenMap = new Map();
-        
+
         networks.forEach((network) => {
             const networkTokens = tokensByNetwork[network.name] || [];
             networkTokens.forEach((token) => {
                 const symbol = token.symbol;
                 if (!symbol) return;
-                
+
                 if (!tokenMap.has(symbol)) {
                     tokenMap.set(symbol, {
                         symbol,
@@ -266,13 +266,13 @@ export const NetworksTokensEmbed = () => {
                         networkCount: 0,
                     });
                 }
-                
+
                 const tokenEntry = tokenMap.get(symbol);
                 if (!tokenEntry.networks.find(n => n.name === network.name)) {
                     tokenEntry.networks.push(network);
                     tokenEntry.networkCount = tokenEntry.networks.length;
                 }
-                
+
                 if (!tokenEntry.logo && token.logo) {
                     tokenEntry.logo = token.logo;
                 }
@@ -281,7 +281,7 @@ export const NetworksTokensEmbed = () => {
                 }
             });
         });
-        
+
         return Array.from(tokenMap.values()).sort((a, b) => {
             const symbolA = (a.symbol || '').toLowerCase();
             const symbolB = (b.symbol || '').toLowerCase();
@@ -292,7 +292,7 @@ export const NetworksTokensEmbed = () => {
     const filteredTokens = useMemo(() => {
         const needle = tokenSearchTerm.trim().toLowerCase();
         if (!needle) return allTokens;
-        
+
         return allTokens.filter((token) => {
             const symbol = (token.symbol || '').toLowerCase();
             const displayAsset = (token.display_asset || '').toLowerCase();
@@ -336,48 +336,6 @@ export const NetworksTokensEmbed = () => {
                 overflowY: 'hidden',
             }}
         >
-            <header style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 600 }}>Networks & Tokens Explorer</h2>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <button
-                            onClick={() => setViewMode('networks')}
-                            style={{
-                                padding: '0.35rem 0.65rem',
-                                borderRadius: 8,
-                                border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
-                                background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
-                                color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
-                                fontSize: '0.8rem',
-                                fontWeight: viewMode === 'networks' ? 600 : 400,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                            }}
-                        >
-                            Networks
-                        </button>
-                        <button
-                            onClick={() => setViewMode('tokens')}
-                            style={{
-                                padding: '0.35rem 0.65rem',
-                                borderRadius: 8,
-                                border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
-                                background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
-                                color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
-                                fontSize: '0.8rem',
-                                fontWeight: viewMode === 'tokens' ? 600 : 400,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                            }}
-                        >
-                            Tokens
-                        </button>
-                    </div>
-                </div>
-                <p style={{ margin: 0, color: palette.subTextColor, fontSize: '0.95rem' }}>
-                    Browse all available networks and their supported tokens currently available in Layerswap.
-                </p>
-            </header>
 
             {fetchError && (
                 <div
@@ -396,321 +354,354 @@ export const NetworksTokensEmbed = () => {
 
             {viewMode === 'networks' ? (
                 selectedNetwork ? (
-                <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <button
-                                onClick={() => setSelectedNetwork(null)}
-                                style={{
-                                    padding: '0.4rem 0.75rem',
-                                    borderRadius: 8,
-                                    border: `1px solid ${palette.borderColor}`,
-                                    background: palette.cardBg,
-                                    color: palette.textColor,
-                                    fontSize: '0.85rem',
-                                    fontWeight: 500,
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                }}
-                                onMouseEnter={(event) => {
-                                    event.currentTarget.style.background = palette.cardHover;
-                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
-                                }}
-                                onMouseLeave={(event) => {
-                                    event.currentTarget.style.background = palette.cardBg;
-                                    event.currentTarget.style.borderColor = palette.borderColor;
-                                }}
-                            >
-                                ← Back
-                            </button>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>
-                                    {selectedNetwork.display_name || selectedNetwork.name}
-                                </span>
-                                <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>Supported Tokens</span>
+                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <button
+                                    onClick={() => setSelectedNetwork(null)}
+                                    style={{
+                                        padding: '0.4rem 0.75rem',
+                                        borderRadius: 8,
+                                        border: `1px solid ${palette.borderColor}`,
+                                        background: palette.cardBg,
+                                        color: palette.textColor,
+                                        fontSize: '0.85rem',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                    }}
+                                    onMouseEnter={(event) => {
+                                        event.currentTarget.style.background = palette.cardHover;
+                                        event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                    }}
+                                    onMouseLeave={(event) => {
+                                        event.currentTarget.style.background = palette.cardBg;
+                                        event.currentTarget.style.borderColor = palette.borderColor;
+                                    }}
+                                >
+                                    ← Back
+                                </button>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                    <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>
+                                        {selectedNetwork.display_name || selectedNetwork.name}
+                                    </span>
+                                    <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>Supported Tokens</span>
+                                </div>
                             </div>
+                            <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                                {tokens.length} token{tokens.length === 1 ? '' : 's'}
+                            </span>
                         </div>
-                        <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
-                            {tokens.length} token{tokens.length === 1 ? '' : 's'}
-                        </span>
-                    </div>
 
-                    <div
-                        style={{
-                            borderRadius: 16,
-                            border: `1px solid ${palette.tableBorder}`,
-                            overflow: 'hidden',
-                            background: palette.cardBg,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            flex: '1',
-                            minHeight: 0,
-                        }}
-                    >
-                        {isLoading ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading tokens…</div>
-                        ) : tokens.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
-                                No tokens available for this network yet.
-                            </div>
-                        ) : (
-                            <div style={{ ...tokensScrollStyle, flex: '1', minHeight: 0, overflowY: 'auto' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 'min-content' }}>
-                                    <div
-                                        style={{
-                                            display: 'grid',
-                                            gridTemplateColumns: '180px 100px minmax(200px, 1fr) 80px 120px',
-                                            gap: '1rem',
-                                            padding: '0.75rem 1rem',
-                                            background: palette.tableHeaderBg,
-                                            borderBottom: `1px solid ${palette.divider}`,
-                                            position: 'sticky',
-                                            top: 0,
-                                            zIndex: 1,
-                                        }}
-                                    >
-                                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Token</div>
-                                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Symbol</div>
-                                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Contract</div>
-                                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Decimals</div>
-                                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor, textAlign: 'right' }}>Price (USD)</div>
-                                    </div>
-                                    {tokens.map((token, index) => {
-                                    const tokenLogo = token.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
-                                    const formattedPrice = typeof token.price_in_usd === 'number'
-                                        ? `$${token.price_in_usd.toLocaleString(undefined, {
-                                              minimumFractionDigits: 2,
-                                              maximumFractionDigits: 2,
-                                          })}`
-                                        : '—';
-
-                                    return (
+                        <div
+                            style={{
+                                borderRadius: 16,
+                                border: `1px solid ${palette.tableBorder}`,
+                                overflow: 'hidden',
+                                background: palette.cardBg,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                flex: '1',
+                                minHeight: 0,
+                            }}
+                        >
+                            {isLoading ? (
+                                <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading tokens…</div>
+                            ) : tokens.length === 0 ? (
+                                <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                                    No tokens available for this network yet.
+                                </div>
+                            ) : (
+                                <div style={{ ...tokensScrollStyle, flex: '1', minHeight: 0, overflowY: 'auto' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 'min-content' }}>
                                         <div
-                                            key={`${token.symbol}-${token.contract || 'native'}`}
                                             style={{
                                                 display: 'grid',
                                                 gridTemplateColumns: '180px 100px minmax(200px, 1fr) 80px 120px',
                                                 gap: '1rem',
                                                 padding: '0.75rem 1rem',
+                                                background: palette.tableHeaderBg,
                                                 borderBottom: `1px solid ${palette.divider}`,
-                                                alignItems: 'center',
-                                                transition: 'background 0.15s ease',
-                                            }}
-                                            onMouseEnter={(event) => {
-                                                event.currentTarget.style.background = palette.cardHover;
-                                            }}
-                                            onMouseLeave={(event) => {
-                                                event.currentTarget.style.background = 'transparent';
+                                                position: 'sticky',
+                                                top: 0,
+                                                zIndex: 1,
                                             }}
                                         >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Token</div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Symbol</div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Contract</div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Decimals</div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor, textAlign: 'right' }}>Price (USD)</div>
+                                        </div>
+                                        {tokens.map((token, index) => {
+                                            const tokenLogo = token.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                            const formattedPrice = typeof token.price_in_usd === 'number'
+                                                ? `$${token.price_in_usd.toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })}`
+                                                : '—';
+
+                                            return (
                                                 <div
+                                                    key={`${token.symbol}-${token.contract || 'native'}`}
                                                     style={{
-                                                        width: 28,
-                                                        height: 28,
-                                                        borderRadius: '50%',
-                                                        background: 'rgba(0,0,0,0.05)',
-                                                        display: 'flex',
+                                                        display: 'grid',
+                                                        gridTemplateColumns: '180px 100px minmax(200px, 1fr) 80px 120px',
+                                                        gap: '1rem',
+                                                        padding: '0.75rem 1rem',
+                                                        borderBottom: `1px solid ${palette.divider}`,
                                                         alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        border: `1px solid ${palette.borderColor}`,
-                                                        overflow: 'hidden',
-                                                        flexShrink: 0,
+                                                        transition: 'background 0.15s ease',
+                                                    }}
+                                                    onMouseEnter={(event) => {
+                                                        event.currentTarget.style.background = palette.cardHover;
+                                                    }}
+                                                    onMouseLeave={(event) => {
+                                                        event.currentTarget.style.background = 'transparent';
                                                     }}
                                                 >
-                                                    <img
-                                                        src={tokenLogo}
-                                                        alt={`${token.display_asset || token.symbol} logo`}
-                                                        style={{ width: 20, height: 20, objectFit: 'contain' }}
-                                                    />
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                                                        <div
+                                                            style={{
+                                                                width: 28,
+                                                                height: 28,
+                                                                borderRadius: '50%',
+                                                                background: 'rgba(0,0,0,0.05)',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                border: `1px solid ${palette.borderColor}`,
+                                                                overflow: 'hidden',
+                                                                flexShrink: 0,
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={tokenLogo}
+                                                                alt={`${token.display_asset || token.symbol} logo`}
+                                                                style={{ width: 20, height: 20, objectFit: 'contain' }}
+                                                            />
+                                                        </div>
+                                                        <span style={{ fontWeight: 500, color: palette.textColor, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                            {token.display_asset || token.symbol}
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ color: palette.textColor, fontSize: '0.9rem' }}>{token.symbol}</div>
+                                                    <div
+                                                        style={{
+                                                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                                                            fontSize: '0.85rem',
+                                                            color: token.contract ? palette.textColor : palette.subTextColor,
+                                                            wordBreak: 'break-all',
+                                                            overflowWrap: 'break-word',
+                                                        }}
+                                                    >
+                                                        {token.contract || 'Native'}
+                                                    </div>
+                                                    <div style={{ color: palette.textColor, fontSize: '0.9rem' }}>{token.decimals}</div>
+                                                    <div style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: palette.textColor, fontSize: '0.9rem', fontWeight: 500 }}>
+                                                        {formattedPrice}
+                                                    </div>
                                                 </div>
-                                                <span style={{ fontWeight: 500, color: palette.textColor, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {token.display_asset || token.symbol}
-                                                </span>
-                                            </div>
-                                            <div style={{ color: palette.textColor, fontSize: '0.9rem' }}>{token.symbol}</div>
-                                            <div
-                                                style={{
-                                                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                                                    fontSize: '0.85rem',
-                                                    color: token.contract ? palette.textColor : palette.subTextColor,
-                                                    wordBreak: 'break-all',
-                                                    overflowWrap: 'break-word',
-                                                }}
-                                            >
-                                                {token.contract || 'Native'}
-                                            </div>
-                                            <div style={{ color: palette.textColor, fontSize: '0.9rem' }}>{token.decimals}</div>
-                                            <div style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: palette.textColor, fontSize: '0.9rem', fontWeight: 500 }}>
-                                                {formattedPrice}
-                                            </div>
-                                        </div>
-                                    );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                </section>
-            ) : (
-                <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflowY: 'hidden' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                        <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>Networks</span>
-                        <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
-                            Showing {filteredNetworks.length} of {networks.length}
-                        </span>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <input
-                            value={searchTerm}
-                            onChange={(event) => setSearchTerm(event.target.value)}
-                            placeholder="Search networks"
-                            style={{
-                                padding: '0.45rem 0.75rem',
-                                borderRadius: 10,
-                                border: `1px solid ${palette.borderColor}`,
-                                background: palette.cardBg,
-                                color: palette.textColor,
-                                minWidth: 220,
-                                width: '100%'
-                            }}
-                            autoComplete="off"
-                        />
-                        {availableTypes.length > 0 && (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.8rem', color: palette.subTextColor, fontWeight: 600, marginRight: '0.25rem' }}>Type:</span>
+                            )}
+                        </div>
+                    </section>
+                ) : (
+                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflowY: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                                 <button
-                                    onClick={() => setSelectedTypeFilter(null)}
+                                    onClick={() => setViewMode('networks')}
                                     style={{
                                         padding: '0.35rem 0.65rem',
                                         borderRadius: 8,
-                                        border: selectedTypeFilter === null ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
-                                        background: selectedTypeFilter === null ? palette.highlight : palette.cardBg,
-                                        color: selectedTypeFilter === null ? palette.textColor : palette.subTextColor,
+                                        border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
+                                        color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
                                         fontSize: '0.8rem',
-                                        fontWeight: selectedTypeFilter === null ? 600 : 400,
+                                        fontWeight: viewMode === 'networks' ? 600 : 400,
                                         cursor: 'pointer',
                                         transition: 'all 0.2s ease',
                                     }}
                                 >
-                                    All
+                                    Networks
                                 </button>
-                                {availableTypes.map((type) => {
-                                    const isSelected = selectedTypeFilter === type;
-                                    return (
-                                        <button
-                                            key={type}
-                                            onClick={() => setSelectedTypeFilter(isSelected ? null : type)}
-                                            style={{
-                                                padding: '0.35rem 0.65rem',
-                                                borderRadius: 8,
-                                                border: isSelected ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
-                                                background: isSelected ? palette.highlight : palette.cardBg,
-                                                color: isSelected ? palette.textColor : palette.subTextColor,
-                                                fontSize: '0.8rem',
-                                                fontWeight: isSelected ? 600 : 400,
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                textTransform: 'uppercase',
-                                            }}
-                                        >
-                                            {type}
-                                        </button>
-                                    );
-                                })}
+                                <button
+                                    onClick={() => setViewMode('tokens')}
+                                    style={{
+                                        padding: '0.35rem 0.65rem',
+                                        borderRadius: 8,
+                                        border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
+                                        color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
+                                        fontSize: '0.8rem',
+                                        fontWeight: viewMode === 'tokens' ? 600 : 400,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    Tokens
+                                </button>
+                            </div>
+                            <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                                Showing {filteredNetworks.length} of {networks.length}
+                            </span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            <input
+                                value={searchTerm}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                placeholder="Search networks"
+                                style={{
+                                    padding: '0.45rem 0.75rem',
+                                    borderRadius: 10,
+                                    border: `1px solid ${palette.borderColor}`,
+                                    background: palette.cardBg,
+                                    color: palette.textColor,
+                                    minWidth: 220,
+                                    width: '100%'
+                                }}
+                                autoComplete="off"
+                            />
+                            {availableTypes.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.8rem', color: palette.subTextColor, fontWeight: 600, marginRight: '0.25rem' }}>Type:</span>
+                                    <button
+                                        onClick={() => setSelectedTypeFilter(null)}
+                                        style={{
+                                            padding: '0.35rem 0.65rem',
+                                            borderRadius: 8,
+                                            border: selectedTypeFilter === null ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                            background: selectedTypeFilter === null ? palette.highlight : palette.cardBg,
+                                            color: selectedTypeFilter === null ? palette.textColor : palette.subTextColor,
+                                            fontSize: '0.8rem',
+                                            fontWeight: selectedTypeFilter === null ? 600 : 400,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                        }}
+                                    >
+                                        All
+                                    </button>
+                                    {availableTypes.map((type) => {
+                                        const isSelected = selectedTypeFilter === type;
+                                        return (
+                                            <button
+                                                key={type}
+                                                onClick={() => setSelectedTypeFilter(isSelected ? null : type)}
+                                                style={{
+                                                    padding: '0.35rem 0.65rem',
+                                                    borderRadius: 8,
+                                                    border: isSelected ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                                    background: isSelected ? palette.highlight : palette.cardBg,
+                                                    color: isSelected ? palette.textColor : palette.subTextColor,
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: isSelected ? 600 : 400,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s ease',
+                                                    textTransform: 'uppercase',
+                                                }}
+                                            >
+                                                {type}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {isLoading && networks.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading networks…</div>
+                        ) : networks.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                                No networks available.
+                            </div>
+                        ) : filteredNetworks.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                                No networks match your search.
+                            </div>
+                        ) : (
+                            <div style={networksScrollStyle}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                    {filteredNetworks.map((network) => {
+                                        const networkLogo = network.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                        const networkTypeLabel = (network.type || 'unknown').toUpperCase();
+                                        return (
+                                            <button
+                                                key={network.name}
+                                                onClick={() => setSelectedNetwork(network)}
+                                                style={{
+                                                    ...cardBaseStyle,
+                                                    background: palette.cardBg,
+                                                    borderColor: palette.borderColor,
+                                                }}
+                                                onMouseEnter={(event) => {
+                                                    event.currentTarget.style.background = palette.cardHover;
+                                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                                    event.currentTarget.style.transform = 'translateY(-2px)';
+                                                }}
+                                                onMouseLeave={(event) => {
+                                                    event.currentTarget.style.background = palette.cardBg;
+                                                    event.currentTarget.style.borderColor = palette.borderColor;
+                                                    event.currentTarget.style.transform = 'none';
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div
+                                                        style={{
+                                                            width: 42,
+                                                            height: 42,
+                                                            borderRadius: '50%',
+                                                            border: `1px solid ${palette.borderColor}`,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            background: 'rgba(0,0,0,0.05)',
+                                                            overflow: 'hidden',
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={networkLogo}
+                                                            alt={`${network.display_name || network.name} logo`}
+                                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                                        />
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
+                                                        <span style={{ fontWeight: 600, color: palette.textColor }}>{network.display_name || network.name}</span>
+                                                        <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                    <span
+                                                        style={{
+                                                            fontSize: '0.75rem',
+                                                            padding: '0.25rem 0.5rem',
+                                                            borderRadius: 8,
+                                                            background: palette.badgeBg,
+                                                            color: palette.badgeColor,
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {networkTypeLabel}
+                                                    </span>
+                                                    {isDecimalNumber(network.chain_id) && (
+                                                        <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         )}
-                    </div>
-
-                    {isLoading && networks.length === 0 ? (
-                        <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading networks…</div>
-                    ) : networks.length === 0 ? (
-                        <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
-                            No networks available.
-                        </div>
-                    ) : filteredNetworks.length === 0 ? (
-                        <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
-                            No networks match your search.
-                        </div>
-                    ) : (
-                        <div style={networksScrollStyle}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-                                {filteredNetworks.map((network) => {
-                                    const networkLogo = network.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
-                                    const networkTypeLabel = (network.type || 'unknown').toUpperCase();
-                                    return (
-                                        <button
-                                            key={network.name}
-                                            onClick={() => setSelectedNetwork(network)}
-                                            style={{
-                                                ...cardBaseStyle,
-                                                background: palette.cardBg,
-                                                borderColor: palette.borderColor,
-                                            }}
-                                            onMouseEnter={(event) => {
-                                                event.currentTarget.style.background = palette.cardHover;
-                                                event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
-                                                event.currentTarget.style.transform = 'translateY(-2px)';
-                                            }}
-                                            onMouseLeave={(event) => {
-                                                event.currentTarget.style.background = palette.cardBg;
-                                                event.currentTarget.style.borderColor = palette.borderColor;
-                                                event.currentTarget.style.transform = 'none';
-                                            }}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                <div
-                                                    style={{
-                                                        width: 42,
-                                                        height: 42,
-                                                        borderRadius: '50%',
-                                                        border: `1px solid ${palette.borderColor}`,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        background: 'rgba(0,0,0,0.05)',
-                                                        overflow: 'hidden',
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={networkLogo}
-                                                        alt={`${network.display_name || network.name} logo`}
-                                                        style={{ width: 28, height: 28, objectFit: 'contain' }}
-                                                    />
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
-                                                    <span style={{ fontWeight: 600, color: palette.textColor }}>{network.display_name || network.name}</span>
-                                                    <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
-                                                </div>
-                                            </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
-                                                <span
-                                                    style={{
-                                                        fontSize: '0.75rem',
-                                                        padding: '0.25rem 0.5rem',
-                                                        borderRadius: 8,
-                                                        background: palette.badgeBg,
-                                                        color: palette.badgeColor,
-                                                        fontWeight: 600,
-                                                    }}
-                                                >
-                                                    {networkTypeLabel}
-                                                </span>
-                                                {isDecimalNumber(network.chain_id) && (
-                                                    <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
-                                                )}
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </section>
+                    </section>
                 )
             ) : (
                 selectedToken ? (
@@ -967,7 +958,40 @@ export const NetworksTokensEmbed = () => {
                 ) : (
                     <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                            <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>Tokens</span>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <button
+                                    onClick={() => setViewMode('networks')}
+                                    style={{
+                                        padding: '0.35rem 0.65rem',
+                                        borderRadius: 8,
+                                        border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
+                                        color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
+                                        fontSize: '0.8rem',
+                                        fontWeight: viewMode === 'networks' ? 600 : 400,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    Networks
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('tokens')}
+                                    style={{
+                                        padding: '0.35rem 0.65rem',
+                                        borderRadius: 8,
+                                        border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
+                                        color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
+                                        fontSize: '0.8rem',
+                                        fontWeight: viewMode === 'tokens' ? 600 : 400,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    Tokens
+                                </button>
+                            </div>
                             <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
                                 Showing {filteredTokens.length} of {allTokens.length}
                             </span>
