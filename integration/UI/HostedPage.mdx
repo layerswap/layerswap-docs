@@ -8,6 +8,10 @@ The Layerswap-hosted page is the simplest integration method that allows you to 
 
 This approach requires no code integration and is perfect for quick implementations or mobile apps where you want to leverage Layerswap's full-featured interface.
 
+<Card title="Try Live Demo" icon="arrow-up-right-from-square" href="https://layerswap.io/app/?to=IMMUTABLEZK_MAINNET&toAsset=USDC&actionButtonText=Deposit">
+  Click to see a live example of the hosted page with pre-configured parameters
+</Card>
+
 ## Basic Implementation
 
 Redirect users to the Layerswap hosted app with customization parameters:
@@ -40,23 +44,6 @@ The simplest implementation is using a standard HTML link:
 When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction. This is a security measure to ensure users are aware of where their funds will be sent.
 </Note>
 
-## Example: Web Application Redirect
-
-For programmatic redirects, you can use JavaScript to navigate users:
-
-```javascript
-const redirectToLayerswap = () => {
-  const params = new URLSearchParams({
-    to: 'STARKNET_MAINNET',
-    from: 'ETHEREUM_MAINNET',
-    destAddress: userWalletAddress,
-    asset: 'ETH',
-    actionButtonText: 'Deposit'
-  });
-
-  window.location.href = `https://layerswap.io/app/?${params.toString()}`;
-};
-```
 
 ## Example: Mobile Deep Linking
 
