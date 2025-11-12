@@ -306,7 +306,7 @@ export const NetworksTokensEmbed = () => {
     const networksScrollStyle = {
         flex: '1',
         minHeight: 0,
-        overflowY: 'auto',
+        overflowY: 'hidden',
         overflowX: 'hidden',
         paddingTop: '0.25rem',
         boxSizing: 'border-box',
@@ -333,6 +333,7 @@ export const NetworksTokensEmbed = () => {
                 color: palette.textColor,
                 transition: 'background 0.3s ease, color 0.3s ease, border 0.3s ease',
                 overflow: 'hidden',
+                overflowY: 'hidden',
             }}
         >
             <header style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -395,7 +396,7 @@ export const NetworksTokensEmbed = () => {
 
             {viewMode === 'networks' ? (
                 selectedNetwork ? (
-                <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflow: 'hidden' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <button
@@ -555,7 +556,7 @@ export const NetworksTokensEmbed = () => {
                     </div>
                 </section>
             ) : (
-                <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflowY: 'hidden' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>Networks</span>
                         <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
