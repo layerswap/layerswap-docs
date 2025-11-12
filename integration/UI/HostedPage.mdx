@@ -1,0 +1,67 @@
+---
+title: "Hosted Page"
+---
+
+## Layerswap-hosted page
+
+The Layerswap-hosted page is the simplest integration method that allows you to redirect users from your Web or Mobile app directly to Layerswap. You can customize the user journey by providing URL parameters that configure the swap experience.
+
+This approach requires no code integration and is perfect for quick implementations or mobile apps where you want to leverage Layerswap's full-featured interface.
+
+<Card title="Try Live Demo" icon="arrow-up-right-from-square" href="https://layerswap.io/app/?to=IMMUTABLEZK_MAINNET&toAsset=USDC&actionButtonText=Deposit">
+  Click to see a live example of the hosted page with pre-configured parameters
+</Card>
+
+## Basic Implementation
+
+Redirect users to the Layerswap hosted app with customization parameters:
+
+```javascript
+https://layerswap.io/app/?
+    to=ETHEREUM_MAINNET
+    &destAddress=0x0000000000000000000000000000000000000000
+    &toAsset=USDC
+    &actionButtonText=Deposit
+```
+
+## How It Works
+
+1. **Construct the URL**: Build a URL to `https://layerswap.io/app/` with query parameters
+2. **Add Parameters**: Include any [configuration parameters](/integration/UI/Configurations) you need
+3. **Redirect Users**: Send users to the constructed URL from your application
+
+## Example: Simple Link
+
+The simplest implementation is using a standard HTML link:
+
+```html
+<a href="https://layerswap.io/app/?to=STARKNET_MAINNET&from=ETHEREUM_MAINNET&asset=ETH&actionButtonText=Deposit">
+  Deposit to Starknet
+</a>
+```
+
+<Note>
+  When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction. This is a security measure to ensure users are aware of where their funds will be sent.
+
+  **If you want to bypass the destination address confirmation flow**, you must integrate Layerswap via the [Widget](/integration/UI/Widget/Quickstart) instead of the hosted page approach.
+</Note>
+
+## Example: Mobile Deep Linking
+
+For mobile applications, you can use deep linking or custom URL schemes:
+
+```swift
+// iOS Swift example
+let baseURL = "https://layerswap.io/app/"
+var components = URLComponents(string: baseURL)
+components?.queryItems = [
+    URLQueryItem(name: "to", value: "STARKNET_MAINNET"),
+    URLQueryItem(name: "from", value: "ETHEREUM_MAINNET"),
+    URLQueryItem(name: "destAddress", value: userAddress),
+    URLQueryItem(name: "asset", value: "ETH")
+]
+
+if let url = components?.url {
+    UIApplication.shared.open(url)
+}
+```

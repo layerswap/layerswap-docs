@@ -2,35 +2,87 @@
 title: "IFrame Integration"
 ---
 
-## Embedded form
+## Layerswap iFrame
 
-You can embed the Layerswap widget directly in your app and customize it to fit your specific use case.
+The Layerswap iFrame integration allows you to embed the full Layerswap interface directly within your web application. This provides a seamless in-app experience where users can complete swaps without leaving your platform.
+
+Unlike the Widget integration which requires installation and configuration, the iFrame approach is simpler - you just embed a URL. However, it offers less customization and control compared to the Widget.
+
+## Embedded Form
+
+Embed the Layerswap interface directly in your app and customize it to fit your specific use case.
 
 ```javascript
 <iframe src="https://layerswap.io/app/?
-    clientId=YOUR_CLIENT_ID
-    &to=STARKNET_MAINNET
-    &from=ETHEREUM_MAINNET
+    &to=ETHEREUM_MAINNET
     &destAddress=0x0000000000000000000000000000000000000000
-    &amount=27
-    &asset=IMX
+    &asset=USDC
     &actionButtonText=Deposit">
 </iframe>
 ```
 
 ## Customization
 
-You can pass various parameters to modify the look and UX of the Layerswap Hosted App. Example:
+For adjusting the look and UX of the Layerswap interface you can pass any configuration parameter listed in the [Configurations](/integration/UI/Configurations) page through URL query parameters:
 
-```javascript
-https://layerswap.io/app/?
-    clientId=YOUR_CLIENT_ID
-    &to=STARKNET_MAINNET
-    &from=ETHEREUM_MAINNET
+```html
+<iframe
+  src="https://layerswap.io/app/?
+    &to=ETHEREUM_MAINNET
     &destAddress=0x0000000000000000000000000000000000000000
-    &amount=27
-    &asset=IMX
-    &actionButtonText=Deposit
+    &asset=USDC
+    &actionButtonText=Deposit"
+  width="100%"
+  height="600"
+  frameborder="0">
+</iframe>
 ```
 
-### 
+All configuration parameters can be passed as URL query parameters, including:
+
+- **Network Selection**: `from`, `to`, `lockFrom`, `lockTo`, `hideFrom`, `hideTo`
+- **Asset Selection**: `fromAsset`, `toAsset`, `lockFromAsset`, `lockToAsset`
+- **Pre-filled Values**: `amount`, `destAddress`, `account`
+- **UI Customization**: `actionButtonText`, `hideAddress`, `hideRefuel`
+- **Tracking**: `clientId`, `externalId`
+- **Flow Type**: `defaultTab` (swap or cex)
+
+<Note>
+  When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction.
+
+  **If you want to bypass the destination address confirmation flow**, you must integrate Layerswap via the [Widget](/integration/UI/Widget/Quickstart) instead of the iFrame approach.
+</Note>
+
+## Example Implementation
+
+### React Example
+
+```jsx
+import React from 'react';
+
+const LayerswapEmbed = () => {
+  const userAddress = '0x1234...'; // User's destination address
+
+  const params = new URLSearchParams({
+    to: 'STARKNET_MAINNET',
+    from: 'ETHEREUM_MAINNET',
+    destAddress: userAddress,
+    asset: 'ETH',
+    actionButtonText: 'Deposit'
+  });
+
+  return (
+    <iframe
+      src={`https://layerswap.io/app/?${params.toString()}`}
+      width="100%"
+      height="600"
+      frameBorder="0"
+      title="Layerswap"
+    />
+  );
+};
+
+export default LayerswapEmbed;
+```
+
+For maximum customization and control, consider using the [Widget integration](/integration/UI/Widget/Quickstart).
