@@ -26,7 +26,23 @@ https://layerswap.io/app/?
 2. **Add Parameters**: Include any [configuration parameters](/integration/UI/Configurations) you need
 3. **Redirect Users**: Send users to the constructed URL from your application
 
-## Example: Web Application
+## Example: Simple Link
+
+The simplest implementation is using a standard HTML link:
+
+```html
+<a href="https://layerswap.io/app/?to=STARKNET_MAINNET&from=ETHEREUM_MAINNET&asset=ETH&actionButtonText=Deposit">
+  Deposit to Starknet
+</a>
+```
+
+<Note>
+When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction. This is a security measure to ensure users are aware of where their funds will be sent.
+</Note>
+
+## Example: Web Application Redirect
+
+For programmatic redirects, you can use JavaScript to navigate users:
 
 ```javascript
 const redirectToLayerswap = () => {
@@ -61,20 +77,3 @@ if let url = components?.url {
     UIApplication.shared.open(url)
 }
 ```
-
-## Benefits
-
-<CardGroup cols={2}>
-  <Card title="Zero Integration" icon="bolt">
-    No code libraries or dependencies to install
-  </Card>
-  <Card title="Mobile Friendly" icon="mobile">
-    Works seamlessly with mobile deep links
-  </Card>
-  <Card title="Always Updated" icon="arrows-rotate">
-    Automatically benefit from Layerswap updates
-  </Card>
-  <Card title="Full Features" icon="star">
-    Access to all Layerswap functionality
-  </Card>
-</CardGroup>
