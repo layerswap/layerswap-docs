@@ -124,6 +124,10 @@ export const NetworksTokensEmbed = () => {
     const [fetchError, setFetchError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTypeFilter, setSelectedTypeFilter] = useState(null);
+    const [viewMode, setViewMode] = useState('networks');
+    const [selectedToken, setSelectedToken] = useState(null);
+    const [networkDisplayStyle, setNetworkDisplayStyle] = useState('card');
+    const [tokenSearchTerm, setTokenSearchTerm] = useState('');
     const palette = useMemo(() => getPalette(theme), [theme]);
 
     useEffect(() => {
@@ -134,6 +138,11 @@ export const NetworksTokensEmbed = () => {
         observer.observe(html, { attributes: true, attributeFilter: ['class', 'data-theme'] });
         return () => observer.disconnect();
     }, []);
+
+    useEffect(() => {
+        setSelectedNetwork(null);
+        setSelectedToken(null);
+    }, [viewMode]);
 
     useEffect(() => {
         let cancelled = false;
@@ -239,6 +248,58 @@ export const NetworksTokensEmbed = () => {
         });
     }, [selectedNetwork, tokensByNetwork]);
 
+    const allTokens = useMemo(() => {
+        const tokenMap = new Map();
+        
+        networks.forEach((network) => {
+            const networkTokens = tokensByNetwork[network.name] || [];
+            networkTokens.forEach((token) => {
+                const symbol = token.symbol;
+                if (!symbol) return;
+                
+                if (!tokenMap.has(symbol)) {
+                    tokenMap.set(symbol, {
+                        symbol,
+                        display_asset: token.display_asset || token.symbol,
+                        logo: token.logo,
+                        networks: [],
+                        networkCount: 0,
+                    });
+                }
+                
+                const tokenEntry = tokenMap.get(symbol);
+                if (!tokenEntry.networks.find(n => n.name === network.name)) {
+                    tokenEntry.networks.push(network);
+                    tokenEntry.networkCount = tokenEntry.networks.length;
+                }
+                
+                if (!tokenEntry.logo && token.logo) {
+                    tokenEntry.logo = token.logo;
+                }
+                if (!tokenEntry.display_asset && token.display_asset) {
+                    tokenEntry.display_asset = token.display_asset;
+                }
+            });
+        });
+        
+        return Array.from(tokenMap.values()).sort((a, b) => {
+            const symbolA = (a.symbol || '').toLowerCase();
+            const symbolB = (b.symbol || '').toLowerCase();
+            return symbolA.localeCompare(symbolB);
+        });
+    }, [networks, tokensByNetwork]);
+
+    const filteredTokens = useMemo(() => {
+        const needle = tokenSearchTerm.trim().toLowerCase();
+        if (!needle) return allTokens;
+        
+        return allTokens.filter((token) => {
+            const symbol = (token.symbol || '').toLowerCase();
+            const displayAsset = (token.display_asset || '').toLowerCase();
+            return symbol.includes(needle) || displayAsset.includes(needle);
+        });
+    }, [allTokens, tokenSearchTerm]);
+
     const errorBackground = theme === 'dark' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.12)';
     const errorColor = theme === 'dark' ? '#fecaca' : '#b91c1c';
 
@@ -248,14 +309,12 @@ export const NetworksTokensEmbed = () => {
         overflowY: 'auto',
         overflowX: 'hidden',
         paddingTop: '0.25rem',
-        paddingRight: '0.5rem',
         boxSizing: 'border-box',
         width: '100%',
     };
 
     const tokensScrollStyle = {
         overflowX: 'auto',
-        paddingRight: '0.5rem',
         paddingBottom: '0.25rem',
         boxSizing: 'border-box',
         width: '100%',
@@ -277,7 +336,43 @@ export const NetworksTokensEmbed = () => {
             }}
         >
             <header style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 600 }}>Networks & Tokens Explorer</h2>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 600 }}>Networks & Tokens Explorer</h2>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button
+                            onClick={() => setViewMode('networks')}
+                            style={{
+                                padding: '0.35rem 0.65rem',
+                                borderRadius: 8,
+                                border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
+                                color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
+                                fontSize: '0.8rem',
+                                fontWeight: viewMode === 'networks' ? 600 : 400,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                            }}
+                        >
+                            Networks
+                        </button>
+                        <button
+                            onClick={() => setViewMode('tokens')}
+                            style={{
+                                padding: '0.35rem 0.65rem',
+                                borderRadius: 8,
+                                border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
+                                color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
+                                fontSize: '0.8rem',
+                                fontWeight: viewMode === 'tokens' ? 600 : 400,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                            }}
+                        >
+                            Tokens
+                        </button>
+                    </div>
+                </div>
                 <p style={{ margin: 0, color: palette.subTextColor, fontSize: '0.95rem' }}>
                     Browse all available networks and their supported tokens currently available in Layerswap.
                 </p>
@@ -298,7 +393,8 @@ export const NetworksTokensEmbed = () => {
                 </div>
             )}
 
-            {selectedNetwork ? (
+            {viewMode === 'networks' ? (
+                selectedNetwork ? (
                 <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -614,6 +710,368 @@ export const NetworksTokensEmbed = () => {
                         </div>
                     )}
                 </section>
+                )
+            ) : (
+                selectedToken ? (
+                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <button
+                                    onClick={() => setSelectedToken(null)}
+                                    style={{
+                                        padding: '0.4rem 0.75rem',
+                                        borderRadius: 8,
+                                        border: `1px solid ${palette.borderColor}`,
+                                        background: palette.cardBg,
+                                        color: palette.textColor,
+                                        fontSize: '0.85rem',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                    }}
+                                    onMouseEnter={(event) => {
+                                        event.currentTarget.style.background = palette.cardHover;
+                                        event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                    }}
+                                    onMouseLeave={(event) => {
+                                        event.currentTarget.style.background = palette.cardBg;
+                                        event.currentTarget.style.borderColor = palette.borderColor;
+                                    }}
+                                >
+                                    ← Back
+                                </button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div
+                                        style={{
+                                            width: 42,
+                                            height: 42,
+                                            borderRadius: '50%',
+                                            border: `1px solid ${palette.borderColor}`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: 'rgba(0,0,0,0.05)',
+                                            overflow: 'hidden',
+                                        }}
+                                    >
+                                        <img
+                                            src={selectedToken.logo || 'https://cdn.layerswap.io/logos/layerswap.svg'}
+                                            alt={`${selectedToken.display_asset || selectedToken.symbol} logo`}
+                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                        <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>
+                                            {selectedToken.display_asset || selectedToken.symbol}
+                                        </span>
+                                        <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>Supported Networks</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <button
+                                        onClick={() => setNetworkDisplayStyle('card')}
+                                        style={{
+                                            padding: '0.35rem 0.65rem',
+                                            borderRadius: 8,
+                                            border: networkDisplayStyle === 'card' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                            background: networkDisplayStyle === 'card' ? palette.highlight : palette.cardBg,
+                                            color: networkDisplayStyle === 'card' ? palette.textColor : palette.subTextColor,
+                                            fontSize: '0.8rem',
+                                            fontWeight: networkDisplayStyle === 'card' ? 600 : 400,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                        }}
+                                    >
+                                        Card
+                                    </button>
+                                    <button
+                                        onClick={() => setNetworkDisplayStyle('list')}
+                                        style={{
+                                            padding: '0.35rem 0.65rem',
+                                            borderRadius: 8,
+                                            border: networkDisplayStyle === 'list' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                            background: networkDisplayStyle === 'list' ? palette.highlight : palette.cardBg,
+                                            color: networkDisplayStyle === 'list' ? palette.textColor : palette.subTextColor,
+                                            fontSize: '0.8rem',
+                                            fontWeight: networkDisplayStyle === 'list' ? 600 : 400,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                        }}
+                                    >
+                                        List
+                                    </button>
+                                </div>
+                                <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                                    {selectedToken.networks.length} network{selectedToken.networks.length === 1 ? '' : 's'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={networksScrollStyle}>
+                            {networkDisplayStyle === 'card' ? (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                    {selectedToken.networks.map((network) => {
+                                        const networkLogo = network.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                        const networkTypeLabel = (network.type || 'unknown').toUpperCase();
+                                        return (
+                                            <div
+                                                key={network.name}
+                                                style={{
+                                                    ...cardBaseStyle,
+                                                    background: palette.cardBg,
+                                                    borderColor: palette.borderColor,
+                                                }}
+                                                onMouseEnter={(event) => {
+                                                    event.currentTarget.style.background = palette.cardHover;
+                                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                                    event.currentTarget.style.transform = 'translateY(-2px)';
+                                                }}
+                                                onMouseLeave={(event) => {
+                                                    event.currentTarget.style.background = palette.cardBg;
+                                                    event.currentTarget.style.borderColor = palette.borderColor;
+                                                    event.currentTarget.style.transform = 'none';
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div
+                                                        style={{
+                                                            width: 42,
+                                                            height: 42,
+                                                            borderRadius: '50%',
+                                                            border: `1px solid ${palette.borderColor}`,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            background: 'rgba(0,0,0,0.05)',
+                                                            overflow: 'hidden',
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={networkLogo}
+                                                            alt={`${network.display_name || network.name} logo`}
+                                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                                        />
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
+                                                        <span style={{ fontWeight: 600, color: palette.textColor }}>{network.display_name || network.name}</span>
+                                                        <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                    <span
+                                                        style={{
+                                                            fontSize: '0.75rem',
+                                                            padding: '0.25rem 0.5rem',
+                                                            borderRadius: 8,
+                                                            background: palette.badgeBg,
+                                                            color: palette.badgeColor,
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {networkTypeLabel}
+                                                    </span>
+                                                    {isDecimalNumber(network.chain_id) && (
+                                                        <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div
+                                    style={{
+                                        borderRadius: 16,
+                                        border: `1px solid ${palette.tableBorder}`,
+                                        overflow: 'hidden',
+                                        background: palette.cardBg,
+                                    }}
+                                >
+                                    {selectedToken.networks.map((network, index) => {
+                                        const networkLogo = network.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                        const networkTypeLabel = (network.type || 'unknown').toUpperCase();
+                                        return (
+                                            <div
+                                                key={network.name}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '1rem',
+                                                    padding: '0.75rem 1rem',
+                                                    borderBottom: index < selectedToken.networks.length - 1 ? `1px solid ${palette.divider}` : 'none',
+                                                    transition: 'background 0.15s ease',
+                                                }}
+                                                onMouseEnter={(event) => {
+                                                    event.currentTarget.style.background = palette.cardHover;
+                                                }}
+                                                onMouseLeave={(event) => {
+                                                    event.currentTarget.style.background = 'transparent';
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        width: 36,
+                                                        height: 36,
+                                                        borderRadius: '50%',
+                                                        border: `1px solid ${palette.borderColor}`,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        background: 'rgba(0,0,0,0.05)',
+                                                        overflow: 'hidden',
+                                                        flexShrink: 0,
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={networkLogo}
+                                                        alt={`${network.display_name || network.name} logo`}
+                                                        style={{ width: 24, height: 24, objectFit: 'contain' }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: '1', minWidth: 0 }}>
+                                                    <span style={{ fontWeight: 600, color: palette.textColor, fontSize: '0.9rem' }}>
+                                                        {network.display_name || network.name}
+                                                    </span>
+                                                    <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                    <span
+                                                        style={{
+                                                            fontSize: '0.75rem',
+                                                            padding: '0.25rem 0.5rem',
+                                                            borderRadius: 8,
+                                                            background: palette.badgeBg,
+                                                            color: palette.badgeColor,
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {networkTypeLabel}
+                                                    </span>
+                                                    {isDecimalNumber(network.chain_id) && (
+                                                        <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                ) : (
+                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                            <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>Tokens</span>
+                            <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                                Showing {filteredTokens.length} of {allTokens.length}
+                            </span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            <input
+                                value={tokenSearchTerm}
+                                onChange={(event) => setTokenSearchTerm(event.target.value)}
+                                placeholder="Search tokens"
+                                style={{
+                                    padding: '0.45rem 0.75rem',
+                                    borderRadius: 10,
+                                    border: `1px solid ${palette.borderColor}`,
+                                    background: palette.cardBg,
+                                    color: palette.textColor,
+                                    minWidth: 220,
+                                    width: '100%'
+                                }}
+                                autoComplete="off"
+                            />
+                        </div>
+
+                        {isLoading && allTokens.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading tokens…</div>
+                        ) : allTokens.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                                No tokens available.
+                            </div>
+                        ) : filteredTokens.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                                No tokens match your search.
+                            </div>
+                        ) : (
+                            <div style={networksScrollStyle}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                    {filteredTokens.map((token) => {
+                                        const tokenLogo = token.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                        return (
+                                            <button
+                                                key={token.symbol}
+                                                onClick={() => setSelectedToken(token)}
+                                                style={{
+                                                    ...cardBaseStyle,
+                                                    background: palette.cardBg,
+                                                    borderColor: palette.borderColor,
+                                                }}
+                                                onMouseEnter={(event) => {
+                                                    event.currentTarget.style.background = palette.cardHover;
+                                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                                    event.currentTarget.style.transform = 'translateY(-2px)';
+                                                }}
+                                                onMouseLeave={(event) => {
+                                                    event.currentTarget.style.background = palette.cardBg;
+                                                    event.currentTarget.style.borderColor = palette.borderColor;
+                                                    event.currentTarget.style.transform = 'none';
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div
+                                                        style={{
+                                                            width: 42,
+                                                            height: 42,
+                                                            borderRadius: '50%',
+                                                            border: `1px solid ${palette.borderColor}`,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            background: 'rgba(0,0,0,0.05)',
+                                                            overflow: 'hidden',
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={tokenLogo}
+                                                            alt={`${token.display_asset || token.symbol} logo`}
+                                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                                        />
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start', flex: '1' }}>
+                                                        <span style={{ fontWeight: 600, color: palette.textColor }}>{token.display_asset || token.symbol}</span>
+                                                        <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{token.symbol}</span>
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                    <span
+                                                        style={{
+                                                            fontSize: '0.75rem',
+                                                            padding: '0.25rem 0.5rem',
+                                                            borderRadius: 8,
+                                                            background: palette.badgeBg,
+                                                            color: palette.badgeColor,
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {token.networkCount} network{token.networkCount === 1 ? '' : 's'}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                )
             )}
         </div>
     );
