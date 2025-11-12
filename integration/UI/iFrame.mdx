@@ -40,8 +40,17 @@ You can pass various parameters to modify the look and UX of the Layerswap inter
 
 All configuration parameters from the [Configurations](/integration/UI/Configurations) page can be passed as URL query parameters, including:
 
+- **Network Selection**: `from`, `to`, `lockFrom`, `lockTo`, `hideFrom`, `hideTo`
+- **Asset Selection**: `fromAsset`, `toAsset`, `lockFromAsset`, `lockToAsset`
+- **Pre-filled Values**: `amount`, `destAddress`, `account`
+- **UI Customization**: `actionButtonText`, `hideAddress`, `hideRefuel`
+- **Tracking**: `clientId`, `externalId`
+- **Flow Type**: `defaultTab` (swap or cex)
+
 <Note>
 When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction.
+
+**If you want to bypass the destination address confirmation flow**, you must integrate Layerswap via the [Widget](/integration/UI/Widget/Quickstart) instead of the iFrame approach.
 </Note>
 
 ## Example Implementation
