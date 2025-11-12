@@ -10,7 +10,7 @@ Unlike the Widget integration which requires installation and configuration, the
 
 ## Embedded Form
 
-You can embed the Layerswap interface directly in your app and customize it to fit your specific use case.
+Embed the Layerswap interface directly in your app and customize it to fit your specific use case.
 
 ```javascript
 <iframe src="https://layerswap.io/app/?
@@ -23,7 +23,7 @@ You can embed the Layerswap interface directly in your app and customize it to f
 
 ## Customization
 
-You can pass various parameters to modify the look and UX of the Layerswap interface through URL query parameters:
+For adjusting the look and UX of the Layerswap interface you can pass any configuration parameter listed in the [Configurations](/integration/UI/Configurations) page through URL query parameters:
 
 ```html
 <iframe
@@ -38,7 +38,7 @@ You can pass various parameters to modify the look and UX of the Layerswap inter
 </iframe>
 ```
 
-All configuration parameters from the [Configurations](/integration/UI/Configurations) page can be passed as URL query parameters, including:
+All configuration parameters can be passed as URL query parameters, including:
 
 - **Network Selection**: `from`, `to`, `lockFrom`, `lockTo`, `hideFrom`, `hideTo`
 - **Asset Selection**: `fromAsset`, `toAsset`, `lockFromAsset`, `lockToAsset`
@@ -48,9 +48,9 @@ All configuration parameters from the [Configurations](/integration/UI/Configura
 - **Flow Type**: `defaultTab` (swap or cex)
 
 <Note>
-When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction.
+  When the `destAddress` parameter is included in the URL, a warning will be displayed in the UI and the user must confirm the destination address before proceeding with the transaction.
 
-**If you want to bypass the destination address confirmation flow**, you must integrate Layerswap via the [Widget](/integration/UI/Widget/Quickstart) instead of the iFrame approach.
+  **If you want to bypass the destination address confirmation flow**, you must integrate Layerswap via the [Widget](/integration/UI/Widget/Quickstart) instead of the iFrame approach.
 </Note>
 
 ## Example Implementation
@@ -85,4 +85,4 @@ const LayerswapEmbed = () => {
 export default LayerswapEmbed;
 ```
 
-For maximum customization and control, consider using the [Widget integration](/integration/UI/Widget/Quickstart) instead.
+For maximum customization and control, consider using the [Widget integration](/integration/UI/Widget/Quickstart).
