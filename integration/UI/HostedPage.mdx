@@ -1,0 +1,80 @@
+---
+title: "Hosted Page"
+---
+
+## Layerswap-hosted page
+
+The Layerswap-hosted page is the simplest integration method that allows you to redirect users from your Web or Mobile app directly to Layerswap. You can customize the user journey by providing URL parameters that configure the swap experience.
+
+This approach requires no code integration and is perfect for quick implementations or mobile apps where you want to leverage Layerswap's full-featured interface.
+
+## Basic Implementation
+
+Redirect users to the Layerswap hosted app with customization parameters:
+
+```javascript
+https://layerswap.io/app/?
+    to=ETHEREUM_MAINNET
+    &destAddress=0x0000000000000000000000000000000000000000
+    &toAsset=USDC
+    &actionButtonText=Deposit
+```
+
+## How It Works
+
+1. **Construct the URL**: Build a URL to `https://layerswap.io/app/` with query parameters
+2. **Add Parameters**: Include any [configuration parameters](/integration/UI/Configurations) you need
+3. **Redirect Users**: Send users to the constructed URL from your application
+
+## Example: Web Application
+
+```javascript
+const redirectToLayerswap = () => {
+  const params = new URLSearchParams({
+    to: 'STARKNET_MAINNET',
+    from: 'ETHEREUM_MAINNET',
+    destAddress: userWalletAddress,
+    asset: 'ETH',
+    actionButtonText: 'Deposit'
+  });
+
+  window.location.href = `https://layerswap.io/app/?${params.toString()}`;
+};
+```
+
+## Example: Mobile Deep Linking
+
+For mobile applications, you can use deep linking or custom URL schemes:
+
+```swift
+// iOS Swift example
+let baseURL = "https://layerswap.io/app/"
+var components = URLComponents(string: baseURL)
+components?.queryItems = [
+    URLQueryItem(name: "to", value: "STARKNET_MAINNET"),
+    URLQueryItem(name: "from", value: "ETHEREUM_MAINNET"),
+    URLQueryItem(name: "destAddress", value: userAddress),
+    URLQueryItem(name: "asset", value: "ETH")
+]
+
+if let url = components?.url {
+    UIApplication.shared.open(url)
+}
+```
+
+## Benefits
+
+<CardGroup cols={2}>
+  <Card title="Zero Integration" icon="bolt">
+    No code libraries or dependencies to install
+  </Card>
+  <Card title="Mobile Friendly" icon="mobile">
+    Works seamlessly with mobile deep links
+  </Card>
+  <Card title="Always Updated" icon="arrows-rotate">
+    Automatically benefit from Layerswap updates
+  </Card>
+  <Card title="Full Features" icon="star">
+    Access to all Layerswap functionality
+  </Card>
+</CardGroup>

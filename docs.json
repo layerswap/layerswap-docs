@@ -80,6 +80,12 @@
             "pages": [
               "integration/UI/iFrame"
             ]
+          },
+          {
+            "group": "Hosted Page Setup",
+            "pages": [
+              "integration/UI/HostedPage"
+            ]
           }
         ]
       },
