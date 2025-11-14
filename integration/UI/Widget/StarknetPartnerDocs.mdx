@@ -7,7 +7,7 @@ description: "Complete guide for integrating and customizing Layerswap Widget wi
 
 ### Installation
 
-Install the Layerswap Widget along with the necessary wallet providers for Starknet:
+Install the Layerswap Widget along with the necessary wallet providers. This installation includes support for Starknet, Ethereum, Solana, and Bitcoin wallets:
 
 <CodeGroup>
 
@@ -24,6 +24,8 @@ pnpm add @layerswap/widget zustand @layerswap/wallet-starknet @layerswap/wallet-
 ```
 
 </CodeGroup>
+
+If you want to customize the wallet provider selection, please refer to the [Widget Quickstart](/integration/UI/Widget/Quickstart).
 
 ### Initial Configuration
 
@@ -43,29 +45,23 @@ import {
   resolveWalletConnectorIcon,
   NetworkWithTokens,
 } from "@layerswap/widget";
-import {
-  WalletConnectionProvider,
-  Wallet,
-  WalletConnectionProviderProps
-} from "@layerswap/widget/types";
+import { WalletConnectionProvider, Wallet, WalletConnectionProviderProps } from "@layerswap/widget/types"
 
-export default function useStarknet({
-  networks
-}: WalletConnectionProviderProps): WalletConnectionProvider {
+export default function useStarknet({ networks }: WalletConnectionProviderProps): WalletConnectionProvider {
   const name = "Starknet";
   const id = "starknet";
 
-  // Dynamic SDK hooks
+  // Dynamic SDK
   const { setShowAuthFlow, handleLogOut } = useDynamicContext();
   const userWallets = useUserWallets();
 
-  // Define supported Starknet networks
+  // Starknet network names
   const starknetNetworkNames = [
     "STARKNET_MAINNET",
     "STARKNET_SEPOLIA",
-  ];
+  ]
 
-  // Configure network support
+  // Supported-networks
   const supportedNetworks = useMemo(
     () => ({
       asSource: starknetNetworkNames,
@@ -75,22 +71,19 @@ export default function useStarknet({
     [starknetNetworkNames],
   );
 
-  // Clean up event listeners on unmount
+  // Clean up dynamicEvents listeners on unmount
   useEffect(() => {
     return () => {
       dynamicEvents.removeAllListeners("walletAdded");
       dynamicEvents.removeAllListeners("authFlowCancelled");
     };
   }, []);
-
-  // Connect wallet function
+  // connectWallet: log out existing, show authFlow, wait for event, then resolve
   const connectWallet = useCallback(async (): Promise<Wallet | undefined> => {
-    // Log out existing wallet if any
     if (userWallets.length) {
       await handleLogOut();
     }
 
-    // Show Dynamic auth flow and wait for wallet connection
     const newDynWallet = await new Promise<DynamicWallet>((resolve, reject) => {
       setShowAuthFlow(true);
 
@@ -120,12 +113,12 @@ export default function useStarknet({
     });
   }, [userWallets, handleLogOut, setShowAuthFlow, networks, supportedNetworks]);
 
-  // Disconnect all wallets
+  // Logout
   const disconnectWallets = useCallback(async () => {
     await handleLogOut();
   }, [handleLogOut]);
 
-  // Map Dynamic SDK wallets to Layerswap Wallet format
+  // Map wagmi connectors → Dynamic SDK wallets → our Wallet shape
   const connectedWallets: Wallet[] = useMemo(
     () =>
       userWallets
@@ -143,23 +136,10 @@ export default function useStarknet({
     [userWallets, networks, supportedNetworks, disconnectWallets],
   );
 
-  const logo = networks.find((n) =>
-    n.name.toLowerCase().includes("starknet")
-  )?.logo;
-
-  const availableConnectors = [{
-    id: id,
-    name: name,
-    icon: logo,
-  }];
+  const logo = networks.find((n) => n.name.toLowerCase().includes("starknet"))?.logo;
 
   return {
     connectWallet,
-    switchAccount: async (connector: Wallet, address: string) => {
-      // Implement account switching if needed
-      throw new Error("Not implemented");
-    },
-    availableWalletsForConnect: availableConnectors,
     activeWallet: connectedWallets.find((w) => w.isActive),
     connectedWallets,
     asSourceSupportedNetworks: supportedNetworks.asSource,
@@ -171,7 +151,7 @@ export default function useStarknet({
   };
 }
 
-/** Helper function to convert DynamicWallet to Layerswap Wallet */
+/** Reusable helper to turn a DynamicWallet + context into our `Wallet` shape */
 function resolveWallet(props: {
   connection: DynamicWallet;
   networks: NetworkWithTokens[];
@@ -190,9 +170,7 @@ function resolveWallet(props: {
   if (!connectorName || !address) return;
 
   const displayName = `${connectorName} – ${providerName}`;
-  const networkIcon = networks.find((n) =>
-    n.name.toLowerCase().includes("starknet")
-  )?.logo;
+  const networkIcon = networks.find((n) => n.name.toLowerCase().includes("starknet"))?.logo;
 
   return {
     id: connectorName,
@@ -201,9 +179,7 @@ function resolveWallet(props: {
     addresses: [address],
     displayName,
     providerName,
-    icon: resolveWalletConnectorIcon({
-      iconUrl: connection.connector.metadata.icon
-    }),
+    icon: resolveWalletConnectorIcon({ iconUrl: connection.connector.metadata.icon }),
     disconnect: () => disconnect(),
     asSourceSupportedNetworks: supportedNetworks.asSource,
     autofillSupportedNetworks: supportedNetworks.autofill,
@@ -211,6 +187,7 @@ function resolveWallet(props: {
     networkIcon,
   };
 }
+
 ```
 </CodeGroup>
 </Accordion>
@@ -246,7 +223,7 @@ const PageComponent = () => {
             <LayerswapProvider
                 config={{
                     settings,
-                    apiKey: {LAYERSWAP_API_KEY},
+                    apiKey: {LAYERSWAP_API_KEY}, //optional
                     version: 'mainnet',
                     initialValues: {
                         to: 'STARKNET_MAINNET',
@@ -263,11 +240,8 @@ const PageComponent = () => {
 }
 ```
 
-<Note>
-  You need to generate an API key from the [Partner Dashboard](/api-reference/api-keys) to use the widget.
-</Note>
+You can generate an API key from the [Partner Dashboard](/api-keys) to track swaps done through the widget.
 
-For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
 
 ### Environment Variables
 
@@ -281,7 +255,7 @@ LAYERSWAP_API_KEY=your_layerswap_api_key
 <Note>
   **Get Your API Keys:**
   - Dynamic Labs: [Sign up at Dynamic](https://www.dynamic.xyz/)
-  - Layerswap: Generate from the [Partner Dashboard](/api-reference/api-keys)
+  - Layerswap: Generate from the [Partner Dashboard](/api-keys)
 </Note>
 
 ## Theme Configuration
@@ -482,29 +456,23 @@ import {
   resolveWalletConnectorIcon,
   NetworkWithTokens,
 } from "@layerswap/widget";
-import {
-  WalletConnectionProvider,
-  Wallet,
-  WalletConnectionProviderProps
-} from "@layerswap/widget/types";
+import { WalletConnectionProvider, Wallet, WalletConnectionProviderProps } from "@layerswap/widget/types"
 
-export default function useStarknet({
-  networks
-}: WalletConnectionProviderProps): WalletConnectionProvider {
+export default function useStarknet({ networks }: WalletConnectionProviderProps): WalletConnectionProvider {
   const name = "Starknet";
   const id = "starknet";
 
-  // Dynamic SDK hooks
+  // Dynamic SDK
   const { setShowAuthFlow, handleLogOut } = useDynamicContext();
   const userWallets = useUserWallets();
 
-  // Define supported Starknet networks
+  // Starknet network names
   const starknetNetworkNames = [
     "STARKNET_MAINNET",
     "STARKNET_SEPOLIA",
-  ];
+  ]
 
-  // Configure network support
+  // Supported-networks
   const supportedNetworks = useMemo(
     () => ({
       asSource: starknetNetworkNames,
@@ -514,22 +482,19 @@ export default function useStarknet({
     [starknetNetworkNames],
   );
 
-  // Clean up event listeners on unmount
+  // Clean up dynamicEvents listeners on unmount
   useEffect(() => {
     return () => {
       dynamicEvents.removeAllListeners("walletAdded");
       dynamicEvents.removeAllListeners("authFlowCancelled");
     };
   }, []);
-
-  // Connect wallet function
+  // connectWallet: log out existing, show authFlow, wait for event, then resolve
   const connectWallet = useCallback(async (): Promise<Wallet | undefined> => {
-    // Log out existing wallet if any
     if (userWallets.length) {
       await handleLogOut();
     }
 
-    // Show Dynamic auth flow and wait for wallet connection
     const newDynWallet = await new Promise<DynamicWallet>((resolve, reject) => {
       setShowAuthFlow(true);
 
@@ -559,12 +524,12 @@ export default function useStarknet({
     });
   }, [userWallets, handleLogOut, setShowAuthFlow, networks, supportedNetworks]);
 
-  // Disconnect all wallets
+  // Logout
   const disconnectWallets = useCallback(async () => {
     await handleLogOut();
   }, [handleLogOut]);
 
-  // Map Dynamic SDK wallets to Layerswap Wallet format
+  // Map wagmi connectors → Dynamic SDK wallets → our Wallet shape
   const connectedWallets: Wallet[] = useMemo(
     () =>
       userWallets
@@ -582,23 +547,10 @@ export default function useStarknet({
     [userWallets, networks, supportedNetworks, disconnectWallets],
   );
 
-  const logo = networks.find((n) =>
-    n.name.toLowerCase().includes("starknet")
-  )?.logo;
-
-  const availableConnectors = [{
-    id: id,
-    name: name,
-    icon: logo,
-  }];
+  const logo = networks.find((n) => n.name.toLowerCase().includes("starknet"))?.logo;
 
   return {
     connectWallet,
-    switchAccount: async (connector: Wallet, address: string) => {
-      // Implement account switching if needed
-      throw new Error("Not implemented");
-    },
-    availableWalletsForConnect: availableConnectors,
     activeWallet: connectedWallets.find((w) => w.isActive),
     connectedWallets,
     asSourceSupportedNetworks: supportedNetworks.asSource,
@@ -610,7 +562,7 @@ export default function useStarknet({
   };
 }
 
-/** Helper function to convert DynamicWallet to Layerswap Wallet */
+/** Reusable helper to turn a DynamicWallet + context into our `Wallet` shape */
 function resolveWallet(props: {
   connection: DynamicWallet;
   networks: NetworkWithTokens[];
@@ -629,9 +581,7 @@ function resolveWallet(props: {
   if (!connectorName || !address) return;
 
   const displayName = `${connectorName} – ${providerName}`;
-  const networkIcon = networks.find((n) =>
-    n.name.toLowerCase().includes("starknet")
-  )?.logo;
+  const networkIcon = networks.find((n) => n.name.toLowerCase().includes("starknet"))?.logo;
 
   return {
     id: connectorName,
@@ -640,9 +590,7 @@ function resolveWallet(props: {
     addresses: [address],
     displayName,
     providerName,
-    icon: resolveWalletConnectorIcon({
-      iconUrl: connection.connector.metadata.icon
-    }),
+    icon: resolveWalletConnectorIcon({ iconUrl: connection.connector.metadata.icon }),
     disconnect: () => disconnect(),
     asSourceSupportedNetworks: supportedNetworks.asSource,
     autofillSupportedNetworks: supportedNetworks.autofill,
@@ -653,12 +601,14 @@ function resolveWallet(props: {
 ```
 </CodeGroup>
 
+For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
+
 ## Live Demo
 
 Explore a fully working implementation in this live demo:
 
 <iframe
-  src="https://layerswap-widget-nextjs-example.vercel.app/"
+  src="https://layerswap-dynamic-example.vercel.app/"
   style={{
     width: '100%',
     height: '800px',
@@ -672,7 +622,7 @@ Explore a fully working implementation in this live demo:
 ></iframe>
 
 <Note>
-  This demo includes a complete working implementation with Starknet wallet integration using Dynamic Labs SDK. You can explore code at this [repository](https://github.com/arentant/layerswap-widget-nextjs-example).
+  This demo includes a complete working implementation with Starknet wallet integration using Dynamic Labs SDK. You can explore code at this [repository](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-dynamic).
 </Note>
 
 ## Testing
