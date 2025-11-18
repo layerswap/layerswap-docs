@@ -52,7 +52,13 @@
                   "integration/UI/Widget/WalletManagement/TronProvider",
                   "integration/UI/Widget/WalletManagement/ParadexProvider",
                   "integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
-                  "integration/UI/Widget/WalletManagement/ImmutableXProvider"
+                  "integration/UI/Widget/WalletManagement/ImmutableXProvider",
+                  {
+                    "group": "Guides",
+                    "pages": [
+                      "integration/UI/Widget/StarknetWithDynamics"
+                    ]
+                  }
                 ]
               },
               {
@@ -116,9 +122,9 @@
       {
         "tab": "Deposit Address",
         "hidden": true,
-         "pages": [
-              "integration/UI/Widget/CustomMode"
-            ]
+        "pages": [
+          "integration/UI/Widget/CustomMode"
+        ]
       },
       {
         "tab": "Changelog",
