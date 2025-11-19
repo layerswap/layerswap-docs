@@ -1,4 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+'use client';
+
+const ReactGlobalNetworks = (() => {
+    if (typeof globalThis !== 'undefined' && globalThis.React) return globalThis.React;
+    if (typeof window !== 'undefined' && window.React) return window.React;
+    return null;
+})();
+
+if (!ReactGlobalNetworks) {
+    throw new Error('React is required for snippets/networksTokens.jsx but was not found on the global scope.');
+}
+
+const { useEffect, useMemo, useState } = ReactGlobalNetworks;
 
 export const NetworksTokensEmbed = () => {
     const resolveTheme = () => {
@@ -1101,4 +1113,3 @@ export const NetworksTokensEmbed = () => {
         </div>
     );
 };
-

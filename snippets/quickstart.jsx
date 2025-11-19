@@ -1,4 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+'use client';
+
+const ReactGlobalQuickstart = (() => {
+  if (typeof globalThis !== 'undefined' && globalThis.React) return globalThis.React;
+  if (typeof window !== 'undefined' && window.React) return window.React;
+  return null;
+})();
+
+if (!ReactGlobalQuickstart) {
+  throw new Error('React is required for snippets/quickstart.jsx but was not found on the global scope.');
+}
+
+const { useState, useEffect, useRef } = ReactGlobalQuickstart;
 
 export const QuickstartEmbed = () => {
   const [theme, setTheme] = useState(() => {
