@@ -66,7 +66,7 @@ You can generate an API key from the [Partner Dashboard](/api-keys) to track swa
 
 The Widget’s wallet management is modular, allowing to extend or override it based on your needs. 
 
-If you want to override the native widget package, refer to the guide on [Dynamic Labs SDK](/integration/UI/Widget/Guides/StarknetWithDynamics) implementation.
+If you want to control wallet states internally, refer to the guide on [Dynamic Labs SDK](/integration/UI/Widget/Guides/StarknetWithDynamics) implementation.
 
 ## Customization
 
@@ -144,6 +144,13 @@ export const starknetTheme = {
 
 </CodeGroup>
 
+<img
+  src="/images/starknetEarnTheme.svg"
+  style={{ width:"450px",height:"auto",margin:"auto",paddingBottom:"20px" }}
+  alt="Light theme example"
+  noZoom={true}
+/>
+
 **Theme Properties**
 
 <ResponseField name="primary" type="object">
@@ -177,13 +184,6 @@ export const starknetTheme = {
 <Note>
   All colors use RGB format without the `rgb()` wrapper (e.g., '243, 243, 243' instead of 'rgb(243, 243, 243)'). The widget internally applies the appropriate formatting.
 </Note>
-
-<img
-  src="/images/starknetEarnTheme.svg"
-  style={{ width:"450px",height:"auto",margin:"auto",paddingBottom:"20px" }}
-  alt="Light theme example"
-  noZoom={true}
-/>
 
 Customize the entire color palette of the widget to match your brand. Learn more in the [Color Customization](/integration/UI/Widget/Customization/Colors) section.
 
