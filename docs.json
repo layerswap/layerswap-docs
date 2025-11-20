@@ -76,10 +76,10 @@
                 ]
               },
               {
-                "group": "Guides",
+                "group": "Starknet",
                 "pages": [
-                  "integration/UI/Widget/Guides/Starknet",
-                  "integration/UI/Widget/Guides/StarknetWithDynamics"
+                  "integration/UI/Widget/Starknet/Starknet",
+                  "integration/UI/Widget/Starknet/StarknetWithDynamics"
                 ]
               }
             ]
