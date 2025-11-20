@@ -1,8 +1,20 @@
 ---
 mode: "custom"
 ---
-<script>
+
+<script suppressHydrationWarning>
   {`(() => {
+    const WIDGET_URL = ${JSON.stringify('https://layerswap-docs.vercel.app/')};
+
+    const updateWidgetSrc = (iframe) => {
+      if (!iframe) return;
+      if (!WIDGET_URL) return;
+      const current = iframe.getAttribute('src') || '';
+      if (current !== WIDGET_URL) {
+        iframe.setAttribute('src', WIDGET_URL);
+      }
+    };
+
     const THEME_MESSAGE_TYPE = 'DEPOSIT_WIDGET_THEME';
     const THEME_REQUEST_MESSAGE_TYPE = 'DEPOSIT_WIDGET_THEME_REQUEST';
     const THEME_ATTRS = ['data-theme', 'data-mode', 'data-color-mode', 'data-color-theme', 'data-appearance', 'data-color-scheme'];
@@ -114,6 +126,7 @@ mode: "custom"
     const setupThemeSync = () => {
       const iframe = document.querySelector('iframe[data-deposit-widget]');
       if (iframe) {
+        updateWidgetSrc(iframe);
         iframe.addEventListener('load', () => sendThemeToIframe(true), { once: true });
       }
 
@@ -164,7 +177,7 @@ mode: "custom"
 </script>
 
 <iframe
-  src="/snippets/depositWidget.html"
+  src="https://layerswap-docs.vercel.app/"
   title="Layerswap Deposit API Tutorial"
   data-deposit-widget
   style={{

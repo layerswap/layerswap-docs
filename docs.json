@@ -123,9 +123,9 @@
       {
         "tab": "Deposit Address",
         "hidden": true,
-        "pages": [
-          "integration/UI/Widget/CustomMode"
-        ]
+         "pages": [
+              "DepositAddress"
+            ]
       },
       {
         "tab": "Changelog",
