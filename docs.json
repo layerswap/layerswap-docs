@@ -121,7 +121,7 @@
       },
       {
         "tab": "Deposit Address",
-        "hidden": true,
+        "hidden": false,
          "pages": [
               "DepositAddress"
             ]
