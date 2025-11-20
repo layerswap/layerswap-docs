@@ -78,8 +78,8 @@
               {
                 "group": "Guides",
                 "pages": [
-                  "integration/UI/Widget/Guides/StarknetWithDynamics",
-                  "integration/UI/Widget/Guides/Starknet"
+                  "integration/UI/Widget/Guides/Starknet",
+                  "integration/UI/Widget/Guides/StarknetWithDynamics"
                 ]
               }
             ]
