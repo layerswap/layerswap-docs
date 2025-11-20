@@ -4,33 +4,53 @@ mode: "custom"
 
 import { depositWidgetConfig } from "/snippets/depositWidget.config.jsx"
 
-<script>
+<script suppressHydrationWarning>
   {`(() => {
     const REMOTE_WIDGET_URL = ${JSON.stringify((depositWidgetConfig?.productionUrl || '').trim())};
     const LOCAL_WIDGET_URL = '/deposit-widget/index.html';
+    const EMBEDDED_LOCAL_WIDGET_ENV_FLAG = ${JSON.stringify(
+      (() => {
+        if (typeof process !== 'undefined' && process && process.env) {
+          const raw =
+            process.env.NEXT_PUBLIC_DEPOSIT_WIDGET_USE_LOCAL ??
+            process.env.DEPOSIT_WIDGET_USE_LOCAL ??
+            '';
+          return typeof raw === 'string' ? raw.trim() : '';
+        }
+        return '';
+      })()
+    )};
 
-    const isLocalEnvironment = () => {
-      if (typeof window === 'undefined') {
-        return true;
+    const resolveLocalEnvFlag = () => {
+      if (typeof window !== 'undefined') {
+        const manualFlag = window.__DEPOSIT_WIDGET_USE_LOCAL__;
+        if (typeof manualFlag === 'string' && manualFlag.trim()) {
+          return manualFlag.trim();
+        }
       }
-      const hostname = (window.location.hostname || '').toLowerCase();
-      return (
-        hostname === 'localhost' ||
-        hostname === '127.0.0.1' ||
-        hostname === '0.0.0.0' ||
-        hostname === '::1' ||
-        hostname.endsWith('.localhost')
-      );
+      return EMBEDDED_LOCAL_WIDGET_ENV_FLAG;
+    };
+
+    const LOCAL_WIDGET_ENV_FLAG = resolveLocalEnvFlag();
+
+    if (typeof window !== 'undefined' && LOCAL_WIDGET_ENV_FLAG) {
+      window.__DEPOSIT_WIDGET_USE_LOCAL__ = LOCAL_WIDGET_ENV_FLAG;
+    }
+
+    const shouldForceLocalWidget = () => {
+      if (!LOCAL_WIDGET_ENV_FLAG) return false;
+      const normalized = LOCAL_WIDGET_ENV_FLAG.toLowerCase();
+      return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'local';
     };
 
     const resolveWidgetSrc = () => {
-      if (!REMOTE_WIDGET_URL) {
+      if (shouldForceLocalWidget()) {
         return LOCAL_WIDGET_URL;
       }
-      if (typeof window === 'undefined') {
+      if (REMOTE_WIDGET_URL) {
         return REMOTE_WIDGET_URL;
       }
-      return isLocalEnvironment() ? LOCAL_WIDGET_URL : REMOTE_WIDGET_URL;
+      return LOCAL_WIDGET_URL;
     };
 
     const updateWidgetSrc = (iframe) => {
