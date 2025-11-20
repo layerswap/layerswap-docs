@@ -52,13 +52,7 @@
                   "integration/UI/Widget/WalletManagement/TronProvider",
                   "integration/UI/Widget/WalletManagement/ParadexProvider",
                   "integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
-                  "integration/UI/Widget/WalletManagement/ImmutableXProvider",
-                  {
-                    "group": "Guides",
-                    "pages": [
-                      "integration/UI/Widget/StarknetWithDynamics"
-                    ]
-                  }
+                  "integration/UI/Widget/WalletManagement/ImmutableXProvider"
                 ]
               },
               {
@@ -79,6 +73,13 @@
                   "integration/UI/Widget/EventCallbacks/onSwapComplete",
                   "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
                   "integration/UI/Widget/EventCallbacks/onBackClick"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "integration/UI/Widget/Guides/StarknetWithDynamics",
+                  "integration/UI/Widget/Guides/Starknet"
                 ]
               }
             ]

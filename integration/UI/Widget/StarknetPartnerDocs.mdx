@@ -21,6 +21,10 @@ Explore a fully working implementation in this live demo:
   sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
+<Note>
+  This demo includes a complete working implementation with Starknet wallet integration using Dynamic Labs SDK. You can explore code at this [repository](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-dynamic).
+</Note>
+
 ## Quick Start
 
 ### Installation
@@ -240,7 +244,6 @@ const PageComponent = () => {
         >
             <LayerswapProvider
                 config={{
-                    settings,
                     apiKey: {LAYERSWAP_API_KEY}, //optional
                     version: 'mainnet',
                     initialValues: {
@@ -410,7 +413,6 @@ const PageComponent = () => {
         >
             <LayerswapProvider
                 config={{
-                    settings,
                     theme: starknetTheme,
                     apiKey: {LAYERSWAP_API_KEY},
                     version: 'mainnet',
@@ -620,10 +622,6 @@ function resolveWallet(props: {
 </CodeGroup>
 
 For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
-
-<Note>
-  This demo includes a complete working implementation with Starknet wallet integration using Dynamic Labs SDK. You can explore code at this [repository](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-dynamic).
-</Note>
 
 ## Testing
 
