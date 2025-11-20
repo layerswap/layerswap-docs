@@ -1,8 +1,48 @@
 ---
 mode: "custom"
 ---
+
+import { depositWidgetConfig } from "/snippets/depositWidget.config.jsx"
+
 <script>
   {`(() => {
+    const REMOTE_WIDGET_URL = ${JSON.stringify((depositWidgetConfig?.productionUrl || '').trim())};
+    const LOCAL_WIDGET_URL = '/deposit-widget/index.html';
+
+    const isLocalEnvironment = () => {
+      if (typeof window === 'undefined') {
+        return true;
+      }
+      const hostname = (window.location.hostname || '').toLowerCase();
+      return (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '0.0.0.0' ||
+        hostname === '::1' ||
+        hostname.endsWith('.localhost')
+      );
+    };
+
+    const resolveWidgetSrc = () => {
+      if (!REMOTE_WIDGET_URL) {
+        return LOCAL_WIDGET_URL;
+      }
+      if (typeof window === 'undefined') {
+        return REMOTE_WIDGET_URL;
+      }
+      return isLocalEnvironment() ? LOCAL_WIDGET_URL : REMOTE_WIDGET_URL;
+    };
+
+    const updateWidgetSrc = (iframe) => {
+      if (!iframe) return;
+      const nextSrc = resolveWidgetSrc();
+      if (!nextSrc) return;
+      const current = iframe.getAttribute('src') || '';
+      if (current !== nextSrc) {
+        iframe.setAttribute('src', nextSrc);
+      }
+    };
+
     const THEME_MESSAGE_TYPE = 'DEPOSIT_WIDGET_THEME';
     const THEME_REQUEST_MESSAGE_TYPE = 'DEPOSIT_WIDGET_THEME_REQUEST';
     const THEME_ATTRS = ['data-theme', 'data-mode', 'data-color-mode', 'data-color-theme', 'data-appearance', 'data-color-scheme'];
@@ -114,6 +154,7 @@ mode: "custom"
     const setupThemeSync = () => {
       const iframe = document.querySelector('iframe[data-deposit-widget]');
       if (iframe) {
+        updateWidgetSrc(iframe);
         iframe.addEventListener('load', () => sendThemeToIframe(true), { once: true });
       }
 
@@ -164,7 +205,7 @@ mode: "custom"
 </script>
 
 <iframe
-  src="/snippets/depositWidget.html"
+  src="/deposit-widget/index.html"
   title="Layerswap Deposit API Tutorial"
   data-deposit-widget
   style={{
