@@ -1,0 +1,203 @@
+---
+title: "Integration guide for Starknet dApps"
+description: "Complete guide for integrating and customizing Layerswap Widget for Starknet dApps"
+---
+
+## Quick Start
+
+### Installation
+
+Install the Layerswap Widget along with the Starknet provider.
+
+<CodeGroup>
+
+```typescript npm
+npm install @layerswap/widget zustand @layerswap/wallet-starknet
+```
+
+
+```typescript yarn
+yarn add @layerswap/widget zustand @layerswap/wallet-starknet
+```
+
+
+```typescript pnpm
+pnpm add @layerswap/widget zustand @layerswap/wallet-starknet
+```
+
+</CodeGroup>
+
+If you want to customize the wallet provider selection, please refer to the [Widget Quickstart](/integration/UI/Widget/Quickstart).
+
+### Initial Configuration
+
+Set up the providers and widget in your main component:
+
+```typescript
+import { Swap, LayerswapProvider } from '@layerswap/widget'
+import { StarknetProvider } from "@layerswap/wallet-starknet"
+import "@layerswap/widget/index.css"
+
+const PageComponent = () => {
+    return (
+        <LayerswapProvider
+            config={{
+                apiKey: {LAYERSWAP_API_KEY}, //optional
+                version: 'mainnet',
+                initialValues: {
+                    to: 'STARKNET_MAINNET',
+                    toAsset: 'USDC',
+                    lockTo: true
+                },
+            }}
+            walletProviders={[StarknetProvider]}
+        >
+            <Swap />
+        </LayerswapProvider>
+    )
+}
+```
+
+For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
+
+You can generate an API key from the [Partner Dashboard](/api-keys) to track swaps done through the widget.
+
+## Wallet Management
+
+The Widget’s wallet management is modular, allowing to extend or override it based on your needs. 
+
+If you want to control wallet states internally, refer to the guide on [Dynamic Labs SDK](/integration/UI/Widget/Guides/StarknetWithDynamics) implementation.
+
+## Customization
+
+### Interactive Playground
+
+The Layerswap Widget is fully customizable, letting you adjust its appearance and behavior to match your application. You can play around with colors, layout, border radius, and more in our interactive Playground:
+
+<Card title="Try the Customization Playground" icon="palette" href="https://playground.layerswap.io">
+  Experiment with all customization options in real-time. Test colors, layouts, styles, and configurations with live preview before implementing in your application.
+</Card>
+
+### Theme Configuration
+
+You can customize the widget's appearance to match your application's branding:
+
+**Custom Theme**
+
+Apply a custom theme configuration:
+
+<CodeGroup>
+
+```typescript App.tsx
+import '@layerswap/widget/index.css';
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { starknetTheme } from './themeConfigs';
+
+export default function App() {
+
+  return (
+    <LayerswapProvider
+      config={{
+        ...config,
+        theme: starknetTheme,
+      }}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+
+```typescript themeConfigs.ts
+export const starknetTheme = {
+    buttonTextColor: '25, 22, 25',
+    tertiary: '71, 71, 82',
+    primary: {
+        DEFAULT: '55, 207, 211',
+        100: '189, 239, 240',
+        200: '155, 231, 233',
+        300: '122, 223, 226',
+        400: '88, 215, 218',
+        500: '55, 207, 211',
+        600: '38, 169, 172',
+        700: '28, 124, 126',
+        800: '18, 78, 80',
+        900: '8, 33, 34',
+        text: '248, 250, 252',
+    },
+    secondary: {
+        DEFAULT: '29, 29, 33',
+        100: '105, 105, 120',
+        200: '86, 86, 98',
+        300: '67, 67, 76',
+        400: '48, 48, 55',
+        500: '29, 29, 33',
+        600: '22, 22, 25',
+        700: '19, 19, 21',
+        800: '0, 0, 0',
+        900: '0, 0, 0',
+        text: '128, 128, 143',
+    }
+};
+```
+
+</CodeGroup>
+
+<img
+  src="/images/starknetEarnTheme.svg"
+  style={{ width:"450px",height:"auto",margin:"auto",paddingBottom:"20px" }}
+  alt="Light theme example"
+  noZoom={true}
+/>
+
+**Theme Properties**
+
+<ResponseField name="primary" type="object">
+  Primary color palette for buttons, links, and key UI elements. Colors are specified as RGB values (e.g., '243, 243, 243').
+</ResponseField>
+
+<ResponseField name="secondary" type="object">
+  Secondary color palette for backgrounds, cards, and supporting UI elements.
+</ResponseField>
+
+<ResponseField name="tertiary" type="string">
+  Tertiary color for subtle UI elements and borders (RGB format).
+</ResponseField>
+
+<ResponseField name="buttonTextColor" type="string">
+  Text color for buttons (RGB format).
+</ResponseField>
+
+<ResponseField name="cardBackgroundStyle" type="object">
+  Custom CSS styles for card background.
+</ResponseField>
+
+<ResponseField name="header" type="object">
+  Header visibility controls:
+
+  - `hideMenu`: Hide the menu button
+  - `hideTabs`: Hide navigation tabs
+  - `hideWallets`: Hide wallet connection display
+</ResponseField>
+
+<Note>
+  All colors use RGB format without the `rgb()` wrapper (e.g., '243, 243, 243' instead of 'rgb(243, 243, 243)'). The widget internally applies the appropriate formatting.
+</Note>
+
+Customize the entire color palette of the widget to match your brand. Learn more in the [Color Customization](/integration/UI/Widget/Customization/Colors) section.
+
+## Testnet Configuration
+
+Here's how to test your integration on Testnet before going live:
+
+```typescript
+const config = {
+  apiKey: 'YOUR_TESTNET_API_KEY',
+  version: 'testnet',
+  initialValues: {
+    to: 'STARKNET_SEPOLIA',
+    toAsset: 'USDC'
+  },
+}
+```

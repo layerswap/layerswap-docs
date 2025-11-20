@@ -74,6 +74,13 @@
                   "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
                   "integration/UI/Widget/EventCallbacks/onBackClick"
                 ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "integration/UI/Widget/Guides/Starknet",
+                  "integration/UI/Widget/Guides/StarknetWithDynamics"
+                ]
               }
             ]
           },
