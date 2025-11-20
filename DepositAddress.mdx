@@ -2,64 +2,16 @@
 mode: "custom"
 ---
 
-import { depositWidgetConfig } from "/snippets/depositWidget.config.jsx"
-
 <script suppressHydrationWarning>
   {`(() => {
-    const REMOTE_WIDGET_URL = ${JSON.stringify((depositWidgetConfig?.productionUrl || '').trim())};
-    const LOCAL_WIDGET_URL = '/deposit-widget/index.html';
-    const EMBEDDED_LOCAL_WIDGET_ENV_FLAG = ${JSON.stringify(
-      (() => {
-        if (typeof process !== 'undefined' && process && process.env) {
-          const raw =
-            process.env.NEXT_PUBLIC_DEPOSIT_WIDGET_USE_LOCAL ??
-            process.env.DEPOSIT_WIDGET_USE_LOCAL ??
-            '';
-          return typeof raw === 'string' ? raw.trim() : '';
-        }
-        return '';
-      })()
-    )};
-
-    const resolveLocalEnvFlag = () => {
-      if (typeof window !== 'undefined') {
-        const manualFlag = window.__DEPOSIT_WIDGET_USE_LOCAL__;
-        if (typeof manualFlag === 'string' && manualFlag.trim()) {
-          return manualFlag.trim();
-        }
-      }
-      return EMBEDDED_LOCAL_WIDGET_ENV_FLAG;
-    };
-
-    const LOCAL_WIDGET_ENV_FLAG = resolveLocalEnvFlag();
-
-    if (typeof window !== 'undefined' && LOCAL_WIDGET_ENV_FLAG) {
-      window.__DEPOSIT_WIDGET_USE_LOCAL__ = LOCAL_WIDGET_ENV_FLAG;
-    }
-
-    const shouldForceLocalWidget = () => {
-      if (!LOCAL_WIDGET_ENV_FLAG) return false;
-      const normalized = LOCAL_WIDGET_ENV_FLAG.toLowerCase();
-      return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'local';
-    };
-
-    const resolveWidgetSrc = () => {
-      if (shouldForceLocalWidget()) {
-        return LOCAL_WIDGET_URL;
-      }
-      if (REMOTE_WIDGET_URL) {
-        return REMOTE_WIDGET_URL;
-      }
-      return LOCAL_WIDGET_URL;
-    };
+    const WIDGET_URL = ${JSON.stringify('https://layerswap-docs.vercel.app/')};
 
     const updateWidgetSrc = (iframe) => {
       if (!iframe) return;
-      const nextSrc = resolveWidgetSrc();
-      if (!nextSrc) return;
+      if (!WIDGET_URL) return;
       const current = iframe.getAttribute('src') || '';
-      if (current !== nextSrc) {
-        iframe.setAttribute('src', nextSrc);
+      if (current !== WIDGET_URL) {
+        iframe.setAttribute('src', WIDGET_URL);
       }
     };
 
@@ -225,7 +177,7 @@ import { depositWidgetConfig } from "/snippets/depositWidget.config.jsx"
 </script>
 
 <iframe
-  src="/deposit-widget/index.html"
+  src="https://layerswap-docs.vercel.app/"
   title="Layerswap Deposit API Tutorial"
   data-deposit-widget
   style={{
