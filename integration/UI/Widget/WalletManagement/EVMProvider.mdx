@@ -2,9 +2,11 @@
 title: "EVM Wallet"
 ---
 
-### Install EVM wallet package
+## Overview
 
-To get started, install the latest version of EVM package.
+The EVM wallet provider supports Ethereum and all EVM-compatible chains including Arbitrum, Optimism, Base, Polygon, and more. It uses wagmi v2 for wallet connections and supports MetaMask, WalletConnect, Coinbase Wallet, and other EVM wallets.
+
+## Installation
 
 <CodeGroup>
   ```typescript yarn theme={"system"}
@@ -26,90 +28,87 @@ To get started, install the latest version of EVM package.
 
 [**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
 
-### Basic example
-
-The example below shows how to preconfigure a basic wallet management with native widget package.
-
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { EVMProvider } from "@layerswap/wallet-evm"
-
-export const WidgetPage = () => {
-
-  const walletConnect = {
-    projectId: {YOUR_PROJECT_ID},
-    name: {YOUR_APP_NAME},
-    description: {YOUR_APP_DESCRIPTION},
-    url: {YOUR_APP_URL},
-    icons: [{YOUR_LOGO_URL}],
-  }
-
-  return (
-    <LayerswapProvider 
-      config={{
-        walletConnect
-      }}
-      walletProviders={[EVMProvider]}
-    >
-      <Swap/>
-    </LayerswapProvider>
-  );
-};
-```
-### WalletConnect config
-
-```TypeScript  theme={"system"}
-walletConnect: {
-  projectId: string
-  name: string
-  description: string
-  url: string
-  icons: string[]
-}
-```
-
-## Wagmi Configuration
-
-If your application already uses wagmi, you need to integrate Layerswap's network configurations with your existing wagmi setup. Use the `useSettings` hook to fetch Layerswap settings and the `useChainConfigs` hook to get chain configurations, then pass them to your wagmi config.
+## Basic Usage
 
 ```typescript
-import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
-import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
-import { createConfig, WagmiProvider } from "wagmi"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createEVMProvider } from "@layerswap/wallet-evm"
+import "@layerswap/widget/index.css"
 
-const queryClient = new QueryClient()
-
-const App = () => {
-  const apiKey = 'YOUR_API_KEY'
-  const { settings, loading } = useSettings(apiKey) // or you can use getSettings(apiKey) for server-side rendering
-  const { chains, transports } = useChainConfigs(settings.networks)
-
-  if (loading) return <WidgetLoading />
-
-  const wagmiConfig = createConfig({
-    chains,
-    transports,
-    connectors // Your configured connectors
+export const App = () => {
+  const evmProvider = createEVMProvider({
+    walletConnectConfigs: {
+      projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+      name: "Your App Name",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/icon.png"]
+    }
   })
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <LayerswapProvider
-          config={{
-            settings
-          }}
-          walletProviders={[EVMProvider]}
-        >
-          <Swap/>
-        </LayerswapProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <LayerswapProvider
+      walletProviders={[evmProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
   )
 }
 ```
 
-<Note>
-  This approach ensures that Layerswap's supported networks are properly configured in your wagmi instance, enabling seamless wallet connections and transactions.
-</Note>
+---
+
+## Configuration
+
+### WalletConnect Configuration
+
+The EVM provider requires WalletConnect configuration:
+
+```typescript
+import { createEVMProvider } from "@layerswap/wallet-evm"
+import type { WalletConnectConfig } from "@layerswap/wallets"
+
+const walletConnectConfigs: WalletConnectConfig = {
+  projectId: string,      // Required: Your WalletConnect project ID
+  name: string,           // Required: Your app name
+  description: string,    // Required: Your app description
+  url: string,            // Required: Your app URL
+  icons: string[]         // Required: Array of logo URLs
+}
+
+const evmProvider = createEVMProvider({ walletConnectConfigs })
+```
+
+Get your WalletConnect project ID at [WalletConnect Cloud](https://cloud.walletconnect.com/).
+
+---
+
+## Advanced: EVM Modules
+
+Extend the EVM provider with network-specific functionality using modules:
+
+```typescript
+import { createEVMProvider, zkSyncModule, LoopringModule } from "@layerswap/wallets"
+
+const evmProvider = createEVMProvider({
+  walletConnectConfigs: {
+    projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+    name: "Your App",
+    description: "Your app description",
+    url: "https://yourapp.com",
+    icons: ["https://yourapp.com/icon.png"]
+  },
+  walletProviderModules: [zkSyncModule, LoopringModule]
+})
+```
+
+### Available Modules
+
+- **zkSyncModule** - Adds zkSync-specific balance providers and multi-step transaction handlers
+- **LoopringModule** - Adds Loopring-specific balance providers and multi-step transaction handlers
+
+---
+
+## Integration with Existing Wagmi
+
+If your application already uses wagmi, see the [Partial Integration guide](/integration/UI/Widget/WalletManagement/PartialIntegration) for details on integrating Layerswap with your existing wagmi setup.

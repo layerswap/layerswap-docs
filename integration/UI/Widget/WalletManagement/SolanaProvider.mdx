@@ -2,9 +2,11 @@
 title: "SVM (Solana) Wallet"
 ---
 
-### Install Solana wallet package
+## Overview
 
-To get started, install the latest version of Solana package.
+The Solana (SVM) wallet provider supports Phantom, Solflare, Backpack, and all Solana wallet adapter compatible wallets.
+
+## Installation
 
 <CodeGroup>
   ```typescript yarn theme={"system"}
@@ -20,22 +22,55 @@ To get started, install the latest version of Solana package.
   ```
 </CodeGroup>
 
-### Basic example
+## Basic Usage
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createSVMProvider } from "@layerswap/wallet-svm"
+import "@layerswap/widget/index.css"
 
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { SVMProvider } from "@layerswap/wallet-svm"
+export const App = () => {
+  const svmProvider = createSVMProvider({
+    walletConnectConfigs: {
+      projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+      name: "Your App Name",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/icon.png"]
+    }
+  })
 
-export const WidgetPage = () => {
   return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[SVMProvider]}
+    <LayerswapProvider
+      walletProviders={[svmProvider]}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```
+
+---
+
+## Configuration
+
+### WalletConnect Configuration
+
+The Solana provider requires WalletConnect configuration:
+
+```typescript
+import { createSVMProvider } from "@layerswap/wallet-svm"
+import type { WalletConnectConfig } from "@layerswap/wallet-svm"
+
+const walletConnectConfigs: WalletConnectConfig = {
+  projectId: string,      // Required: Your WalletConnect project ID
+  name: string,           // Required: Your app name
+  description: string,    // Required: Your app description
+  url: string,            // Required: Your app URL
+  icons: string[]         // Required: Array of logo URLs
+}
+
+const svmProvider = createSVMProvider({ walletConnectConfigs })
+```
+
+Get your WalletConnect project ID at [WalletConnect Cloud](https://cloud.walletconnect.com/).

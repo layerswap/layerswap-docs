@@ -2,40 +2,42 @@
 title: "Fuel Wallet"
 ---
 
-### Install Fuel wallet package
+## Overview
 
-To get started, install the latest version of Fuel package.
+The Fuel wallet provider supports Fuel Network wallets and ecosystem.
+
+## Installation
 
 <CodeGroup>
-  ```typescript yarn theme={"system"}
-  yarn add @layerswap/wallet-fuel
-  ```
-
-  ```typescript pnpm theme={"system"}
-  pnpm add @layerswap/wallet-fuel
-  ```
-
-  ```typescript npm theme={"system"}
-  npm install @layerswap/wallet-fuel
-  ```
+```typescript yarn theme={"system"}
+yarn add @layerswap/wallet-fuel
+```
+```typescript pnpm theme={"system"}
+pnpm add @layerswap/wallet-fuel
+```
+```typescript npm theme={"system"}
+npm install @layerswap/wallet-fuel
+```
 </CodeGroup>
 
-### Basic example
+## Basic Usage
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
+The Fuel provider requires no configuration:
 
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { FuelProvider } from "@layerswap/wallet-fuel"
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createFuelProvider } from "@layerswap/wallet-fuel"
+import "@layerswap/widget/index.css"
 
-export const WidgetPage = () => {
+export const App = () => {
+  const fuelProvider = createFuelProvider()
+
   return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[FuelProvider]}
+    <LayerswapProvider
+      walletProviders={[fuelProvider]}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```

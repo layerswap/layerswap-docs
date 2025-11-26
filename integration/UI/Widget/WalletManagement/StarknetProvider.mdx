@@ -2,44 +2,73 @@
 title: "Starknet Wallet"
 ---
 
-### Install Starknet wallet package
+## Overview
 
-To get started, install the latest version of Starknet package.
+The Starknet wallet provider supports ArgentX, Braavos, and all Starknet-compatible wallets on Starknet Mainnet and Sepolia.
+
+## Installation
 
 <CodeGroup>
-
-```typescript yarn
-yarn add @layerswap/wallet-starknet
-```
-
-
-```typescript pnpm
-pnpm add @layerswap/wallet-starknet
-```
-
-
 ```typescript npm
 npm install @layerswap/wallet-starknet
 ```
-
+```typescript yarn
+yarn add @layerswap/wallet-starknet
+```
+```typescript pnpm
+pnpm add @layerswap/wallet-starknet
+```
 </CodeGroup>
 
-### Basic example
-
-The example below shows how to preconfigure a basic wallet management with native widget package.
+## Basic Usage
 
 ```typescript
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { StarknetProvider } from "@layerswap/wallet-starknet"
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createStarknetProvider } from "@layerswap/wallet-starknet"
+import "@layerswap/widget/index.css"
 
-export const WidgetPage = () => {
+export const App = () => {
+  const starknetProvider = createStarknetProvider({
+    walletConnectConfigs: {
+      projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+      name: "Your App Name",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/icon.png"]
+    }
+  })
+
   return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[StarknetProvider]}
+    <LayerswapProvider
+      walletProviders={[starknetProvider]}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```
+
+---
+
+## Configuration
+
+### WalletConnect Configuration
+
+The Starknet provider requires WalletConnect configuration:
+
+```typescript
+import { createStarknetProvider } from "@layerswap/wallet-starknet"
+import type { WalletConnectConfig } from "@layerswap/wallet-starknet"
+
+const walletConnectConfigs: WalletConnectConfig = {
+  projectId: string,      // Required: Your WalletConnect project ID
+  name: string,           // Required: Your app name
+  description: string,    // Required: Your app description
+  url: string,            // Required: Your app URL
+  icons: string[]         // Required: Array of logo URLs
+}
+
+const starknetProvider = createStarknetProvider({ walletConnectConfigs })
+```
+
+Get your WalletConnect project ID at [WalletConnect Cloud](https://cloud.walletconnect.com/).

@@ -2,40 +2,40 @@
 title: "ImmutableX Wallet"
 ---
 
-### Install ImmutableX wallet package
+## Overview
 
-To get started, install the latest version of ImmutableX package.
+The ImmutableX provider supports Immutable X Layer 2 scaling solution for NFTs and gaming on Ethereum.
+
+## Installation
 
 <CodeGroup>
-  ```typescript yarn theme={"system"}
-  yarn add @layerswap/wallet-imtbl-x
-  ```
-
-  ```typescript pnpm theme={"system"}
-  pnpm add @layerswap/wallet-imtbl-x
-  ```
-
-  ```typescript npm theme={"system"}
-  npm install @layerswap/wallet-imtbl-x
-  ```
+```typescript yarn theme={"system"}
+yarn add @layerswap/wallet-imtbl-x
+```
+```typescript pnpm theme={"system"}
+pnpm add @layerswap/wallet-imtbl-x
+```
+```typescript npm theme={"system"}
+npm install @layerswap/wallet-imtbl-x
+```
 </CodeGroup>
 
-### Basic example
+## Basic Usage
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
+The ImmutableX provider requires no configuration:
 
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { ImmutableXProvider } from "@layerswap/wallet-imtbl-x"
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createImmutableXProvider } from "@layerswap/wallet-imtbl-x"
+import "@layerswap/widget/index.css"
 
-export const WidgetPage = () => {
+export const App = () => {
   return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[ImmutableXProvider]}
+    <LayerswapProvider
+      walletProviders={[createImmutableXProvider()]}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```

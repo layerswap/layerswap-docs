@@ -33,28 +33,37 @@ If you want to customize the wallet provider selection, please refer to the [Wid
 
 Set up the providers and widget in your main component:
 
-```typescript
+```jsx
 import { Swap, LayerswapProvider } from '@layerswap/widget'
-import { StarknetProvider } from "@layerswap/wallet-starknet"
+import { createStarknetProvider } from "@layerswap/wallet-starknet"
 import "@layerswap/widget/index.css"
 
 const PageComponent = () => {
-    return (
-        <LayerswapProvider
-            config={{
-                apiKey: {LAYERSWAP_API_KEY}, //optional
-                version: 'mainnet',
-                initialValues: {
-                    to: 'STARKNET_MAINNET',
-                    toAsset: 'USDC',
-                    lockTo: true
-                },
-            }}
-            walletProviders={[StarknetProvider]}
-        >
-            <Swap />
-        </LayerswapProvider>
-    )
+  const starknetProvider = createStarknetProvider({ walletConnectConfigs: {
+      projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+      name: "Your App Name",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/logo.png"]
+    }
+  })
+
+  return (
+      <LayerswapProvider
+          config={{
+              apiKey: {LAYERSWAP_API_KEY}, //optional
+              version: 'mainnet',
+              initialValues: {
+                  to: 'STARKNET_MAINNET',
+                  toAsset: 'USDC',
+                  lockTo: true
+              },
+          }}
+          walletProviders={[starknetProvider]}
+      >
+          <Swap />
+      </LayerswapProvider>
+  )
 }
 ```
 
@@ -88,7 +97,7 @@ Apply a custom theme configuration:
 
 <CodeGroup>
 
-```typescript App.tsx
+```tsx App.tsx
 import '@layerswap/widget/index.css';
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { starknetTheme } from './themeConfigs';
@@ -98,7 +107,6 @@ export default function App() {
   return (
     <LayerswapProvider
       config={{
-        ...config,
         theme: starknetTheme,
       }}
     >
@@ -144,12 +152,14 @@ export const starknetTheme = {
 
 </CodeGroup>
 
-<img
-  src="/images/starknetEarnTheme.svg"
-  style={{ width:"450px",height:"auto",margin:"auto",paddingBottom:"20px" }}
-  alt="Light theme example"
-  noZoom={true}
-/>
+<Frame caption="Customized theme example">
+  <img
+    src="/images/starknetEarnTheme.svg"
+    style={{ width:"450px",height:"auto",margin:"auto",paddingBottom:"20px", paddingTop:"20px"}}
+    alt="Light theme example"
+    noZoom={true}
+  />
+</Frame>
 
 **Theme Properties**
 

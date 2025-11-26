@@ -1,61 +1,68 @@
 ---
-title: "Ton Wallet"
+title: "TON Wallet"
 ---
 
-### Install Ton wallet package
+## Overview
 
-To get started, install the latest version of Ton package.
+The TON wallet provider supports TON Connect compatible wallets including Tonkeeper, MyTonWallet, and more.
+
+## Installation
 
 <CodeGroup>
-  ```typescript yarn theme={"system"}
-  yarn add @layerswap/wallet-ton
-  ```
-
-  ```typescript pnpm theme={"system"}
-  pnpm add @layerswap/wallet-ton
-  ```
-
-  ```typescript npm theme={"system"}
-  npm install @layerswap/wallet-ton
-  ```
+```typescript yarn theme={"system"}
+yarn add @layerswap/wallet-ton
+```
+```typescript pnpm theme={"system"}
+pnpm add @layerswap/wallet-ton
+```
+```typescript npm theme={"system"}
+npm install @layerswap/wallet-ton
+```
 </CodeGroup>
 
-### Basic example
+## Basic Usage
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createTONProvider } from "@layerswap/wallet-ton"
+import "@layerswap/widget/index.css"
 
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { TonProvider } from "@layerswap/wallet-ton"
-
-export const WidgetPage = () => {
-
-  const tonConfigs = {
-    tonApiKey: {YOUR_TON_API_KEY},
-    manifestUrl: {YOUR_TON_MANIFEST_URL},
-  }
+export const App = () => {
+  const tonProvider = createTONProvider({
+    tonConfigs: {
+      tonApiKey: "YOUR_TON_API_KEY",
+      manifestUrl: "https://yourapp.com/tonconnect-manifest.json"
+    }
+  })
 
   return (
-    <LayerswapProvider 
-      config={{
-        ...config,
-        tonConfigs
-      }}
-      walletProviders={[TonProvider]}
+    <LayerswapProvider
+      walletProviders={[tonProvider]}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```
 
-### Ton configs
+---
 
-```TypeScript  theme={"system"}
-tonConfigs:  {
-  tonApiKey: string,
-  manifestUrl: string,
+## Configuration
+
+### TON Configuration
+
+The TON provider requires specific configuration:
+
+```typescript
+import { createTONProvider } from "@layerswap/wallet-ton"
+import type { TonClientConfig } from "@layerswap/wallet-ton"
+
+const tonConfigs: TonClientConfig = {
+  tonApiKey: string,    // Required: Your TON API key
+  manifestUrl: string   // Required: URL to your TON Connect manifest
 }
+
+const tonProvider = createTONProvider({ tonConfigs })
 ```
 
 ### TON API Key
@@ -77,17 +84,6 @@ To obtain a TON API key:
   Without an API key, usage is limited to 1 request per second. Registering for an API key provides access to higher rate limits necessary for production applications. Visit [TON Center](https://toncenter.com/) for more information.
 </Note>
 
-#### Using the API Key
-
-Once you have your API key, add it to your TON configs:
-
-```typescript theme={"system"}
-const tonConfigs = {
-  tonApiKey: "your-ton-api-key-here",
-  manifestUrl: "https://your-app-domain.com/tonconnect-manifest.json",
-}
-```
-
 ### Manifest URL Configuration
 
 The `manifestUrl` is required by TON Connect and points to a `tonconnect-manifest.json` file that contains essential metadata about your application.
@@ -96,7 +92,7 @@ The `manifestUrl` is required by TON Connect and points to a `tonconnect-manifes
 
 Create a `tonconnect-manifest.json` file in your project's public directory with the following structure:
 
-```json theme={"system"}
+```json
 {
   "url": "https://your-app-domain.com",
   "name": "Your App Name",
@@ -125,17 +121,6 @@ Create a `tonconnect-manifest.json` file in your project's public directory with
 <ResponseField name="privacyPolicyUrl" type="string">
   Optional URL to your privacy policy page.
 </ResponseField>
-
-#### Setting the Manifest URL
-
-Once you've created and deployed your manifest file, provide its URL in the TON configs:
-
-```typescript theme={"system"}
-const tonConfigs = {
-  tonApiKey: "YOUR_TON_API_KEY",
-  manifestUrl: "https://your-app-domain.com/tonconnect-manifest.json",
-}
-```
 
 <Note>
   The manifest file must be publicly accessible. For local development, you may need to host it on a development server or use a public URL. Learn more in the [TON Connect documentation](https://docs.ton.org/v3/guidelines/ton-connect/frameworks/react#set-up-ton-connect).

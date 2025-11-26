@@ -2,31 +2,25 @@
 title: "Immutable Passport Wallet"
 ---
 
-### Install Immutable Passport wallet package
+## Overview
 
-To get started, install the latest version of Immutable Passport and EVM packages.
+The Immutable Passport provider offers Immutable's gaming-focused wallet solution with seamless onboarding. It requires EVM provider as a dependency.
+
+## Installation
 
 <CodeGroup>
-  ```typescript yarn theme={"system"}
-  yarn add @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
-  ```
-
-  ```typescript pnpm theme={"system"}
-  pnpm add @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
-  ```
-
-  ```typescript npm theme={"system"}
-  npm install @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
-  ```
+```typescript yarn theme={"system"}
+yarn add @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
+```
+```typescript pnpm theme={"system"}
+pnpm add @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
+```
+```typescript npm theme={"system"}
+npm install @layerswap/wallet-imtbl-passport @layerswap/wallet-evm wagmi viem @tanstack/react-query
+```
 </CodeGroup>
 
-[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
-
-[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
-
-[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
-
-### Setting up Immutable Passport
+## Setting up Immutable Passport
 
 Before you can use Immutable Passport in your application, you need to create and configure your Passport credentials:
 
@@ -40,71 +34,105 @@ Before you can use Immutable Passport in your application, you need to create an
 The redirect page is essential for the Immutable Passport authentication flow. Make sure the `redirectUri` in your Immutable Hub configuration exactly matches the path where you deploy the `ImtblRedirectPage` component.
 </Note>
 
+---
 
-### Basic example
+## Basic Usage
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
+The Immutable Passport provider must be used alongside the EVM provider:
 
 <CodeGroup>
-```typescript WidgetPage.tsx theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { EVMProvider } from "@layerswap/wallet-evm"
-import { ImtblPassportProvider } from "@layerswap/wallet-imtbl-passport"
-import { imtblPassportConfigs } from "./configs"
+```typescript WidgetPage.tsx
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createEVMProvider, createImmutablePassportProvider } from "@layerswap/wallet-imtbl-passport"
+import "@layerswap/widget/index.css"
+import { imtblPassportConfigs, walletConnectConfigs } from "./configs"
 
 export const WidgetPage = () => {
+  const walletProviders = [
+    createEVMProvider({ walletConnectConfigs }),
+    createImmutablePassportProvider({ imtblPassportConfigs })
+  ]
 
   return (
-    <LayerswapProvider 
-      config={{
-        imtblPassportConfigs
-      }}
-      walletProviders={[EVMProvider, ImtblPassportProvider]}
+    <LayerswapProvider
+      walletProviders={walletProviders}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```
 
-```typescript ImtblRedirectPage.tsx theme={"system"}
-import { LayerswapProvider } from "@layerswap/widget";
-import { EVMProvider } from "@layerswap/wallet-evm"
-import { ImtblPassportProvider, ImtblRedirect } from "@layerswap/wallet-imtbl-passport"
-import { imtblPassportConfigs } from "./configs"
+```typescript ImtblRedirectPage.tsx
+import { LayerswapProvider } from "@layerswap/widget"
+import { createEVMProvider, createImmutablePassportProvider, ImtblRedirect } from "@layerswap/wallet-imtbl-passport"
+import "@layerswap/widget/index.css"
+import { imtblPassportConfigs, walletConnectConfigs } from "./configs"
 
 export const ImtblRedirectPage = () => {
+  const walletProviders = [
+    createEVMProvider({ walletConnectConfigs }),
+    createImmutablePassportProvider({ imtblPassportConfigs })
+  ]
 
   return (
-    <LayerswapProvider 
-      config={{
-        imtblPassportConfigs
-      }}
-      walletProviders={[EVMProvider, ImtblPassportProvider]}
+    <LayerswapProvider
+      walletProviders={walletProviders}
     >
-      <ImtblRedirect/>
+      <ImtblRedirect />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```
 
-```typescript configs.ts theme={"system"}
+```typescript configs.ts
+export const walletConnectConfigs = {
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  name: "Your App Name",
+  description: "Your app description",
+  url: "https://yourapp.com",
+  icons: ["https://yourapp.com/logo.png"]
+}
+
 export const imtblPassportConfigs = {
-    clientId: {YOUR_CLIENT_ID},
-    publishableKey: {YOUR_PUBLISHABE_KEY},
-    redirectUri: {REDIRECT_PAGE_URI},
-    logoutRedirectUri: {LOGOUT_REDIRECT_URI}
+  clientId: "YOUR_CLIENT_ID",
+  publishableKey: "YOUR_PUBLISHABLE_KEY",
+  redirectUri: "https://yourapp.com/imtbl-redirect",
+  logoutRedirectUri: "https://yourapp.com"
 }
 ```
 </CodeGroup>
 
-### Immutable Passport configs
+---
 
-```TypeScript  theme={"system"}
-imtblPassportConfigs: {
-    publishableKey: string,
-    clientId: string,
-    redirectUri: string,
-    logoutRedirectUri: string
+## Configuration
+
+### Immutable Passport Configuration
+
+The Immutable Passport provider requires specific configuration:
+
+```typescript
+import { createImmutablePassportProvider } from "@layerswap/wallet-imtbl-passport"
+import type { ImtblPassportConfig } from "@layerswap/wallet-imtbl-passport"
+
+const imtblPassportConfigs: ImtblPassportConfig = {
+  publishableKey: string,      // Required: Your publishable key
+  clientId: string,            // Required: Your client ID
+  redirectUri: string,         // Required: Redirect URI for auth flow
+  logoutRedirectUri: string    // Required: Redirect URI after logout
 }
+
+const passportProvider = createImmutablePassportProvider({ imtblPassportConfigs })
 ```
+
+---
+
+## Dependencies
+
+<Note>
+  The Immutable Passport provider depends on the EVM provider. Make sure to include both providers in your configuration.
+</Note>
+
+The Immutable Passport provider requires:
+- **EVM Provider** - For Ethereum wallet connections
+- **Immutable Passport Provider** - For Passport-specific functionality
