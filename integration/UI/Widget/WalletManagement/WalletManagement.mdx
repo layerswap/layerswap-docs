@@ -1,43 +1,39 @@
 ---
 title: "Wallet Management"
-description: "Configure wallets for your integration"
+description: "Configure wallet connection for your integration"
 ---
 
-The Layerswap Widget provides flexible, modular wallet management that can be configured, extended, or fully customized to match your integration needs. Whether you want to get started quickly with pre-built solutions or need deep control over wallet connections, we support three distinct approaches.
-
-## Three Approaches to Wallet Management
-
-Layerswap supports three wallet management approaches, each offering different levels of control and integration complexity:
+The Layerswap Widget provides flexible, modular wallet management that can be configured, extended, or fully customized to match your integration needs. You can choose from three approaches depending if you want pre-built solutions or need more control over wallet connections:
 
 <Card title="Native Wallet Packages" icon="box" href="/integration/UI/Widget/WalletManagement/NativeWalletPackages">
-  Pre-configured wallet providers with automatic balance fetching, gas resolution, and connection management. Fastest integration path.
-  **Best for:** Most integrations, quick setup, standard wallet support
+  Pre-configured wallet providers with automatic balance fetching, gas resolution, and connection management.
 </Card>
+
 <Card title="Partial Integration (EVM)" icon="link" href="/integration/UI/Widget/WalletManagement/PartialIntegration">
-  Seamless integration with existing wagmi apps. External wallet connections automatically detected and synchronized.
-  **Best for:** Apps with existing wagmi setup, hybrid wallet management
+  Seamless integration with existing Wagmi apps. External wallet connections are automatically detected and synchronized.
 </Card>
+
 <Card title="Custom Wallet Management" icon="code" href="/integration/UI/Widget/WalletManagement/CustomWalletManagement">
   Full control over wallet connections using the WalletProvider interface. Integrate Dynamic, Reown, RainbowKit, Privy, or custom solutions.
-  **Best for:** Custom wallet UX, 3rd party wallet libraries
 </Card>
 
 ---
 
 ## Comparison
 
-| Approach | Control Level | Complexity | Best For |
-|----------|--------------|------------|----------|
-| **Native Wallet Packages** | Pre-configured | Low | Quick integration, standard wallet support |
-| **Partial Integration (EVM)** | Medium | Medium | Existing wagmi apps, external connection detection |
-| **Full Custom Management** | Complete | High | Custom wallet UX, 3rd party wallet libraries (Dynamic, Reown, RainbowKit, etc.) |
+| Approach                      | Control Level  | Complexity | Best For                                                                              |
+| ----------------------------- | -------------- | ---------- | ------------------------------------------------------------------------------------- |
+| **Native Wallet Packages**    | Pre-configured | Low        | Quick integration, standard wallet support                                            |
+| **Partial Integration (EVM)** | Medium         | Medium     | Apps with existing Wagmi setup, hybrid wallet management                              |
+| **Custom Wallet Management**  | Complete       | High       | Custom wallet UX, using 3rd party wallet libraries (Dynamic, Reown, RainbowKit, etc.) |
 
 ## Quick Start Examples
 
 ### Approach 1: Native Wallet Packages
 
 <CodeGroup>
-```typescript theme={"system"} App.tsx
+
+```typescript App.tsx
 import { LayerswapProvider, Swap } from "@layerswap/widget"
 import { createEVMProvider, createStarknetProvider } from "@layerswap/wallets"
 import "@layerswap/widget/index.css"
@@ -61,7 +57,8 @@ export const App = () => {
 }
 ```
 
-```typescript theme={"system"} configs.ts
+
+```typescript configs.ts
 export const walletConnectConfigs = {
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
   name: "Your App Name",
@@ -70,8 +67,8 @@ export const walletConnectConfigs = {
   icons: ["https://yourapp.com/logo.png"]
 }
 ```
-</CodeGroup>
 
+</CodeGroup>
 
 [Learn more about Native Wallet Packages →](/integration/UI/Widget/WalletManagement/NativeWalletPackages)
 
@@ -155,9 +152,9 @@ const App = () => {
 Native wallet packages are available for multiple blockchain ecosystems:
 
 - [**EVM (Ethereum)**](/integration/UI/Widget/WalletManagement/EVMProvider) - MetaMask, WalletConnect, and all EVM-compatible wallets
-- [**Starknet**](/integration/UI/Widget/WalletManagement/StarknetProvider) - ArgentX, Braavos, and Starknet wallets
-- [**SVM (Solana)**](/integration/UI/Widget/WalletManagement/SolanaProvider) - Phantom, Solflare, and Solana wallets
-- [**Bitcoin**](/integration/UI/Widget/WalletManagement/BitcoinProvider) - Unisat, Leather, and Bitcoin wallets
+- [**Starknet**](/integration/UI/Widget/WalletManagement/StarknetProvider) - ArgentX, Braavos, and other Starknet wallets
+- [**SVM (Solana)**](/integration/UI/Widget/WalletManagement/SolanaProvider) - Phantom, Solflare, and other Solana wallets
+- [**Bitcoin**](/integration/UI/Widget/WalletManagement/BitcoinProvider) - Unisat, Leather, and other Bitcoin wallets
 - [**Fuel**](/integration/UI/Widget/WalletManagement/FuelProvider) - Fuel Network wallets
 - [**TON**](/integration/UI/Widget/WalletManagement/TonProvider) - TON Connect compatible wallets
 - [**Tron**](/integration/UI/Widget/WalletManagement/TronProvider) - TronLink and Tron wallets
@@ -169,43 +166,23 @@ Native wallet packages are available for multiple blockchain ecosystems:
 
 ## Choosing the Right Approach
 
-### Use Native Packages When:
+### Use Native Packages when:
+
 - You want the fastest integration path
 - Standard wallet support meets your needs
 - You don't have existing wallet management infrastructure
 - You want Layerswap to handle all wallet complexity
 
-### Use Partial Integration When:
-- Your app already uses wagmi for EVM chains
+### Use Partial Integration when:
+
+- Your app already uses Wagmi for EVM chains
 - You want external wallet connections detected automatically
 - You need unified wallet state across your app
 - You want to minimize code duplication
 
-### Use Custom Management When:
+### Use Custom Wallet Management when:
+
 - You need a specific wallet connection UX
-- You're using 3rd party wallet libraries (Dynamic, Reown, RainbowKit, Privy)
+- You're using 3rd party wallet libraries (Dynamic, Reown, RainbowKit, Privy, etc.)
 - You have custom wallet management requirements
 - You need deep control over the connection lifecycle
-
-
----
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Native Wallet Packages" icon="box" href="/integration/UI/Widget/WalletManagement/NativeWalletPackages">
-    Learn about pre-built wallet providers for quick integration
-  </Card>
-
-  <Card title="Partial Integration" icon="link" href="/integration/UI/Widget/WalletManagement/PartialIntegration">
-    Integrate with existing wagmi apps
-  </Card>
-
-  <Card title="Custom Management" icon="code" href="/integration/UI/Widget/WalletManagement/CustomWalletManagement">
-    Build custom wallet integrations with 3rd party libraries
-  </Card>
-
-  <Card title="Widget Quickstart" icon="rocket" href="/integration/UI/Widget/Quickstart">
-    Complete widget setup guide
-  </Card>
-</CardGroup>
