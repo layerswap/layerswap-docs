@@ -19,7 +19,7 @@ Here's a basic example of customizing the widget with a custom theme:
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
+import { createEVMProvider } from '@layerswap/wallet-evm';
 
 export default function App() {
   const customTheme = {
@@ -42,7 +42,7 @@ export default function App() {
         version: 'mainnet',
         theme: customTheme,
       }}
-      walletProviders={[EVMProvider]}
+      walletProviders={[createEVMProvider()]}
     >
       <Swap />
     </LayerswapProvider>

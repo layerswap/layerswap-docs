@@ -21,7 +21,7 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
       defaultTab: 'swap' // or 'cex'
     }
   }}
-  walletProviders={[EVMProvider]}
+  walletProviders={[createEVMProvider()]}
 >
   <Swap />
 </LayerswapProvider>
@@ -50,7 +50,7 @@ If you want to lock users into a specific flow and prevent them from switching t
       }
     }
   }}
-  walletProviders={[EVMProvider]}
+  walletProviders={[createEVMProvider()]}
 >
   <Swap />
 </LayerswapProvider>
@@ -70,7 +70,7 @@ If you want to lock users into a specific flow and prevent them from switching t
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
+import { createEVMProvider } from '@layerswap/wallet-evm';
 
 export default function App() {
   return (
@@ -87,7 +87,7 @@ export default function App() {
           destAddress: '0x1234567890abcdef1234567890abcdef12345678'
         }
       }}
-      walletProviders={[EVMProvider]}
+      walletProviders={[createEVMProvider()]}
     >
       <Swap />
     </LayerswapProvider>
@@ -127,7 +127,7 @@ Users select the exchange, then pick an intermediary network through which the t
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
+import { createEVMProvider } from '@layerswap/wallet-evm';
 
 export default function App() {
   return (
@@ -143,7 +143,7 @@ export default function App() {
           destAddress: '0x1234567890abcdef1234567890abcdef12345678'
         }
       }}
-      walletProviders={[EVMProvider]}
+      walletProviders={[createEVMProvider()]}
     >
       <Swap />
     </LayerswapProvider>
@@ -184,7 +184,7 @@ export default function App() {
       }
     }
   }}
-  walletProviders={[EVMProvider]}
+  walletProviders={[createEVMProvider()]}
 >
   <Swap />
 </LayerswapProvider>

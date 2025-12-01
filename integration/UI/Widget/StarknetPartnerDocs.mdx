@@ -55,7 +55,7 @@ Create a custom Starknet wallet connection hook that bridges Dynamic Labs SDK wi
 
 <Accordion title="View complete hook implementation (hooks/useCustomStarknet.ts)">
 <CodeGroup>
-```typescript hooks/useCustomStarknet.ts
+```tsx hooks/useCustomStarknet.ts
 import { useCallback, useEffect, useMemo } from "react";
 import {
   useUserWallets,
@@ -170,6 +170,7 @@ export default function useStarknet({ networks }: WalletConnectionProviderProps)
     name,
     id,
     providerIcon: logo,
+    ready: true
   };
 }
 
@@ -216,24 +217,35 @@ function resolveWallet(props: {
 
 Set up the providers and widget in your main component:
 
-```typescript
+```tsx
 import { Swap, LayerswapProvider } from '@layerswap/widget'
 import { StarknetWalletConnectors } from "@dynamic-labs/starknet";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
-import { EVMProvider } from "@layerswap/wallet-evm"
-import { StarknetProvider } from "@layerswap/wallet-starknet"
-import { SVMProvider } from "@layerswap/wallet-svm"
-import { BitcoinProvider } from "@layerswap/wallet-bitcoin"
+import { createEVMProvider } from "@layerswap/wallet-evm"
+import { createStarknetProvider } from "@layerswap/wallet-starknet"
+import { createSVMProvider } from "@layerswap/wallet-svm"
+import { createBitcoinProvider } from "@layerswap/wallet-bitcoin"
 import useCustomStarknet from "../hooks/useCustomStarknet";
-import { WalletProvider } from "@layerswap/widget/types";
 import "@layerswap/widget/index.css"
 
 const PageComponent = () => {
-
-    const starknetProvider: WalletProvider = {
-        ...StarknetProvider,
-        walletConnectionProvider: useCustomStarknet
+    const walletConnectConfigs = {
+        projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+        name: "Your App Name",
+        description: "Your app description",
+        url: "https://yourapp.com",
+        icons: ["https://yourapp.com/icon.png"]
     }
+
+    const walletProviders = [
+        createEVMProvider({ walletConnectConfigs }),
+        createStarknetProvider({
+            walletConnectConfigs,
+            customHook: useCustomStarknet
+        }),
+        createSVMProvider({ walletConnectConfigs }),
+        createBitcoinProvider()
+    ]
 
     return (
         <DynamicContextProvider
@@ -252,7 +264,7 @@ const PageComponent = () => {
                         lockTo: true
                     },
                 }}
-                walletProviders={[EVMProvider, starknetProvider, SVMProvider, BitcoinProvider]}
+                walletProviders={walletProviders}
             >
                 <Swap />
             </LayerswapProvider>
@@ -271,12 +283,14 @@ Create a `.env.local` file with your API credentials:
 ```bash .env.local
 DYNAMIC_ENVIRONMENT_ID=your_dynamic_environment_id
 LAYERSWAP_API_KEY=your_layerswap_api_key
+WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 ```
 
 <Note>
-  **Get Your API Keys:**
-  - Dynamic Labs: [Sign up at Dynamic](https://www.dynamic.xyz/)
-  - Layerswap: Generate from the [Partner Dashboard](/api-keys)
+  **API Keys (Optional):**
+  - **Dynamic Labs**: [Sign up at Dynamic](https://www.dynamic.xyz/)
+  - **Layerswap**: Generate from the [Partner Dashboard](/api-keys)
+  - **WalletConnect Project ID**: See [WalletConnect configuration](/integration/UI/Widget/WalletManagement/EVMProvider#walletconnect-configuration)
 </Note>
 
 ## Theme Configuration
@@ -289,7 +303,7 @@ Apply a custom theme configuration:
 
 <CodeGroup>
 
-```typescript App.tsx
+```tsx App.tsx
 import '@layerswap/widget/index.css';
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { starknetTheme } from './themeConfigs';
@@ -384,25 +398,36 @@ export const starknetTheme = {
 Here's a full implementation example combining all concepts:
 
 <CodeGroup>
-```typescript App.tsx
+```tsx App.tsx
 import { Swap, LayerswapProvider } from '@layerswap/widget'
 import { StarknetWalletConnectors } from "@dynamic-labs/starknet";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
-import { EVMProvider } from "@layerswap/wallet-evm"
-import { StarknetProvider } from "@layerswap/wallet-starknet"
-import { SVMProvider } from "@layerswap/wallet-svm"
-import { BitcoinProvider } from "@layerswap/wallet-bitcoin"
+import { createEVMProvider } from "@layerswap/wallet-evm"
+import { createStarknetProvider } from "@layerswap/wallet-starknet"
+import { createSVMProvider } from "@layerswap/wallet-svm"
+import { createBitcoinProvider } from "@layerswap/wallet-bitcoin"
 import useCustomStarknet from "../hooks/useCustomStarknet";
-import { WalletProvider } from "@layerswap/widget/types";
 import "@layerswap/widget/index.css"
 import { starknetTheme } from './themeConfigs';
 
 const PageComponent = () => {
-
-    const starknetProvider: WalletProvider = {
-        ...StarknetProvider,
-        walletConnectionProvider: useCustomStarknet
+    const walletConnectConfigs = {
+        projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+        name: "Your App Name",
+        description: "Your app description",
+        url: "https://yourapp.com",
+        icons: ["https://yourapp.com/icon.png"]
     }
+
+    const walletProviders = [
+        createEVMProvider({ walletConnectConfigs }),
+        createStarknetProvider({
+            walletConnectConfigs,
+            customHook: useCustomStarknet
+        }),
+        createSVMProvider({ walletConnectConfigs }),
+        createBitcoinProvider()
+    ]
 
     return (
         <DynamicContextProvider
@@ -422,7 +447,7 @@ const PageComponent = () => {
                         lockTo: true
                     },
                 }}
-                walletProviders={[EVMProvider, starknetProvider, SVMProvider, BitcoinProvider]}
+                walletProviders={walletProviders}
             >
                 <Swap />
             </LayerswapProvider>
@@ -464,7 +489,7 @@ export const starknetTheme = {
 };
 ```
 
-```typescript hooks/useCustomStarknet.ts
+```tsx hooks/useCustomStarknet.ts
 import { useCallback, useEffect, useMemo } from "react";
 import {
   useUserWallets,
@@ -579,6 +604,7 @@ export default function useStarknet({ networks }: WalletConnectionProviderProps)
     name,
     id,
     providerIcon: logo,
+    ready: true
   };
 }
 

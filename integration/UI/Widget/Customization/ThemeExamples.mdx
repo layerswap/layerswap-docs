@@ -202,7 +202,7 @@ Here's how to use these themes in your application:
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
+import { createEVMProvider } from '@layerswap/wallet-evm';
 import { darkTheme } from './themes/darkTheme'; // Import your chosen theme
 
 export default function App() {
@@ -219,7 +219,7 @@ export default function App() {
           destAddress: '0x1234567890abcdef1234567890abcdef12345678'
         }
       }}
-      walletProviders={[EVMProvider]}
+      walletProviders={[createEVMProvider()]}
     >
       <Swap />
     </LayerswapProvider>

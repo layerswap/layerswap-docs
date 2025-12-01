@@ -29,9 +29,11 @@ pnpm add @layerswap/widget zustand @layerswap/wallet-evm wagmi viem @tanstack/re
 
 ### Initial Configuration
 
-```typescript
+<CodeGroup>
+```tsx App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { walletConnectConfigs } from './config';
 import '@layerswap/widget/index.css';
 
 export default function App() {
@@ -51,7 +53,7 @@ export default function App() {
 		  // Pre-fill destination address (optional)
         },
       }}
-      walletProviders={[EVMProvider]}
+      walletProviders={[createEVMProvider({ walletConnectConfigs })]}
     >
       <Swap />
     </LayerswapProvider>
@@ -59,8 +61,21 @@ export default function App() {
 }
 ```
 
+```typescript config.ts
+const walletConnectConfigs = {
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  name: "Your App Name",
+  description: "Your app description",
+  url: "https://yourapp.com",
+  icons: ["https://yourapp.com/logo.png"]
+}
+```
+</CodeGroup>
+
 <Note>
-  You need to generate an API key from the [Partner Dashboard](/api-keys) to use the widget.
+  **API Key (Optional)**: You can generate an API key from the [Partner Dashboard](/api-keys) to track swaps and access analytics.
+
+  **WalletConnect Project ID**: See [WalletConnect configuration](/integration/UI/Widget/WalletManagement/EVMProvider#walletconnect-configuration) for setup instructions.
 </Note>
 
 For a complete list of configuration options, see [Configurations](/integration/UI/Configurations).
@@ -73,9 +88,9 @@ To enable support for more networks like Bitcoin, Solana, ImmutableX and others,
 
 If your application already uses wagmi, you need to integrate Layerswap's network configurations with your existing wagmi setup. Use the `useSettings` hook to fetch Layerswap settings and the `useChainConfigs` hook to get chain configurations, then pass them to your wagmi config.
 
-```typescript
+```tsx
 import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
-import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
+import { useChainConfigs, createEVMProvider } from "@layerswap/wallet-evm"
 import { createConfig, WagmiProvider } from "wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
@@ -101,7 +116,7 @@ const App = () => {
           config={{
             settings
           }}
-          walletProviders={[EVMProvider]}
+          walletProviders={[createEVMProvider({ walletConnectConfigs })]}
         >
           <Swap/>
         </LayerswapProvider>
@@ -129,9 +144,8 @@ Apply one of the configurations for Immutable theme:
 
 <CodeGroup>
 
-```typescript App.tsx
+```tsx App.tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
 import { immutableTheme } from './themeConfigsNew'; // or themeConfigsOld
 
 export default function App() {
@@ -142,7 +156,6 @@ export default function App() {
         ...config,
         theme: immutableTheme,
       }}
-      walletProviders={[EVMProvider]}
     >
       <Swap />
     </LayerswapProvider>
@@ -267,10 +280,10 @@ export const immutableTheme = {
 Here's a full implementation example with Immutable theme, transparent background, hidden menu and wallet icons.
 
 <CodeGroup>
-```typescript App.tsx
+```tsx App.tsx
 import '@layerswap/widget/index.css';
 import { useSettings, LayerswapProvider, Swap, WidgetLoading } from "@layerswap/widget"
-import { useChainConfigs, EVMProvider } from "@layerswap/wallet-evm"
+import { useChainConfigs, createEVMProvider } from "@layerswap/wallet-evm"
 import { createConfig, WagmiProvider } from "wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { immutableTheme } from './themeConfigs'
@@ -307,7 +320,7 @@ export default function ImmutableDepositWidget() {
               actionButtonText: 'Deposit to Immutable',
             },
           }}
-          walletProviders={[EVMProvider]}
+          walletProviders={[createEVMProvider({ walletConnectConfigs })]}
         >
           <Swap />
         </LayerswapProvider>
@@ -316,6 +329,17 @@ export default function ImmutableDepositWidget() {
   );
 }
 ```
+
+```typescript configs.ts
+export const walletConnectConfigs = {
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  name: "Your App Name",
+  description: "Your app description",
+  url: "https://yourapp.com",
+  icons: ["https://yourapp.com/logo.png"]
+}
+```
+
 ```typescript themeConfigs.ts
 // Immutable theme configuration
 const immutableTheme = {

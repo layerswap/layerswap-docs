@@ -200,7 +200,7 @@ Here's a complete example combining all configuration options:
 
 ```typescript
 import { LayerswapProvider, Swap } from '@layerswap/widget';
-import { EVMProvider } from '@layerswap/wallet-evm';
+import { createEVMProvider } from '@layerswap/wallet-evm';
 
 export default function App() {
   const customTheme = {
@@ -250,7 +250,7 @@ export default function App() {
           to: 'ARBITRUM_MAINNET',
         }
       }}
-      walletProviders={[EVMProvider]}
+      walletProviders={[createEVMProvider()]}
     >
       <Swap />
     </LayerswapProvider>
