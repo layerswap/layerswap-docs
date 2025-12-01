@@ -201,18 +201,40 @@ export const QuickstartEmbed = () => {
   };
 
   // --- Build install command
-  const stateManagementPkg = 'zustand';
   const installPrefix =
     packageManager === 'yarn'
       ? 'yarn add '
       : packageManager === 'pnpm'
       ? 'pnpm add '
       : 'npm install ';
-  const basePkgs = '@layerswap/widget';
-
-  // Use single @layerswap/wallets package for all providers
-  const walletsPkg = '@layerswap/wallets';
-  const installCommand = `${installPrefix}${basePkgs} ${stateManagementPkg} ${walletsPkg}`;
+  
+  // Base packages always required
+  const basePkgs = ['@layerswap/widget', '@layerswap/wallets'];
+  
+  // Wallet-specific additional dependencies mapping
+  const walletDependencies = {
+    EVM: ['wagmi', 'viem', '@tanstack/react-query'],
+    Starknet: [],
+    Solana: [],
+    Bitcoin: ['@bigmi/client', '@bigmi/core', '@bigmi/react'],
+    Fuel: [],
+    Ton: [],
+    Tron: [],
+    Paradex: ['wagmi', 'viem', '@tanstack/react-query'], // Paradex requires EVM/Starknet which need these
+  };
+  
+  // Collect all unique dependencies based on selected wallets
+  const additionalDeps = new Set();
+  
+  selectedWallets.forEach((wallet) => {
+    if (walletDependencies[wallet]) {
+      walletDependencies[wallet].forEach((dep) => additionalDeps.add(dep));
+    }
+  });
+  
+  // Combine base packages with additional dependencies (base first, then additional)
+  const installPkgs = [...basePkgs, ...Array.from(additionalDeps).sort()];
+  const installCommand = `${installPrefix}${installPkgs.join(' ')}`;
 
   // Check if all providers are selected (for getDefaultConfig usage)
   const allProvidersSelected = WALLET_OPTIONS.every((wallet) => selectedWallets.includes(wallet));
