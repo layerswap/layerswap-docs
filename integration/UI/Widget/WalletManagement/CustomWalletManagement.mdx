@@ -1,0 +1,542 @@
+---
+title: "Custom Wallet Management"
+description: "Full control over wallet connections using the WalletProvider interface with 3rd party libraries"
+---
+
+## Overview
+
+For complete control over wallet connection flows, you can implement a custom `WalletProvider` that bridges any wallet management solution with Layerswap. This deep integration approach enables you to:
+
+- Use your own custom wallet connection UI
+- Integrate 3rd party wallet libraries ([Dynamic](https://www.dynamic.xyz/), [Reown](https://reown.com/), [RainbowKit](https://www.rainbowkit.com/), etc.)
+- Control the entire wallet lifecycle (connect, disconnect, state management)
+- Customize wallet behavior to match your application's UX
+
+---
+
+## Creating a Custom Provider
+
+To create a custom provider, use the provider creator function with the `customHook` parameter:
+
+```typescript
+import { createStarknetProvider } from "@layerswap/wallets"
+import type { WalletConnectionProvider, WalletConnectionProviderProps } from "@layerswap/widget/types"
+import useCustomWalletConnection from "./hooks/useCustomWalletConnection"
+
+// Your custom hook implementing WalletConnectionProvider
+function useCustomWalletConnection(props: WalletConnectionProviderProps): WalletConnectionProvider {
+  // Your custom wallet connection logic
+  return {
+    connectWallet: async () => { /* ... */ },
+    disconnectWallets: async () => { /* ... */ },
+    connectedWallets: [],
+    activeWallet: undefined,
+    withdrawalSupportedNetworks: ['STARKNET_MAINNET'],
+    name: 'Custom Starknet',
+    id: 'starknet',
+    ready: true
+  }
+}
+
+// Create provider with custom hook
+const customProvider = createStarknetProvider({
+  customHook: useCustomWalletConnection
+})
+```
+
+---
+
+## WalletConnectionProvider Interface
+
+Your custom hook must implement this interface:
+
+```typescript
+type WalletConnectionProvider = (props: WalletConnectionProviderProps) => {
+  connectWallet: () => Promise<Wallet | undefined>
+  disconnectWallets?: () => Promise<void>
+  activeWallet: Wallet | undefined
+  connectedWallets: Wallet[]
+  asSourceSupportedNetworks: string[]
+  autofillSupportedNetworks: string[]
+  withdrawalSupportedNetworks: string[]
+  name: string
+  id: string
+  providerIcon?: string
+  ready: boolean
+  multiStepHandlers?: MultiStepHandler[]
+  unsupportedPlatforms?: string[]
+  hideFromList?: boolean
+}
+```
+
+### Props Passed to Your Hook
+
+```typescript
+type WalletConnectionProviderProps = {
+  networks: NetworkWithTokens[]  // Layerswap's available networks
+}
+```
+
+### Return Values
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `connectWallet` | `() => Promise<Wallet \| undefined>` | ✅ | Function called when user clicks "Connect Wallet" in the widget |
+| `disconnectWallets` | `() => Promise<void>` | ❌ | Optional function to disconnect all wallets |
+| `activeWallet` | `Wallet \| undefined` | ✅ | The currently active/selected wallet |
+| `connectedWallets` | `Wallet[]` | ✅ | Array of all connected wallets |
+| `asSourceSupportedNetworks` | `string[]` | ✅ | Networks supported as swap source |
+| `autofillSupportedNetworks` | `string[]` | ✅ | Networks that support address autofill |
+| `withdrawalSupportedNetworks` | `string[]` | ✅ | Networks that support withdrawals |
+| `name` | `string` | ✅ | Provider name (e.g., "Starknet", "Ethereum") |
+| `id` | `string` | ✅ | Unique provider identifier |
+| `providerIcon` | `string` | ❌ | Optional URL to provider icon |
+| `ready` | `boolean` | ✅ | **Critical**: Whether the provider is initialized and ready to use |
+| `multiStepHandlers` | `MultiStepHandler[]` | ❌ | Optional handlers for multi-step operations |
+| `unsupportedPlatforms` | `string[]` | ❌ | Optional list of unsupported platforms |
+| `hideFromList` | `boolean` | ❌ | Optional flag to hide provider from wallet list |
+
+---
+
+## Wallet Type
+
+Your custom provider must transform external wallet objects to Layerswap's `Wallet` format:
+
+```typescript
+type Wallet = {
+  id: string                           // Unique wallet identifier
+  isActive: boolean                    // Whether this wallet is actively selected
+  address: string                      // Primary wallet address
+  addresses: string[]                  // All addresses (for multi-account wallets)
+  displayName: string                  // User-facing wallet name
+  providerName: string                 // Provider name (e.g., "Starknet")
+  icon: (props: any) => React.JSX.Element  // **Critical**: Wallet icon component (NOT a string URL)
+  disconnect: () => Promise<void>      // Disconnect callback
+  asSourceSupportedNetworks: string[]  // Networks supported as source
+  autofillSupportedNetworks: string[]  // Networks supported for autofill
+  withdrawalSupportedNetworks: string[] // Networks supported for withdrawal
+  networkIcon?: string                 // Optional network icon URL
+}
+```
+
+---
+
+## Complete Example: Dynamic Labs Integration
+
+This example demonstrates integrating Starknet wallets using Dynamic Labs SDK. The same pattern applies to any 3rd party library.
+
+### Live Demo
+
+<iframe src="https://layerswap-dynamic-example.vercel.app/" style={{ width:"100%",height:"800px",border:"0",borderRadius:"4px",overflow:"hidden" }} title="Layerswap + Dynamic Labs Demo" allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking" sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts" />
+
+<Note>
+  Explore the complete source code at [layerswap/layerswapapp - nextjs-dynamic example](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-dynamic)
+</Note>
+
+### Installation
+
+<CodeGroup>
+  ```bash npm
+  npm install @layerswap/widget @layerswap/wallets \
+    @dynamic-labs/sdk-react-core @dynamic-labs/starknet
+  ```
+
+  ```bash yarn
+  yarn add @layerswap/widget @layerswap/wallets \
+    @dynamic-labs/sdk-react-core @dynamic-labs/starknet
+  ```
+
+  ```bash pnpm
+  pnpm add @layerswap/widget @layerswap/wallets \
+    @dynamic-labs/sdk-react-core @dynamic-labs/starknet
+  ```
+</CodeGroup>
+
+### Step 1: Create Custom Connection Hook
+
+Create a hook that implements the `WalletConnectionProvider` interface:
+
+<Accordion title="View complete hook implementation (hooks/useCustomStarknet.ts)">
+  ```typescript
+  import { useCallback, useEffect, useMemo } from "react"
+  import {
+    useUserWallets,
+    useDynamicContext,
+    dynamicEvents,
+    Wallet as DynamicWallet,
+  } from "@dynamic-labs/sdk-react-core"
+  import {
+    resolveWalletConnectorIcon,
+    NetworkWithTokens,
+  } from "@layerswap/widget"
+  import {
+    WalletConnectionProvider,
+    Wallet,
+    WalletConnectionProviderProps
+  } from "@layerswap/widget/types"
+
+  export default function useCustomStarknet({
+    networks
+  }: WalletConnectionProviderProps): WalletConnectionProvider {
+    const name = "Starknet"
+    const id = "starknet"
+
+    // Dynamic SDK context and hooks
+    const { setShowAuthFlow, handleLogOut } = useDynamicContext()
+    const userWallets = useUserWallets()
+
+    // Define supported Starknet networks
+    const starknetNetworkNames = [
+      "STARKNET_MAINNET",
+      "STARKNET_SEPOLIA",
+    ]
+
+    const supportedNetworks = useMemo(
+      () => ({
+        asSource: starknetNetworkNames,
+        autofill: starknetNetworkNames,
+        withdrawal: starknetNetworkNames,
+      }),
+      []  // Empty deps - starknetNetworkNames is constant
+    )
+
+    // Clean up event listeners on unmount
+    useEffect(() => {
+      return () => {
+        dynamicEvents.removeAllListeners("walletAdded")
+        dynamicEvents.removeAllListeners("authFlowCancelled")
+      }
+    }, [])
+
+    // Connect wallet - show Dynamic auth flow and wait for connection
+    const connectWallet = useCallback(async (): Promise<Wallet | undefined> => {
+      // Log out existing wallets first
+      if (userWallets.length) {
+        await handleLogOut()
+      }
+
+      // Show Dynamic auth modal and wait for wallet connection
+      const newDynWallet = await new Promise<DynamicWallet>((resolve, reject) => {
+        setShowAuthFlow(true)
+
+        const onAdded = (w: DynamicWallet) => {
+          cleanup()
+          resolve(w)
+        }
+        const onCancelled = () => {
+          cleanup()
+          reject(new Error("User cancelled the connection"))
+        }
+        const cleanup = () => {
+          dynamicEvents.off("walletAdded", onAdded)
+          dynamicEvents.off("authFlowCancelled", onCancelled)
+        }
+
+        dynamicEvents.on("walletAdded", onAdded)
+        dynamicEvents.on("authFlowCancelled", onCancelled)
+      })
+
+      // Transform Dynamic wallet to Layerswap Wallet format
+      return resolveWallet({
+        connection: newDynWallet,
+        networks,
+        supportedNetworks,
+        disconnect: handleLogOut,
+        providerName: name,
+      })
+    }, [userWallets, handleLogOut, setShowAuthFlow, networks, supportedNetworks])
+
+    // Disconnect all wallets
+    const disconnectWallets = useCallback(async () => {
+      await handleLogOut()
+    }, [handleLogOut])
+
+    // Map Dynamic SDK wallets to Layerswap Wallet shape
+    const connectedWallets: Wallet[] = useMemo(
+      () =>
+        userWallets
+          .map((dyn) => {
+            if (!dyn) return
+            return resolveWallet({
+              connection: dyn,
+              networks,
+              supportedNetworks,
+              disconnect: disconnectWallets,
+              providerName: name,
+            })
+          })
+          .filter(Boolean) as Wallet[],
+      [userWallets, networks, supportedNetworks, disconnectWallets],
+    )
+
+    const logo = networks.find((n) =>
+      n.name.toLowerCase().includes("starknet")
+    )?.logo
+
+    // Return WalletConnectionProvider interface
+    return {
+      connectWallet,
+      disconnectWallets,
+      activeWallet: connectedWallets.find((w) => w.isActive),
+      connectedWallets,
+      asSourceSupportedNetworks: supportedNetworks.asSource,
+      autofillSupportedNetworks: supportedNetworks.autofill,
+      withdrawalSupportedNetworks: supportedNetworks.withdrawal,
+      name,
+      id,
+      providerIcon: logo,
+      ready: true  // CRITICAL: Required field - indicates provider is ready
+    }
+  }
+
+  /** Helper to transform Dynamic wallet to Layerswap Wallet format */
+  function resolveWallet(props: {
+    connection: DynamicWallet
+    networks: NetworkWithTokens[]
+    supportedNetworks: {
+      asSource: string[]
+      autofill: string[]
+      withdrawal: string[]
+    }
+    disconnect: () => Promise<void>
+    providerName: string
+  }): Wallet | undefined {
+    const { connection, networks, supportedNetworks, disconnect, providerName } = props
+
+    const connectorName = connection.connector.name
+    const address = connection.address
+    if (!connectorName || !address) return
+
+    const displayName = `${connectorName} – ${providerName}`
+    const networkIcon = networks.find((n) =>
+      n.name.toLowerCase().includes("starknet")
+    )?.logo
+
+    return {
+      id: connectorName,
+      isActive: true,
+      address,
+      addresses: [address],
+      displayName,
+      providerName,
+      icon: resolveWalletConnectorIcon({
+        iconUrl: connection.connector.metadata.icon
+      }),  // Returns React component, NOT a string URL
+      disconnect: () => disconnect(),
+      asSourceSupportedNetworks: supportedNetworks.asSource,
+      autofillSupportedNetworks: supportedNetworks.autofill,
+      withdrawalSupportedNetworks: supportedNetworks.withdrawal,
+      networkIcon,
+    }
+  }
+  ```
+</Accordion>
+
+### Step 2: Set Up Providers in Main Component
+
+```typescript
+import { Swap, LayerswapProvider } from "@layerswap/widget"
+import { StarknetWalletConnectors } from "@dynamic-labs/starknet"
+import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core"
+import {
+  createStarknetProvider,
+  createSVMProvider,
+  createBitcoinProvider
+} from "@layerswap/wallets"
+import useCustomStarknet from "./hooks/useCustomStarknet"
+import "@layerswap/widget/index.css"
+
+const App = () => {
+  // Create custom Starknet provider that uses Dynamic Labs
+  const starknetProvider = createStarknetProvider({
+    customHook: useCustomStarknet
+  })
+
+  // Create other native providers
+  const walletProviders = [
+    starknetProvider,  // Custom provider
+    createSVMProvider(),
+    createBitcoinProvider()
+  ]
+
+  return (
+    <DynamicContextProvider
+      settings={{
+        environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID,
+        walletConnectors: [StarknetWalletConnectors],
+      }}
+    >
+      <LayerswapProvider
+        walletProviders={walletProviders}
+      >
+        <Swap />
+      </LayerswapProvider>
+    </DynamicContextProvider>
+  )
+}
+
+export default App
+```
+
+### Step 3: Environment Variables
+
+Create a `.env.local` file:
+
+```bash
+NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID=your_dynamic_environment_id
+NEXT_PUBLIC_LAYERSWAP_API_KEY=your_layerswap_api_key
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+```
+
+<Note>
+  **Get Your API Keys:**
+  - Dynamic Labs: [Sign up at Dynamic](https://www.dynamic.xyz/)
+  - Layerswap: Generate from the [Partner Dashboard](/api-keys)
+  - WalletConnect: Get project ID at [WalletConnect Cloud](https://cloud.walletconnect.com/)
+</Note>
+
+---
+
+## Critical Implementation Details
+
+<Note>
+  **Important: These details are critical for correct implementation**
+
+  1. **Icon Resolution**: The `icon` property in the `Wallet` type must return a React component, NOT a URL string. Always use the utility function:
+     ```typescript
+     import { resolveWalletConnectorIcon } from "@layerswap/widget"
+
+     icon: resolveWalletConnectorIcon({ iconUrl: "https://..." })
+     ```
+
+  2. **Ready State**: Always return `ready: true` in your `WalletConnectionProvider` when your provider is initialized and ready to handle connections. This is a **required field** - the widget will not function without it.
+
+  3. **WalletConnect Configs**: Only needed for native EVM/SVM/Starknet providers when NOT using a custom hook. If you provide `customHook`, the WalletConnect configuration is ignored since you control the connection flow.
+
+  4. **Type Imports**: Import types from `@layerswap/widget/types`:
+     ```typescript
+     import {
+       WalletConnectionProvider,
+       Wallet,
+       WalletConnectionProviderProps
+     } from "@layerswap/widget/types"
+     ```
+
+  5. **Disconnect Callback**: The `disconnectWallets` function in `WalletConnectionProvider` is optional but recommended for proper cleanup. Each individual `Wallet` must have its own `disconnect` callback.
+</Note>
+
+---
+
+## Implementation Steps
+
+### 1. Create Custom Hook
+
+Implement `WalletConnectionProvider` that:
+
+- **Connects** to your wallet management solution (Dynamic, Reown, RainbowKit, Privy, etc.)
+- **Transforms** external wallet format to Layerswap `Wallet` type
+- **Handles** connect/disconnect lifecycle and error states
+- **Manages** wallet state and active wallet selection
+- **Listens** to wallet events (connection, disconnection, account changes)
+
+### 2. Define Supported Networks
+
+Specify which networks your provider supports:
+
+```typescript
+const supportedNetworks = {
+  asSource: ["STARKNET_MAINNET", "STARKNET_SEPOLIA"],
+  autofill: ["STARKNET_MAINNET", "STARKNET_SEPOLIA"],
+  withdrawal: ["STARKNET_MAINNET", "STARKNET_SEPOLIA"]
+}
+```
+
+- `asSource` - Networks that can be used as swap source
+- `autofill` - Networks that support address autofill
+- `withdrawal` - Networks that support withdrawals
+
+### 3. Implement Connect Flow
+
+The `connectWallet` function is called when users click "Connect Wallet" in the widget:
+
+```typescript
+const connectWallet = async (): Promise<Wallet | undefined> => {
+  // 1. Show your custom connection UI
+  showYourWalletModal()
+
+  // 2. Wait for wallet connection
+  const externalWallet = await waitForConnection()
+
+  // 3. Transform to Layerswap format
+  return transformToLayerswapWallet(externalWallet)
+}
+```
+
+### 4. Handle Wallet State
+
+Keep track of connected wallets and active wallet:
+
+```typescript
+const connectedWallets: Wallet[] = useMemo(
+  () => externalWallets.map(transformToLayerswapWallet),
+  [externalWallets]
+)
+
+const activeWallet = connectedWallets.find((w) => w.isActive)
+```
+
+### 5. Create Provider with Custom Hook
+
+Use the factory function with your custom hook:
+
+```typescript
+import { createStarknetProvider } from "@layerswap/wallets"
+
+// ✅ Correct - Use factory function with customHook
+const customProvider = createStarknetProvider({
+  customHook: useYourCustomHook
+})
+```
+
+<Warning>
+  **Deprecated Pattern**: Do NOT use the old spreading pattern:
+  ```typescript
+  // ❌ Deprecated - Do not use
+  const customProvider = {
+    ...StarknetProvider,
+    walletConnectionProvider: useYourCustomHook
+  }
+  ```
+  Always use the factory function (`createStarknetProvider`, `createEVMProvider`, etc.) with the `customHook` parameter.
+</Warning>
+
+---
+
+## User Experience Flow
+
+### Connection Flow
+
+1. User opens Layerswap widget
+2. User clicks "Connect Wallet" button
+3. **Your custom `connectWallet` function is called**
+4. Your custom UI/modal appears (Dynamic, Reown, RainbowKit, etc.)
+5. User selects wallet and approves connection
+6. Your hook transforms the wallet to Layerswap format
+7. Widget displays connected wallet and enables swap functionality
+
+### Disconnection Flow
+
+1. User clicks disconnect in widget
+2. **Your wallet's `disconnect` callback is called**
+3. Your wallet management library handles cleanup
+4. Widget updates to show "Connect Wallet" button
+
+---
+
+## Additional Examples
+
+For more custom integration examples:
+
+- [EVM with Reown](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-reown)
+- [EVM with RainbowKit](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-rainbowkit)
+- [Starknet with Dynamic](https://github.com/layerswap/layerswapapp/tree/dev-monorepo/examples/nextjs-dynamic)

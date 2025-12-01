@@ -166,21 +166,38 @@ export const QuickstartEmbed = () => {
   const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex'];
   const providerImportMap = {
     EVM: {
-      import: 'EVMProvider',
-      from: '@layerswap/wallet-evm',
-      install: '@layerswap/wallet-evm wagmi viem @tanstack/react-query',
+      factory: 'createEVMProvider',
+      configNeeded: true,
     },
-    Starknet: { import: 'StarknetProvider', from: '@layerswap/wallet-starknet' },
-    Solana: { import: 'SVMProvider', from: '@layerswap/wallet-svm' },
+    Starknet: {
+      factory: 'createStarknetProvider',
+      configNeeded: true,
+    },
+    Solana: {
+      factory: 'createSVMProvider',
+      configNeeded: true,
+    },
     Bitcoin: {
-      import: 'BitcoinProvider',
-      from: '@layerswap/wallet-bitcoin',
-      install: '@layerswap/wallet-bitcoin @bigmi/client @bigmi/core @bigmi/react',
+      factory: 'createBitcoinProvider',
+      configNeeded: false,
     },
-    Fuel: { import: 'FuelProvider', from: '@layerswap/wallet-fuel' },
-    Ton: { import: 'TonProvider', from: '@layerswap/wallet-ton' },
-    Tron: { import: 'TronProvider', from: '@layerswap/wallet-tron' },
-    Paradex: { import: 'ParadexProvider', from: '@layerswap/wallet-paradex' },
+    Fuel: {
+      factory: 'createFuelProvider',
+      configNeeded: false,
+    },
+    Ton: {
+      factory: 'createTONProvider',
+      configNeeded: true,
+      configName: 'tonConfigs',
+    },
+    Tron: {
+      factory: 'createTronProvider',
+      configNeeded: false,
+    },
+    Paradex: {
+      factory: 'createParadexProvider',
+      configNeeded: false,
+    },
   };
 
   // --- Build install command
@@ -193,36 +210,103 @@ export const QuickstartEmbed = () => {
       : 'npm install ';
   const basePkgs = '@layerswap/widget';
 
-  const selectedWalletPkgs = selectedWallets
-    .map((wallet) => providerImportMap[wallet]?.install || providerImportMap[wallet]?.from)
-    .join(' ');
-  const installCommand = `${installPrefix}${basePkgs} ${stateManagementPkg} ${selectedWalletPkgs}`;
+  // Use single @layerswap/wallets package for all providers
+  const walletsPkg = '@layerswap/wallets';
+  const installCommand = `${installPrefix}${basePkgs} ${stateManagementPkg} ${walletsPkg}`;
+
+  // Check if all providers are selected (for getDefaultConfig usage)
+  const allProvidersSelected = WALLET_OPTIONS.every((wallet) => selectedWallets.includes(wallet));
 
   // --- Build starter snippet
   const importLines = ["import { LayerswapProvider, Swap } from '@layerswap/widget';"];
-  selectedWallets.forEach((wallet) => {
-    const cfg = providerImportMap[wallet];
-    if (cfg) importLines.push(`import { ${cfg.import} } from '${cfg.from}';`);
-  });
-  const providersList = selectedWallets
-    .map((wallet) => providerImportMap[wallet]?.import)
-    .filter(Boolean)
-    .map((provider, index, array) => {
-      const indent = '        ';
-      const isLast = index === array.length - 1;
-      return `${indent}${provider}${isLast ? '' : ','}`;
-    })
-    .join('\n');
-  
-  const walletProvidersLine = selectedWallets.length > 0
-    ? `      walletProviders={[\n${providersList}\n      ]}`
-    : null;
-  
+
+  // Determine imports based on selection
+  if (allProvidersSelected) {
+    // Use getDefaultConfig when all providers are selected
+    importLines.push("import { getDefaultConfig } from '@layerswap/wallets';");
+  } else if (selectedWallets.length > 0) {
+    // Import individual factory functions
+    const factories = selectedWallets
+      .map((wallet) => providerImportMap[wallet]?.factory)
+      .filter(Boolean);
+    if (factories.length > 0) {
+      importLines.push(`import { ${factories.join(', ')} } from '@layerswap/wallets';`);
+    }
+  }
+
+  let walletProvidersCode = '';
+
+  if (allProvidersSelected) {
+    // Use getDefaultConfig for all providers
+    walletProvidersCode = `  const walletProviders = getDefaultConfig({
+    walletConnect: {
+      projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+      name: "Your App Name",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/icon.png"]
+    },
+    ton: {
+      tonApiKey: "YOUR_TON_API_KEY",
+      manifestUrl: "https://yourapp.com/tonconnect-manifest.json"
+    }
+  })`;
+  } else if (selectedWallets.length > 0) {
+    // Build individual provider creations
+    const needsWalletConnect = selectedWallets.some((w) =>
+      ['EVM', 'Starknet', 'Solana'].includes(w)
+    );
+    const needsTonConfig = selectedWallets.includes('Ton');
+
+    let configLines = [];
+
+    if (needsWalletConnect) {
+      configLines.push(`  const walletConnectConfigs = {
+    projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+    name: "Your App Name",
+    description: "Your app description",
+    url: "https://yourapp.com",
+    icons: ["https://yourapp.com/icon.png"]
+  }`);
+    }
+
+    if (needsTonConfig) {
+      configLines.push(`  const tonConfigs = {
+    tonApiKey: "YOUR_TON_API_KEY",
+    manifestUrl: "https://yourapp.com/tonconnect-manifest.json"
+  }`);
+    }
+
+    const providerCreations = selectedWallets
+      .map((wallet) => {
+        const cfg = providerImportMap[wallet];
+        if (!cfg) return null;
+
+        if (cfg.configNeeded) {
+          if (wallet === 'Ton') {
+            return `    ${cfg.factory}({ tonConfigs })`;
+          }
+          return `    ${cfg.factory}({ walletConnectConfigs })`;
+        }
+        return `    ${cfg.factory}()`;
+      })
+      .filter(Boolean)
+      .join(',\n');
+
+    if (configLines.length > 0) {
+      walletProvidersCode = configLines.join('\n\n') + '\n\n';
+    }
+
+    walletProvidersCode += `  const walletProviders = [\n${providerCreations}\n  ]`;
+  }
+
   const snippetLines = [
     "import '@layerswap/widget/index.css';",
     ...importLines,
     "",
     "export default function App() {",
+    ...(walletProvidersCode ? walletProvidersCode.split('\n') : []),
+    ...(walletProvidersCode ? [''] : []),
     "  return (",
     "    <LayerswapProvider",
     "      config={{",
@@ -234,7 +318,7 @@ export const QuickstartEmbed = () => {
     "           toAsset: 'USDC'",
     "        }",
     "      }}",
-    ...(walletProvidersLine ? [walletProvidersLine] : []),
+    ...(selectedWallets.length > 0 ? ["      walletProviders={walletProviders}"] : []),
     "    >",
     "      <Swap />",
     "    </LayerswapProvider>",

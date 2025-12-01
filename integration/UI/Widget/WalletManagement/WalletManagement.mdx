@@ -1,19 +1,188 @@
 ---
 title: "Wallet Management"
-description: "Configure wallets for your integration"
+description: "Configure wallet connection for your integration"
 ---
 
-The widget provides modular wallet management that can be extended or overriden depending on your integration needs.
+The Layerswap Widget provides flexible, modular wallet management that can be configured, extended, or fully customized to match your integration needs. You can choose from three approaches depending if you want pre-built solutions or need more control over wallet connections:
 
-Multiple ecosystems and chain types are supported:
+<Card title="Native Wallet Packages" icon="box" href="/integration/UI/Widget/WalletManagement/NativeWalletPackages">
+  Pre-configured wallet providers with automatic balance fetching, gas resolution, and connection management.
+</Card>
 
-- [**EVM (Ethereum)**](/integration/UI/Widget/WalletManagement/EVMProvider)
-- [**Bitcoin**](/integration/UI/Widget/WalletManagement/BitcoinProvider)
-- [**SVM (Solana)**](/integration/UI/Widget/WalletManagement/SolanaProvider)
-- [**Starknet**](/integration/UI/Widget/WalletManagement/StarknetProvider)
-- [**Fuel**](/integration/UI/Widget/WalletManagement/FuelProvider)
-- [**Ton**](/integration/UI/Widget/WalletManagement/TonProvider)
-- [**Tron**](/integration/UI/Widget/WalletManagement/TronProvider)
-- [**Paradex**](/integration/UI/Widget/WalletManagement/ParadexProvider)
-- [**Immutable Passport**](/integration/UI/Widget/WalletManagement/ImmutablePassportProvider)
-- [**ImmutableX**](/integration/UI/Widget/WalletManagement/ImmutableXProvider)
+<Card title="Partial Integration (EVM)" icon="link" href="/integration/UI/Widget/WalletManagement/PartialIntegration">
+  Seamless integration with existing Wagmi apps. External wallet connections are automatically detected and synchronized.
+</Card>
+
+<Card title="Custom Wallet Management" icon="code" href="/integration/UI/Widget/WalletManagement/CustomWalletManagement">
+  Full control over wallet connections using the WalletProvider interface. Integrate Dynamic, Reown, RainbowKit, Privy, or custom solutions.
+</Card>
+
+---
+
+## Comparison
+
+| Approach                      | Control Level  | Complexity | Best For                                                                              |
+| ----------------------------- | -------------- | ---------- | ------------------------------------------------------------------------------------- |
+| **Native Wallet Packages**    | Pre-configured | Low        | Quick integration, standard wallet support                                            |
+| **Partial Integration (EVM)** | Medium         | Medium     | Apps with existing Wagmi setup, hybrid wallet management                              |
+| **Custom Wallet Management**  | Complete       | High       | Custom wallet UX, using 3rd party wallet libraries (Dynamic, Reown, RainbowKit, etc.) |
+
+## Quick Start Examples
+
+### Approach 1: Native Wallet Packages
+
+<CodeGroup>
+
+```typescript App.tsx
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createEVMProvider, createStarknetProvider } from "@layerswap/wallets"
+import "@layerswap/widget/index.css"
+import { walletConnectConfigs } from "./configs"
+
+export const App = () => {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: "YOUR_API_KEY",
+        version: "mainnet"
+      }}
+      walletProviders={[
+        createEVMProvider({ walletConnectConfigs }),
+        createStarknetProvider({ walletConnectConfigs })
+      ]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  )
+}
+```
+
+
+```typescript configs.ts
+export const walletConnectConfigs = {
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  name: "Your App Name",
+  description: "Your app description",
+  url: "https://yourapp.com",
+  icons: ["https://yourapp.com/logo.png"]
+}
+```
+
+</CodeGroup>
+
+[Learn more about Native Wallet Packages →](/integration/UI/Widget/WalletManagement/NativeWalletPackages)
+
+### Approach 2: Partial Integration (EVM)
+
+```typescript
+import { useSettings, LayerswapProvider, Swap } from "@layerswap/widget"
+import { useChainConfigs, createEVMProvider } from "@layerswap/wallets"
+import { createConfig, WagmiProvider } from "wagmi"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
+const App = () => {
+  const { settings, loading } = useSettings("YOUR_API_KEY")
+  const { chains, transports } = useChainConfigs(settings.networks)
+
+  if (loading) return <div>Loading...</div>
+
+  const wagmiConfig = createConfig({
+    chains,
+    transports,
+    connectors // Your connectors
+  })
+
+  const evmProvider = createEVMProvider({
+    walletConnectConfigs: {
+      projectId: "YOUR_PROJECT_ID",
+      name: "Your App",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/logo.png"]
+    }
+  })
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={new QueryClient()}>
+        <LayerswapProvider
+          config={{ settings }}
+          walletProviders={[evmProvider]}
+        >
+          <Swap />
+        </LayerswapProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+[Learn more about Partial Integration →](/integration/UI/Widget/WalletManagement/PartialIntegration)
+
+### Approach 3: Custom Wallet Management
+
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createStarknetProvider } from "@layerswap/wallets"
+import useCustomWalletConnection from "./hooks/useCustomWalletConnection"
+
+const App = () => {
+  // Override native provider with custom implementation
+  const customProvider = createStarknetProvider({
+    customHook: useCustomWalletConnection
+  })
+
+  return (
+    <LayerswapProvider
+      config={{ apiKey: "YOUR_API_KEY" }}
+      walletProviders={[customProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  )
+}
+```
+
+[Learn more about Custom Wallet Management →](/integration/UI/Widget/WalletManagement/CustomWalletManagement)
+
+---
+
+## Supported Ecosystems
+
+Native wallet packages are available for multiple blockchain ecosystems:
+
+- [**EVM (Ethereum)**](/integration/UI/Widget/WalletManagement/EVMProvider) - MetaMask, WalletConnect, and all EVM-compatible wallets
+- [**Starknet**](/integration/UI/Widget/WalletManagement/StarknetProvider) - ArgentX, Braavos, and other Starknet wallets
+- [**SVM (Solana)**](/integration/UI/Widget/WalletManagement/SolanaProvider) - Phantom, Solflare, and other Solana wallets
+- [**Bitcoin**](/integration/UI/Widget/WalletManagement/BitcoinProvider) - Unisat, Leather, and other Bitcoin wallets
+- [**Fuel**](/integration/UI/Widget/WalletManagement/FuelProvider) - Fuel Network wallets
+- [**TON**](/integration/UI/Widget/WalletManagement/TonProvider) - TON Connect compatible wallets
+- [**Tron**](/integration/UI/Widget/WalletManagement/TronProvider) - TronLink and Tron wallets
+- [**Paradex**](/integration/UI/Widget/WalletManagement/ParadexProvider) - Paradex exchange integration
+- [**Immutable Passport**](/integration/UI/Widget/WalletManagement/ImmutablePassportProvider) - Immutable's gaming wallet
+- [**ImmutableX**](/integration/UI/Widget/WalletManagement/ImmutableXProvider) - ImmutableX Layer 2 wallets
+
+---
+
+## Choosing the Right Approach
+
+### Use Native Packages when:
+
+- You want the fastest integration path
+- Standard wallet support meets your needs
+- You don't have existing wallet management infrastructure
+- You want Layerswap to handle all wallet complexity
+
+### Use Partial Integration when:
+
+- Your app already uses Wagmi for EVM chains
+- You want external wallet connections detected automatically
+- You need unified wallet state across your app
+- You want to minimize code duplication
+
+### Use Custom Wallet Management when:
+
+- You need a specific wallet connection UX
+- You're using 3rd party wallet libraries (Dynamic, Reown, RainbowKit, Privy, etc.)
+- You have custom wallet management requirements
+- You need deep control over the connection lifecycle

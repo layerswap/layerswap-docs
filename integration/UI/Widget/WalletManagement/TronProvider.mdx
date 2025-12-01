@@ -2,40 +2,42 @@
 title: "Tron Wallet"
 ---
 
-### Install Tron wallet package
+## Overview
 
-To get started, install the latest version of Tron package.
+The Tron wallet provider supports TronLink and other Tron ecosystem wallets.
+
+## Installation
 
 <CodeGroup>
-  ```typescript yarn theme={"system"}
-  yarn add @layerswap/wallet-tron
-  ```
-
-  ```typescript pnpm theme={"system"}
-  pnpm add @layerswap/wallet-tron
-  ```
-
-  ```typescript npm theme={"system"}
-  npm install @layerswap/wallet-tron
-  ```
+```typescript yarn theme={"system"}
+yarn add @layerswap/wallet-tron
+```
+```typescript pnpm theme={"system"}
+pnpm add @layerswap/wallet-tron
+```
+```typescript npm theme={"system"}
+npm install @layerswap/wallet-tron
+```
 </CodeGroup>
 
-### Basic example
+## Basic Usage
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
+The Tron provider requires no configuration:
 
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { TronProvider } from "@layerswap/wallet-tron"
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createTronProvider } from "@layerswap/wallet-tron"
+import "@layerswap/widget/index.css"
 
-export const WidgetPage = () => {
+export const App = () => {
+  const tronProvider = createTronProvider()
+
   return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[TronProvider]}
+    <LayerswapProvider
+      walletProviders={[tronProvider]}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```

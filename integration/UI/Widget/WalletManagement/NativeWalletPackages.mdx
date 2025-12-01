@@ -1,0 +1,326 @@
+---
+title: "Native Wallet Packages"
+description: "Use pre-built wallet providers with automatic balance fetching, gas resolution, and connection management"
+---
+
+## Overview
+
+Native wallet packages provide complete, out-of-the-box wallet management for multiple blockchain ecosystems. This is the recommended approach for most integrations, offering the fastest path to production with minimal configuration.
+
+---
+
+## Basic Usage
+
+### Quick Start with getDefaultConfig()
+
+The fastest way to get started with all wallet providers:
+
+<CodeGroup>
+```typescript theme={"system"} App.tsx
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { getDefaultConfig } from "@layerswap/wallets"
+import "@layerswap/widget/index.css"
+import { walletConnectConfigs, tonConfigs } from "./configs"
+
+export const App = () => {
+  const walletProviders = getDefaultConfig({
+    walletConnect: walletConnectConfigs,
+    ton: tonConfigs
+  })
+
+  return (
+    <LayerswapProvider
+      walletProviders={walletProviders}
+    >
+      <Swap />
+    </LayerswapProvider>
+  )
+}
+```
+
+```typescript theme={"system"} configs.ts
+export const walletConnectConfigs = {
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  name: "Your App Name",
+  description: "Your app description",
+  url: "https://yourapp.com",
+  icons: ["https://yourapp.com/logo.png"]
+}
+
+export const tonConfigs = {
+  tonApiKey: "YOUR_TON_API_KEY",
+  manifestUrl: "https://yourapp.com/tonconnect-manifest.json"
+}
+```
+</CodeGroup>
+
+<Note>
+  `getDefaultConfig()` returns all available providers: EVM (with zkSync + Loopring), Starknet, Solana, Bitcoin, TON, Tron, Fuel, Paradex, and Immutable X.
+</Note>
+
+### Single Ecosystem
+
+If you only need to support one blockchain ecosystem:
+
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createEVMProvider } from "@layerswap/wallets"
+import "@layerswap/widget/index.css"
+
+export const App = () => {
+  const evmProvider = createEVMProvider({
+    walletConnectConfigs: {
+      projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+      name: "Your App Name",
+      description: "Your app description",
+      url: "https://yourapp.com",
+      icons: ["https://yourapp.com/logo.png"]
+    }
+  })
+
+  return (
+    <LayerswapProvider
+      walletProviders={[evmProvider]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  )
+}
+```
+
+### Multi-Ecosystem Support
+
+To support multiple blockchain ecosystems, create providers individually:
+
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import {
+  createEVMProvider,
+  createStarknetProvider,
+  createSVMProvider,
+  createBitcoinProvider,
+  createTONProvider
+} from "@layerswap/wallets"
+import "@layerswap/widget/index.css"
+
+export const App = () => {
+  const walletConnectConfigs = {
+    projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+    name: "Your App Name",
+    description: "Your app description",
+    url: "https://yourapp.com",
+    icons: ["https://yourapp.com/logo.png"]
+  }
+
+  const walletProviders = [
+    createEVMProvider({ walletConnectConfigs }),
+    createStarknetProvider({ walletConnectConfigs }),
+    createSVMProvider({ walletConnectConfigs }),
+    createBitcoinProvider(),
+    createTONProvider({
+      tonConfigs: {
+        tonApiKey: "YOUR_TON_API_KEY",
+        manifestUrl: "https://yourapp.com/tonconnect-manifest.json"
+      }
+    })
+  ]
+
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: "YOUR_API_KEY",
+        version: "mainnet"
+      }}
+      walletProviders={walletProviders}
+    >
+      <Swap />
+    </LayerswapProvider>
+  )
+}
+```
+
+---
+
+## Installation
+
+### Recommended: Install Aggregator Package
+
+The easiest way to get all wallet providers:
+
+<CodeGroup>
+  ```bash npm
+  npm install @layerswap/widget @layerswap/wallets
+  ```
+
+  ```bash yarn
+  yarn add @layerswap/widget @layerswap/wallets
+  ```
+
+  ```bash pnpm
+  pnpm add @layerswap/widget @layerswap/wallets
+  ```
+</CodeGroup>
+
+The `@layerswap/wallets` package includes:
+- All provider creator functions (`createEVMProvider`, `createStarknetProvider`, etc.)
+- The `getDefaultConfig()` helper function
+- All necessary dependencies
+
+### Alternative: Install Individual Providers
+
+If you only need specific ecosystems, you can install individual packages:
+
+<CodeGroup>
+  ```bash npm
+  npm install @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```bash yarn
+  yarn add @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+
+  ```bash pnpm
+  pnpm add @layerswap/wallet-evm wagmi viem @tanstack/react-query
+  ```
+</CodeGroup>
+
+Available individual packages:
+- `@layerswap/wallet-evm` - Ethereum and EVM-compatible chains
+- `@layerswap/wallet-starknet` - Starknet
+- `@layerswap/wallet-svm` - Solana
+- `@layerswap/wallet-bitcoin` - Bitcoin
+- `@layerswap/wallet-ton` - TON
+- `@layerswap/wallet-tron` - Tron
+- `@layerswap/wallet-fuel` - Fuel
+- `@layerswap/wallet-paradex` - Paradex
+- `@layerswap/wallet-imtbl-passport` - Immutable Passport
+- `@layerswap/wallet-imtbl-x` - Immutable X
+
+---
+
+## Configuration
+
+Each provider creator function accepts its own configuration options. Some providers require specific setup (like WalletConnect for EVM, API keys for TON), while others work without any configuration.
+
+### Provider-Specific Configuration
+
+Configuration is passed directly to each provider:
+
+```typescript
+import { createEVMProvider, createTONProvider } from "@layerswap/wallets"
+
+// Provider with configuration
+const evmProvider = createEVMProvider({
+  walletConnectConfigs: {
+    projectId: "YOUR_PROJECT_ID",
+    name: "Your App",
+    description: "Your app description",
+    url: "https://yourapp.com",
+    icons: ["https://yourapp.com/icon.png"]
+  }
+})
+
+// Provider without configuration
+const bitcoinProvider = createBitcoinProvider()
+```
+
+For detailed configuration options for each provider, see their respective documentation pages:
+
+- [EVM Provider Configuration](/integration/UI/Widget/WalletManagement/EVMProvider)
+- [Starknet Provider Configuration](/integration/UI/Widget/WalletManagement/StarknetProvider)
+- [Solana Provider Configuration](/integration/UI/Widget/WalletManagement/SolanaProvider)
+- [Bitcoin Provider Configuration](/integration/UI/Widget/WalletManagement/BitcoinProvider)
+- [TON Provider Configuration](/integration/UI/Widget/WalletManagement/TonProvider)
+- [Tron Provider Configuration](/integration/UI/Widget/WalletManagement/TronProvider)
+- [Fuel Provider Configuration](/integration/UI/Widget/WalletManagement/FuelProvider)
+- [Paradex Provider Configuration](/integration/UI/Widget/WalletManagement/ParadexProvider)
+- [Immutable Passport Configuration](/integration/UI/Widget/WalletManagement/ImmutablePassportProvider)
+- [Immutable X Configuration](/integration/UI/Widget/WalletManagement/ImmutableXProvider)
+
+---
+
+## When to Use Native Packages
+
+Native wallet packages are ideal when:
+
+- You want the fastest integration path with minimal setup
+- Standard wallet support meets your requirements
+- You don't have existing wallet management infrastructure
+
+---
+
+## Supported Ecosystems
+
+The following native providers are available and ready to use:
+
+### EVM (Ethereum Virtual Machine)
+**Package:** `@layerswap/wallet-evm`
+
+Supports MetaMask, WalletConnect, and all EVM-compatible wallets across Ethereum, Polygon, Arbitrum, Optimism, Base, and more.
+
+[View EVM Provider Documentation →](/integration/UI/Widget/WalletManagement/EVMProvider)
+
+### Starknet
+**Package:** `@layerswap/wallet-starknet`
+
+Supports ArgentX, Braavos, and all Starknet-compatible wallets on Starknet Mainnet and Sepolia.
+
+[View Starknet Provider Documentation →](/integration/UI/Widget/WalletManagement/StarknetProvider)
+
+### Solana (SVM)
+**Package:** `@layerswap/wallet-svm`
+
+Supports Phantom, Solflare, Backpack, and all Solana wallet adapter compatible wallets.
+
+[View Solana Provider Documentation →](/integration/UI/Widget/WalletManagement/SolanaProvider)
+
+### Bitcoin
+**Package:** `@layerswap/wallet-bitcoin`
+
+Supports Unisat, Leather, Xverse, and other Bitcoin wallets using the Bigmi library.
+
+[View Bitcoin Provider Documentation →](/integration/UI/Widget/WalletManagement/BitcoinProvider)
+
+### Fuel
+**Package:** `@layerswap/wallet-fuel`
+
+Supports Fuel Network wallets and ecosystem.
+
+[View Fuel Provider Documentation →](/integration/UI/Widget/WalletManagement/FuelProvider)
+
+### TON
+**Package:** `@layerswap/wallet-ton`
+
+Supports TON Connect compatible wallets including Tonkeeper, MyTonWallet, and more.
+
+[View TON Provider Documentation →](/integration/UI/Widget/WalletManagement/TonProvider)
+
+### Tron
+**Package:** `@layerswap/wallet-tron`
+
+Supports TronLink and other Tron ecosystem wallets.
+
+[View Tron Provider Documentation →](/integration/UI/Widget/WalletManagement/TronProvider)
+
+### Specialized Providers
+
+#### Paradex
+**Package:** `@layerswap/wallet-paradex`
+
+Integration for Paradex decentralized exchange. Requires Starknet wallet as dependency.
+
+[View Paradex Provider Documentation →](/integration/UI/Widget/WalletManagement/ParadexProvider)
+
+#### Immutable Passport
+**Package:** `@layerswap/wallet-immutable-passport`
+
+Immutable's gaming-focused wallet solution with seamless onboarding.
+
+[View Immutable Passport Documentation →](/integration/UI/Widget/WalletManagement/ImmutablePassportProvider)
+
+#### ImmutableX
+**Package:** `@layerswap/wallet-immutablex`
+
+Layer 2 scaling solution for NFTs and gaming on Ethereum.
+
+[View ImmutableX Provider Documentation →](/integration/UI/Widget/WalletManagement/ImmutableXProvider)

@@ -2,9 +2,11 @@
 title: "Paradex Wallet"
 ---
 
-### Install EVM wallet package
+## Overview
 
-To get started, install the latest version of Paradex, EVM and Starknet packages.
+The Paradex provider integrates with Paradex decentralized exchange. It requires both EVM and Starknet wallet providers as dependencies.
+
+## Installation
 
 <CodeGroup>
   ```typescript yarn theme={"system"}
@@ -20,32 +22,49 @@ To get started, install the latest version of Paradex, EVM and Starknet packages
   ```
 </CodeGroup>
 
-[**Wagmi**](https://wagmi.sh/) is a React Hooks library for Ethereum.
+## Basic Usage
 
-[**Viem**](https://wagmi.sh/react/guides/viem) is a low-level TypeScript Interface for Ethereum that enables developers to interact with the blockchain.
+The Paradex provider must be used alongside EVM and Starknet providers:
 
-[**TanStack Query**](https://tanstack.com/query/v5) is an async state manager that handles fetching, caching, synchronizing and more.
+```typescript
+import { LayerswapProvider, Swap } from "@layerswap/widget"
+import { createEVMProvider, createStarknetProvider, createParadexProvider } from "@layerswap/wallet-paradex"
+import "@layerswap/widget/index.css"
 
-<Note>ParadexProvider is dependant on EVMProvider and StarknetProvider</Note>
+export const App = () => {
+  const walletConnectConfigs = {
+    projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+    name: "Your App Name",
+    description: "Your app description",
+    url: "https://yourapp.com",
+    icons: ["https://yourapp.com/icon.png"]
+  }
 
-### Basic example
+  const walletProviders = [
+    createEVMProvider({ walletConnectConfigs }),
+    createStarknetProvider({ walletConnectConfigs }),
+    createParadexProvider()
+  ]
 
-The example below shows how to preconfigure a basic wallet management with native widget package.
-
-```typescript  theme={"system"}
-import { LayerswapProvider, Swap } from "@layerswap/widget";
-import { EVMProvider } from "@layerswap/wallet-evm";
-import { StarknetProvider } from "@layerswap/wallet-starknet";
-import { ParadexProvider } from "@layerswap/wallet-paradex";
-
-export const WidgetPage = () => {
   return (
-    <LayerswapProvider 
-      config={config}
-      walletProviders={[EVMProvider, StarknetProvider, ParadexProvider]}
+    <LayerswapProvider
+      walletProviders={walletProviders}
     >
-      <Swap/>
+      <Swap />
     </LayerswapProvider>
-  );
-};
+  )
+}
 ```
+
+---
+
+## Dependencies
+
+<Note>
+  The Paradex provider depends on both EVM and Starknet providers. Make sure to include all three providers in your configuration.
+</Note>
+
+The Paradex provider requires:
+- **EVM Provider** - For Ethereum wallet connections
+- **Starknet Provider** - For Starknet wallet connections
+- **Paradex Provider** - For Paradex-specific functionality
