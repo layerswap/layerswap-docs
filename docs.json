@@ -107,6 +107,13 @@
         ]
       },
       {
+        "tab": "Widget Playground",
+        "hidden": false,
+        "pages": [
+          "Playground"
+        ]
+      },
+      {
         "tab": "API Reference",
         "groups": [
           {
