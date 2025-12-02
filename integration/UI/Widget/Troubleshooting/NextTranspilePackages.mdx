@@ -1,0 +1,49 @@
+---
+title: "Next.js Transpile Packages"
+description: "Configure transpilePackages for ESM module resolution with the Layerswap Widget."
+---
+
+## ESM Module Resolution in Next.js
+
+When using the Layerswap Widget with Next.js, you may encounter errors related to ESM (ECMAScript Modules) that aren't properly resolved. This typically manifests as import errors or module not found errors for `@layerswap/*` packages.
+
+### Configure `transpilePackages` in `next.config.ts`
+
+Add all Layerswap packages to the `transpilePackages` array in your `next.config.ts` (or `next.config.js`) file:
+
+```TypeScript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  transpilePackages: [
+    '@layerswap/widget',
+    '@layerswap/wallet-evm',
+    '@layerswap/wallet-bitcoin',
+    '@layerswap/wallet-fuel',
+    '@layerswap/wallet-paradex',
+    '@layerswap/wallet-starknet',
+    '@layerswap/wallet-svm',
+    '@layerswap/wallet-ton',
+    '@layerswap/wallet-tron',
+    '@layerswap/wallet-imtbl-x',
+    '@layerswap/wallet-imtbl-passport',
+    '@layerswap/wallet-module-zksync',
+    '@layerswap/wallet-module-loopring',
+    '@layerswap/wallets'
+  ],
+};
+
+export default nextConfig;
+```
+
+### What this configuration does
+
+The `transpilePackages` option tells Next.js to transpile the specified packages from `node_modules`. This is necessary because:
+
+- These packages are distributed as ESM modules
+- Next.js needs to process them through its build pipeline for proper module resolution
+- Without this configuration, you may see errors like `SyntaxError: Cannot use import statement outside a module`
+
+<Note>
+You only need to include the wallet packages that you're actually using in your integration. For example, if you're only using EVM wallets, you can include just `@layerswap/widget`, `@layerswap/wallet-evm`, and `@layerswap/wallets`.
+</Note>

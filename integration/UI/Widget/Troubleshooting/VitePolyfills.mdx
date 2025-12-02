@@ -1,0 +1,58 @@
+---
+title: "Vite.js Polyfills"
+description: "Configure polyfills for Vite.js projects using the Layerswap Widget."
+---
+
+## Vite.js requires global and process polyfills
+
+If you're using Vite.js with React and the Layerswap Widget, you may encounter this error in your console:
+
+```
+util.js:109 Uncaught ReferenceError: process is not defined
+```
+
+This happens because some libraries that the widget depends on use the `process` module, which is not available in the browser environment and is not automatically polyfilled by Vite.
+
+### Polyfill `process` using `vite.config.js`
+
+To resolve this, modify your `vite.config.js` file to configure `esbuild` with the necessary polyfills:
+
+```TypeScript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
+import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill";
+
+export default defineConfig({
+  optimizeDeps: {
+    esbuildOptions: {
+      // Enable esbuild polyfill plugins
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          process: true,
+        }),
+        NodeModulesPolyfillPlugin(),
+      ],
+    },
+  },
+  plugins: [react()],
+});
+```
+
+### Install the required packages
+
+Make sure to install the polyfill plugins:
+
+<CodeGroup>
+  ```bash npm
+  npm install @esbuild-plugins/node-globals-polyfill @esbuild-plugins/node-modules-polyfill
+  ```
+
+  ```bash yarn
+  yarn add @esbuild-plugins/node-globals-polyfill @esbuild-plugins/node-modules-polyfill
+  ```
+
+  ```bash pnpm
+  pnpm add @esbuild-plugins/node-globals-polyfill @esbuild-plugins/node-modules-polyfill
+  ```
+</CodeGroup>

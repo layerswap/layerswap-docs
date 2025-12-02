@@ -89,6 +89,14 @@
                   "integration/UI/Widget/Starknet/Starknet",
                   "integration/UI/Widget/Starknet/StarknetWithDynamics"
                 ]
+              },
+              {
+                "group": "Troubleshooting",
+                "pages": [
+                  "integration/UI/Widget/Troubleshooting/VitePolyfills",
+                  "integration/UI/Widget/Troubleshooting/NextPolyfills",
+                  "integration/UI/Widget/Troubleshooting/NextTranspilePackages"
+                ]
               }
             ]
           },

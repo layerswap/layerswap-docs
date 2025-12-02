@@ -1,0 +1,36 @@
+---
+title: "Next.js Polyfills"
+description: "Configure webpack fallbacks for Next.js projects using the Layerswap Widget."
+---
+
+## Next.js requires webpack fallback configuration
+
+When using the Layerswap Widget with Next.js, you may encounter errors related to Node.js modules that aren't available in the browser environment, such as `fs`, `net`, or `tls`.
+
+### Configure webpack fallbacks in `next.config.ts`
+
+Add the following webpack configuration to your `next.config.ts` (or `next.config.js`) file:
+
+```TypeScript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false }
+    config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    return config
+  },
+};
+
+export default nextConfig;
+```
+
+### What this configuration does
+
+- **`resolve.fallback`**: Tells webpack to not attempt to polyfill `fs`, `net`, and `tls` modules, which are Node.js-specific and not needed in the browser.
+- **`externals`**: Excludes `pino-pretty`, `lokijs`, and `encoding` from the bundle, as these are optional dependencies that may cause build issues.
+
+<Note>
+If you're also experiencing ESM module resolution errors, see [Next.js Transpile Packages](/integration/UI/Widget/Troubleshooting/NextTranspilePackages) for additional configuration.
+</Note>
+
