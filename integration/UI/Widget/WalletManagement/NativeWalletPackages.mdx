@@ -11,19 +11,19 @@ Native wallet packages provide complete, out-of-the-box wallet management for mu
 
 ## Basic Usage
 
-### Quick Start with getDefaultConfig()
+### Quick Start with getDefaultProviders()
 
 The fastest way to get started with all wallet providers:
 
 <CodeGroup>
 ```typescript theme={"system"} App.tsx
 import { LayerswapProvider, Swap } from "@layerswap/widget"
-import { getDefaultConfig } from "@layerswap/wallets"
+import { getDefaultProviders } from "@layerswap/wallets"
 import "@layerswap/widget/index.css"
 import { walletConnectConfigs, tonConfigs } from "./configs"
 
 export const App = () => {
-  const walletProviders = getDefaultConfig({
+  const walletProviders = getDefaultProviders({
     walletConnect: walletConnectConfigs,
     ton: tonConfigs
   })
@@ -55,7 +55,7 @@ export const tonConfigs = {
 </CodeGroup>
 
 <Note>
-  `getDefaultConfig()` returns all available providers: EVM (with zkSync + Loopring), Starknet, Solana, Bitcoin, TON, Tron, Fuel, Paradex, and Immutable X.
+  `getDefaultProviders()` returns all available providers: EVM (with zkSync + Loopring), Starknet, Solana, Bitcoin, TON, Tron, Fuel, Paradex, and Immutable X.
 </Note>
 
 ### Single Ecosystem
@@ -163,7 +163,7 @@ The easiest way to get all wallet providers:
 
 The `@layerswap/wallets` package includes:
 - All provider creator functions (`createEVMProvider`, `createStarknetProvider`, etc.)
-- The `getDefaultConfig()` helper function
+- The `getDefaultProviders()` helper function
 - All necessary dependencies
 
 ### Alternative: Install Individual Providers

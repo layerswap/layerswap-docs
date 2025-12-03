@@ -236,7 +236,7 @@ export const QuickstartEmbed = () => {
   const installPkgs = [...basePkgs, ...Array.from(additionalDeps).sort()];
   const installCommand = `${installPrefix}${installPkgs.join(' ')}`;
 
-  // Check if all providers are selected (for getDefaultConfig usage)
+  // Check if all providers are selected (for getDefaultProviders usage)
   const allProvidersSelected = WALLET_OPTIONS.every((wallet) => selectedWallets.includes(wallet));
 
   // --- Build starter snippet
@@ -244,8 +244,8 @@ export const QuickstartEmbed = () => {
 
   // Determine imports based on selection
   if (allProvidersSelected) {
-    // Use getDefaultConfig when all providers are selected
-    importLines.push("import { getDefaultConfig } from '@layerswap/wallets';");
+    // Use getDefaultProviders when all providers are selected
+    importLines.push("import { getDefaultProviders } from '@layerswap/wallets';");
   } else if (selectedWallets.length > 0) {
     // Import individual factory functions
     const factories = selectedWallets
@@ -259,8 +259,8 @@ export const QuickstartEmbed = () => {
   let walletProvidersCode = '';
 
   if (allProvidersSelected) {
-    // Use getDefaultConfig for all providers
-    walletProvidersCode = `  const walletProviders = getDefaultConfig({
+    // Use getDefaultProviders for all providers
+    walletProvidersCode = `  const walletProviders = getDefaultProviders({
     walletConnect: {
       projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
       name: "Your App Name",
