@@ -1,5 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
-
 export const NetworksTokensEmbed = () => {
     const resolveTheme = () => {
         if (typeof document === 'undefined') return 'dark';

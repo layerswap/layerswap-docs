@@ -150,6 +150,13 @@
         ]
       },
       {
+        "tab": "Deposit Address 2",
+        "hidden": false,
+        "pages": [
+          "deposit-widget/DepositWidget"
+        ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "groups": [

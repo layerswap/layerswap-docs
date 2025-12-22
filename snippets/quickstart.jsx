@@ -1,5 +1,3 @@
-import { useState, useEffect, useRef } from 'react';
-
 export const QuickstartEmbed = () => {
   const [theme, setTheme] = useState(() => {
     if (typeof document === 'undefined') return 'dark';
