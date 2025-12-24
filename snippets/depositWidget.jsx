@@ -23,97 +23,6 @@ export const DepositWidget = () => {
         return html.classList.contains('dark') ? 'dark' : 'light';
     };
 
-    const getPalette = (theme) => {
-        if (theme === 'dark') {
-            return {
-                bgPrimary: '#000000',
-                bgSecondary: '#000000',
-                bgTertiary: '#000000',
-                bgHighlight: 'rgba(204, 45, 93, 0.08)',
-                bgAccent: 'rgba(204, 45, 93, 0.12)',
-                textPrimary: '#F4F5F7',
-                textSecondary: '#C9CDD4',
-                textTertiary: '#8D94A5',
-                borderPrimary: 'rgba(148, 163, 184, 0.24)',
-                borderSecondary: 'rgba(148, 163, 184, 0.16)',
-                borderAccent: 'rgba(204, 45, 93, 0.45)',
-                borderSubtle: 'rgba(148, 163, 184, 0.22)',
-                accentPrimary: '#CC2D5D',
-                accentHover: '#E53E7B',
-                panelBg: 'rgba(14, 11, 14, 0.94)',
-                panelBorder: 'rgba(148, 163, 184, 0.24)',
-                panelHeaderBg: 'rgba(148, 163, 184, 0.12)',
-                panelResponseHeaderBg: 'rgba(148, 163, 184, 0.1)',
-                panelInfoBg: 'rgba(148, 163, 184, 0.06)',
-                codeSurface: 'rgba(6, 5, 8, 0.95)',
-                successBg: 'rgba(76, 175, 128, 0.18)',
-                successBorder: 'rgba(111, 216, 157, 0.5)',
-                successText: '#83F2C3',
-                errorBg: 'rgba(232, 92, 110, 0.18)',
-                errorBorder: 'rgba(232, 92, 110, 0.55)',
-                errorText: '#FF9AA5',
-                infoBg: 'rgba(107, 163, 232, 0.18)',
-                infoBorder: 'rgba(139, 185, 240, 0.55)',
-                infoText: '#9FC4FF',
-                warningBg: 'rgba(255, 183, 77, 0.18)',
-                warningBorder: 'rgba(255, 183, 77, 0.55)',
-                warningText: '#FFD7A1',
-                codeBg: 'rgba(16, 14, 17, 0.94)',
-                codeText: '#F4F5F7',
-                shadow: 'rgba(0, 0, 0, 0.5)',
-                jsonKey: '#9cdcfe',
-                jsonString: '#ce9178',
-                jsonNumber: '#b5cea8',
-                jsonBoolean: '#569cd6',
-                jsonNull: '#569cd6',
-                jsonBracket: '#d4d4d4'
-            };
-        } else {
-            return {
-                bgPrimary: '#FFFFFF',
-                bgSecondary: '#F9FAFB',
-                bgTertiary: '#EEF2F6',
-                bgHighlight: '#F1F5F9',
-                bgAccent: '#FFE8F0',
-                textPrimary: '#1A1F2E',
-                textSecondary: '#6B7588',
-                textTertiary: '#A3ADC2',
-                borderPrimary: '#D8DCE6',
-                borderSecondary: '#E8EBF0',
-                borderAccent: '#8B95AA',
-                borderSubtle: 'rgba(15, 23, 42, 0.08)',
-                accentPrimary: '#CC2D5D',
-                accentHover: '#B22651',
-                panelBg: 'rgba(255, 255, 255, 0.96)',
-                panelBorder: 'rgba(148, 163, 184, 0.24)',
-                panelHeaderBg: 'rgba(148, 163, 184, 0.12)',
-                panelResponseHeaderBg: 'rgba(148, 163, 184, 0.12)',
-                panelInfoBg: 'rgba(248, 250, 252, 0.9)',
-                codeSurface: 'rgba(248, 250, 252, 0.95)',
-                successBg: '#E8F7EE',
-                successBorder: '#4CAF80',
-                successText: '#1E7A45',
-                errorBg: '#FDEEF0',
-                errorBorder: '#E85C6E',
-                errorText: '#C1344A',
-                infoBg: '#EBF4FF',
-                infoBorder: '#6BA3E8',
-                infoText: '#2563B5',
-                warningBg: '#FFF8E6',
-                warningBorder: '#FFB74D',
-                warningText: '#E65100',
-                codeBg: '#F8FAFC',
-                codeText: '#0F172A',
-                shadow: 'rgba(15, 23, 42, 0.06)',
-                jsonKey: '#9cdcfe',
-                jsonString: '#ce9178',
-                jsonNumber: '#b5cea8',
-                jsonBoolean: '#569cd6',
-                jsonNull: '#569cd6',
-                jsonBracket: '#d4d4d4'
-            };
-        }
-    };
 
     const throttle = (func, limit) => {
         let inThrottle;
@@ -258,7 +167,6 @@ export const DepositWidget = () => {
     const step5Ref = useRef(null);
 
     // Styles
-    const styles = useMemo(() => getPalette(theme), [theme]);
 
     // ===== EFFECTS =====
     // Theme detection
@@ -1084,112 +992,54 @@ export const DepositWidget = () => {
         return false;
     };
 
+    // Phase 1 – Layout, navigation, header, overview section (Tailwind-assisted)
     return (
-        <div style={{
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            minHeight: '100vh',
-            backgroundColor: styles.bgSecondary,
-            color: styles.textPrimary,
-            padding: '24px 0'
-        }}>
-            <div style={{
-                maxWidth: '1440px',
-                margin: '0 auto',
-                padding: windowWidth >= 1024 ? '0 0px' : '0',
-                display: 'flex',
-                flexDirection: windowWidth >= 768 ? 'row' : 'column',
-                gap: windowWidth >= 1024 ? '48px' : windowWidth >= 768 ? '40px' : '32px',
-                alignItems: 'flex-start'
-            }}>
-                {/* Desktop Navigation Sidebar */}
-                {windowWidth >= 768 && (
-                    <>
-                        <div style={{ width: '288px' }} />
-                        <nav style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            position: 'fixed',
-                            top: '64px',
-                            height: 'calc(100vh - 64px)',
-                            width: '288px',
-                            flexShrink: 0,
-                            borderRight: `1px solid ${styles.borderPrimary}`,
-                            paddingRight: '20px',
-                            paddingTop: '45px',
-                            paddingBottom: '24px',
-                            overflowY: 'auto',
-                            alignSelf: 'flex-start',
-                            backgroundColor: styles.bgSecondary,
-                            zIndex: 10
-                        }}>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                <div>
-                                    <p style={{
-                                        paddingLeft: '16px',
-                                        marginBottom: '12px',
-                                        fontSize: '11px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.32em',
-                                        color: styles.textSecondary
-                                    }}>
+        <div className="max-w-8xl lg:flex mx-auto px-0 lg:px-5"  >
+            {/* Desktop Navigation Sidebar */}
+            {windowWidth >= 768 && (
+                <nav id="sidebar-content" className="hidden sticky shrink-0 w-[18rem] lg:flex flex-col left-0 top-[6rem] bottom-0 right-auto border-r border-gray-100 dark:border-white/10 transition-transform duration-100 h-[70vh]">
+                    <div id="navigation-items" className="flex-1 pr-5 pt-5 pb-4 overflow-y-auto stable-scrollbar-gutter">
+                        <div className="text-sm relative">
+                            <div>
+                                <div className="sidebar-group-header flex items-center gap-2.5 pl-4 mb-3.5 lg:mb-2.5 font-semibold text-gray-700 dark:text-gray-300 text-xs">
+                                    <h5 id="sidebar-title">
                                         Documentation
-                                    </p>
-                                    <ul style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px', listStyle: 'none', padding: 0, margin: 0 }}>
+                                    </h5>
+                                </div>
+                                    <ul
+                                        className="space-y-px"
+                                        id="sidebar-group"
+                                    >
                                         {navItems.map(item => {
                                             const locked = isStepLocked(item.id);
                                             const active = activeSection === item.id;
                                             return (
-                                                <li key={item.id}>
+                                                <li className="relative scroll-m-4 first:scroll-m-20" key={item.id}>
                                                     <a
                                                         href={`#${item.id}`}
                                                         onClick={(e) => handleNavClick(item.id, e)}
-                                                        style={{
-                                                            display: 'flex',
-                                                            width: '100%',
-                                                            alignItems: 'center',
-                                                            gap: '12px',
-                                                            borderRadius: '12px',
-                                                            padding: '8px 16px',
-                                                            textAlign: 'left',
-                                                            fontSize: '14px',
-                                                            textDecoration: 'none',
-                                                            color: active ? styles.accentPrimary : styles.textSecondary,
-                                                            backgroundColor: active ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.1)' : 'rgba(204, 45, 93, 0.1)') : 'transparent',
-                                                            fontWeight: active ? '600' : '400',
-                                                            opacity: locked ? 0.4 : 1,
-                                                            cursor: locked ? 'not-allowed' : 'pointer',
-                                                            transition: 'all 0.2s ease',
-                                                            boxShadow: active ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
-                                                        }}
-                                                        onMouseEnter={(e) => {
-                                                            if (!locked && !active) {
-                                                                e.target.style.backgroundColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-                                                                e.target.style.color = styles.textPrimary;
-                                                            }
-                                                        }}
-                                                        onMouseLeave={(e) => {
-                                                            if (!locked && !active) {
-                                                                e.target.style.backgroundColor = 'transparent';
-                                                                e.target.style.color = styles.textSecondary;
-                                                            }
-                                                        }}
+                                                        className={`group flex items-center pr-3 pl-4 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] ${
+                                                            active
+                                                                ? 'bg-primary/10 text-primary [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:text-primary-light dark:bg-primary-light/10'
+                                                                : 'hover:bg-gray-600/5 dark:hover:bg-gray-200/5 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
+                                                        } ${locked ? 'opacity-40 cursor-not-allowed' : ''}`}
                                                     >
-                                                        {item.label}
+                                                        <div className="flex-1 flex items-center space-x-2.5">
+                                                            <div>{item.label}</div>
+                                                        </div>
                                                     </a>
                                                 </li>
                                             );
                                         })}
-                                    </ul>
-                                </div>
+                                </ul>
                             </div>
-                        </nav>
-                    </>
-                )}
-
-                {/* Mobile Menu Overlay */}
-                {mobileMenuOpen && (
-                    <div
+                        </div>
+                    </div>
+                </nav>
+            )}
+            {/* Mobile Menu Overlay */}
+            {mobileMenuOpen && (
+                <div
                         onClick={() => setMobileMenuOpen(false)}
                         style={{
                             position: 'fixed',
@@ -1200,7 +1050,7 @@ export const DepositWidget = () => {
                             pointerEvents: mobileMenuOpen ? 'auto' : 'none',
                             transition: 'opacity 0.3s ease'
                         }}
-                    >
+                >
                         <div
                             onClick={(e) => e.stopPropagation()}
                             style={{
@@ -1209,53 +1059,32 @@ export const DepositWidget = () => {
                                 width: '288px',
                                 maxWidth: '100%',
                                 flexDirection: 'column',
-                                backgroundColor: styles.bgPrimary,
                                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                                 transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
                                 transition: 'transform 0.3s ease'
                             }}
+                            className="bg-white dark:bg-background-dark"
                         >
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '16px 20px',
-                                borderBottom: `1px solid ${styles.borderPrimary}`
-                            }}>
-                                <h3 style={{
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.18em',
-                                    color: styles.textSecondary
-                                }}>
+                            <div
+                                className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-white/10"
+                            >
+                                <h3
+                                    className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-700 dark:text-gray-300"
+                                >
                                     Navigation
                                 </h3>
                                 <button
                                     onClick={() => setMobileMenuOpen(false)}
-                                    style={{
-                                        fontSize: '24px',
-                                        color: styles.textSecondary,
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        padding: '4px',
-                                        lineHeight: 1
-                                    }}
+                                    className="cursor-pointer border-none bg-transparent p-1 text-2xl leading-none text-gray-700 dark:text-gray-300"
                                     aria-label="Close Menu"
                                 >
                                     ×
                                 </button>
                             </div>
-                            <ul style={{
-                                flex: 1,
-                                overflowY: 'auto',
-                                padding: '16px 0',
-                                fontSize: '14px',
-                                listStyle: 'none',
-                                paddingLeft: 0,
-                                margin: 0
-                            }}>
+                            <ul
+                                className="flex flex-1 flex-col overflow-y-auto py-4 text-sm"
+                                style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}
+                            >
                                 {navItems.map(item => {
                                     const locked = isStepLocked(item.id);
                                     const active = activeSection === item.id;
@@ -1264,3335 +1093,1554 @@ export const DepositWidget = () => {
                                             <a
                                                 href={`#${item.id}`}
                                                 onClick={(e) => handleNavClick(item.id, e)}
-                                                style={{
-                                                    display: 'block',
-                                                    padding: '10px 20px',
-                                                    textDecoration: 'none',
-                                                    color: active ? styles.accentPrimary : styles.textSecondary,
-                                                    backgroundColor: active ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.1)' : 'rgba(204, 45, 93, 0.1)') : 'transparent',
-                                                    fontWeight: active ? '600' : '400',
-                                                    opacity: locked ? 0.4 : 1,
-                                                    cursor: locked ? 'not-allowed' : 'pointer',
-                                                    transition: 'all 0.2s ease'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    if (!locked && !active) {
-                                                        e.target.style.backgroundColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-                                                        e.target.style.color = styles.textPrimary;
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (!locked && !active) {
-                                                        e.target.style.backgroundColor = 'transparent';
-                                                        e.target.style.color = styles.textSecondary;
-                                                    }
-                                                }}
+                                                className={`group flex items-center pr-3 pl-4 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] ${
+                                                    active
+                                                        ? 'bg-primary/10 text-primary [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:text-primary-light dark:bg-primary-light/10'
+                                                        : 'hover:bg-gray-600/5 dark:hover:bg-gray-200/5 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
+                                                } ${locked ? 'opacity-40 cursor-not-allowed' : ''}`}
                                             >
-                                                {item.label}
+                                                <div className="flex-1 flex items-center space-x-2.5">
+                                                    <div>{item.label}</div>
+                                                </div>
                                             </a>
                                         </li>
                                     );
                                 })}
                             </ul>
                         </div>
-                    </div>
-                )}
-
-                {/* Main Content */}
-                <div style={{
-                    flex: 1,
-                    width: '100%',
-                    maxWidth: '768px',
-                    margin: windowWidth >= 768 ? '0' : '0 auto',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '40px',
-                    paddingLeft: windowWidth >= 768 ? '0' : windowWidth >= 640 ? '24px' : '20px',
-                    paddingRight: windowWidth >= 1024 ? '24px' : windowWidth >= 768 ? '0' : windowWidth >= 640 ? '24px' : '20px'
-                }}>
-                    {/* Mobile Menu Button */}
-                    {windowWidth < 768 && (
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '4px',
-                                borderRadius: '6px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
-                                padding: '8px 12px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                color: styles.textPrimary,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                marginTop: '8px',
-                                marginBottom: '40px',
-                                width: 'fit-content'
-                            }}
-                            aria-label="Toggle Navigation Menu"
-                        >
-                            <span style={{ display: 'block', height: '2px', width: '20px', borderRadius: '1px', backgroundColor: 'currentColor', transition: 'transform 0.3s ease' }}></span>
-                            <span style={{ display: 'block', height: '2px', width: '20px', borderRadius: '1px', backgroundColor: 'currentColor', transition: 'opacity 0.3s ease' }}></span>
-                            <span style={{ display: 'block', height: '2px', width: '20px', borderRadius: '1px', backgroundColor: 'currentColor', transition: 'transform 0.3s ease' }}></span>
-                        </button>
-                    )}
-
-                    {/* Header */}
-                    <div style={{ marginTop: '8px', marginBottom: '40px' }}>
-                        <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            borderRadius: '9999px',
-                            backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                            padding: '4px 12px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.18em',
-                            color: styles.accentPrimary,
-                            marginBottom: '12px'
-                        }}>
-                            Documentation
-                        </span>
-                        <h1 style={{
-                            fontSize: '42px',
-                            fontWeight: 'bold',
-                            marginBottom: '12px',
-                            color: styles.textPrimary
-                        }}>
-                            Layerswap Deposit API Tutorial
-                        </h1>
-                        <p style={{
-                            fontSize: '18px',
-                            color: styles.textSecondary,
-                            maxWidth: '672px'
-                        }}>
-                            Interactive guide to integrate cross-chain deposits into your wallet or application.
-                        </p>
-                    </div>
-
-                    {/* Overview Section */}
-                    <div id="overview" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <h2 style={{
-                            fontSize: '24px',
-                            fontWeight: '600',
-                            color: styles.textPrimary
-                        }}>
-                            Accept Deposits from Any Chain, Instantly
-                        </h2>
-                        <p style={{
-                            fontSize: '16px',
-                            lineHeight: '1.6',
-                            color: styles.textSecondary
-                        }}>
-                            Give users a single deposit address. They send from any chain – funds automatically bridge and arrive to your destination. That's it.
-                        </p>
-
-                        {/* Stats Cards */}
-                        <div style={{
-                            marginTop: '24px',
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                            gap: '16px'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '18px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                                padding: '20px 24px',
-                                textAlign: 'center',
-                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                            }}>
-                                <span style={{ fontSize: '30px', fontWeight: '600', color: styles.accentPrimary }}>70+</span>
-                                <span style={{
-                                    marginTop: '4px',
-                                    fontSize: '11px',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.35em',
-                                    color: styles.textSecondary
-                                }}>
-                                    Networks
-                                </span>
-                            </div>
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '18px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                                padding: '20px 24px',
-                                textAlign: 'center',
-                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                            }}>
-                                <span style={{ fontSize: '30px', fontWeight: '600', color: styles.accentPrimary }}>&lt;10s</span>
-                                <span style={{
-                                    marginTop: '4px',
-                                    fontSize: '11px',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.35em',
-                                    color: styles.textSecondary
-                                }}>
-                                    Processing
-                                </span>
-                            </div>
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '18px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                                padding: '20px 24px',
-                                textAlign: 'center',
-                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                            }}>
-                                <span style={{ fontSize: '30px', fontWeight: '600', color: styles.accentPrimary }}>$1B+</span>
-                                <span style={{
-                                    marginTop: '4px',
-                                    fontSize: '11px',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.35em',
-                                    color: styles.textSecondary
-                                }}>
-                                    Volume
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Integration Flow */}
-                        <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            <h3 style={{
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.32em',
-                                color: styles.textSecondary
-                            }}>
-                                Integration Flow
-                            </h3>
-
-                            <div style={{ marginLeft: '14px', marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                {/* Step 1 */}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4px' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            height: '28px',
-                                            width: '28px',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '9999px',
-                                            backgroundColor: theme === 'dark' ? styles.bgTertiary : '#FFFFFF',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            color: styles.accentPrimary,
-                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                                            border: `1px solid ${styles.borderPrimary}`
-                                        }}>1</div>
-                                        <div style={{ marginTop: '8px', height: '100%', width: '1px', backgroundColor: styles.borderSecondary }}></div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', fontWeight: '600', color: styles.textPrimary }}>Set Your Destination</p>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            Configure your wallet address and specify which network and token you want to receive (e.g., USDC on Base, ETH on Arbitrum).
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Step 2 */}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4px' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            height: '28px',
-                                            width: '28px',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '9999px',
-                                            backgroundColor: theme === 'dark' ? styles.bgTertiary : '#FFFFFF',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            color: styles.accentPrimary,
-                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                                            border: `1px solid ${styles.borderPrimary}`
-                                        }}>2</div>
-                                        <div style={{ marginTop: '8px', height: '100%', width: '1px', backgroundColor: styles.borderSecondary }}></div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', fontWeight: '600', color: styles.textPrimary }}>Fetch Available Sources</p>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            Call GET /sources endpoint – returns all networks and tokens your users can send from to reach your destination (70+ options).
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Step 3 */}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4px' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            height: '28px',
-                                            width: '28px',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '9999px',
-                                            backgroundColor: theme === 'dark' ? styles.bgTertiary : '#FFFFFF',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            color: styles.accentPrimary,
-                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                                            border: `1px solid ${styles.borderPrimary}`
-                                        }}>3</div>
-                                        <div style={{ marginTop: '8px', height: '100%', width: '1px', backgroundColor: styles.borderSecondary }}></div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', fontWeight: '600', color: styles.textPrimary }}>User Selects Source</p>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            Display the available options to your user and let them choose which network and token they have (e.g., USDT on BSC, ETH on Polygon).
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Step 4 */}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4px' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            height: '28px',
-                                            width: '28px',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '9999px',
-                                            backgroundColor: theme === 'dark' ? styles.bgTertiary : '#FFFFFF',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            color: styles.accentPrimary,
-                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                                            border: `1px solid ${styles.borderPrimary}`
-                                        }}>4</div>
-                                        <div style={{ marginTop: '8px', height: '100%', width: '1px', backgroundColor: styles.borderSecondary }}></div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', fontWeight: '600', color: styles.textPrimary }}>Generate Deposit Address</p>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            Call POST /swaps with the selected route – the API creates a unique deposit address and handles all bridging logic.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Step 5 */}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4px' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            height: '28px',
-                                            width: '28px',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '9999px',
-                                            backgroundColor: theme === 'dark' ? styles.bgTertiary : '#FFFFFF',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            color: styles.accentPrimary,
-                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                                            border: `1px solid ${styles.borderPrimary}`
-                                        }}>5</div>
-                                        <div style={{ marginTop: '8px', height: '100%', width: '1px', backgroundColor: styles.borderSecondary }}></div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', fontWeight: '600', color: styles.textPrimary }}>Display to User</p>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            Show the deposit address with clear instructions so the user sends from the source network they selected.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Step 6 */}
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', paddingBottom: '20px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4px' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            height: '28px',
-                                            width: '28px',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '9999px',
-                                            backgroundColor: theme === 'dark' ? styles.bgTertiary : '#FFFFFF',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            color: styles.accentPrimary,
-                                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                                            border: `1px solid ${styles.borderPrimary}`
-                                        }}>6</div>
-                                        <div style={{ marginTop: '8px', height: '100%', width: '1px', backgroundColor: 'transparent' }}></div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <p style={{ fontSize: '14px', fontWeight: '600', color: styles.textPrimary }}>Receive Funds</p>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            User sends tokens → Layerswap detects the deposit → automatically converts and bridges → delivers to your wallet on the destination network (usually ~10s).
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Mobile-Friendly Note */}
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '16px',
-                            borderRadius: '18px',
-                            border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                            backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.15)' : 'rgba(204, 45, 93, 0.1)',
-                            padding: '16px 20px',
-                            fontSize: '14px',
-                            color: styles.textPrimary
-                        }}>
-                            <div style={{ marginTop: '4px', fontSize: '18px', color: styles.accentPrimary }}>
-                                📱
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <div style={{
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.18em',
-                                    color: styles.accentPrimary
-                                }}>
-                                    No Wallet Connections Required
-                                </div>
-                                <p style={{
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: styles.textSecondary
-                                }}>
-                                    Just a simple deposit address—no WalletConnect, no browser extensions, no popups. Users can send from any wallet app (MetaMask, Trust Wallet, exchange wallets, hardware wallets) using their preferred method. Perfect for mobile users.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Divider */}
-                    <div style={{
-                        height: '1px',
-                        backgroundColor: styles.borderPrimary,
-                        margin: '16px 0'
-                    }}></div>
-
-                    {/* Configuration Section */}
-                    <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <h2 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: styles.textPrimary
-                        }}>
-                            Configuration
-                        </h2>
-                        <p style={{
-                            fontSize: '14px',
-                            lineHeight: '1.6',
-                            color: styles.textSecondary
-                        }}>
-                            Set up your API credentials to get started.
-                        </p>
-
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                            gap: '16px'
-                        }}>
-                            {/* Base API URL */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: styles.textPrimary,
-                                    marginBottom: '4px'
-                                }}>
-                                    Base API URL
-                                </label>
-                                <input
-                                    type="text"
-                                    value={API_BASE}
-                                    disabled
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        border: `1px solid ${styles.borderPrimary}`,
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        color: styles.textPrimary,
-                                        backgroundColor: styles.bgTertiary,
-                                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                                        cursor: 'not-allowed',
-                                        opacity: 0.6
-                                    }}
-                                />
-                            </div>
-
-                            {/* API Key */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: styles.textPrimary,
-                                    marginBottom: '4px'
-                                }}>
-                                    API Key <span style={{ fontSize: '12px', fontWeight: '400', color: styles.textSecondary }}>(Optional)</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={apiKey}
-                                    onChange={handleApiKeyChange}
-                                    placeholder="Optional - for higher rate limits & analytics"
-                                    aria-label="API Key"
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        border: `1px solid ${apiKeyError ? styles.errorBorder : styles.borderPrimary}`,
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        color: styles.textPrimary,
-                                        backgroundColor: styles.bgPrimary,
-                                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                                        transition: 'border-color 0.2s ease',
-                                        outline: 'none'
-                                    }}
-                                    onFocus={(e) => {
-                                        e.target.style.borderColor = styles.accentPrimary;
-                                        e.target.style.boxShadow = `0 0 0 2px ${theme === 'dark' ? 'rgba(204, 45, 93, 0.3)' : 'rgba(204, 45, 93, 0.2)'}`;
-                                    }}
-                                    onBlur={(e) => {
-                                        e.target.style.borderColor = apiKeyError ? styles.errorBorder : styles.borderPrimary;
-                                        e.target.style.boxShadow = 'none';
-                                    }}
-                                />
-                                {apiKeyError && (
-                                    <div style={{
-                                        color: styles.errorText,
-                                        fontSize: '12px',
-                                        marginTop: '4px'
-                                    }}>
-                                        {apiKeyError}
-                                    </div>
-                                )}
-                                <small style={{
-                                    display: 'block',
-                                    fontSize: '12px',
-                                    lineHeight: '1.6',
-                                    color: styles.textSecondary,
-                                    marginTop: '4px'
-                                }}>
-                                    No API key needed for basic usage. Get one at{' '}
-                                    <a
-                                        href="https://www.layerswap.io/dashboard"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            color: styles.accentPrimary,
-                                            textDecoration: 'none'
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
-                                        onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
-                                    >
-                                        layerswap.io/dashboard
-                                    </a>
-                                    {' '}for higher rate limits and analytics.
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Step 1: Setup Destination */}
-                    <div
-                        id="step1"
-                        ref={step1Ref}
-                        style={{
-                            position: 'relative',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '32px',
-                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                            paddingBottom: '40px',
-                            marginBottom: '48px',
-                            scrollMarginTop: '96px',
-                            opacity: 1
-                        }}
-                    >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                borderRadius: '9999px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                padding: '4px 12px',
-                                fontSize: '11px',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.35em',
-                                color: styles.accentPrimary,
-                                width: 'fit-content'
-                            }}>
-                                Step 1:
-                            </span>
-                            <h2 style={{
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: styles.textPrimary
-                            }}>
-                                Setup Destination
-                            </h2>
-                            <p style={{
-                                fontSize: '14px',
-                                lineHeight: '1.6',
-                                color: styles.textSecondary
-                            }}>
-                                Configure your destination wallet and select the appropriate integration mode for your use case.
-                            </p>
-
-                            {/* Mode Selector */}
-                            <div style={{
-                                borderRadius: '18px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                                padding: '16px',
-                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                            }}>
-                                <span style={{
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    color: styles.textPrimary,
-                                    marginBottom: '16px'
-                                }}>
-                                    Select Your Use Case:
-                                </span>
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                    gap: '12px'
-                                }}>
-                                    <label style={{
-                                        position: 'relative',
-                                        display: 'flex',
-                                        cursor: 'pointer',
-                                        flexDirection: 'column',
-                                        gap: '8px',
-                                        borderRadius: '12px',
-                                        border: `1px solid ${tokenMode === 'single' ? styles.accentPrimary : styles.borderPrimary}`,
-                                        backgroundColor: tokenMode === 'single'
-                                            ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.1)' : 'rgba(204, 45, 93, 0.05)')
-                                            : (theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)'),
-                                        padding: '16px',
-                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                        transition: 'all 0.2s ease'
-                                    }}>
-                                        <input
-                                            type="radio"
-                                            name="tokenMode"
-                                            value="single"
-                                            checked={tokenMode === 'single'}
-                                            onChange={handleModeChange}
-                                            style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-                                        />
-                                        <span style={{
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            color: tokenMode === 'single' ? styles.accentPrimary : styles.textPrimary,
-                                            transition: 'color 0.2s ease'
-                                        }}>
-                                            Fixed Destination Token
-                                        </span>
-                                        <span style={{
-                                            fontSize: '12px',
-                                            lineHeight: '1.6',
-                                            color: tokenMode === 'single' ? styles.accentPrimary : styles.textSecondary,
-                                            transition: 'color 0.2s ease'
-                                        }}>
-                                            <strong style={{ fontWeight: '600' }}>DApp Integration:</strong> For prediction markets, DEXs, or apps requiring a specific token (e.g., only USDC)
-                                        </span>
-                                    </label>
-                                    <label style={{
-                                        position: 'relative',
-                                        display: 'flex',
-                                        cursor: 'pointer',
-                                        flexDirection: 'column',
-                                        gap: '8px',
-                                        borderRadius: '12px',
-                                        border: `1px solid ${tokenMode === 'multiple' ? styles.accentPrimary : styles.borderPrimary}`,
-                                        backgroundColor: tokenMode === 'multiple'
-                                            ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.1)' : 'rgba(204, 45, 93, 0.05)')
-                                            : (theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)'),
-                                        padding: '16px',
-                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                        transition: 'all 0.2s ease'
-                                    }}>
-                                        <input
-                                            type="radio"
-                                            name="tokenMode"
-                                            value="multiple"
-                                            checked={tokenMode === 'multiple'}
-                                            onChange={handleModeChange}
-                                            style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-                                        />
-                                        <span style={{
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            color: tokenMode === 'multiple' ? styles.accentPrimary : styles.textPrimary,
-                                            transition: 'color 0.2s ease'
-                                        }}>
-                                            Multiple Destination Tokens
-                                        </span>
-                                        <span style={{
-                                            fontSize: '12px',
-                                            lineHeight: '1.6',
-                                            color: tokenMode === 'multiple' ? styles.accentPrimary : styles.textSecondary,
-                                            transition: 'color 0.2s ease'
-                                        }}>
-                                            <strong style={{ fontWeight: '600' }}>Wallet Integration:</strong> Accept various tokens and deliver their respective counterparts on your network
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Destination Fields */}
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                gap: '16px'
-                            }}>
-                                {/* Wallet Address */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: styles.textPrimary,
-                                        marginBottom: '4px'
-                                    }}>
-                                        Your Wallet Address <span style={{ color: styles.accentPrimary }}>*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={walletAddress}
-                                        onChange={handleWalletAddressChange}
-                                        placeholder="0x..."
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            border: `1px solid ${walletAddressError ? styles.errorBorder : styles.borderPrimary}`,
-                                            borderRadius: '8px',
-                                            fontSize: '14px',
-                                            color: styles.textPrimary,
-                                            backgroundColor: styles.bgPrimary,
-                                            fontFamily: 'system-ui, -apple-system, sans-serif',
-                                            transition: 'border-color 0.2s ease',
-                                            outline: 'none',
-                                            minHeight: '44px'
-                                        }}
-                                        onFocus={(e) => {
-                                            e.target.style.borderColor = styles.accentPrimary;
-                                            e.target.style.boxShadow = `0 0 0 2px ${theme === 'dark' ? 'rgba(204, 45, 93, 0.3)' : 'rgba(204, 45, 93, 0.2)'}`;
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.borderColor = walletAddressError ? styles.errorBorder : styles.borderPrimary;
-                                            e.target.style.boxShadow = 'none';
-                                        }}
-                                    />
-                                    {walletAddressError && (
-                                        <div style={{
-                                            color: styles.errorText,
-                                            fontSize: '12px',
-                                            marginTop: '4px'
-                                        }}>
-                                            {walletAddressError}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Destination Network Dropdown */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }} ref={destinationNetworkDropdownRef}>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: styles.textPrimary,
-                                        marginBottom: '4px'
-                                    }}>
-                                        Destination Network <span style={{ color: styles.accentPrimary }}>*</span>
-                                    </label>
-                                    <div
-                                        onClick={() => setDestinationNetworkDropdownOpen(!destinationNetworkDropdownOpen)}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            borderRadius: '8px',
-                                            border: `1px solid ${styles.borderPrimary}`,
-                                            backgroundColor: styles.bgPrimary,
-                                            padding: '12px 16px',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: styles.textPrimary,
-                                            cursor: 'pointer',
-                                            transition: 'border-color 0.2s ease',
-                                            minHeight: '44px'
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.borderColor = styles.accentPrimary}
-                                        onMouseLeave={(e) => e.target.style.borderColor = styles.borderPrimary}
-                                    >
-                                        <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '12px' }}>
-                                            {selectedNetworkDisplay || 'Select a network'}
-                                        </span>
-                                        <svg
-                                            width="12"
-                                            height="8"
-                                            viewBox="0 0 12 8"
-                                            fill="none"
-                                            style={{
-                                                transform: destinationNetworkDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                                                transition: 'transform 0.2s ease',
-                                                flexShrink: 0,
-                                                color: styles.textSecondary
-                                            }}
-                                        >
-                                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    </div>
-                                    {destinationNetworkDropdownOpen && (
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '100%',
-                                            left: 0,
-                                            right: 0,
-                                            zIndex: 40,
-                                            marginTop: '8px',
-                                            width: '100%',
-                                            maxWidth: '448px',
-                                            borderRadius: '12px',
-                                            border: `1px solid ${styles.borderPrimary}`,
-                                            backgroundColor: styles.bgPrimary,
-                                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                                            maxHeight: '400px',
-                                            overflow: 'hidden',
-                                            display: 'flex',
-                                            flexDirection: 'column'
-                                        }}>
-                                            <div style={{
-                                                position: 'sticky',
-                                                top: 0,
-                                                zIndex: 10,
-                                                borderBottom: `1px solid ${styles.borderPrimary}`,
-                                                backgroundColor: styles.bgPrimary,
-                                                padding: '12px'
-                                            }}>
-                                                <input
-                                                    type="text"
-                                                    value={networkSearchTerm}
-                                                    onChange={(e) => setNetworkSearchTerm(e.target.value)}
-                                                    placeholder="Search networks..."
-                                                    style={{
-                                                        width: '100%',
-                                                        borderRadius: '6px',
-                                                        border: `1px solid ${styles.borderPrimary}`,
-                                                        backgroundColor: styles.bgPrimary,
-                                                        padding: '8px 12px',
-                                                        fontSize: '14px',
-                                                        color: styles.textPrimary,
-                                                        outline: 'none',
-                                                        transition: 'border-color 0.2s ease'
-                                                    }}
-                                                    onFocus={(e) => {
-                                                        e.target.style.borderColor = styles.accentPrimary;
-                                                        e.target.style.boxShadow = `0 0 0 2px ${theme === 'dark' ? 'rgba(204, 45, 93, 0.3)' : 'rgba(204, 45, 93, 0.2)'}`;
-                                                    }}
-                                                    onBlur={(e) => {
-                                                        e.target.style.borderColor = styles.borderPrimary;
-                                                        e.target.style.boxShadow = 'none';
-                                                    }}
-                                                />
+                </div>
+            )}
+            {/* Main Content */}
+            <div className="w-full">
+                <div className="px-5 lg:pr-10 lg:pl-[5.5rem] lg:pt-10 mx-auto max-w-6xl flex flex-row-reverse gap-x-12 w-full pt-36">
+                    <div className="hidden xl:flex self-start sticky xl:flex-col max-w-[28rem] h-[calc(100vh-9.5rem)] top-[calc(9.5rem-var(--sidenav-move-up,0px))]">
+                        {/* API Sidebar */}
+                        {windowWidth >= 1024 && (
+                            <>
+                                <aside className="left-[calc(50vw+240px)] top-[140px] z-10 flex max-h-[calc(100vh-64px)] w-[416px] flex-shrink-0 flex-col gap-6 border-l border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/30 pl-6" style={{ alignSelf: 'flex-start', overflowY: 'auto' }}>
+                                    <div className="flex flex-col gap-4">
+                                        {!hasApiActivity() ? (
+                                            <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-8 text-center text-sm text-gray-600 dark:text-gray-400 shadow-sm">
+                                                <span className="mb-3 text-lg text-primary dark:text-primary-light">🔗</span>
+                                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                    Run an API step to see live requests and responses here.
+                                                </p>
                                             </div>
-                                            <div style={{
-                                                overflowY: 'auto',
-                                                maxHeight: '350px',
-                                                padding: '8px 0'
-                                            }}>
-                                                {featuredNetworks.length > 0 && (
-                                                    <div style={{ marginBottom: '16px' }}>
-                                                        <div style={{
-                                                            padding: '0 16px 8px',
-                                                            fontSize: '12px',
-                                                            fontWeight: '600',
-                                                            textTransform: 'uppercase',
-                                                            letterSpacing: '0.35em',
-                                                            color: styles.textSecondary
-                                                        }}>
-                                                            Featured Networks
-                                                        </div>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                            {featuredNetworks.filter(n =>
-                                                                !networkSearchTerm ||
-                                                                (n.display_name || n.name).toLowerCase().includes(networkSearchTerm.toLowerCase())
-                                                            ).map(network => (
-                                                                <div
-                                                                    key={network.name}
-                                                                    onClick={() => {
-                                                                        setDestinationNetwork(network.name);
-                                                                        if (network.tokens && network.tokens.length > 0) {
-                                                                            setDestinationToken(network.tokens[0].symbol);
-                                                                        }
-                                                                        setDestinationNetworkDropdownOpen(false);
-                                                                        setNetworkSearchTerm('');
-                                                                    }}
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        gap: '12px',
-                                                                        borderRadius: '8px',
-                                                                        padding: '8px 16px',
-                                                                        fontSize: '14px',
-                                                                        color: destinationNetwork === network.name ? styles.accentPrimary : styles.textPrimary,
-                                                                        backgroundColor: destinationNetwork === network.name
-                                                                            ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)')
-                                                                            : 'transparent',
-                                                                        cursor: 'pointer',
-                                                                        transition: 'all 0.2s ease'
-                                                                    }}
-                                                                    onMouseEnter={(e) => {
-                                                                        if (destinationNetwork !== network.name) {
-                                                                            e.target.style.backgroundColor = styles.bgHighlight;
-                                                                        }
-                                                                    }}
-                                                                    onMouseLeave={(e) => {
-                                                                        if (destinationNetwork !== network.name) {
-                                                                            e.target.style.backgroundColor = 'transparent';
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    {network.logo && (
-                                                                        <img
-                                                                            src={network.logo}
-                                                                            alt={network.display_name || network.name}
-                                                                            style={{
-                                                                                width: '24px',
-                                                                                height: '24px',
-                                                                                borderRadius: '50%',
-                                                                                objectFit: 'contain'
+                                        ) : (
+                                            (() => {
+                                                const activeStepKey = getActiveApiStepKey;
+                                                if (!activeStepKey) return null;
+                                                const activity = apiActivity[activeStepKey];
+
+                                                return (
+                                                    <div key={activeStepKey} className="flex flex-col gap-3">
+                                                        {/* Request Card */}
+                                                        {activity.request && (
+                                                            <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                                                                <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                    <span>API Request</span>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <button
+                                                                            onClick={async () => {
+                                                                                const curl = generateCurlCommand(
+                                                                                    activity.request.url || `${API_BASE}${activity.request.endpoint}`,
+                                                                                    activity.request.method || 'GET',
+                                                                                    activity.request.headers || {},
+                                                                                    activity.request.body
+                                                                                );
+                                                                                await copyToClipboard(curl);
                                                                             }}
-                                                                            onError={(e) => e.target.style.display = 'none'}
-                                                                        />
-                                                                    )}
-                                                                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                        {network.display_name || formatNetworkName(network.name)}
-                                                                    </span>
-                                                                    <span style={{ fontSize: '12px', color: '#fbbf24' }}>★</span>
+                                                                            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light"
+                                                                        >
+                                                                            📋 Copy
+                                                                        </button>
+                                                                        {getApiDocsUrl(activeStepKey) && (
+                                                                            <a
+                                                                                href={getApiDocsUrl(activeStepKey)}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:text-primary dark:hover:text-primary-light no-underline"
+                                                                            >
+                                                                                🔗 API Docs
+                                                                            </a>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    <div style={{
-                                                        padding: '0 16px 8px',
-                                                        fontSize: '12px',
-                                                        fontWeight: '600',
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.35em',
-                                                        color: styles.textSecondary
-                                                    }}>
-                                                        All Networks
-                                                    </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                        {filteredNetworks.map(network => (
-                                                            <div
-                                                                key={network.name}
-                                                                onClick={() => {
-                                                                    setDestinationNetwork(network.name);
-                                                                    if (network.tokens && network.tokens.length > 0) {
-                                                                        setDestinationToken(network.tokens[0].symbol);
-                                                                    }
-                                                                    setDestinationNetworkDropdownOpen(false);
-                                                                    setNetworkSearchTerm('');
-                                                                }}
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    gap: '12px',
-                                                                    borderRadius: '8px',
-                                                                    padding: '8px 16px',
-                                                                    fontSize: '14px',
-                                                                    color: destinationNetwork === network.name ? styles.accentPrimary : styles.textPrimary,
-                                                                    backgroundColor: destinationNetwork === network.name
-                                                                        ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)')
-                                                                        : 'transparent',
-                                                                    cursor: 'pointer',
-                                                                    transition: 'all 0.2s ease'
-                                                                }}
-                                                                onMouseEnter={(e) => {
-                                                                    if (destinationNetwork !== network.name) {
-                                                                        e.target.style.backgroundColor = styles.bgHighlight;
-                                                                    }
-                                                                }}
-                                                                onMouseLeave={(e) => {
-                                                                    if (destinationNetwork !== network.name) {
-                                                                        e.target.style.backgroundColor = 'transparent';
-                                                                    }
-                                                                }}
-                                                            >
-                                                                {network.logo && (
-                                                                    <img
-                                                                        src={network.logo}
-                                                                        alt={network.display_name || network.name}
-                                                                        style={{
-                                                                            width: '24px',
-                                                                            height: '24px',
-                                                                            borderRadius: '50%',
-                                                                            objectFit: 'contain'
-                                                                        }}
-                                                                        onError={(e) => e.target.style.display = 'none'}
-                                                                    />
-                                                                )}
-                                                                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                    {network.display_name || formatNetworkName(network.name)}
-                                                                </span>
+                                                                <div className="overflow-x-auto whitespace-pre-wrap break-words px-5 py-4 font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                                                                    {generateCurlCommand(
+                                                                        activity.request.url || `${API_BASE}${activity.request.endpoint}`,
+                                                                        activity.request.method || 'GET',
+                                                                        activity.request.headers || {},
+                                                                        activity.request.body
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                                                        )}
 
-                                {/* Destination Token Dropdown (Single Mode Only) */}
-                                {tokenMode === 'single' && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }} ref={destinationTokenDropdownRef}>
-                                        <label style={{
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: styles.textPrimary,
-                                            marginBottom: '4px'
-                                        }}>
-                                            Destination Token <span style={{ color: styles.accentPrimary }}>*</span>
-                                        </label>
-                                        <div
-                                            onClick={() => setDestinationTokenDropdownOpen(!destinationTokenDropdownOpen)}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                borderRadius: '8px',
-                                                border: `1px solid ${styles.borderPrimary}`,
-                                                backgroundColor: styles.bgPrimary,
-                                                padding: '12px 16px',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                color: styles.textPrimary,
-                                                cursor: 'pointer',
-                                                transition: 'border-color 0.2s ease',
-                                                minHeight: '44px'
-                                            }}
-                                            onMouseEnter={(e) => e.target.style.borderColor = styles.accentPrimary}
-                                            onMouseLeave={(e) => e.target.style.borderColor = styles.borderPrimary}
-                                        >
-                                            <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '12px' }}>
-                                                {destinationToken || 'Select a token'}
-                                            </span>
-                                            <svg
-                                                width="12"
-                                                height="8"
-                                                viewBox="0 0 12 8"
-                                                fill="none"
-                                                style={{
-                                                    transform: destinationTokenDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                                                    transition: 'transform 0.2s ease',
-                                                    flexShrink: 0,
-                                                    color: styles.textSecondary
-                                                }}
-                                            >
-                                                <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        </div>
-                                        {destinationTokenDropdownOpen && selectedNetworkTokens.length > 0 && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '100%',
-                                                left: 0,
-                                                right: 0,
-                                                zIndex: 40,
-                                                marginTop: '8px',
-                                                width: '100%',
-                                                maxWidth: '448px',
-                                                borderRadius: '12px',
-                                                border: `1px solid ${styles.borderPrimary}`,
-                                                backgroundColor: styles.bgPrimary,
-                                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                                                maxHeight: '400px',
-                                                overflow: 'hidden',
-                                                display: 'flex',
-                                                flexDirection: 'column'
-                                            }}>
-                                                <div style={{
-                                                    position: 'sticky',
-                                                    top: 0,
-                                                    zIndex: 10,
-                                                    borderBottom: `1px solid ${styles.borderPrimary}`,
-                                                    backgroundColor: styles.bgPrimary,
-                                                    padding: '12px'
-                                                }}>
-                                                    <input
-                                                        type="text"
-                                                        value={tokenSearchTerm}
-                                                        onChange={(e) => setTokenSearchTerm(e.target.value)}
-                                                        placeholder="Search tokens..."
-                                                        style={{
-                                                            width: '100%',
-                                                            borderRadius: '6px',
-                                                            border: `1px solid ${styles.borderPrimary}`,
-                                                            backgroundColor: styles.bgPrimary,
-                                                            padding: '8px 12px',
-                                                            fontSize: '14px',
-                                                            color: styles.textPrimary,
-                                                            outline: 'none',
-                                                            transition: 'border-color 0.2s ease'
-                                                        }}
-                                                        onFocus={(e) => {
-                                                            e.target.style.borderColor = styles.accentPrimary;
-                                                            e.target.style.boxShadow = `0 0 0 2px ${theme === 'dark' ? 'rgba(204, 45, 93, 0.3)' : 'rgba(204, 45, 93, 0.2)'}`;
-                                                        }}
-                                                        onBlur={(e) => {
-                                                            e.target.style.borderColor = styles.borderPrimary;
-                                                            e.target.style.boxShadow = 'none';
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div style={{
-                                                    overflowY: 'auto',
-                                                    maxHeight: '350px',
-                                                    padding: '8px 0'
-                                                }}>
-                                                    {filteredTokens.map(token => (
-                                                        <div
-                                                            key={token.symbol}
-                                                            onClick={() => {
-                                                                setDestinationToken(token.symbol);
-                                                                setDestinationTokenDropdownOpen(false);
-                                                                setTokenSearchTerm('');
-                                                            }}
-                                                            style={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                gap: '12px',
-                                                                borderRadius: '8px',
-                                                                padding: '8px 16px',
-                                                                fontSize: '14px',
-                                                                color: destinationToken === token.symbol ? styles.accentPrimary : styles.textPrimary,
-                                                                backgroundColor: destinationToken === token.symbol
-                                                                    ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)')
-                                                                    : 'transparent',
-                                                                cursor: 'pointer',
-                                                                transition: 'all 0.2s ease'
-                                                            }}
-                                                            onMouseEnter={(e) => {
-                                                                if (destinationToken !== token.symbol) {
-                                                                    e.target.style.backgroundColor = styles.bgHighlight;
-                                                                }
-                                                            }}
-                                                            onMouseLeave={(e) => {
-                                                                if (destinationToken !== token.symbol) {
-                                                                    e.target.style.backgroundColor = 'transparent';
-                                                                }
-                                                            }}
-                                                        >
-                                                            {token.logo && (
-                                                                <img
-                                                                    src={token.logo}
-                                                                    alt={token.symbol || token.display_asset}
-                                                                    style={{
-                                                                        width: '24px',
-                                                                        height: '24px',
-                                                                        borderRadius: '50%',
-                                                                        objectFit: 'contain'
-                                                                    }}
-                                                                    onError={(e) => e.target.style.display = 'none'}
-                                                                />
-                                                            )}
-                                                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                {token.symbol || token.display_asset}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
+                                                        {/* Response Card */}
+                                                        {activity.response && (
+                                                            <div className="flex max-h-[420px] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                                                                <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                    <span>API Response</span>
+                                                                    <button
+                                                                        onClick={async () => {
+                                                                            await copyToClipboard(JSON.stringify(activity.response, null, 2));
+                                                                        }}
+                                                                        className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light"
+                                                                    >
+                                                                        📋 Copy
+                                                                    </button>
+                                                                </div>
+                                                                <div className="flex-1 overflow-y-auto bg-white dark:bg-background-dark px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                                                                    <pre className="m-0 font-mono whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: formatJson(activity.response) }} />
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()
                                         )}
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                </aside>
+                            </>
+                        )}
                     </div>
-
-                    {/* Step 2: Select Source */}
-                    <div
-                        id="step2"
-                        ref={step2Ref}
-                        style={{
-                            position: 'relative',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '32px',
-                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                            paddingBottom: '40px',
-                            marginBottom: '48px',
-                            scrollMarginTop: '96px',
-                            opacity: step2Locked ? 0.35 : 1,
-                            pointerEvents: step2Locked ? 'none' : 'auto',
-                            filter: step2Locked ? 'grayscale(50%)' : 'none'
-                        }}
-                    >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                borderRadius: '9999px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                padding: '4px 12px',
-                                fontSize: '11px',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.35em',
-                                color: styles.accentPrimary,
-                                width: 'fit-content'
-                            }}>
-                                Step 2:
-                            </span>
-                            <h2 style={{
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: styles.textPrimary
-                            }}>
-                                Select Source
-                            </h2>
-                            {tokenMode === 'single' ? (
-                                <p style={{
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: styles.textSecondary
-                                }}>
-                                    Select which networks can send tokens to receive{' '}
-                                    <span style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                        backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                        padding: '4px 10px',
-                                        fontSize: '12px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.18em',
-                                        color: styles.accentPrimary
-                                    }}>
-                                        {destinationToken} on {selectedNetworkDisplay}
-                                    </span>
-                                    {' '}on your network.
-                                </p>
-                            ) : (
-                                <p style={{
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: styles.textSecondary
-                                }}>
-                                    Select the source network and token - users will receive the matching token on your destination network.
-                                </p>
-                            )}
-
-                            {/* API Hint */}
-                            <div style={{
-                                marginTop: '12px',
-                                display: 'flex',
-                                alignItems: 'flex-start',
-                                gap: '8px',
-                                borderRadius: '8px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                backgroundColor: styles.bgHighlight,
-                                padding: '8px 12px',
-                                fontSize: '12px',
-                                lineHeight: '1.6',
-                                color: styles.textSecondary
-                            }}>
-                                <span style={{ fontSize: '14px', color: styles.accentPrimary, flexShrink: 0 }}>ℹ️</span>
-                                <span>
-                                    The <code style={{
-                                        borderRadius: '4px',
-                                        backgroundColor: styles.bgTertiary,
-                                        padding: '2px 4px',
-                                        fontFamily: 'monospace',
-                                        fontSize: '11px',
-                                        color: styles.accentPrimary
-                                    }}>has_deposit_address=true</code> parameter ensures we only show sources that support generating deposit addresses, which is essential for the deposit flow.
-                                </span>
-                            </div>
-
-                            {/* Get Sources Button */}
-                            <button
-                                onClick={handleGetSources}
-                                disabled={step2Locked || isLoadingStep2}
-                                aria-label="Fetch available source networks"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: '8px',
-                                    backgroundColor: step2Locked ? styles.borderPrimary : styles.accentPrimary,
-                                    color: step2Locked ? styles.textTertiary : styles.bgPrimary,
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    border: 'none',
-                                    cursor: step2Locked ? 'not-allowed' : 'pointer',
-                                    transition: 'background-color 0.2s ease',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    marginTop: '12px'
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!step2Locked) {
-                                        e.target.style.backgroundColor = styles.accentHover;
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!step2Locked) {
-                                        e.target.style.backgroundColor = styles.accentPrimary;
-                                    }
-                                }}
-                            >
-                                {isLoadingStep2 ? 'Loading...' : 'Get Sources'}
-                            </button>
-
-                            {/* Result Box */}
-                            {step2Result.visible && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${step2Result.variant === 'success' ? styles.successBorder : step2Result.variant === 'error' ? styles.errorBorder : styles.borderPrimary}`,
-                                    backgroundColor: step2Result.variant === 'success' ? styles.successBg : step2Result.variant === 'error' ? styles.errorBg : styles.bgPrimary,
-                                    padding: '12px 16px',
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: step2Result.variant === 'success' ? styles.successText : step2Result.variant === 'error' ? styles.errorText : styles.textPrimary,
-                                    wordWrap: 'break-word',
-                                    wordBreak: 'break-word'
-                                }}>
-                                    {step2Result.message}
-                                </div>
-                            )}
-
-                            {/* Source Networks Grid */}
-                            {showSourceNetworks && sources.length > 0 && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(148px, 1fr))',
-                                    gap: '12px'
-                                }}>
-                                    {sources.map((source) => {
-                                        const firstToken = source.tokens && source.tokens.length > 0 ? source.tokens[0] : null;
-                                        const shortName = source.displayName
-                                            .replace(/_MAINNET/g, '')
-                                            .replace(/_SEPOLIA/g, ' Sep')
-                                            .replace(/_/g, ' ');
-                                        const isSelected = sourceNetwork === source.name && sourceToken === firstToken;
-
-                                        return (
-                                            <button
-                                                key={source.name}
-                                                type="button"
-                                                onClick={() => firstToken && selectSource(source.name, firstToken)}
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'flex-start',
-                                                    justifyContent: 'center',
-                                                    gap: '6px',
-                                                    borderRadius: '12px',
-                                                    border: `1px solid ${isSelected ? styles.accentPrimary : styles.borderPrimary}`,
-                                                    backgroundColor: isSelected
-                                                        ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)')
-                                                        : (theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)'),
-                                                    padding: '16px',
-                                                    textAlign: 'left',
-                                                    fontSize: '14px',
-                                                    fontWeight: '500',
-                                                    color: isSelected ? styles.accentPrimary : styles.textPrimary,
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s ease',
-                                                    boxShadow: isSelected ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    if (!isSelected) {
-                                                        e.target.style.borderColor = styles.accentPrimary;
-                                                        e.target.style.backgroundColor = theme === 'dark' ? 'rgba(204, 45, 93, 0.1)' : 'rgba(204, 45, 93, 0.05)';
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (!isSelected) {
-                                                        e.target.style.borderColor = styles.borderPrimary;
-                                                        e.target.style.backgroundColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)';
-                                                    }
-                                                }}
-                                            >
-                                                {source.logo && (
-                                                    <img
-                                                        src={source.logo}
-                                                        alt={shortName}
-                                                        style={{
-                                                            width: '32px',
-                                                            height: '32px',
-                                                            borderRadius: '50%',
-                                                            objectFit: 'contain',
-                                                            backgroundColor: styles.bgSecondary,
-                                                            padding: '2px'
-                                                        }}
-                                                        onError={(e) => e.target.style.display = 'none'}
-                                                    />
-                                                )}
-                                                <span style={{
-                                                    fontSize: '14px',
-                                                    fontWeight: '600',
-                                                    color: 'inherit'
-                                                }}>
-                                                    {shortName}
-                                                </span>
-                                                {source.tokens && source.tokens.length > 0 && (
-                                                    <span style={{
-                                                        fontSize: '11px',
-                                                        fontWeight: '500',
-                                                        color: styles.textSecondary
-                                                    }}>
-                                                        {source.tokens.slice(0, 3).join(', ')}{source.tokens.length > 3 ? '...' : ''}
-                                                    </span>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            )}
-
-                            {/* Token Selector (Multiple Mode) */}
-                            {tokenMode === 'multiple' && showSourceTokenSelector && networkMap[sourceNetwork] && (
-                                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: styles.textPrimary,
-                                        marginBottom: '4px'
-                                    }}>
-                                        Source Token <span style={{ color: styles.accentPrimary }}>*</span>
-                                    </label>
-                                    <select
-                                        value={sourceToken}
-                                        onChange={handleSourceTokenSelect}
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            border: `1px solid ${styles.borderPrimary}`,
-                                            borderRadius: '8px',
-                                            fontSize: '14px',
-                                            color: styles.textPrimary,
-                                            backgroundColor: styles.bgPrimary,
-                                            fontFamily: 'system-ui, -apple-system, sans-serif',
-                                            transition: 'border-color 0.2s ease',
-                                            outline: 'none',
-                                            minHeight: '44px',
-                                            cursor: 'pointer'
-                                        }}
-                                        onFocus={(e) => {
-                                            e.target.style.borderColor = styles.accentPrimary;
-                                            e.target.style.boxShadow = `0 0 0 2px ${theme === 'dark' ? 'rgba(204, 45, 93, 0.3)' : 'rgba(204, 45, 93, 0.2)'}`;
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.borderColor = styles.borderPrimary;
-                                            e.target.style.boxShadow = 'none';
-                                        }}
-                                    >
-                                        <option value="">Select a token</option>
-                                        {networkMap[sourceNetwork]?.tokens?.map(token => {
-                                            const tokenSymbol = token.symbol || token.asset || token;
-                                            return (
-                                                <option key={tokenSymbol} value={tokenSymbol}>
-                                                    {tokenSymbol}
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
-                                </div>
-                            )}
-
-                            {/* Selected Network Info */}
-                            {showSelectedNetworkInfo && sourceNetwork && (
-                                <div style={{
-                                    borderRadius: '12px',
-                                    border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                    backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                    padding: '12px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: styles.textSecondary,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    <span style={{ fontWeight: '600', color: styles.textPrimary }}>Selected:</span>
-                                    <span style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                        backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                        padding: '4px 10px',
-                                        fontSize: '12px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.18em',
-                                        color: styles.accentPrimary
-                                    }}>
-                                        {sourceNetwork.replace(/_/g, ' ')}
-                                    </span>
-                                    {sourceToken && (
-                                        <span style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                            backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                            padding: '4px 10px',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.accentPrimary
-                                        }}>
-                                            ({sourceToken})
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Step 3: Select Destination (Multiple Tokens Mode Only) */}
-                    {tokenMode === 'multiple' && (
-                        <div
-                            id="step3-destination"
-                            ref={step3DestinationRef}
-                            style={{
-                                position: 'relative',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '32px',
-                                borderBottom: `1px solid ${styles.borderPrimary}`,
-                                paddingBottom: '40px',
-                                marginBottom: '48px',
-                                scrollMarginTop: '96px',
-                                opacity: step3DestinationLocked ? 0.35 : 1,
-                                pointerEvents: step3DestinationLocked ? 'none' : 'auto',
-                                filter: step3DestinationLocked ? 'grayscale(50%)' : 'none'
-                            }}
-                        >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <span style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    borderRadius: '9999px',
-                                    border: `1px solid ${styles.borderPrimary}`,
-                                    padding: '4px 12px',
-                                    fontSize: '11px',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.35em',
-                                    color: styles.accentPrimary,
-                                    width: 'fit-content'
-                                }}>
-                                    Step 3:
-                                </span>
-                                <h2 style={{
-                                    fontSize: '20px',
-                                    fontWeight: '600',
-                                    color: styles.textPrimary
-                                }}>
-                                    Select Destination
-                                </h2>
-                                <p style={{
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: styles.textSecondary
-                                }}>
-                                    After the user selects a source, use the destinations endpoint to determine the token they'll receive on{' '}
-                                    <span style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                        backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                        padding: '4px 10px',
-                                        fontSize: '12px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.18em',
-                                        color: styles.accentPrimary
-                                    }}>
-                                        {selectedNetworkDisplay}
-                                    </span>
-                                    .
-                                </p>
-
-                                {/* Get Available Tokens Button */}
+                    <div className="grow w-full mx-auto xl:w-[calc(100%-28rem)]">
+                            {/* Mobile Menu Button */}
+                            {windowWidth < 768 && (
                                 <button
-                                    onClick={handleGetDestinationTokens}
-                                    disabled={step3DestinationLocked || isLoadingStep3Destination}
-                                    aria-label="Fetch available destination tokens"
+                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                    className="mt-2 mb-10 inline-flex items-center justify-center gap-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all dark:border-white/10 dark:bg-background-dark dark:text-gray-300 hover:bg-gray-600/5 dark:hover:bg-gray-200/5"
+                                    aria-label="Toggle Navigation Menu"
+                                >
+                                    <span className="block h-[2px] w-5 rounded-[1px] bg-current transition-transform" />
+                                    <span className="block h-[2px] w-5 rounded-[1px] bg-current transition-opacity" />
+                                    <span className="block h-[2px] w-5 rounded-[1px] bg-current transition-transform" />
+                                </button>
+                            )}
+
+                            {/* Header */}
+                            <header id="header" className="realtive">
+                                <div className="mt-0.5 space-y-2.5">
+                                    <div className="eyebrow h-5 text-primary dark:text-primary-light text-sm font-semibold">
+                                        Documentation
+                                    </div>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center relative gap-2">
+                                        <h1 id="page-title" className="inline-block text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight dark:text-gray-200">
+                                            Layerswap Deposit API Tutorial
+                                        </h1>
+                                    </div>
+                                    <div className="mt-2 text-lg prose prose-gray dark:prose-invert [&>*]:[overflow-wrap:anywhere]">
+                                        <p>
+                                            Interactive guide to integrate cross-chain deposits into your wallet or application.
+                                        </p>
+                                    </div>
+                                </div>
+                            </header>
+                            <div className="mdx-content relative mt-8 mb-14 prose prose-gray dark:prose-invert">
+                                {/* Overview Section */}
+                                <div id="overview">
+                                    <h2 className="flex whitespace-pre-wrap group font-semibold" >
+                                        Accept Deposits from Any Chain, Instantly
+                                    </h2>
+                                    <p
+                                        className="text-base leading-relaxed text-gray-600 dark:text-gray-400"
+                                    >
+                                        Give users a single deposit address. They send from any chain – funds automatically bridge and arrive to your destination. That's it.
+                                    </p>
+
+                                    {/* Stats Cards */}
+                                    <div
+                                        className="mt-6 grid gap-4"
+                                        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}
+                                    >
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                            <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
+                                                70+
+                                            </span>
+                                            <span className="mt-1 text-xs uppercase tracking-[0.35em] text-gray-600 dark:text-gray-400">
+                                                Networks
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                            <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
+                                                &lt;10s
+                                            </span>
+                                            <span className="mt-1 text-xs uppercase tracking-[0.35em] text-gray-600 dark:text-gray-400">
+                                                Processing
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                            <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
+                                                $1B+
+                                            </span>
+                                            <span className="mt-1 text-xs uppercase tracking-[0.35em] text-gray-600 dark:text-gray-400">
+                                                Volume
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Integration Flow */}
+                                        <div className="mt-8 flex flex-col gap-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+                                            Integration Flow
+                                        </h3>
+
+                                        <div className="ml-[14px] mt-8 flex flex-col gap-6">
+                                            {/* Step 1 */}
+                                            <div className="flex items-start gap-4 pb-5">
+                                                <div className="flex flex-col items-center pt-1">
+                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        1
+                                                    </div>
+                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
+                                                </div>
+                                                <div className="flex flex-1 flex-col gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Set Your Destination</p>
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Configure your wallet address and specify which network and token you want to receive (e.g., USDC on Base, ETH on Arbitrum).
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Step 2 */}
+                                            <div className="flex items-start gap-4 pb-5">
+                                                <div className="flex flex-col items-center pt-1">
+                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        2
+                                                    </div>
+                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
+                                                </div>
+                                                <div className="flex flex-1 flex-col gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Fetch Available Sources</p>
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Call GET /sources endpoint – returns all networks and tokens your users can send from to reach your destination (70+ options).
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Step 3 */}
+                                            <div className="flex items-start gap-4 pb-5">
+                                                <div className="flex flex-col items-center pt-1">
+                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        3
+                                                    </div>
+                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
+                                                </div>
+                                                <div className="flex flex-1 flex-col gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">User Selects Source</p>
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Display the available options to your user and let them choose which network and token they have (e.g., USDT on BSC, ETH on Polygon).
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Step 4 */}
+                                            <div className="flex items-start gap-4 pb-5">
+                                                <div className="flex flex-col items-center pt-1">
+                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        4
+                                                    </div>
+                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
+                                                </div>
+                                                <div className="flex flex-1 flex-col gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Generate Deposit Address</p>
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Call POST /swaps with the selected route – the API creates a unique deposit address and handles all bridging logic.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Step 5 */}
+                                            <div className="flex items-start gap-4 pb-5">
+                                                <div className="flex flex-col items-center pt-1">
+                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        5
+                                                    </div>
+                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
+                                                </div>
+                                                <div className="flex flex-1 flex-col gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Display to User</p>
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Show the deposit address with clear instructions so the user sends from the source network they selected.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Step 6 */}
+                                            <div className="flex items-start gap-4 pb-5">
+                                                <div className="flex flex-col items-center pt-1">
+                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        6
+                                                    </div>
+                                                    <div className="mt-2 h-full w-px bg-transparent"></div>
+                                                </div>
+                                                <div className="flex flex-1 flex-col gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Receive Funds</p>
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        User sends tokens → Layerswap detects the deposit → automatically converts and bridges → delivers to your wallet on the destination network (usually ~10s).
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Mobile-Friendly Note */}
+                                    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-4 text-sm">
+                                        <div className="mt-1 text-lg">
+                                            📱
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-900 dark:text-gray-200">
+                                                No Wallet Connections Required
+                                            </div>
+                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                Just a simple deposit address—no WalletConnect, no browser extensions, no popups. Users can send from any wallet app (MetaMask, Trust Wallet, exchange wallets, hardware wallets) using their preferred method. Perfect for mobile users.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="my-4 h-px bg-gray-200 dark:bg-white/10"></div>
+
+                                {/* Configuration Section */}
+                                <div className="mt-12 flex flex-col gap-6">
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                        Configuration
+                                    </h2>
+                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                        Set up your API credentials to get started.
+                                    </p>
+
+                                    <div
+                                        className="grid gap-4"
+                                        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}
+                                    >
+                                        {/* Base API URL */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                Base API URL
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={API_BASE}
+                                                disabled
+                                                className="w-full cursor-not-allowed rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-4 py-3 text-sm opacity-60 text-gray-900 dark:text-gray-200"
+                                            />
+                                        </div>
+
+                                        {/* API Key */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                API Key <span className="text-xs font-normal text-gray-600 dark:text-gray-400">(Optional)</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={apiKey}
+                                                onChange={handleApiKeyChange}
+                                                placeholder="Optional - for higher rate limits & analytics"
+                                                aria-label="API Key"
+                                                className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${
+                                                    apiKeyError ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30' : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
+                                                }`}
+                                                onBlur={(e) => {
+                                                    if (!apiKeyError) {
+                                                        e.target.style.boxShadow = 'none';
+                                                    }
+                                                }}
+                                            />
+                                            {apiKeyError && (
+                                                <div className="mt-1 text-xs text-destructive">
+                                                    {apiKeyError}
+                                                </div>
+                                            )}
+                                            <small className="mt-1 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                                                No API key needed for basic usage. Get one at{' '}
+                                                <a
+                                                    href="https://www.layerswap.io/dashboard"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="transition hover:underline text-primary dark:text-primary-light"
+                                                >
+                                                    layerswap.io/dashboard
+                                                </a>
+                                                {' '}for higher rate limits and analytics.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Step 1: Setup Destination */}
+                                <div
+                                    id="step1"
+                                    ref={step1Ref}
+                                    className="relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12"
                                     style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '8px',
-                                        backgroundColor: step3DestinationLocked ? styles.borderPrimary : styles.accentPrimary,
-                                        color: step3DestinationLocked ? styles.textTertiary : styles.bgPrimary,
-                                        padding: '8px 16px',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        border: 'none',
-                                        cursor: step3DestinationLocked ? 'not-allowed' : 'pointer',
-                                        transition: 'background-color 0.2s ease',
-                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                        marginTop: '12px'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (!step3DestinationLocked) {
-                                            e.target.style.backgroundColor = styles.accentHover;
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!step3DestinationLocked) {
-                                            e.target.style.backgroundColor = styles.accentPrimary;
-                                        }
+                                        scrollMarginTop: '96px',
+                                        opacity: 1
                                     }}
                                 >
-                                    {isLoadingStep3Destination ? 'Loading...' : 'Get Available Tokens'}
-                                </button>
-
-                                {/* Result Box */}
-                                {step3DestinationResult.visible && (
-                                    <div style={{
-                                        marginTop: '16px',
-                                        borderRadius: '12px',
-                                        border: `1px solid ${step3DestinationResult.variant === 'success' ? styles.successBorder : step3DestinationResult.variant === 'error' ? styles.errorBorder : styles.borderPrimary}`,
-                                        backgroundColor: step3DestinationResult.variant === 'success' ? styles.successBg : step3DestinationResult.variant === 'error' ? styles.errorBg : styles.bgPrimary,
-                                        padding: '12px 16px',
-                                        fontSize: '14px',
-                                        lineHeight: '1.6',
-                                        color: step3DestinationResult.variant === 'success' ? styles.successText : step3DestinationResult.variant === 'error' ? styles.errorText : styles.textPrimary,
-                                        wordWrap: 'break-word',
-                                        wordBreak: 'break-word'
-                                    }}>
-                                        {step3DestinationResult.message}
-                                    </div>
-                                )}
-
-                                {/* Destination Tokens Grid */}
-                                {showDestinationTokens && tokens.length > 0 && (
-                                    <div style={{
-                                        marginTop: '16px',
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))',
-                                        gap: '12px'
-                                    }}>
-                                        {tokens.map((token) => {
-                                            const tokenSymbol = token.symbol || token.display_asset || token;
-                                            const isSelected = destinationTokenMultiple === tokenSymbol;
-
-                                            return (
-                                                <button
-                                                    key={tokenSymbol}
-                                                    type="button"
-                                                    onClick={() => selectDestinationToken(tokenSymbol)}
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '8px',
-                                                        borderRadius: '12px',
-                                                        border: `1px solid ${isSelected ? styles.accentPrimary : styles.borderPrimary}`,
-                                                        backgroundColor: isSelected
-                                                            ? (theme === 'dark' ? 'rgba(204, 45, 93, 0.25)' : 'rgba(204, 45, 93, 0.15)')
-                                                            : (theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)'),
-                                                        padding: '12px 16px',
-                                                        textAlign: 'center',
-                                                        fontSize: '14px',
-                                                        fontWeight: '600',
-                                                        color: isSelected ? styles.accentPrimary : styles.textPrimary,
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s ease',
-                                                        boxShadow: isSelected ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                                    }}
-                                                    onMouseEnter={(e) => {
-                                                        if (!isSelected) {
-                                                            e.target.style.borderColor = styles.accentPrimary;
-                                                            e.target.style.backgroundColor = theme === 'dark' ? 'rgba(204, 45, 93, 0.1)' : 'rgba(204, 45, 93, 0.05)';
-                                                        }
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        if (!isSelected) {
-                                                            e.target.style.borderColor = styles.borderPrimary;
-                                                            e.target.style.backgroundColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)';
-                                                        }
-                                                    }}
-                                                >
-                                                    {token.logo && (
-                                                        <img
-                                                            src={token.logo}
-                                                            alt={tokenSymbol}
-                                                            style={{
-                                                                width: '36px',
-                                                                height: '36px',
-                                                                borderRadius: '50%',
-                                                                objectFit: 'contain',
-                                                                backgroundColor: styles.bgSecondary,
-                                                                padding: '2px'
-                                                            }}
-                                                            onError={(e) => e.target.style.display = 'none'}
-                                                        />
-                                                    )}
-                                                    <span style={{
-                                                        fontSize: '14px',
-                                                        fontWeight: '600',
-                                                        color: 'inherit'
-                                                    }}>
-                                                        {tokenSymbol}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-
-                                {/* Selected Destination Token Info */}
-                                {showSelectedDestTokenInfo && destinationTokenMultiple && (
-                                    <div style={{
-                                        borderRadius: '12px',
-                                        border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                        backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                        padding: '12px 16px',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: styles.textSecondary,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px'
-                                    }}>
-                                        <span style={{ fontWeight: '600', color: styles.textPrimary }}>Selected:</span>
-                                        <span style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                            backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                            padding: '4px 10px',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.accentPrimary
-                                        }}>
-                                            {destinationTokenMultiple}
+                                    <div className="flex flex-col gap-5">
+                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light">
+                                            Step 1:
                                         </span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                            Setup Destination
+                                        </h2>
+                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                            Configure your destination wallet and select the appropriate integration mode for your use case.
+                                        </p>
 
-                    {/* Step 3/4: Get Quote */}
-                    <div
-                        id="step3"
-                        ref={step3Ref}
-                        style={{
-                            position: 'relative',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '32px',
-                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                            paddingBottom: '40px',
-                            marginBottom: '48px',
-                            scrollMarginTop: '96px',
-                            opacity: step3Locked ? 0.35 : 1,
-                            pointerEvents: step3Locked ? 'none' : 'auto',
-                            filter: step3Locked ? 'grayscale(50%)' : 'none'
-                        }}
-                    >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                borderRadius: '9999px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                padding: '4px 12px',
-                                fontSize: '11px',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.35em',
-                                color: styles.accentPrimary,
-                                width: 'fit-content'
-                            }}>
-                                {tokenMode === 'multiple' ? 'Step 4:' : 'Step 3:'}
-                            </span>
-                            <h2 style={{
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: styles.textPrimary
-                            }}>
-                                Get Quote (Optional)
-                            </h2>
-                            <p style={{
-                                fontSize: '14px',
-                                lineHeight: '1.6',
-                                color: styles.textSecondary
-                            }}>
-                                Get a detailed quote for bridging from{' '}
-                                <span style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    borderRadius: '8px',
-                                    border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                    backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                    padding: '4px 10px',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.18em',
-                                    color: styles.accentPrimary
-                                }}>
-                                    {sourceNetwork ? `${sourceNetwork.replace(/_/g, ' ')} (${sourceToken})` : 'your selected network'}
-                                </span>
-                                {' '}to{' '}
-                                <span style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    borderRadius: '8px',
-                                    border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                    backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                    padding: '4px 10px',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.18em',
-                                    color: styles.accentPrimary
-                                }}>
-                                    {selectedNetworkDisplay} ({tokenMode === 'single' ? destinationToken : destinationTokenMultiple || 'token'})
-                                </span>
-                                .
-                            </p>
-                            <p style={{
-                                fontSize: '14px',
-                                lineHeight: '1.6',
-                                color: styles.textSecondary,
-                                marginTop: '8px'
-                            }}>
-                                <strong>Note:</strong> Getting a quote is optional for creating a swap, but recommended to show users the exact fees, limits, and estimated processing time before they deposit.
-                            </p>
-
-                            {/* Get Quote Button */}
-                            <button
-                                onClick={handleGetQuote}
-                                disabled={step3Locked || isLoadingStep3}
-                                aria-label="Get detailed transfer quote"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: '8px',
-                                    backgroundColor: step3Locked ? styles.borderPrimary : styles.accentPrimary,
-                                    color: step3Locked ? styles.textTertiary : styles.bgPrimary,
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    border: 'none',
-                                    cursor: step3Locked ? 'not-allowed' : 'pointer',
-                                    transition: 'background-color 0.2s ease',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    marginTop: '12px'
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!step3Locked) {
-                                        e.target.style.backgroundColor = styles.accentHover;
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!step3Locked) {
-                                        e.target.style.backgroundColor = styles.accentPrimary;
-                                    }
-                                }}
-                            >
-                                {isLoadingStep3 ? 'Loading...' : 'Get Detailed Quote'}
-                            </button>
-
-                            {/* Result Box */}
-                            {step3Result.visible && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${step3Result.variant === 'success' ? styles.successBorder : step3Result.variant === 'error' ? styles.errorBorder : styles.borderPrimary}`,
-                                    backgroundColor: step3Result.variant === 'success' ? styles.successBg : step3Result.variant === 'error' ? styles.errorBg : styles.bgPrimary,
-                                    padding: '12px 16px',
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: step3Result.variant === 'success' ? styles.successText : step3Result.variant === 'error' ? styles.errorText : styles.textPrimary,
-                                    wordWrap: 'break-word',
-                                    wordBreak: 'break-word'
-                                }}>
-                                    {step3Result.message}
-                                </div>
-                            )}
-
-                            {/* Quote Details */}
-                            {showQuoteDetails && quotes.length > 0 && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    borderRadius: '18px',
-                                    border: `1px solid ${styles.borderPrimary}`,
-                                    backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                                    padding: '24px',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                }}>
-                                    {quotes.length > 1 && (
-                                        <div style={{ marginBottom: '16px' }}>
-                                            <h4 style={{
-                                                fontSize: '14px',
-                                                fontWeight: '600',
-                                                color: styles.textPrimary
-                                            }}>
-                                                Available Routes
-                                            </h4>
-                                        </div>
-                                    )}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        {quotes.map((quote, index) => {
-                                            const formatTime = (ms) => {
-                                                if (!ms || ms === 0) return 'Instant';
-                                                const totalSeconds = Math.floor(ms / 1000);
-                                                const hours = Math.floor(totalSeconds / 3600);
-                                                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                                                const seconds = totalSeconds % 60;
-                                                if (hours > 0) return `~${hours}h ${minutes}m`;
-                                                if (minutes > 0) return `~${minutes}m`;
-                                                return `~${seconds}s`;
-                                            };
-
-                                            const minAmount = formatAmount(quote.min_amount) || '0';
-                                            const maxAmount = formatAmount(quote.max_amount) || '0';
-                                            const feeForMin = formatAmount(quote.fee_amount_for_min) || '0';
-                                            const feeForMax = formatAmount(quote.fee_amount_for_max) || '0';
-                                            const percentageFee = formatAmount(quote.total_percentage_fee) || '0';
-                                            const fixedFeeUsd = formatAmount(quote.total_fixed_fee_in_usd) || '0';
-                                            const timeDisplay = formatTime(quote.avg_completion_milliseconds);
-
-                                            let usdRate = 0;
-                                            if (quote.max_amount_in_usd && quote.max_amount && quote.max_amount > 0) {
-                                                usdRate = quote.max_amount_in_usd / quote.max_amount;
-                                            } else if (quote.min_amount_in_usd && quote.min_amount && quote.min_amount > 0) {
-                                                usdRate = quote.min_amount_in_usd / quote.min_amount;
-                                            }
-
-                                            const feeForMinUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMin) * usdRate) : '';
-                                            const feeForMaxUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMax) * usdRate) : '';
-
-                                            const usdRange = (quote.min_amount_in_usd && quote.max_amount_in_usd)
-                                                ? `$${formatAmount(quote.min_amount_in_usd)} - $${formatAmount(quote.max_amount_in_usd)}`
-                                                : '';
-
-                                            const hasPercentageFee = parseFloat(percentageFee) > 0;
-                                            const hasFixedFee = parseFloat(fixedFeeUsd) > 0;
-                                            const feeStructureParts = [];
-                                            if (hasPercentageFee) feeStructureParts.push(`${percentageFee}%`);
-                                            if (hasFixedFee) feeStructureParts.push(`$${fixedFeeUsd}`);
-                                            const feeStructureText = feeStructureParts.length ? feeStructureParts.join(' + ') : 'No fees';
-
-                                            return (
-                                                <div
-                                                    key={index}
-                                                    style={{
-                                                        borderRadius: '18px',
-                                                        border: `1px solid ${styles.borderPrimary}`,
-                                                        backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                                                        padding: '16px',
-                                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                                    }}
+                                        {/* Mode Selector */}
+                                        <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-4 shadow-sm">
+                                            <span className="mb-4 block text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                Select Your Use Case:
+                                            </span>
+                                            <div
+                                                className="grid gap-3"
+                                                style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}
+                                            >
+                                                <label
+                                                    className={`relative flex cursor-pointer flex-col gap-2 rounded-xl px-4 py-4 shadow-sm transition-all border ${
+                                                        tokenMode === 'single'
+                                                            ? 'border-primary dark:border-primary-light bg-primary/10 dark:bg-primary-light/10'
+                                                            : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark'
+                                                    }`}
                                                 >
-                                                    {/* Routing Path */}
-                                                    {quote.path && quote.path.length > 0 && (
-                                                        <div style={{ marginBottom: '16px' }}>
-                                                            <p style={{
-                                                                marginBottom: '8px',
-                                                                fontSize: '10px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                letterSpacing: '0.32em',
-                                                                color: styles.textSecondary
-                                                            }}>
-                                                                Routing Path
-                                                            </p>
-                                                            <div style={{
-                                                                display: 'flex',
-                                                                flexWrap: 'wrap',
-                                                                alignItems: 'center',
-                                                                gap: '8px',
-                                                                fontSize: '12px',
-                                                                fontWeight: '500',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {quote.path.map((step, pathIndex) => (
-                                                                    <div key={pathIndex} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                        <span style={{
-                                                                            borderRadius: '6px',
-                                                                            backgroundColor: styles.bgHighlight,
-                                                                            padding: '4px 10px',
-                                                                            fontSize: '11px',
-                                                                            fontWeight: '500',
-                                                                            color: styles.textPrimary
-                                                                        }}>
-                                                                            {step.provider_name}
-                                                                        </span>
-                                                                        {pathIndex < quote.path.length - 1 && (
-                                                                            <span style={{ color: styles.textSecondary }}>→</span>
+                                                    <input
+                                                        type="radio"
+                                                        name="tokenMode"
+                                                        value="single"
+                                                        checked={tokenMode === 'single'}
+                                                        onChange={handleModeChange}
+                                                        className="absolute opacity-0 pointer-events-none"
+                                                    />
+                                                    <span className={`text-sm font-semibold transition-colors ${
+                                                        tokenMode === 'single' ? 'text-primary dark:text-primary-light' : 'text-gray-900 dark:text-gray-200'
+                                                    }`}>
+                                                        Fixed Destination Token
+                                                    </span>
+                                                    <span className={`text-xs leading-relaxed transition-colors ${
+                                                        tokenMode === 'single' ? 'text-primary dark:text-primary-light' : 'text-gray-600 dark:text-gray-400'
+                                                    }`}>
+                                                        <strong className="font-semibold">DApp Integration:</strong> For prediction markets, DEXs, or apps requiring a specific token (e.g., only USDC)
+                                                    </span>
+                                                </label>
+                                                <label
+                                                    className={`relative flex cursor-pointer flex-col gap-2 rounded-xl px-4 py-4 shadow-sm transition-all border ${
+                                                        tokenMode === 'multiple'
+                                                            ? 'border-primary dark:border-primary-light bg-primary/10 dark:bg-primary-light/10'
+                                                            : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark'
+                                                    }`}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="tokenMode"
+                                                        value="multiple"
+                                                        checked={tokenMode === 'multiple'}
+                                                        onChange={handleModeChange}
+                                                        className="absolute opacity-0 pointer-events-none"
+                                                    />
+                                                    <span className={`text-sm font-semibold transition-colors ${
+                                                        tokenMode === 'multiple' ? 'text-primary dark:text-primary-light' : 'text-gray-900 dark:text-gray-200'
+                                                    }`}>
+                                                        Multiple Destination Tokens
+                                                    </span>
+                                                    <span className={`text-xs leading-relaxed transition-colors ${
+                                                        tokenMode === 'multiple' ? 'text-primary dark:text-primary-light' : 'text-gray-600 dark:text-gray-400'
+                                                    }`}>
+                                                        <strong className="font-semibold">Wallet Integration:</strong> Accept various tokens and deliver their respective counterparts on your network
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {/* Destination Fields */}
+                                        <div
+                                            className="grid gap-4"
+                                            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}
+                                        >
+                                            {/* Wallet Address */}
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                    Your Wallet Address <span className="text-primary dark:text-primary-light">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={walletAddress}
+                                                    onChange={handleWalletAddressChange}
+                                                    placeholder="0x..."
+                                                    className={`w-full min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${
+                                                        walletAddressError
+                                                            ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
+                                                            : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
+                                                    }`}
+                                                    onBlur={(e) => {
+                                                        if (!walletAddressError) {
+                                                            e.target.style.boxShadow = 'none';
+                                                        }
+                                                    }}
+                                                />
+                                                {walletAddressError && (
+                                                    <div className="mt-1 text-xs text-destructive">
+                                                        {walletAddressError}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Destination Network Dropdown */}
+                                            <div className="relative flex flex-col gap-2" ref={destinationNetworkDropdownRef}>
+                                                <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                    Destination Network <span className="text-primary dark:text-primary-light">*</span>
+                                                </label>
+                                                <div
+                                                    onClick={() => setDestinationNetworkDropdownOpen(!destinationNetworkDropdownOpen)}
+                                                    className="flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light"
+                                                >
+                                                    <span className="block overflow-hidden text-ellipsis whitespace-nowrap pr-3">
+                                                        {selectedNetworkDisplay || 'Select a network'}
+                                                    </span>
+                                                    <svg
+                                                        width="12"
+                                                        height="8"
+                                                        viewBox="0 0 12 8"
+                                                        fill="none"
+                                                        className={`flex-shrink-0 text-gray-600 dark:text-gray-400 transition-transform ${destinationNetworkDropdownOpen ? 'rotate-180' : ''}`}
+                                                    >
+                                                        <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    </svg>
+                                                </div>
+                                                {destinationNetworkDropdownOpen && (
+                                                    <div className="absolute left-0 right-0 top-full z-40 mt-2 flex max-h-[400px] w-full max-w-[448px] flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-lg">
+                                                        <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3">
+                                                            <input
+                                                                type="text"
+                                                                value={networkSearchTerm}
+                                                                onChange={(e) => setNetworkSearchTerm(e.target.value)}
+                                                                placeholder="Search networks..."
+                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                onBlur={(e) => {
+                                                                    e.target.style.boxShadow = 'none';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="max-h-[350px] overflow-y-auto py-2">
+                                                            {featuredNetworks.length > 0 && (
+                                                                <div style={{ marginBottom: '16px' }}>
+                                                                    <div className="px-4 pb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                        Featured Networks
+                                                                    </div>
+                                                                    <div className="flex flex-col gap-1">
+                                                                        {featuredNetworks.filter(n =>
+                                                                            !networkSearchTerm ||
+                                                                            (n.display_name || n.name).toLowerCase().includes(networkSearchTerm.toLowerCase())
+                                                                        ).map(network => (
+                                                                            <div
+                                                                                key={network.name}
+                                                                                onClick={() => {
+                                                                                    setDestinationNetwork(network.name);
+                                                                                    if (network.tokens && network.tokens.length > 0) {
+                                                                                        setDestinationToken(network.tokens[0].symbol);
+                                                                                    }
+                                                                                    setDestinationNetworkDropdownOpen(false);
+                                                                                    setNetworkSearchTerm('');
+                                                                                }}
+                                                                                className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-all ${
+                                                                                    destinationNetwork === network.name
+                                                                                        ? 'bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light'
+                                                                                        : 'text-gray-900 dark:text-gray-200 hover:bg-gray-600/5 dark:hover:bg-gray-200/5'
+                                                                                }`}
+                                                                            >
+                                                                                {network.logo && (
+                                                                                    <img
+                                                                                        src={network.logo}
+                                                                                        alt={network.display_name || network.name}
+                                                                                        className="h-6 w-6 rounded-full object-contain"
+                                                                                        onError={(e) => e.target.style.display = 'none'}
+                                                                                    />
+                                                                                )}
+                                                                                <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                                    {network.display_name || formatNetworkName(network.name)}
+                                                                                </span>
+                                                                                <span className="text-xs" style={{ color: '#fbbf24' }}>★</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            <div>
+                                                                <div className="px-4 pb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                    All Networks
+                                                                </div>
+                                                                <div className="flex flex-col gap-1">
+                                                                    {filteredNetworks.map(network => (
+                                                                        <div
+                                                                            key={network.name}
+                                                                            onClick={() => {
+                                                                                setDestinationNetwork(network.name);
+                                                                                if (network.tokens && network.tokens.length > 0) {
+                                                                                    setDestinationToken(network.tokens[0].symbol);
+                                                                                }
+                                                                                setDestinationNetworkDropdownOpen(false);
+                                                                                setNetworkSearchTerm('');
+                                                                            }}
+                                                                            className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-all ${
+                                                                                destinationNetwork === network.name
+                                                                                    ? 'bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light'
+                                                                                    : 'text-gray-900 dark:text-gray-200 hover:bg-gray-600/5 dark:hover:bg-gray-200/5'
+                                                                            }`}
+                                                                        >
+                                                                            {network.logo && (
+                                                                                <img
+                                                                                    src={network.logo}
+                                                                                    alt={network.display_name || network.name}
+                                                                                    className="h-6 w-6 rounded-full object-contain"
+                                                                                    onError={(e) => e.target.style.display = 'none'}
+                                                                                />
+                                                                            )}
+                                                                            <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                                {network.display_name || formatNetworkName(network.name)}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Destination Token Dropdown (Single Mode Only) */}
+                                            {tokenMode === 'single' && (
+                                                <div className="relative flex flex-col gap-2" ref={destinationTokenDropdownRef}>
+                                                    <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                        Destination Token <span className="text-primary dark:text-primary-light">*</span>
+                                                    </label>
+                                                    <div
+                                                        onClick={() => setDestinationTokenDropdownOpen(!destinationTokenDropdownOpen)}
+                                                        className="flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light"
+                                                    >
+                                                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap pr-3">
+                                                            {destinationToken || 'Select a token'}
+                                                        </span>
+                                                        <svg
+                                                            width="12"
+                                                            height="8"
+                                                            viewBox="0 0 12 8"
+                                                            fill="none"
+                                                            className={`flex-shrink-0 text-gray-600 dark:text-gray-400 transition-transform ${destinationTokenDropdownOpen ? 'rotate-180' : ''}`}
+                                                        >
+                                                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    {destinationTokenDropdownOpen && selectedNetworkTokens.length > 0 && (
+                                                        <div className="absolute left-0 right-0 top-full z-40 mt-2 flex max-h-[400px] w-full max-w-[448px] flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-lg">
+                                                            <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3">
+                                                                <input
+                                                                    type="text"
+                                                                    value={tokenSearchTerm}
+                                                                    onChange={(e) => setTokenSearchTerm(e.target.value)}
+                                                                    placeholder="Search tokens..."
+                                                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                    onBlur={(e) => {
+                                                                        e.target.style.boxShadow = 'none';
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <div className="max-h-[350px] overflow-y-auto py-2">
+                                                                {filteredTokens.map(token => (
+                                                                    <div
+                                                                        key={token.symbol}
+                                                                        onClick={() => {
+                                                                            setDestinationToken(token.symbol);
+                                                                            setDestinationTokenDropdownOpen(false);
+                                                                            setTokenSearchTerm('');
+                                                                        }}
+                                                                        className={`flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-all ${
+                                                                            destinationToken === token.symbol
+                                                                                ? 'bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light'
+                                                                                : 'text-gray-900 dark:text-gray-200 hover:bg-gray-600/5 dark:hover:bg-gray-200/5'
+                                                                        }`}
+                                                                    >
+                                                                        {token.logo && (
+                                                                            <img
+                                                                                src={token.logo}
+                                                                                alt={token.symbol || token.display_asset}
+                                                                                className="h-6 w-6 rounded-full object-contain"
+                                                                                onError={(e) => e.target.style.display = 'none'}
+                                                                            />
                                                                         )}
+                                                                        <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                            {token.symbol || token.display_asset}
+                                                                        </span>
                                                                     </div>
                                                                 ))}
                                                             </div>
                                                         </div>
                                                     )}
-
-                                                    {/* Amount Range and Processing Time */}
-                                                    <div style={{
-                                                        display: 'grid',
-                                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                                        gap: '16px',
-                                                        marginBottom: '16px'
-                                                    }}>
-                                                        <div>
-                                                            <p style={{
-                                                                fontSize: '10px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                letterSpacing: '0.32em',
-                                                                color: styles.textSecondary,
-                                                                marginBottom: '4px'
-                                                            }}>
-                                                                Amount Range
-                                                            </p>
-                                                            <p style={{
-                                                                fontSize: '16px',
-                                                                fontWeight: '600',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {minAmount} - {maxAmount} {sourceToken}
-                                                            </p>
-                                                            {usdRange && (
-                                                                <p style={{
-                                                                    marginTop: '4px',
-                                                                    fontSize: '11px',
-                                                                    color: styles.textSecondary
-                                                                }}>
-                                                                    {usdRange}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <p style={{
-                                                                fontSize: '10px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                letterSpacing: '0.32em',
-                                                                color: styles.textSecondary,
-                                                                marginBottom: '4px'
-                                                            }}>
-                                                                Processing Time
-                                                            </p>
-                                                            <p style={{
-                                                                fontSize: '16px',
-                                                                fontWeight: '600',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {timeDisplay}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Fee Cards */}
-                                                    <div style={{
-                                                        display: 'grid',
-                                                        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                                                        gap: '12px'
-                                                    }}>
-                                                        <div style={{
-                                                            borderRadius: '12px',
-                                                            backgroundColor: styles.bgHighlight,
-                                                            padding: '12px',
-                                                            fontSize: '12px',
-                                                            color: styles.textPrimary
-                                                        }}>
-                                                            <p style={{
-                                                                fontSize: '10px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                letterSpacing: '0.32em',
-                                                                color: styles.textSecondary,
-                                                                marginBottom: '4px'
-                                                            }}>
-                                                                MIN FEE
-                                                            </p>
-                                                            <p style={{
-                                                                fontSize: '14px',
-                                                                fontWeight: '600',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {feeForMin} {sourceToken}
-                                                            </p>
-                                                            {feeForMinUsd && (
-                                                                <p style={{
-                                                                    marginTop: '4px',
-                                                                    fontSize: '11px',
-                                                                    color: styles.textSecondary
-                                                                }}>
-                                                                    ≈ ${feeForMinUsd}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div style={{
-                                                            borderRadius: '12px',
-                                                            backgroundColor: styles.bgHighlight,
-                                                            padding: '12px',
-                                                            fontSize: '12px',
-                                                            color: styles.textPrimary
-                                                        }}>
-                                                            <p style={{
-                                                                fontSize: '10px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                letterSpacing: '0.32em',
-                                                                color: styles.textSecondary,
-                                                                marginBottom: '4px'
-                                                            }}>
-                                                                MAX FEE
-                                                            </p>
-                                                            <p style={{
-                                                                fontSize: '14px',
-                                                                fontWeight: '600',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {feeForMax} {sourceToken}
-                                                            </p>
-                                                            {feeForMaxUsd && (
-                                                                <p style={{
-                                                                    marginTop: '4px',
-                                                                    fontSize: '11px',
-                                                                    color: styles.textSecondary
-                                                                }}>
-                                                                    ≈ ${feeForMaxUsd}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div style={{
-                                                            borderRadius: '12px',
-                                                            backgroundColor: styles.bgHighlight,
-                                                            padding: '12px',
-                                                            fontSize: '12px',
-                                                            color: styles.textPrimary
-                                                        }}>
-                                                            <p style={{
-                                                                fontSize: '10px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                letterSpacing: '0.32em',
-                                                                color: styles.textSecondary,
-                                                                marginBottom: '4px'
-                                                            }}>
-                                                                FEE STRUCTURE
-                                                            </p>
-                                                            <p style={{
-                                                                fontSize: '14px',
-                                                                fontWeight: '600',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {feeStructureText}
-                                                            </p>
-                                                        </div>
-                                                    </div>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Swap Request Fields */}
-                            {showSwapRequestFields && (
-                                <div style={{
-                                    borderRadius: '18px',
-                                    border: `1px solid ${styles.borderPrimary}`,
-                                    backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.95)',
-                                    padding: '16px',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    marginTop: '16px'
-                                }}>
-                                    <h4 style={{
-                                        fontSize: '12px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.35em',
-                                        color: styles.textSecondary,
-                                        marginBottom: '16px'
-                                    }}>
-                                        Request Body
-                                    </h4>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                        gap: '12px',
-                                        fontSize: '12px',
-                                        color: styles.textPrimary
-                                    }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                source_network
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary
-                                            }}>
-                                                {sourceNetwork}
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                source_token
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary
-                                            }}>
-                                                {sourceToken}
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                destination_network
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary
-                                            }}>
-                                                {destinationNetwork}
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                destination_token
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary
-                                            }}>
-                                                {tokenMode === 'single' ? destinationToken : destinationTokenMultiple}
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', gridColumn: '1 / -1' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                destination_address
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary,
-                                                wordBreak: 'break-all'
-                                            }}>
-                                                {walletAddress}
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                refuel
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary
-                                            }}>
-                                                false
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <div style={{
-                                                fontSize: '11px',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.3em',
-                                                color: styles.textSecondary
-                                            }}>
-                                                use_deposit_address
-                                            </div>
-                                            <div style={{
-                                                borderRadius: '8px',
-                                                backgroundColor: styles.bgHighlight,
-                                                padding: '8px 12px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.textPrimary
-                                            }}>
-                                                true
-                                            </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <div style={{
-                                        marginTop: '12px',
-                                        display: 'flex',
-                                        alignItems: 'flex-start',
-                                        gap: '8px',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme === 'dark' ? 'rgba(255, 183, 77, 0.4)' : 'rgba(255, 183, 77, 0.2)'}`,
-                                        backgroundColor: theme === 'dark' ? 'rgba(255, 183, 77, 0.1)' : 'rgba(255, 183, 77, 0.05)',
-                                        padding: '8px 12px',
-                                        fontSize: '12px',
-                                        lineHeight: '1.6',
-                                        color: theme === 'dark' ? styles.warningText : '#E65100'
-                                    }}>
-                                        <span style={{ fontSize: '14px', flexShrink: 0 }}>⚠️</span>
-                                        <span>
-                                            <strong>Important:</strong> The <code style={{
-                                                borderRadius: '4px',
-                                                backgroundColor: theme === 'dark' ? 'rgba(255, 183, 77, 0.1)' : 'rgba(255, 255, 255, 0.4)',
-                                                padding: '2px 4px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: 'inherit'
-                                            }}>use_deposit_address: true</code> parameter is critical for this API flow. When set to true, the swap response will include a deposit address that users can send funds to from any supported chain.
-                                        </span>
-                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
 
-                    {/* Step 4/5: Create Swap */}
-                    <div
-                        id="step4"
-                        ref={step4Ref}
-                        style={{
-                            position: 'relative',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '32px',
-                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                            paddingBottom: '40px',
-                            marginBottom: '48px',
-                            scrollMarginTop: '96px',
-                            opacity: step4Locked ? 0.35 : 1,
-                            pointerEvents: step4Locked ? 'none' : 'auto',
-                            filter: step4Locked ? 'grayscale(50%)' : 'none'
-                        }}
-                    >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                borderRadius: '9999px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                padding: '4px 12px',
-                                fontSize: '11px',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.35em',
-                                color: styles.accentPrimary,
-                                width: 'fit-content'
-                            }}>
-                                {tokenMode === 'multiple' ? 'Step 5:' : 'Step 4:'}
-                            </span>
-                            <h2 style={{
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: styles.textPrimary
-                            }}>
-                                Create Swap
-                            </h2>
-                            <p style={{
-                                fontSize: '14px',
-                                lineHeight: '1.6',
-                                color: styles.textSecondary
-                            }}>
-                                Create a swap to get your unique deposit address.
-                            </p>
-
-                            {/* Create Swap Button */}
-                            <button
-                                onClick={handleCreateSwap}
-                                disabled={step4Locked || isLoadingStep4}
-                                aria-label="Create a new swap transaction"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: '8px',
-                                    backgroundColor: step4Locked ? styles.borderPrimary : styles.accentPrimary,
-                                    color: step4Locked ? styles.textTertiary : styles.bgPrimary,
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    border: 'none',
-                                    cursor: step4Locked ? 'not-allowed' : 'pointer',
-                                    transition: 'background-color 0.2s ease',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    marginTop: '12px'
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!step4Locked) {
-                                        e.target.style.backgroundColor = styles.accentHover;
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!step4Locked) {
-                                        e.target.style.backgroundColor = styles.accentPrimary;
-                                    }
-                                }}
-                            >
-                                {isLoadingStep4 ? 'Creating...' : 'Create Swap'}
-                            </button>
-
-                            {/* Result Box */}
-                            {step4Result.visible && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${step4Result.variant === 'success' ? styles.successBorder : step4Result.variant === 'error' ? styles.errorBorder : styles.borderPrimary}`,
-                                    backgroundColor: step4Result.variant === 'success' ? styles.successBg : step4Result.variant === 'error' ? styles.errorBg : styles.bgPrimary,
-                                    padding: '12px 16px',
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: step4Result.variant === 'success' ? styles.successText : step4Result.variant === 'error' ? styles.errorText : styles.textPrimary,
-                                    wordWrap: 'break-word',
-                                    wordBreak: 'break-word'
-                                }}>
-                                    {step4Result.message}
-                                </div>
-                            )}
-
-                            {/* Deposit Info */}
-                            {showDepositInfo && depositAddress && (
-                                <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                    <h3 style={{
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        color: styles.textPrimary
-                                    }}>
-                                        Send{' '}
-                                        <span style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                            backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                            padding: '4px 10px',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.accentPrimary
-                                        }}>
-                                            {sourceToken}
+                                {/* Step 2: Select Source */}
+                                <div
+                                    id="step2"
+                                    ref={step2Ref}
+                                    className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${
+                                        step2Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
+                                    }`}
+                                    style={{
+                                        scrollMarginTop: '96px'
+                                    }}
+                                >
+                                    <div className="flex flex-col gap-4">
+                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
+                                            Step 2:
                                         </span>
-                                        {' '}to this address on{' '}
-                                        <span style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme === 'dark' ? 'rgba(204, 45, 93, 0.4)' : 'rgba(204, 45, 93, 0.2)'}`,
-                                            backgroundColor: theme === 'dark' ? 'rgba(204, 45, 93, 0.2)' : 'rgba(204, 45, 93, 0.1)',
-                                            padding: '4px 10px',
-                                            fontSize: '12px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.accentPrimary
-                                        }}>
-                                            {sourceNetwork.replace(/_MAINNET/g, '').replace(/_SEPOLIA/g, ' Sepolia').replace(/_/g, ' ')}
-                                        </span>
-                                    </h3>
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: '12px',
-                                        borderRadius: '12px',
-                                        border: `1px solid ${styles.borderPrimary}`,
-                                        backgroundColor: styles.bgHighlight,
-                                        padding: '12px 16px',
-                                        fontFamily: 'monospace',
-                                        fontSize: '14px',
-                                        color: styles.textPrimary
-                                    }}>
-                                        <span style={{ wordBreak: 'break-all', flex: 1, minWidth: '200px' }}>
-                                            {depositAddress}
-                                        </span>
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                            Select Source
+                                        </h2>
+                                        {tokenMode === 'single' ? (
+                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                Select which networks can send tokens to receive{' '}
+                                                <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                    {destinationToken} on {selectedNetworkDisplay}
+                                                </span>
+                                                {' '}on your network.
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                Select the source network and token - users will receive the matching token on your destination network.
+                                            </p>
+                                        )}
+
+                                        {/* API Hint */}
+                                        <div className="mt-3 flex items-start gap-2 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-3 py-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                                            <span className="text-sm text-primary dark:text-primary-light flex-shrink-0">ℹ️</span>
+                                            <span>
+                                                The <code className="rounded bg-gray-100 dark:bg-gray-800 px-1 py-[2px] text-[11px] font-mono text-primary dark:text-primary-light">has_deposit_address=true</code> parameter ensures we only show sources that support generating deposit addresses, which is essential for the deposit flow.
+                                            </span>
+                                        </div>
+
+                                        {/* Get Sources Button */}
                                         <button
-                                            onClick={async () => {
-                                                try {
-                                                    await navigator.clipboard.writeText(depositAddress);
-                                                    // Visual feedback could be added here
-                                                } catch (err) {
-                                                    console.error('Failed to copy:', err);
-                                                }
-                                            }}
-                                            style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '8px',
-                                                borderRadius: '6px',
-                                                border: `1px solid ${styles.borderPrimary}`,
-                                                padding: '6px 12px',
-                                                fontSize: '12px',
-                                                fontWeight: '500',
-                                                color: styles.textSecondary,
-                                                backgroundColor: styles.bgPrimary,
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                flexShrink: 0
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.target.style.borderColor = styles.accentPrimary;
-                                                e.target.style.color = styles.accentPrimary;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.target.style.borderColor = styles.borderPrimary;
-                                                e.target.style.color = styles.textSecondary;
-                                            }}
+                                            onClick={handleGetSources}
+                                            disabled={step2Locked || isLoadingStep2}
+                                            aria-label="Fetch available source networks"
+                                            className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
+                                                step2Locked
+                                                    ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                    : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
+                                            }`}
                                         >
-                                            📋 Copy
+                                            {isLoadingStep2 ? 'Loading...' : 'Get Sources'}
                                         </button>
-                                    </div>
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'flex-start',
-                                        gap: '8px',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${styles.borderPrimary}`,
-                                        backgroundColor: styles.bgHighlight,
-                                        padding: '8px 12px',
-                                        fontSize: '12px',
-                                        lineHeight: '1.6',
-                                        color: styles.textSecondary
-                                    }}>
-                                        <span style={{ fontSize: '14px', color: styles.accentPrimary, flexShrink: 0 }}>ℹ️</span>
-                                        <span>
-                                            This address is retrieved from the API response at:{' '}
-                                            <code style={{
-                                                borderRadius: '4px',
-                                                backgroundColor: styles.bgTertiary,
-                                                padding: '2px 4px',
-                                                fontFamily: 'monospace',
-                                                fontSize: '11px',
-                                                color: styles.accentPrimary
-                                            }}>
-                                                data.deposit_actions[0].to_address
-                                            </code>
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
 
-                    {/* Step 5/6: Check Status */}
-                    <div
-                        id="step5"
-                        ref={step5Ref}
-                        style={{
-                            position: 'relative',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '32px',
-                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                            paddingBottom: '40px',
-                            marginBottom: '48px',
-                            scrollMarginTop: '96px',
-                            opacity: step5Locked ? 0.35 : 1,
-                            pointerEvents: step5Locked ? 'none' : 'auto',
-                            filter: step5Locked ? 'grayscale(50%)' : 'none'
-                        }}
-                    >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                borderRadius: '9999px',
-                                border: `1px solid ${styles.borderPrimary}`,
-                                padding: '4px 12px',
-                                fontSize: '11px',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.35em',
-                                color: styles.accentPrimary,
-                                width: 'fit-content'
-                            }}>
-                                {tokenMode === 'multiple' ? 'Step 6:' : 'Step 5:'}
-                            </span>
-                            <h2 style={{
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: styles.textPrimary
-                            }}>
-                                Check Status
-                            </h2>
-                            <p style={{
-                                fontSize: '14px',
-                                lineHeight: '1.6',
-                                color: styles.textSecondary
-                            }}>
-                                Monitor your transaction status in real-time.
-                            </p>
+                                        {/* Result Box */}
+                                        {step2Result.visible && (
+                                            <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${
+                                                step2Result.variant === 'success'
+                                                    ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                                                    : step2Result.variant === 'error'
+                                                    ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
+                                                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
+                                            }`}>
+                                                {step2Result.message}
+                                            </div>
+                                        )}
 
-                            {/* Check Status Button */}
-                            <button
-                                onClick={handleTrackSwap}
-                                disabled={step5Locked}
-                                aria-label="Check swap transaction status"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: '8px',
-                                    backgroundColor: step5Locked ? styles.borderPrimary : (trackingInterval ? styles.errorBorder : styles.accentPrimary),
-                                    color: step5Locked ? styles.textTertiary : styles.bgPrimary,
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    border: 'none',
-                                    cursor: step5Locked ? 'not-allowed' : 'pointer',
-                                    transition: 'background-color 0.2s ease',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    marginTop: '12px'
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!step5Locked && !trackingInterval) {
-                                        e.target.style.backgroundColor = styles.accentHover;
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!step5Locked && !trackingInterval) {
-                                        e.target.style.backgroundColor = styles.accentPrimary;
-                                    }
-                                }}
-                            >
-                                {trackingInterval ? 'Stop Tracking' : 'Check Status'}
-                            </button>
+                                        {/* Source Networks Grid */}
+                                        {showSourceNetworks && sources.length > 0 && (
+                                            <div
+                                                className="mt-4 grid gap-3"
+                                                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(148px, 1fr))' }}
+                                            >
+                                                {sources.map((source) => {
+                                                    const firstToken = source.tokens && source.tokens.length > 0 ? source.tokens[0] : null;
+                                                    const shortName = source.displayName
+                                                        .replace(/_MAINNET/g, '')
+                                                        .replace(/_SEPOLIA/g, ' Sep')
+                                                        .replace(/_/g, ' ');
+                                                    const isSelected = sourceNetwork === source.name && sourceToken === firstToken;
 
-                            {/* Swap Route Display */}
-                            {showSwapRoute && swapStatus && (
-                                <div style={{
-                                    display: 'flex',
-                                    flexWrap: 'wrap',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '12px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${styles.borderPrimary}`,
-                                    backgroundColor: styles.bgHighlight,
-                                    padding: '12px 16px',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    color: styles.textSecondary
-                                }}>
-                                    <span style={{ color: styles.textPrimary }}>
-                                        {sourceNetwork.replace(/_/g, ' ')} ({sourceToken})
-                                    </span>
-                                    <span>→</span>
-                                    <span style={{ color: styles.textPrimary }}>
-                                        {selectedNetworkDisplay} ({tokenMode === 'single' ? destinationToken : destinationTokenMultiple})
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* Status Guide */}
-                            {showStatusGuide && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '12px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${styles.borderPrimary}`,
-                                    backgroundColor: styles.bgHighlight,
-                                    padding: '16px',
-                                    fontSize: '12px',
-                                    lineHeight: '1.6',
-                                    color: styles.textSecondary
-                                }}>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '8px' }}>
-                                        <span style={{
-                                            minWidth: '150px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.textPrimary
-                                        }}>
-                                            user_transfer_pending
-                                        </span>
-                                        <span>Awaiting your deposit to the provided address.</span>
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '8px' }}>
-                                        <span style={{
-                                            minWidth: '150px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.textPrimary
-                                        }}>
-                                            ls_transfer_pending
-                                        </span>
-                                        <span>Deposit received—Layerswap is processing your transfer.</span>
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '8px' }}>
-                                        <span style={{
-                                            minWidth: '150px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.textPrimary
-                                        }}>
-                                            completed
-                                        </span>
-                                        <span>Transfer successfully sent to the destination account.</span>
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '8px' }}>
-                                        <span style={{
-                                            minWidth: '150px',
-                                            fontWeight: '600',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.18em',
-                                            color: styles.textPrimary
-                                        }}>
-                                            failed
-                                        </span>
-                                        <span>The transfer could not be completed. Contact support.</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Result Box */}
-                            {step5Result.visible && (
-                                <div style={{
-                                    marginTop: '16px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${step5Result.variant === 'success' ? styles.successBorder : step5Result.variant === 'error' ? styles.errorBorder : styles.borderPrimary}`,
-                                    backgroundColor: step5Result.variant === 'success' ? styles.successBg : step5Result.variant === 'error' ? styles.errorBg : styles.bgPrimary,
-                                    padding: '12px 16px',
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: step5Result.variant === 'success' ? styles.successText : step5Result.variant === 'error' ? styles.errorText : styles.textPrimary,
-                                    wordWrap: 'break-word',
-                                    wordBreak: 'break-word'
-                                }}>
-                                    {step5Result.message}
-                                </div>
-                            )}
-
-                            {/* Swap Transactions */}
-                            {showSwapTransactions && swapStatus && (
-                                <div style={{ marginTop: '16px' }}>
-                                    <h4 style={{
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        color: styles.textPrimary,
-                                        marginBottom: '12px'
-                                    }}>
-                                        Transactions
-                                    </h4>
-                                    {swapTransactions.length > 0 ? (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                            {swapTransactions.map((tx, index) => (
-                                                <div key={index} style={{
-                                                    padding: '12px',
-                                                    backgroundColor: styles.bgPrimary,
-                                                    borderRadius: '8px',
-                                                    marginBottom: '8px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '12px',
-                                                    transition: 'all 0.2s ease'
-                                                }}>
-                                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            <span style={{
-                                                                fontSize: '11px',
-                                                                fontWeight: '600',
-                                                                textTransform: 'uppercase',
-                                                                padding: '2px 8px',
-                                                                borderRadius: '4px',
-                                                                backgroundColor: styles.bgTertiary,
-                                                                color: styles.textSecondary
-                                                            }}>
-                                                                {tx.type || 'transfer'}
+                                                    return (
+                                                        <button
+                                                            key={source.name}
+                                                            type="button"
+                                                            onClick={() => firstToken && selectSource(source.name, firstToken)}
+                                                            className={`flex flex-col items-start justify-center gap-1.5 rounded-xl px-4 py-4 text-left text-sm font-medium transition-all ${
+                                                                isSelected
+                                                                    ? 'border-primary dark:border-primary-light bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light shadow-md'
+                                                                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5'
+                                                            }`}
+                                                        >
+                                                            {source.logo && (
+                                                                <img
+                                                                    src={source.logo}
+                                                                    alt={shortName}
+                                                                    className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                    onError={(e) => e.target.style.display = 'none'}
+                                                                />
+                                                            )}
+                                                            <span className="text-sm font-semibold">
+                                                                {shortName}
                                                             </span>
-                                                            <span style={{
-                                                                fontSize: '14px',
-                                                                fontWeight: '600',
-                                                                color: styles.textPrimary
-                                                            }}>
-                                                                {tx.amount || 'N/A'} {tx.token || ''}
-                                                            </span>
+                                                            {source.tokens && source.tokens.length > 0 && (
+                                                                <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                                                                    {source.tokens.slice(0, 3).join(', ')}{source.tokens.length > 3 ? '...' : ''}
+                                                                </span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        {/* Token Selector (Multiple Mode) */}
+                                        {tokenMode === 'multiple' && showSourceTokenSelector && networkMap[sourceNetwork] && (
+                                            <div className="mt-5 flex flex-col gap-2">
+                                                <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                    Source Token <span className="text-primary dark:text-primary-light">*</span>
+                                                </label>
+                                                <select
+                                                    value={sourceToken}
+                                                    onChange={handleSourceTokenSelect}
+                                                    className="w-full min-h-[44px] cursor-pointer rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                    onBlur={(e) => {
+                                                        e.target.style.boxShadow = 'none';
+                                                    }}
+                                                >
+                                                    <option value="">Select a token</option>
+                                                    {networkMap[sourceNetwork]?.tokens?.map(token => {
+                                                        const tokenSymbol = token.symbol || token.asset || token;
+                                                        return (
+                                                            <option key={tokenSymbol} value={tokenSymbol}>
+                                                                {tokenSymbol}
+                                                            </option>
+                                                        );
+                                                    })}
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {/* Selected Network Info */}
+                                        {showSelectedNetworkInfo && sourceNetwork && (
+                                            <div className="flex items-center gap-2 rounded-xl border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                <span className="font-semibold text-gray-900 dark:text-gray-200">Selected:</span>
+                                                <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                    {sourceNetwork.replace(/_/g, ' ')}
+                                                </span>
+                                                {sourceToken && (
+                                                    <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                        ({sourceToken})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Step 3: Select Destination (Multiple Tokens Mode Only) */}
+                                {tokenMode === 'multiple' && (
+                                    <div
+                                        id="step3-destination"
+                                        ref={step3DestinationRef}
+                                        className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${
+                                            step3DestinationLocked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
+                                        }`}
+                                        style={{
+                                            scrollMarginTop: '96px'
+                                        }}
+                                    >
+                                        <div className="flex flex-col gap-4">
+                                            <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
+                                                Step 3:
+                                            </span>
+                                            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                                Select Destination
+                                            </h2>
+                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                After the user selects a source, use the destinations endpoint to determine the token they'll receive on{' '}
+                                                <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                    {selectedNetworkDisplay}
+                                                </span>
+                                                .
+                                            </p>
+
+                                            {/* Get Available Tokens Button */}
+                                            <button
+                                                onClick={handleGetDestinationTokens}
+                                                disabled={step3DestinationLocked || isLoadingStep3Destination}
+                                                aria-label="Fetch available destination tokens"
+                                                className={`mt-2 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
+                                                    step3DestinationLocked
+                                                        ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                        : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
+                                                }`}
+                                            >
+                                                {isLoadingStep3Destination ? 'Loading...' : 'Get Available Tokens'}
+                                            </button>
+
+                                            {/* Result Box */}
+                                            {step3DestinationResult.visible && (
+                                                <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${
+                                                    step3DestinationResult.variant === 'success'
+                                                        ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                                                        : step3DestinationResult.variant === 'error'
+                                                        ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
+                                                        : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
+                                                }`}>
+                                                    {step3DestinationResult.message}
+                                                </div>
+                                            )}
+
+                                            {/* Destination Tokens Grid */}
+                                            {showDestinationTokens && tokens.length > 0 && (
+                                                <div
+                                                    className="mt-4 grid gap-3"
+                                                    style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))' }}
+                                                >
+                                                    {tokens.map((token) => {
+                                                        const tokenSymbol = token.symbol || token.display_asset || token;
+                                                        const isSelected = destinationTokenMultiple === tokenSymbol;
+
+                                                        return (
+                                                            <button
+                                                                key={tokenSymbol}
+                                                                type="button"
+                                                                onClick={() => selectDestinationToken(tokenSymbol)}
+                                                                className={`flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-sm font-semibold transition-all ${
+                                                                    isSelected
+                                                                        ? 'border-primary dark:border-primary-light bg-primary/15 dark:bg-primary-light/15 text-primary dark:text-primary-light shadow-md'
+                                                                        : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5'
+                                                                }`}
+                                                            >
+                                                                {token.logo && (
+                                                                    <img
+                                                                        src={token.logo}
+                                                                        alt={tokenSymbol}
+                                                                        className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                        onError={(e) => e.target.style.display = 'none'}
+                                                                    />
+                                                                )}
+                                                                <span className="text-sm font-semibold">
+                                                                    {tokenSymbol}
+                                                                </span>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+
+                                            {/* Selected Destination Token Info */}
+                                            {showSelectedDestTokenInfo && destinationTokenMultiple && (
+                                                <div className="flex items-center gap-2 rounded-xl border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                    <span className="font-semibold text-gray-900 dark:text-gray-200">Selected:</span>
+                                                    <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                        {destinationTokenMultiple}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Step 3/4: Get Quote */}
+                                <div
+                                    id="step3"
+                                    ref={step3Ref}
+                                    className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${
+                                        step3Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
+                                    }`}
+                                    style={{
+                                        scrollMarginTop: '96px'
+                                    }}
+                                >
+                                    <div className="flex flex-col gap-4">
+                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
+                                            {tokenMode === 'multiple' ? 'Step 4:' : 'Step 3:'}
+                                        </span>
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                            Get Quote (Optional)
+                                        </h2>
+                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                            Get a detailed quote for bridging from{' '}
+                                            <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                {sourceNetwork ? `${sourceNetwork.replace(/_/g, ' ')} (${sourceToken})` : 'your selected network'}
+                                            </span>
+                                            {' '}to{' '}
+                                            <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                {selectedNetworkDisplay} ({tokenMode === 'single' ? destinationToken : destinationTokenMultiple || 'token'})
+                                            </span>
+                                            .
+                                        </p>
+                                        <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                            <strong>Note:</strong> Getting a quote is optional for creating a swap, but recommended to show users the exact fees, limits, and estimated processing time before they deposit.
+                                        </p>
+
+                                        {/* Get Quote Button */}
+                                        <button
+                                            onClick={handleGetQuote}
+                                            disabled={step3Locked || isLoadingStep3}
+                                            aria-label="Get detailed transfer quote"
+                                            className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
+                                                step3Locked
+                                                    ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                    : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
+                                            }`}
+                                        >
+                                            {isLoadingStep3 ? 'Loading...' : 'Get Detailed Quote'}
+                                        </button>
+
+                                        {/* Result Box */}
+                                        {step3Result.visible && (
+                                            <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${
+                                                step3Result.variant === 'success'
+                                                    ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                                                    : step3Result.variant === 'error'
+                                                    ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
+                                                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
+                                            }`}>
+                                                {step3Result.message}
+                                            </div>
+                                        )}
+
+                                        {/* Quote Details */}
+                                        {showQuoteDetails && quotes.length > 0 && (
+                                            <div className="mt-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-6 shadow-sm">
+                                                {quotes.length > 1 && (
+                                                    <div className="mb-4">
+                                                        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                            Available Routes
+                                                        </h4>
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col gap-4">
+                                                    {quotes.map((quote, index) => {
+                                                        const formatTime = (ms) => {
+                                                            if (!ms || ms === 0) return 'Instant';
+                                                            const totalSeconds = Math.floor(ms / 1000);
+                                                            const hours = Math.floor(totalSeconds / 3600);
+                                                            const minutes = Math.floor((totalSeconds % 3600) / 60);
+                                                            const seconds = totalSeconds % 60;
+                                                            if (hours > 0) return `~${hours}h ${minutes}m`;
+                                                            if (minutes > 0) return `~${minutes}m`;
+                                                            return `~${seconds}s`;
+                                                        };
+
+                                                        const minAmount = formatAmount(quote.min_amount) || '0';
+                                                        const maxAmount = formatAmount(quote.max_amount) || '0';
+                                                        const feeForMin = formatAmount(quote.fee_amount_for_min) || '0';
+                                                        const feeForMax = formatAmount(quote.fee_amount_for_max) || '0';
+                                                        const percentageFee = formatAmount(quote.total_percentage_fee) || '0';
+                                                        const fixedFeeUsd = formatAmount(quote.total_fixed_fee_in_usd) || '0';
+                                                        const timeDisplay = formatTime(quote.avg_completion_milliseconds);
+
+                                                        let usdRate = 0;
+                                                        if (quote.max_amount_in_usd && quote.max_amount && quote.max_amount > 0) {
+                                                            usdRate = quote.max_amount_in_usd / quote.max_amount;
+                                                        } else if (quote.min_amount_in_usd && quote.min_amount && quote.min_amount > 0) {
+                                                            usdRate = quote.min_amount_in_usd / quote.min_amount;
+                                                        }
+
+                                                        const feeForMinUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMin) * usdRate) : '';
+                                                        const feeForMaxUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMax) * usdRate) : '';
+
+                                                        const usdRange = (quote.min_amount_in_usd && quote.max_amount_in_usd)
+                                                            ? `$${formatAmount(quote.min_amount_in_usd)} - $${formatAmount(quote.max_amount_in_usd)}`
+                                                            : '';
+
+                                                        const hasPercentageFee = parseFloat(percentageFee) > 0;
+                                                        const hasFixedFee = parseFloat(fixedFeeUsd) > 0;
+                                                        const feeStructureParts = [];
+                                                        if (hasPercentageFee) feeStructureParts.push(`${percentageFee}%`);
+                                                        if (hasFixedFee) feeStructureParts.push(`$${fixedFeeUsd}`);
+                                                        const feeStructureText = feeStructureParts.length ? feeStructureParts.join(' + ') : 'No fees';
+
+                                                        return (
+                                                            <div key={index} className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-4 shadow-sm">
+                                                                {/* Routing Path */}
+                                                                {quote.path && quote.path.length > 0 && (
+                                                                    <div className="mb-4">
+                                                                        <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                            Routing Path
+                                                                        </p>
+                                                                        <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-900 dark:text-gray-200">
+                                                                            {quote.path.map((step, pathIndex) => (
+                                                                                <div key={pathIndex} className="flex items-center gap-2">
+                                                                                    <span className="rounded-md bg-gray-100 dark:bg-gray-800 px-2.5 py-1 text-[11px] font-medium text-gray-900 dark:text-gray-200">
+                                                                                        {step.provider_name}
+                                                                                    </span>
+                                                                                    {pathIndex < quote.path.length - 1 && (
+                                                                                        <span className="text-gray-600 dark:text-gray-400">→</span>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Amount Range and Processing Time */}
+                                                                <div
+                                                                    className="mb-4 grid gap-4"
+                                                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}
+                                                                >
+                                                                    <div>
+                                                                        <p className="mb-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                            Amount Range
+                                                                        </p>
+                                                                        <p className="text-base font-semibold text-gray-900 dark:text-gray-200">
+                                                                            {minAmount} - {maxAmount} {sourceToken}
+                                                                        </p>
+                                                                        {usdRange && (
+                                                                            <p className="mt-1 text-[11px] text-gray-600 dark:text-gray-400">
+                                                                                {usdRange}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="mb-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                            Processing Time
+                                                                        </p>
+                                                                        <p className="text-base font-semibold text-gray-900 dark:text-gray-200">
+                                                                            {timeDisplay}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Fee Cards */}
+                                                                <div
+                                                                    className="grid gap-3"
+                                                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}
+                                                                >
+                                                                    <div className="rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3 text-xs text-gray-900 dark:text-gray-200">
+                                                                        <p className="mb-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                            MIN FEE
+                                                                        </p>
+                                                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                            {feeForMin} {sourceToken}
+                                                                        </p>
+                                                                        {feeForMinUsd && (
+                                                                            <p className="mt-1 text-[11px] text-gray-600 dark:text-gray-400">
+                                                                                ≈ ${feeForMinUsd}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3 text-xs text-gray-900 dark:text-gray-200">
+                                                                        <p className="mb-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                            MAX FEE
+                                                                        </p>
+                                                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                            {feeForMax} {sourceToken}
+                                                                        </p>
+                                                                        {feeForMaxUsd && (
+                                                                            <p className="mt-1 text-[11px] text-gray-600 dark:text-gray-400">
+                                                                                ≈ ${feeForMaxUsd}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3 text-xs text-gray-900 dark:text-gray-200">
+                                                                        <p className="mb-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                                            FEE STRUCTURE
+                                                                        </p>
+                                                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                            {feeStructureText}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Swap Request Fields */}
+                                        {showSwapRequestFields && (
+                                            <div className="mt-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-4 shadow-sm">
+                                                <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-gray-600 dark:text-gray-400">
+                                                    Request Body
+                                                </h4>
+                                                <div className="grid gap-3 text-xs text-gray-900 dark:text-gray-200" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            source_network
                                                         </div>
-                                                        <span style={{
-                                                            fontSize: '10px',
-                                                            color: styles.textSecondary,
-                                                            marginTop: '1px'
-                                                        }}>
-                                                            {tx.network || 'N/A'}
-                                                        </span>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] text-gray-900 dark:text-gray-200">
+                                                            {sourceNetwork}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            source_token
+                                                        </div>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] text-gray-900 dark:text-gray-200">
+                                                            {sourceToken}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            destination_network
+                                                        </div>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] text-gray-900 dark:text-gray-200">
+                                                            {destinationNetwork}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            destination_token
+                                                        </div>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] text-gray-900 dark:text-gray-200">
+                                                            {tokenMode === 'single' ? destinationToken : destinationTokenMultiple}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1" style={{ gridColumn: '1 / -1' }}>
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            destination_address
+                                                        </div>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] break-all text-gray-900 dark:text-gray-200">
+                                                            {walletAddress}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            refuel
+                                                        </div>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] text-gray-900 dark:text-gray-200">
+                                                            false
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-600 dark:text-gray-400">
+                                                            use_deposit_address
+                                                        </div>
+                                                        <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 px-3 py-2 font-mono text-[11px] text-gray-900 dark:text-gray-200">
+                                                            true
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div style={{
-                                            padding: '12px',
-                                            backgroundColor: styles.bgPrimary,
-                                            borderRadius: '8px',
-                                            fontSize: '12px',
-                                            color: styles.textSecondary,
-                                            fontStyle: 'italic'
-                                        }}>
-                                            No transactions available yet. Waiting for deposit...
-                                        </div>
-                                    )}
+                                                <div className="mt-3 flex items-start gap-2 rounded-lg border border-warning/40 dark:border-warning/40 bg-warning/10 dark:bg-warning/20 px-3 py-2 text-xs leading-relaxed text-warning dark:text-warning">
+                                                    <span className="text-sm flex-shrink-0">⚠️</span>
+                                                    <span>
+                                                        <strong>Important:</strong> The <code className="rounded bg-warning/20 dark:bg-warning/10 px-1 py-[2px] text-[11px] font-mono">use_deposit_address: true</code> parameter is critical for this API flow. When set to true, the swap response will include a deposit address that users can send funds to from any supported chain.
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
 
-                    {/* Contact Section */}
-                    <div style={{
-                        marginTop: '48px',
-                        borderRadius: '18px',
-                        border: `1px solid ${styles.borderPrimary}`,
-                        backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-                        padding: '24px',
-                        textAlign: 'center',
-                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <h3 style={{
-                            fontSize: '18px',
-                            fontWeight: '600',
-                            color: styles.textPrimary,
-                            marginBottom: '8px'
-                        }}>
-                            Need Help with Integration?
-                        </h3>
-                        <p style={{
-                            marginTop: '8px',
-                            fontSize: '14px',
-                            lineHeight: '1.6',
-                            color: styles.textSecondary
-                        }}>
-                            For partnership inquiries and integration support, our team is here to help.
-                        </p>
-                        <div style={{
-                            marginTop: '16px',
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '16px'
-                        }}>
-                            <a
-                                href="mailto:partners@layerswap.io"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    borderRadius: '8px',
-                                    backgroundColor: styles.accentPrimary,
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    color: styles.bgPrimary,
-                                    textDecoration: 'none',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    transition: 'background-color 0.2s ease'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = styles.accentHover}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = styles.accentPrimary}
-                            >
-                                ✉️ partners@layerswap.io
-                            </a>
-                            <a
-                                href="https://t.me/layerswap_dev"
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    borderRadius: '8px',
-                                    background: 'linear-gradient(135deg, #2AABEE 0%, #229ED9 100%)',
-                                    padding: '8px 16px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    color: 'white',
-                                    textDecoration: 'none',
-                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                    transition: 'filter 0.2s ease'
-                                }}
-                                onMouseEnter={(e) => e.target.style.filter = 'brightness(1.05)'}
-                                onMouseLeave={(e) => e.target.style.filter = 'none'}
-                            >
-                                💬 Join Dev Community
-                            </a>
-                        </div>
-                    </div>
+                                {/* Step 4/5: Create Swap */}
+                                <div
+                                    id="step4"
+                                    ref={step4Ref}
+                                    className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${
+                                        step4Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
+                                    }`}
+                                    style={{
+                                        scrollMarginTop: '96px'
+                                    }}
+                                >
+                                    <div className="flex flex-col gap-4">
+                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
+                                            {tokenMode === 'multiple' ? 'Step 5:' : 'Step 4:'}
+                                        </span>
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                            Create Swap
+                                        </h2>
+                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                            Create a swap to get your unique deposit address.
+                                        </p>
 
-                    {/* Footer */}
-                    <footer style={{
-                        marginTop: '48px',
-                        borderTop: `1px solid ${styles.borderPrimary}`,
-                        paddingTop: '24px'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '16px'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                justifyContent: 'center',
-                                gap: '20px',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                color: styles.textSecondary
-                            }}>
-                                <a
-                                    href="https://www.layerswap.io"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        color: 'inherit',
-                                        textDecoration: 'none',
-                                        transition: 'color 0.2s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.color = styles.accentPrimary}
-                                    onMouseLeave={(e) => e.target.style.color = styles.textSecondary}
-                                >
-                                    🏠 Layerswap
-                                </a>
-                                <a
-                                    href="https://docs.layerswap.io"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        color: 'inherit',
-                                        textDecoration: 'none',
-                                        transition: 'color 0.2s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.color = styles.accentPrimary}
-                                    onMouseLeave={(e) => e.target.style.color = styles.textSecondary}
-                                >
-                                    📚 Documentation
-                                </a>
-                                <a
-                                    href="https://x.com/layerswap"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        color: 'inherit',
-                                        textDecoration: 'none',
-                                        transition: 'color 0.2s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.color = styles.accentPrimary}
-                                    onMouseLeave={(e) => e.target.style.color = styles.textSecondary}
-                                >
-                                    🐦 X
-                                </a>
-                                <a
-                                    href="https://discord.com/invite/layerswap"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        color: 'inherit',
-                                        textDecoration: 'none',
-                                        transition: 'color 0.2s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.color = styles.accentPrimary}
-                                    onMouseLeave={(e) => e.target.style.color = styles.textSecondary}
-                                >
-                                    💬 Discord
-                                </a>
-                                <a
-                                    href="https://github.com/layerswap"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        color: 'inherit',
-                                        textDecoration: 'none',
-                                        transition: 'color 0.2s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.color = styles.accentPrimary}
-                                    onMouseLeave={(e) => e.target.style.color = styles.textSecondary}
-                                >
-                                    💻 GitHub
-                                </a>
-                            </div>
-                            <p style={{
-                                fontSize: '12px',
-                                color: styles.textSecondary,
-                                opacity: 0.8
-                            }}>
-                                © {new Date().getFullYear()} Layerswap Labs, Inc.
-                            </p>
-                        </div>
-                    </footer>
-                </div>
+                                        {/* Create Swap Button */}
+                                        <button
+                                            onClick={handleCreateSwap}
+                                            disabled={step4Locked || isLoadingStep4}
+                                            aria-label="Create a new swap transaction"
+                                            className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
+                                                step4Locked
+                                                    ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                    : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
+                                            }`}
+                                        >
+                                            {isLoadingStep4 ? 'Creating...' : 'Create Swap'}
+                                        </button>
 
-                {/* API Sidebar */}
-                {windowWidth >= 1024 && (
-                    <>
-                        <div style={{ width: '416px' }} />
-                        <aside style={{
-                            width: '416px',
-                            flexShrink: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '24px',
-                            borderLeft: `1px solid ${styles.borderPrimary}`,
-                            paddingLeft: '24px',
-                            position: 'fixed',
-                            top: '140px',
-                            left: 'calc(50vw + 240px)',
-                            maxHeight: 'calc(100vh - 64px)',
-                            overflowY: 'auto',
-                            alignSelf: 'flex-start',
-                            backgroundColor: styles.bgSecondary,
-                            zIndex: 10
-                        }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                {!hasApiActivity() ? (
-                                    <div style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '18px',
-                                        border: `1px solid ${styles.borderPrimary}`,
-                                        backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
-                                        padding: '32px 20px',
-                                        textAlign: 'center',
-                                        fontSize: '14px',
-                                        color: styles.textSecondary,
-                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                    }}>
-                                        <span style={{ fontSize: '18px', color: styles.accentPrimary, marginBottom: '12px' }}>🔗</span>
-                                        <p style={{ fontSize: '14px', lineHeight: '1.6', color: styles.textSecondary }}>
-                                            Run an API step to see live requests and responses here.
+                                        {/* Result Box */}
+                                        {step4Result.visible && (
+                                            <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${
+                                                step4Result.variant === 'success'
+                                                    ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                                                    : step4Result.variant === 'error'
+                                                    ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
+                                                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
+                                            }`}>
+                                                {step4Result.message}
+                                            </div>
+                                        )}
+
+                                        {/* Deposit Info */}
+                                        {showDepositInfo && depositAddress && (
+                                            <div className="mt-4 flex flex-col gap-3">
+                                                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                    Send{' '}
+                                                    <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                        {sourceToken}
+                                                    </span>
+                                                    {' '}to this address on{' '}
+                                                    <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                        {sourceNetwork.replace(/_MAINNET/g, '').replace(/_SEPOLIA/g, ' Sepolia').replace(/_/g, ' ')}
+                                                    </span>
+                                                </h3>
+                                                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-4 py-3 font-mono text-sm text-gray-900 dark:text-gray-200">
+                                                    <span className="break-all flex-1 min-w-[200px]">
+                                                        {depositAddress}
+                                                    </span>
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await navigator.clipboard.writeText(depositAddress);
+                                                                // Visual feedback could be added here
+                                                            } catch (err) {
+                                                                console.error('Failed to copy:', err);
+                                                            }
+                                                        }}
+                                                        className="inline-flex items-center gap-2 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light"
+                                                    >
+                                                        📋 Copy
+                                                    </button>
+                                                </div>
+                                                <div className="flex items-start gap-2 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-3 py-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                                                    <span className="text-sm text-primary dark:text-primary-light flex-shrink-0">ℹ️</span>
+                                                    <span>
+                                                        This address is retrieved from the API response at:{' '}
+                                                        <code className="rounded bg-gray-100 dark:bg-gray-800 px-1 py-[2px] text-[11px] font-mono text-primary dark:text-primary-light">
+                                                            data.deposit_actions[0].to_address
+                                                        </code>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Step 5/6: Check Status */}
+                                <div
+                                    id="step5"
+                                    ref={step5Ref}
+                                    className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${
+                                        step5Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
+                                    }`}
+                                    style={{
+                                        scrollMarginTop: '96px'
+                                    }}
+                                >
+                                    <div className="flex flex-col gap-4">
+                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
+                                            {tokenMode === 'multiple' ? 'Step 6:' : 'Step 5:'}
+                                        </span>
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                            Check Status
+                                        </h2>
+                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                            Monitor your transaction status in real-time.
+                                        </p>
+
+                                        {/* Check Status Button */}
+                                        <button
+                                            onClick={handleTrackSwap}
+                                            disabled={step5Locked}
+                                            aria-label="Check swap transaction status"
+                                            className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${
+                                                step5Locked
+                                                    ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                                    : trackingInterval
+                                                    ? 'bg-destructive dark:bg-destructive text-white hover:bg-destructive/90 dark:hover:bg-destructive/90 cursor-pointer'
+                                                    : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
+                                            }`}
+                                        >
+                                            {trackingInterval ? 'Stop Tracking' : 'Check Status'}
+                                        </button>
+
+                                        {/* Swap Route Display */}
+                                        {showSwapRoute && swapStatus && (
+                                            <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-4 py-3 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                                <span className="text-gray-900 dark:text-gray-200">
+                                                    {sourceNetwork.replace(/_/g, ' ')} ({sourceToken})
+                                                </span>
+                                                <span>→</span>
+                                                <span className="text-gray-900 dark:text-gray-200">
+                                                    {selectedNetworkDisplay} ({tokenMode === 'single' ? destinationToken : destinationTokenMultiple})
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {/* Status Guide */}
+                                        {showStatusGuide && (
+                                            <div className="mt-4 flex flex-col gap-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-4 py-4 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                                                <div className="flex flex-wrap items-baseline gap-2">
+                                                    <span className="min-w-[150px] font-semibold uppercase tracking-[0.18em] text-gray-900 dark:text-gray-200">
+                                                        user_transfer_pending
+                                                    </span>
+                                                    <span>Awaiting your deposit to the provided address.</span>
+                                                </div>
+                                                <div className="flex flex-wrap items-baseline gap-2">
+                                                    <span className="min-w-[150px] font-semibold uppercase tracking-[0.18em] text-gray-900 dark:text-gray-200">
+                                                        ls_transfer_pending
+                                                    </span>
+                                                    <span>Deposit received—Layerswap is processing your transfer.</span>
+                                                </div>
+                                                <div className="flex flex-wrap items-baseline gap-2">
+                                                    <span className="min-w-[150px] font-semibold uppercase tracking-[0.18em] text-gray-900 dark:text-gray-200">
+                                                        completed
+                                                    </span>
+                                                    <span>Transfer successfully sent to the destination account.</span>
+                                                </div>
+                                                <div className="flex flex-wrap items-baseline gap-2">
+                                                    <span className="min-w-[150px] font-semibold uppercase tracking-[0.18em] text-gray-900 dark:text-gray-200">
+                                                        failed
+                                                    </span>
+                                                    <span>The transfer could not be completed. Contact support.</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Result Box */}
+                                        {step5Result.visible && (
+                                            <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${
+                                                step5Result.variant === 'success'
+                                                    ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                                                    : step5Result.variant === 'error'
+                                                    ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
+                                                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
+                                            }`}>
+                                                {step5Result.message}
+                                            </div>
+                                        )}
+
+                                        {/* Swap Transactions */}
+                                        {showSwapTransactions && swapStatus && (
+                                            <div className="mt-4">
+                                                <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                    Transactions
+                                                </h4>
+                                                {swapTransactions.length > 0 ? (
+                                                    <div className="flex flex-col gap-2">
+                                                        {swapTransactions.map((tx, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 transition-all"
+                                                            >
+                                                                <div className="flex flex-1 flex-col gap-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-[2px] text-[11px] font-semibold uppercase text-gray-600 dark:text-gray-400">
+                                                                            {tx.type || 'transfer'}
+                                                                        </span>
+                                                                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                            {tx.amount || 'N/A'} {tx.token || ''}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-[10px] text-gray-600 dark:text-gray-400">
+                                                                        {tx.network || 'N/A'}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 text-sm italic text-gray-600 dark:text-gray-400">
+                                                        No transactions available yet. Waiting for deposit...
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Contact Section */}
+                                <div className="mt-12 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-6 text-center shadow-sm">
+                                    <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-200">
+                                        Need Help with Integration?
+                                    </h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                        For partnership inquiries and integration support, our team is here to help.
+                                    </p>
+                                    <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+                                        <a
+                                            href="mailto:partners@layerswap.io"
+                                            className="inline-flex items-center gap-2 rounded-lg border-none bg-primary dark:bg-primary-light px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark dark:hover:bg-primary-light no-underline"
+                                        >
+                                            ✉️ partners@layerswap.io
+                                        </a>
+                                        <a
+                                            href="https://t.me/layerswap_dev"
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-2 rounded-lg border-none bg-gradient-to-br from-[#2AABEE] to-[#229ED9] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-105 no-underline"
+                                        >
+                                            💬 Join Dev Community
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <footer className="mt-12 border-t border-gray-200 dark:border-white/10 pt-6">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="flex flex-wrap justify-center gap-5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                                            <a
+                                                href="https://www.layerswap.io"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 transition-colors hover:text-primary dark:hover:text-primary-light no-underline"
+                                            >
+                                                🏠 Layerswap
+                                            </a>
+                                            <a
+                                                href="https://docs.layerswap.io"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 transition-colors hover:text-primary dark:hover:text-primary-light no-underline"
+                                            >
+                                                📚 Documentation
+                                            </a>
+                                            <a
+                                                href="https://x.com/layerswap"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 transition-colors hover:text-primary dark:hover:text-primary-light no-underline"
+                                            >
+                                                🐦 X
+                                            </a>
+                                            <a
+                                                href="https://discord.com/invite/layerswap"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 transition-colors hover:text-primary dark:hover:text-primary-light no-underline"
+                                            >
+                                                💬 Discord
+                                            </a>
+                                            <a
+                                                href="https://github.com/layerswap"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 transition-colors hover:text-primary dark:hover:text-primary-light no-underline"
+                                            >
+                                                💻 GitHub
+                                            </a>
+                                        </div>
+                                        <p className="text-xs text-gray-600/80 dark:text-gray-400/80">
+                                            © {new Date().getFullYear()} Layerswap Labs, Inc.
                                         </p>
                                     </div>
-                                ) : (
-                                    (() => {
-                                        const activeStepKey = getActiveApiStepKey;
-                                        if (!activeStepKey) return null;
-                                        const activity = apiActivity[activeStepKey];
-
-                                        return (
-                                            <div key={activeStepKey} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                                {/* Request Card */}
-                                                {activity.request && (
-                                                    <div style={{
-                                                        borderRadius: '18px',
-                                                        border: `1px solid ${styles.borderPrimary}`,
-                                                        backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
-                                                        overflow: 'hidden',
-                                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                                    }}>
-                                                        <div style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between',
-                                                            gap: '12px',
-                                                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                                                            backgroundColor: styles.bgHighlight,
-                                                            padding: '16px 20px',
-                                                            fontSize: '14px',
-                                                            fontWeight: '600',
-                                                            color: styles.textPrimary
-                                                        }}>
-                                                            <span>API Request</span>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        const curl = generateCurlCommand(
-                                                                            activity.request.url || `${API_BASE}${activity.request.endpoint}`,
-                                                                            activity.request.method || 'GET',
-                                                                            activity.request.headers || {},
-                                                                            activity.request.body
-                                                                        );
-                                                                        await copyToClipboard(curl);
-                                                                    }}
-                                                                    style={{
-                                                                        display: 'inline-flex',
-                                                                        alignItems: 'center',
-                                                                        gap: '6px',
-                                                                        borderRadius: '6px',
-                                                                        border: `1px solid ${styles.borderPrimary}`,
-                                                                        padding: '6px 12px',
-                                                                        fontSize: '12px',
-                                                                        fontWeight: '500',
-                                                                        color: styles.textSecondary,
-                                                                        backgroundColor: styles.bgPrimary,
-                                                                        cursor: 'pointer',
-                                                                        transition: 'all 0.2s ease'
-                                                                    }}
-                                                                    onMouseEnter={(e) => {
-                                                                        e.target.style.borderColor = styles.accentPrimary;
-                                                                        e.target.style.color = styles.accentPrimary;
-                                                                    }}
-                                                                    onMouseLeave={(e) => {
-                                                                        e.target.style.borderColor = styles.borderPrimary;
-                                                                        e.target.style.color = styles.textSecondary;
-                                                                    }}
-                                                                >
-                                                                    📋 Copy
-                                                                </button>
-                                                                {getApiDocsUrl(activeStepKey) && (
-                                                                    <a
-                                                                        href={getApiDocsUrl(activeStepKey)}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        style={{
-                                                                            display: 'inline-flex',
-                                                                            alignItems: 'center',
-                                                                            gap: '6px',
-                                                                            fontSize: '12px',
-                                                                            fontWeight: '500',
-                                                                            color: styles.textSecondary,
-                                                                            textDecoration: 'none',
-                                                                            transition: 'color 0.2s ease'
-                                                                        }}
-                                                                        onMouseEnter={(e) => e.target.style.color = styles.accentPrimary}
-                                                                        onMouseLeave={(e) => e.target.style.color = styles.textSecondary}
-                                                                    >
-                                                                        🔗 API Docs
-                                                                    </a>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div style={{
-                                                            padding: '16px 20px',
-                                                            fontSize: '12px',
-                                                            fontFamily: 'monospace',
-                                                            color: styles.textPrimary,
-                                                            lineHeight: '1.6',
-                                                            overflowX: 'auto',
-                                                            whiteSpace: 'pre-wrap',
-                                                            wordBreak: 'break-word'
-                                                        }}>
-                                                            {generateCurlCommand(
-                                                                activity.request.url || `${API_BASE}${activity.request.endpoint}`,
-                                                                activity.request.method || 'GET',
-                                                                activity.request.headers || {},
-                                                                activity.request.body
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Response Card */}
-                                                {activity.response && (
-                                                    <div style={{
-                                                        borderRadius: '18px',
-                                                        border: `1px solid ${styles.borderPrimary}`,
-                                                        backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
-                                                        maxHeight: '420px',
-                                                        minHeight: 0,
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        overflow: 'hidden',
-                                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                                    }}>
-                                                        <div style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between',
-                                                            gap: '12px',
-                                                            borderBottom: `1px solid ${styles.borderPrimary}`,
-                                                            backgroundColor: styles.bgHighlight,
-                                                            padding: '16px 20px',
-                                                            fontSize: '14px',
-                                                            fontWeight: '600',
-                                                            color: styles.textPrimary
-                                                        }}>
-                                                            <span>API Response</span>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    await copyToClipboard(JSON.stringify(activity.response, null, 2));
-                                                                }}
-                                                                style={{
-                                                                    display: 'inline-flex',
-                                                                    alignItems: 'center',
-                                                                    gap: '6px',
-                                                                    borderRadius: '6px',
-                                                                    border: `1px solid ${styles.borderPrimary}`,
-                                                                    padding: '6px 12px',
-                                                                    fontSize: '12px',
-                                                                    fontWeight: '500',
-                                                                    color: styles.textSecondary,
-                                                                    backgroundColor: styles.bgPrimary,
-                                                                    cursor: 'pointer',
-                                                                    transition: 'all 0.2s ease'
-                                                                }}
-                                                                onMouseEnter={(e) => {
-                                                                    e.target.style.borderColor = styles.accentPrimary;
-                                                                    e.target.style.color = styles.accentPrimary;
-                                                                }}
-                                                                onMouseLeave={(e) => {
-                                                                    e.target.style.borderColor = styles.borderPrimary;
-                                                                    e.target.style.color = styles.textSecondary;
-                                                                }}
-                                                            >
-                                                                📋 Copy
-                                                            </button>
-                                                        </div>
-                                                        <div style={{
-                                                            flex: 1,
-                                                            overflowY: 'auto',
-                                                            backgroundColor: styles.bgPrimary,
-                                                            padding: '16px 20px',
-                                                            fontSize: '12px',
-                                                            lineHeight: '1.6',
-                                                            color: styles.textPrimary
-                                                        }}>
-                                                            <pre style={{
-                                                                margin: 0,
-                                                                fontFamily: 'monospace',
-                                                                whiteSpace: 'pre-wrap',
-                                                                wordBreak: 'break-word',
-                                                                color: 'inherit'
-                                                            }} dangerouslySetInnerHTML={{ __html: formatJson(activity.response) }} />
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })()
-                                )}
+                                </footer>
                             </div>
-                        </aside>
-                    </>
-
-                )}
+                    </div>
+                </div>
             </div>
+
         </div>
     );
 };

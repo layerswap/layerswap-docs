@@ -371,33 +371,6 @@ export const QuickstartEmbed = () => {
     highlight();
   }, [installCommand, starterSnippet]);
 
-  // --- Styles
-  const chip = (active) => ({
-    padding: '0.35rem 0.65rem',
-    border: active ? palette.chipBorderActive : palette.chipBorder,
-    background: active ? palette.chipBgActive : palette.chipBg,
-    color: active ? palette.chipColorActive : palette.chipColor,
-    borderRadius: 8,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  });
-  const row = { display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' };
-  const label = { color: palette.labelColor, fontWeight: 600, marginRight: 8 };
-  const preWrap = { position: 'relative' };
-  const copyBtn = {
-    position: 'absolute',
-    top: 15,
-    right: 8,
-    padding: '0.25rem 0.5rem',
-    borderRadius: 8,
-    border: palette.copyBorder,
-    background: palette.copyBg,
-    color: palette.copyColor,
-    cursor: 'pointer',
-    fontSize: '0.75rem',
-    transition: 'all 0.2s ease',
-  };
-
   // --- Copy helpers
   const copy = async (text, which) => {
     try {
@@ -446,46 +419,51 @@ export const QuickstartEmbed = () => {
 
   return (
     <div
+      className="max-w-full overflow-hidden rounded-2xl p-4 transition-colors duration-300"
       style={{
         border: palette.containerBorder,
         background: palette.containerBg,
-        borderRadius: 16,
-        padding: '1rem',
         color: palette.textColor,
-        transition: 'background 0.3s ease, color 0.3s ease, border 0.3s ease',
-        maxWidth: '100%',
-        overflow: 'hidden'
       }}
     >
       {/* Package Manager */}
-      <div style={{ ...row, marginBottom: 12 }}>
-        <span style={label}>Package manager:</span>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="font-semibold" style={{ color: palette.labelColor }}>
+          Package manager:
+        </span>
         {PACKAGE_MANAGERS.map((pm) => (
-          <button key={pm} style={chip(packageManager === pm)} onClick={() => setPackageManager(pm)}>
+          <button
+            key={pm}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium transition-all border"
+            style={{
+              border: packageManager === pm ? palette.chipBorderActive : palette.chipBorder,
+              background: packageManager === pm ? palette.chipBgActive : palette.chipBg,
+              color: packageManager === pm ? palette.chipColorActive : palette.chipColor,
+            }}
+            onClick={() => setPackageManager(pm)}
+          >
             {pm}
           </button>
         ))}
       </div>
 
       {/* Wallet Providers (multiselect) */}
-      <div style={{ ...row, marginBottom: 8 }}>
-        <span style={label}>Wallet providers:</span>
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="font-semibold" style={{ color: palette.labelColor }}>
+          Wallet providers:
+        </span>
         {WALLET_OPTIONS.map((wallet) => {
           const isSelected = selectedWallets.includes(wallet);
           return (
             <button
               key={wallet}
               onClick={() => toggleWallet(wallet)}
+              className="rounded-lg px-3 py-1.5 text-sm transition-all border"
               style={{
-                padding: '0.35rem 0.65rem',
                 border: isSelected ? palette.walletBorderActive : palette.walletBorder,
                 background: isSelected ? palette.walletBgActive : palette.walletBg,
                 color: isSelected ? palette.walletColorActive : palette.walletColor,
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontSize: '0.875rem',
                 fontWeight: isSelected ? 600 : 400,
-                transition: 'all 0.2s ease',
               }}
             >
               {wallet}
@@ -495,51 +473,76 @@ export const QuickstartEmbed = () => {
       </div>
 
       {/* Install Command with Copy */}
-      <div style={{ marginBottom: 12, maxWidth: '100%', overflow: 'hidden' }}>
-        <div style={{ ...label, color: palette.sectionLabelColor, marginBottom: 6 }}>Install</div>
-        <div style={{ ...preWrap, maxWidth: '100%', overflow: 'hidden' }}>
-          <pre style={{
-            background: palette.codeBg,
-            padding: 12,
-            paddingRight: 50,
-            borderRadius: 10,
-            overflow: 'hidden',
-            whiteSpace: 'pre-wrap',
-            wordWrap: 'break-word',
-            overflowWrap: 'anywhere',
-            maxWidth: '100%',
-            width: '100%',
-            boxSizing: 'border-box',
-            color: palette.codeColor
-          }}>
-            <code ref={installCodeRef} className="language-bash" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'anywhere', display: 'block', maxWidth: '100%' }}>{installCommand}</code>
+      <div className="mb-3 max-w-full overflow-hidden">
+        <div
+          className="mb-1.5 font-semibold text-sm"
+          style={{ color: palette.sectionLabelColor }}
+        >
+          Install
+        </div>
+        <div className="relative max-w-full overflow-hidden">
+          <pre
+            className="max-w-full overflow-hidden rounded-xl bg-opacity-90 px-3 py-3 pr-12 text-sm"
+            style={{
+              background: palette.codeBg,
+              color: palette.codeColor,
+            }}
+          >
+            <code
+              ref={installCodeRef}
+              className="language-bash block max-w-full whitespace-pre-wrap break-words"
+              style={{ color: palette.codeColor }}
+            >
+              {installCommand}
+            </code>
           </pre>
-          <button style={copyBtn} onClick={() => copy(installCommand, 'install')}>
+          <button
+            className="absolute right-2 top-3 rounded-lg px-2 py-1 text-xs transition-all"
+            style={{
+              border: palette.copyBorder,
+              background: palette.copyBg,
+              color: palette.copyColor,
+            }}
+            onClick={() => copy(installCommand, 'install')}
+          >
             {copiedInstall ? 'Copied!' : 'Copy'}
           </button>
         </div>
       </div>
 
       {/* Starter Snippet with Copy */}
-      <div style={{ maxWidth: '100%', overflow: 'hidden' }}>
-        <div style={{ ...label, color: palette.sectionLabelColor, marginBottom: 6 }}>Initialize the SDK</div>
-        <div style={{ ...preWrap, maxWidth: '100%', overflow: 'hidden' }}>
-          <pre style={{
-            background: palette.codeBg,
-            padding: 12,
-            borderRadius: 10,
-            overflow: 'hidden',
-            whiteSpace: 'pre-wrap',
-            wordWrap: 'break-word',
-            overflowWrap: 'anywhere',
-            maxWidth: '100%',
-            width: '100%',
-            boxSizing: 'border-box',
-            color: palette.codeColor
-          }}>
-            <code ref={snippetCodeRef} className="language-jsx" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'anywhere', display: 'block', maxWidth: '100%' }}>{starterSnippet}</code>
+      <div className="max-w-full overflow-hidden">
+        <div
+          className="mb-1.5 font-semibold text-sm"
+          style={{ color: palette.sectionLabelColor }}
+        >
+          Initialize the SDK
+        </div>
+        <div className="relative max-w-full overflow-hidden">
+          <pre
+            className="max-w-full overflow-hidden rounded-xl bg-opacity-90 px-3 py-3 text-sm"
+            style={{
+              background: palette.codeBg,
+              color: palette.codeColor,
+            }}
+          >
+            <code
+              ref={snippetCodeRef}
+              className="language-jsx block max-w-full whitespace-pre-wrap break-words"
+              style={{ color: palette.codeColor }}
+            >
+              {starterSnippet}
+            </code>
           </pre>
-          <button style={copyBtn} onClick={() => copy(starterSnippet, 'snippet')}>
+          <button
+            className="absolute right-2 top-3 rounded-lg px-2 py-1 text-xs transition-all"
+            style={{
+              border: palette.copyBorder,
+              background: palette.copyBg,
+              color: palette.copyColor,
+            }}
+            onClick={() => copy(starterSnippet, 'snippet')}
+          >
             {copiedSnippet ? 'Copied!' : 'Copy'}
           </button>
         </div>

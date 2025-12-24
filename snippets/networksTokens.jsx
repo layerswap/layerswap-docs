@@ -42,33 +42,13 @@ export const NetworksTokensEmbed = () => {
                 divider: 'rgba(15,23,42,0.08)',
             };
 
-    const cardBaseStyle = {
-        borderRadius: 14,
-        padding: '1rem',
-        transition: 'transform 0.2s ease, background 0.2s ease, border 0.2s ease',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        border: '1px solid transparent',
-    };
+    const cardBaseClass = 'flex flex-col gap-2 rounded-xl border p-4 transition-all duration-200 cursor-pointer';
 
     const hasChainId = (value) => {
         if (value === null || value === undefined) return false;
         if (typeof value === 'number') return true;
         if (typeof value === 'string') return value.trim().length > 0;
         return false;
-    };
-
-    const parseChainIdNumber = (value) => {
-        if (!hasChainId(value)) return null;
-        const normalized = String(value).trim();
-        if (/^0x/i.test(normalized)) {
-            const parsed = Number.parseInt(normalized, 16);
-            return Number.isNaN(parsed) ? null : parsed;
-        }
-        const parsed = Number(normalized);
-        return Number.isNaN(parsed) ? null : parsed;
     };
 
     const parseChainIdString = (value) => {
@@ -85,34 +65,6 @@ export const NetworksTokensEmbed = () => {
         return !Number.isNaN(parsed) && Number.isFinite(parsed);
     };
 
-    const compareChainIds = (a, b) => {
-        const aHas = hasChainId(a.chain_id);
-        const bHas = hasChainId(b.chain_id);
-
-        if (!aHas && !bHas) {
-            return (a.display_name || a.name || '').localeCompare(b.display_name || b.name || '');
-        }
-
-        if (!aHas) return 1;
-        if (!bHas) return -1;
-
-        const aNum = parseChainIdNumber(a.chain_id);
-        const bNum = parseChainIdNumber(b.chain_id);
-
-        if (aNum !== null && bNum !== null && aNum !== bNum) {
-            return aNum - bNum;
-        }
-
-        if (aNum !== null && bNum === null) return -1;
-        if (aNum === null && bNum !== null) return 1;
-
-        const aStr = parseChainIdString(a.chain_id) || '';
-        const bStr = parseChainIdString(b.chain_id) || '';
-        const strCompare = aStr.localeCompare(bStr);
-        if (strCompare !== 0) return strCompare;
-
-        return (a.display_name || a.name || '').localeCompare(b.display_name || b.name || '');
-    };
 
     const [theme, setTheme] = useState(resolveTheme);
     const [networks, setNetworks] = useState([]);
@@ -320,30 +272,20 @@ export const NetworksTokensEmbed = () => {
 
     return (
         <div
+            className="flex flex-col gap-6 rounded-2xl border p-6 transition-colors duration-300 overflow-hidden"
             style={{
-                borderRadius: 16,
-                border: `1px solid ${palette.borderColor}`,
+                borderColor: palette.borderColor,
                 background: palette.background,
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem',
                 color: palette.textColor,
-                transition: 'background 0.3s ease, color 0.3s ease, border 0.3s ease',
-                overflow: 'hidden',
-                overflowY: 'hidden',
             }}
         >
 
             {fetchError && (
                 <div
+                    className="rounded-xl px-4 py-3 text-sm font-medium"
                     style={{
-                        padding: '0.75rem 1rem',
-                        borderRadius: 12,
                         background: errorBackground,
                         color: errorColor,
-                        fontSize: '0.85rem',
-                        fontWeight: 500,
                     }}
                 >
                     {fetchError}
@@ -352,24 +294,16 @@ export const NetworksTokensEmbed = () => {
 
             {viewMode === 'networks' ? (
                 selectedNetwork ? (
-                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setSelectedNetwork(null)}
+                                    className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all"
                                     style={{
-                                        padding: '0.4rem 0.75rem',
-                                        borderRadius: 8,
-                                        border: `1px solid ${palette.borderColor}`,
                                         background: palette.cardBg,
+                                        borderColor: palette.borderColor,
                                         color: palette.textColor,
-                                        fontSize: '0.85rem',
-                                        fontWeight: 500,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem',
                                     }}
                                     onMouseEnter={(event) => {
                                         event.currentTarget.style.background = palette.cardHover;
@@ -382,57 +316,48 @@ export const NetworksTokensEmbed = () => {
                                 >
                                     ← Back
                                 </button>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                    <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-base font-semibold" style={{ color: palette.textColor }}>
                                         {selectedNetwork.display_name || selectedNetwork.name}
                                     </span>
-                                    <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>Supported Tokens</span>
+                                    <span className="text-sm" style={{ color: palette.subTextColor }}>Supported Tokens</span>
                                 </div>
                             </div>
-                            <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                            <span className="text-sm" style={{ color: palette.subTextColor }}>
                                 {tokens.length} token{tokens.length === 1 ? '' : 's'}
                             </span>
                         </div>
 
                         <div
+                            className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl"
                             style={{
-                                borderRadius: 16,
                                 border: `1px solid ${palette.tableBorder}`,
-                                overflow: 'hidden',
                                 background: palette.cardBg,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                flex: '1',
-                                minHeight: 0,
                             }}
                         >
                             {isLoading ? (
-                                <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading tokens…</div>
+                                <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>Loading tokens…</div>
                             ) : tokens.length === 0 ? (
-                                <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                                <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>
                                     No tokens available for this network yet.
                                 </div>
                             ) : (
                                 <div style={{ ...tokensScrollStyle, flex: '1', minHeight: 0, overflowY: 'auto' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 'min-content' }}>
+                                    <div className="flex min-w-min flex-col">
                                         <div
+                                            className="sticky top-0 z-10 grid gap-4 px-4 py-3 text-sm font-semibold"
                                             style={{
-                                                display: 'grid',
                                                 gridTemplateColumns: '180px 100px minmax(200px, 1fr) 80px 120px',
-                                                gap: '1rem',
-                                                padding: '0.75rem 1rem',
                                                 background: palette.tableHeaderBg,
                                                 borderBottom: `1px solid ${palette.divider}`,
-                                                position: 'sticky',
-                                                top: 0,
-                                                zIndex: 1,
+                                                color: palette.textColor,
                                             }}
                                         >
-                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Token</div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Symbol</div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Contract</div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor }}>Decimals</div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: palette.textColor, textAlign: 'right' }}>Price (USD)</div>
+                                            <div>Token</div>
+                                            <div>Symbol</div>
+                                            <div>Contract</div>
+                                            <div>Decimals</div>
+                                            <div className="text-right">Price (USD)</div>
                                         </div>
                                         {tokens.map((token, index) => {
                                             const tokenLogo = token.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
@@ -446,14 +371,10 @@ export const NetworksTokensEmbed = () => {
                                             return (
                                                 <div
                                                     key={`${token.symbol}-${token.contract || 'native'}`}
+                                                    className="grid items-center gap-4 px-4 py-3 transition-colors"
                                                     style={{
-                                                        display: 'grid',
                                                         gridTemplateColumns: '180px 100px minmax(200px, 1fr) 80px 120px',
-                                                        gap: '1rem',
-                                                        padding: '0.75rem 1rem',
                                                         borderBottom: `1px solid ${palette.divider}`,
-                                                        alignItems: 'center',
-                                                        transition: 'background 0.15s ease',
                                                     }}
                                                     onMouseEnter={(event) => {
                                                         event.currentTarget.style.background = palette.cardHover;
@@ -462,45 +383,35 @@ export const NetworksTokensEmbed = () => {
                                                         event.currentTarget.style.background = 'transparent';
                                                     }}
                                                 >
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                                                    <div className="flex min-w-0 items-center gap-2">
                                                         <div
+                                                            className="flex h-7 w-7 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
                                                             style={{
-                                                                width: 28,
-                                                                height: 28,
-                                                                borderRadius: '50%',
                                                                 background: 'rgba(0,0,0,0.05)',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
                                                                 border: `1px solid ${palette.borderColor}`,
-                                                                overflow: 'hidden',
-                                                                flexShrink: 0,
                                                             }}
                                                         >
                                                             <img
                                                                 src={tokenLogo}
                                                                 alt={`${token.display_asset || token.symbol} logo`}
-                                                                style={{ width: 20, height: 20, objectFit: 'contain' }}
+                                                                className="h-5 w-5 object-contain"
                                                             />
                                                         </div>
-                                                        <span style={{ fontWeight: 500, color: palette.textColor, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        <span className="truncate text-sm font-medium" style={{ color: palette.textColor }}>
                                                             {token.display_asset || token.symbol}
                                                         </span>
                                                     </div>
-                                                    <div style={{ color: palette.textColor, fontSize: '0.9rem' }}>{token.symbol}</div>
+                                                    <div className="text-sm" style={{ color: palette.textColor }}>{token.symbol}</div>
                                                     <div
+                                                        className="break-all font-mono text-xs"
                                                         style={{
-                                                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                                                            fontSize: '0.85rem',
                                                             color: token.contract ? palette.textColor : palette.subTextColor,
-                                                            wordBreak: 'break-all',
-                                                            overflowWrap: 'break-word',
                                                         }}
                                                     >
                                                         {token.contract || 'Native'}
                                                     </div>
-                                                    <div style={{ color: palette.textColor, fontSize: '0.9rem' }}>{token.decimals}</div>
-                                                    <div style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: palette.textColor, fontSize: '0.9rem', fontWeight: 500 }}>
+                                                    <div className="text-sm" style={{ color: palette.textColor }}>{token.decimals}</div>
+                                                    <div className="text-right text-sm font-medium" style={{ color: palette.textColor, fontVariantNumeric: 'tabular-nums' }}>
                                                         {formattedPrice}
                                                     </div>
                                                 </div>
@@ -512,78 +423,63 @@ export const NetworksTokensEmbed = () => {
                         </div>
                     </section>
                 ) : (
-                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0, overflowY: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setViewMode('networks')}
+                                    className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        padding: '0.35rem 0.65rem',
-                                        borderRadius: 8,
                                         border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
-                                        fontSize: '0.8rem',
                                         fontWeight: viewMode === 'networks' ? 600 : 400,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
                                     }}
                                 >
                                     Networks
                                 </button>
                                 <button
                                     onClick={() => setViewMode('tokens')}
+                                    className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        padding: '0.35rem 0.65rem',
-                                        borderRadius: 8,
                                         border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
-                                        fontSize: '0.8rem',
                                         fontWeight: viewMode === 'tokens' ? 600 : 400,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
                                     }}
                                 >
                                     Tokens
                                 </button>
                             </div>
-                            <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                            <span className="text-sm" style={{ color: palette.subTextColor }}>
                                 Showing {filteredNetworks.length} of {networks.length}
                             </span>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div className="flex flex-col gap-3">
                             <input
                                 value={searchTerm}
                                 onChange={(event) => setSearchTerm(event.target.value)}
                                 placeholder="Search networks"
+                                className="w-full min-w-[220px] rounded-xl px-3 py-2 text-sm outline-none transition-colors"
                                 style={{
-                                    padding: '0.45rem 0.75rem',
-                                    borderRadius: 10,
                                     border: `1px solid ${palette.borderColor}`,
                                     background: palette.cardBg,
                                     color: palette.textColor,
-                                    minWidth: 220,
-                                    width: '100%'
                                 }}
                                 autoComplete="off"
                             />
                             {availableTypes.length > 0 && (
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.8rem', color: palette.subTextColor, fontWeight: 600, marginRight: '0.25rem' }}>Type:</span>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="text-xs font-semibold" style={{ color: palette.subTextColor }}>Type:</span>
                                     <button
                                         onClick={() => setSelectedTypeFilter(null)}
+                                        className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                         style={{
-                                            padding: '0.35rem 0.65rem',
-                                            borderRadius: 8,
                                             border: selectedTypeFilter === null ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                             background: selectedTypeFilter === null ? palette.highlight : palette.cardBg,
                                             color: selectedTypeFilter === null ? palette.textColor : palette.subTextColor,
-                                            fontSize: '0.8rem',
                                             fontWeight: selectedTypeFilter === null ? 600 : 400,
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
                                         }}
                                     >
                                         All
@@ -594,17 +490,12 @@ export const NetworksTokensEmbed = () => {
                                             <button
                                                 key={type}
                                                 onClick={() => setSelectedTypeFilter(isSelected ? null : type)}
+                                                className="rounded-lg px-3 py-1.5 text-xs uppercase transition-all"
                                                 style={{
-                                                    padding: '0.35rem 0.65rem',
-                                                    borderRadius: 8,
                                                     border: isSelected ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                                     background: isSelected ? palette.highlight : palette.cardBg,
                                                     color: isSelected ? palette.textColor : palette.subTextColor,
-                                                    fontSize: '0.8rem',
                                                     fontWeight: isSelected ? 600 : 400,
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s ease',
-                                                    textTransform: 'uppercase',
                                                 }}
                                             >
                                                 {type}
@@ -616,18 +507,21 @@ export const NetworksTokensEmbed = () => {
                         </div>
 
                         {isLoading && networks.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading networks…</div>
+                            <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>Loading networks…</div>
                         ) : networks.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                            <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>
                                 No networks available.
                             </div>
                         ) : filteredNetworks.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                            <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>
                                 No networks match your search.
                             </div>
                         ) : (
                             <div style={networksScrollStyle}>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                <div
+                                    className="grid gap-4"
+                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}
+                                >
                                     {filteredNetworks.map((network) => {
                                         const networkLogo = network.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
                                         const networkTypeLabel = (network.type || 'unknown').toUpperCase();
@@ -635,8 +529,8 @@ export const NetworksTokensEmbed = () => {
                                             <button
                                                 key={network.name}
                                                 onClick={() => setSelectedNetwork(network)}
+                                                className={cardBaseClass}
                                                 style={{
-                                                    ...cardBaseStyle,
                                                     background: palette.cardBg,
                                                     borderColor: palette.borderColor,
                                                 }}
@@ -651,46 +545,37 @@ export const NetworksTokensEmbed = () => {
                                                     event.currentTarget.style.transform = 'none';
                                                 }}
                                             >
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <div className="flex items-center gap-3">
                                                     <div
+                                                        className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
                                                         style={{
-                                                            width: 42,
-                                                            height: 42,
-                                                            borderRadius: '50%',
                                                             border: `1px solid ${palette.borderColor}`,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
                                                             background: 'rgba(0,0,0,0.05)',
-                                                            overflow: 'hidden',
                                                         }}
                                                     >
                                                         <img
                                                             src={networkLogo}
                                                             alt={`${network.display_name || network.name} logo`}
-                                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                                            className="h-7 w-7 object-contain"
                                                         />
                                                     </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
-                                                        <span style={{ fontWeight: 600, color: palette.textColor }}>{network.display_name || network.name}</span>
-                                                        <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <span className="font-semibold" style={{ color: palette.textColor }}>{network.display_name || network.name}</span>
+                                                        <span className="text-xs" style={{ color: palette.subTextColor }}>{network.name}</span>
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                <div className="mt-3 flex items-center gap-2">
                                                     <span
+                                                        className="rounded-lg px-2 py-1 text-xs font-semibold"
                                                         style={{
-                                                            fontSize: '0.75rem',
-                                                            padding: '0.25rem 0.5rem',
-                                                            borderRadius: 8,
                                                             background: palette.badgeBg,
                                                             color: palette.badgeColor,
-                                                            fontWeight: 600,
                                                         }}
                                                     >
                                                         {networkTypeLabel}
                                                     </span>
                                                     {isDecimalNumber(network.chain_id) && (
-                                                        <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
+                                                        <span className="text-xs" style={{ color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
                                                     )}
                                                 </div>
                                             </button>
@@ -703,24 +588,16 @@ export const NetworksTokensEmbed = () => {
                 )
             ) : (
                 selectedToken ? (
-                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <section className="flex min-h-0 flex-1 flex-col gap-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setSelectedToken(null)}
+                                    className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all"
                                     style={{
-                                        padding: '0.4rem 0.75rem',
-                                        borderRadius: 8,
-                                        border: `1px solid ${palette.borderColor}`,
                                         background: palette.cardBg,
+                                        borderColor: palette.borderColor,
                                         color: palette.textColor,
-                                        fontSize: '0.85rem',
-                                        fontWeight: 500,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem',
                                     }}
                                     onMouseEnter={(event) => {
                                         event.currentTarget.style.background = palette.cardHover;
@@ -733,70 +610,56 @@ export const NetworksTokensEmbed = () => {
                                 >
                                     ← Back
                                 </button>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div className="flex items-center gap-3">
                                     <div
+                                        className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
                                         style={{
-                                            width: 42,
-                                            height: 42,
-                                            borderRadius: '50%',
                                             border: `1px solid ${palette.borderColor}`,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
                                             background: 'rgba(0,0,0,0.05)',
-                                            overflow: 'hidden',
                                         }}
                                     >
                                         <img
                                             src={selectedToken.logo || 'https://cdn.layerswap.io/logos/layerswap.svg'}
                                             alt={`${selectedToken.display_asset || selectedToken.symbol} logo`}
-                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                            className="h-7 w-7 object-contain"
                                         />
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                        <span style={{ fontWeight: 600, fontSize: '1rem', color: palette.textColor }}>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-base font-semibold" style={{ color: palette.textColor }}>
                                             {selectedToken.display_asset || selectedToken.symbol}
                                         </span>
-                                        <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>Supported Networks</span>
+                                        <span className="text-sm" style={{ color: palette.subTextColor }}>Supported Networks</span>
                                     </div>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setNetworkDisplayStyle('card')}
+                                        className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                         style={{
-                                            padding: '0.35rem 0.65rem',
-                                            borderRadius: 8,
                                             border: networkDisplayStyle === 'card' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                             background: networkDisplayStyle === 'card' ? palette.highlight : palette.cardBg,
                                             color: networkDisplayStyle === 'card' ? palette.textColor : palette.subTextColor,
-                                            fontSize: '0.8rem',
                                             fontWeight: networkDisplayStyle === 'card' ? 600 : 400,
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
                                         }}
                                     >
                                         Card
                                     </button>
                                     <button
                                         onClick={() => setNetworkDisplayStyle('list')}
+                                        className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                         style={{
-                                            padding: '0.35rem 0.65rem',
-                                            borderRadius: 8,
                                             border: networkDisplayStyle === 'list' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                             background: networkDisplayStyle === 'list' ? palette.highlight : palette.cardBg,
                                             color: networkDisplayStyle === 'list' ? palette.textColor : palette.subTextColor,
-                                            fontSize: '0.8rem',
                                             fontWeight: networkDisplayStyle === 'list' ? 600 : 400,
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
                                         }}
                                     >
                                         List
                                     </button>
                                 </div>
-                                <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                                <span className="text-sm" style={{ color: palette.subTextColor }}>
                                     {selectedToken.networks.length} network{selectedToken.networks.length === 1 ? '' : 's'}
                                 </span>
                             </div>
@@ -804,15 +667,18 @@ export const NetworksTokensEmbed = () => {
 
                         <div style={networksScrollStyle}>
                             {networkDisplayStyle === 'card' ? (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                <div
+                                    className="grid gap-4"
+                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}
+                                >
                                     {selectedToken.networks.map((network) => {
                                         const networkLogo = network.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
                                         const networkTypeLabel = (network.type || 'unknown').toUpperCase();
                                         return (
                                             <div
                                                 key={network.name}
+                                                className={cardBaseClass}
                                                 style={{
-                                                    ...cardBaseStyle,
                                                     background: palette.cardBg,
                                                     borderColor: palette.borderColor,
                                                 }}
@@ -827,46 +693,37 @@ export const NetworksTokensEmbed = () => {
                                                     event.currentTarget.style.transform = 'none';
                                                 }}
                                             >
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <div className="flex items-center gap-3">
                                                     <div
+                                                        className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
                                                         style={{
-                                                            width: 42,
-                                                            height: 42,
-                                                            borderRadius: '50%',
                                                             border: `1px solid ${palette.borderColor}`,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
                                                             background: 'rgba(0,0,0,0.05)',
-                                                            overflow: 'hidden',
                                                         }}
                                                     >
                                                         <img
                                                             src={networkLogo}
                                                             alt={`${network.display_name || network.name} logo`}
-                                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                                            className="h-7 w-7 object-contain"
                                                         />
                                                     </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
-                                                        <span style={{ fontWeight: 600, color: palette.textColor }}>{network.display_name || network.name}</span>
-                                                        <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <span className="font-semibold" style={{ color: palette.textColor }}>{network.display_name || network.name}</span>
+                                                        <span className="text-xs" style={{ color: palette.subTextColor }}>{network.name}</span>
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                <div className="mt-3 flex items-center gap-2">
                                                     <span
+                                                        className="rounded-lg px-2 py-1 text-xs font-semibold"
                                                         style={{
-                                                            fontSize: '0.75rem',
-                                                            padding: '0.25rem 0.5rem',
-                                                            borderRadius: 8,
                                                             background: palette.badgeBg,
                                                             color: palette.badgeColor,
-                                                            fontWeight: 600,
                                                         }}
                                                     >
                                                         {networkTypeLabel}
                                                     </span>
                                                     {isDecimalNumber(network.chain_id) && (
-                                                        <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
+                                                        <span className="text-xs" style={{ color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -875,10 +732,9 @@ export const NetworksTokensEmbed = () => {
                                 </div>
                             ) : (
                                 <div
+                                    className="overflow-hidden rounded-2xl"
                                     style={{
-                                        borderRadius: 16,
                                         border: `1px solid ${palette.tableBorder}`,
-                                        overflow: 'hidden',
                                         background: palette.cardBg,
                                     }}
                                 >
@@ -888,13 +744,9 @@ export const NetworksTokensEmbed = () => {
                                         return (
                                             <div
                                                 key={network.name}
+                                                className="flex items-center gap-4 px-4 py-3 transition-colors"
                                                 style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '1rem',
-                                                    padding: '0.75rem 1rem',
                                                     borderBottom: index < selectedToken.networks.length - 1 ? `1px solid ${palette.divider}` : 'none',
-                                                    transition: 'background 0.15s ease',
                                                 }}
                                                 onMouseEnter={(event) => {
                                                     event.currentTarget.style.background = palette.cardHover;
@@ -904,46 +756,36 @@ export const NetworksTokensEmbed = () => {
                                                 }}
                                             >
                                                 <div
+                                                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
                                                     style={{
-                                                        width: 36,
-                                                        height: 36,
-                                                        borderRadius: '50%',
                                                         border: `1px solid ${palette.borderColor}`,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
                                                         background: 'rgba(0,0,0,0.05)',
-                                                        overflow: 'hidden',
-                                                        flexShrink: 0,
                                                     }}
                                                 >
                                                     <img
                                                         src={networkLogo}
                                                         alt={`${network.display_name || network.name} logo`}
-                                                        style={{ width: 24, height: 24, objectFit: 'contain' }}
+                                                        className="h-6 w-6 object-contain"
                                                     />
                                                 </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: '1', minWidth: 0 }}>
-                                                    <span style={{ fontWeight: 600, color: palette.textColor, fontSize: '0.9rem' }}>
+                                                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                                                    <span className="text-sm font-semibold" style={{ color: palette.textColor }}>
                                                         {network.display_name || network.name}
                                                     </span>
-                                                    <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{network.name}</span>
+                                                    <span className="text-xs" style={{ color: palette.subTextColor }}>{network.name}</span>
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <div className="flex items-center gap-2">
                                                     <span
+                                                        className="rounded-lg px-2 py-1 text-xs font-semibold"
                                                         style={{
-                                                            fontSize: '0.75rem',
-                                                            padding: '0.25rem 0.5rem',
-                                                            borderRadius: 8,
                                                             background: palette.badgeBg,
                                                             color: palette.badgeColor,
-                                                            fontWeight: 600,
                                                         }}
                                                     >
                                                         {networkTypeLabel}
                                                     </span>
                                                     {isDecimalNumber(network.chain_id) && (
-                                                        <span style={{ fontSize: '0.75rem', color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
+                                                        <span className="text-xs" style={{ color: palette.subTextColor }}>Chain ID: {network.chain_id}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -954,86 +796,78 @@ export const NetworksTokensEmbed = () => {
                         </div>
                     </section>
                 ) : (
-                    <section style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: '1', minHeight: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <section className="flex min-h-0 flex-1 flex-col gap-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setViewMode('networks')}
+                                    className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        padding: '0.35rem 0.65rem',
-                                        borderRadius: 8,
                                         border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
-                                        fontSize: '0.8rem',
                                         fontWeight: viewMode === 'networks' ? 600 : 400,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
                                     }}
                                 >
                                     Networks
                                 </button>
                                 <button
                                     onClick={() => setViewMode('tokens')}
+                                    className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        padding: '0.35rem 0.65rem',
-                                        borderRadius: 8,
                                         border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
-                                        fontSize: '0.8rem',
                                         fontWeight: viewMode === 'tokens' ? 600 : 400,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
                                     }}
                                 >
                                     Tokens
                                 </button>
                             </div>
-                            <span style={{ fontSize: '0.85rem', color: palette.subTextColor }}>
+                            <span className="text-sm" style={{ color: palette.subTextColor }}>
                                 Showing {filteredTokens.length} of {allTokens.length}
                             </span>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div className="flex flex-col gap-3">
                             <input
                                 value={tokenSearchTerm}
                                 onChange={(event) => setTokenSearchTerm(event.target.value)}
                                 placeholder="Search tokens"
+                                className="w-full min-w-[220px] rounded-xl px-3 py-2 text-sm outline-none transition-colors"
                                 style={{
-                                    padding: '0.45rem 0.75rem',
-                                    borderRadius: 10,
                                     border: `1px solid ${palette.borderColor}`,
                                     background: palette.cardBg,
                                     color: palette.textColor,
-                                    minWidth: 220,
-                                    width: '100%'
                                 }}
                                 autoComplete="off"
                             />
                         </div>
 
                         {isLoading && allTokens.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>Loading tokens…</div>
+                            <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>Loading tokens…</div>
                         ) : allTokens.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                            <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>
                                 No tokens available.
                             </div>
                         ) : filteredTokens.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: palette.subTextColor }}>
+                            <div className="p-8 text-center text-sm" style={{ color: palette.subTextColor }}>
                                 No tokens match your search.
                             </div>
                         ) : (
                             <div style={networksScrollStyle}>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                <div
+                                    className="grid gap-4"
+                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}
+                                >
                                     {filteredTokens.map((token) => {
                                         const tokenLogo = token.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
                                         return (
                                             <button
                                                 key={token.symbol}
                                                 onClick={() => setSelectedToken(token)}
+                                                className={cardBaseClass}
                                                 style={{
-                                                    ...cardBaseStyle,
                                                     background: palette.cardBg,
                                                     borderColor: palette.borderColor,
                                                 }}
@@ -1048,40 +882,31 @@ export const NetworksTokensEmbed = () => {
                                                     event.currentTarget.style.transform = 'none';
                                                 }}
                                             >
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <div className="flex items-center gap-3">
                                                     <div
+                                                        className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
                                                         style={{
-                                                            width: 42,
-                                                            height: 42,
-                                                            borderRadius: '50%',
                                                             border: `1px solid ${palette.borderColor}`,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
                                                             background: 'rgba(0,0,0,0.05)',
-                                                            overflow: 'hidden',
                                                         }}
                                                     >
                                                         <img
                                                             src={tokenLogo}
                                                             alt={`${token.display_asset || token.symbol} logo`}
-                                                            style={{ width: 28, height: 28, objectFit: 'contain' }}
+                                                            className="h-7 w-7 object-contain"
                                                         />
                                                     </div>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start', flex: '1' }}>
-                                                        <span style={{ fontWeight: 600, color: palette.textColor }}>{token.display_asset || token.symbol}</span>
-                                                        <span style={{ fontSize: '0.8rem', color: palette.subTextColor }}>{token.symbol}</span>
+                                                    <div className="flex flex-1 flex-col items-start gap-1">
+                                                        <span className="font-semibold" style={{ color: palette.textColor }}>{token.display_asset || token.symbol}</span>
+                                                        <span className="text-xs" style={{ color: palette.subTextColor }}>{token.symbol}</span>
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                                                <div className="mt-3 flex items-center gap-2">
                                                     <span
+                                                        className="rounded-lg px-2 py-1 text-xs font-semibold"
                                                         style={{
-                                                            fontSize: '0.75rem',
-                                                            padding: '0.25rem 0.5rem',
-                                                            borderRadius: 8,
                                                             background: palette.badgeBg,
                                                             color: palette.badgeColor,
-                                                            fontWeight: 600,
                                                         }}
                                                     >
                                                         {token.networkCount} network{token.networkCount === 1 ? '' : 's'}
