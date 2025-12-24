@@ -992,6 +992,37 @@ export const DepositWidget = () => {
         return false;
     };
 
+    const h1Styles = "inline-block text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight dark:text-gray-200";
+    const h2h3Styles = "flex whitespace-pre-wrap group font-semibold";
+
+    const integrationFlowSteps = [
+        {
+            id: 1,
+            title: 'Set Your Destination',
+            description: 'Configure your wallet address and specify which network and token you want to receive (e.g., USDC on Base, ETH on Arbitrum).'
+        },
+        {
+            id: 2,
+            title: 'Fetch Available Sources',
+            description: 'Call GET /sources endpoint – returns all networks and tokens your users can send from to reach your destination (70+ options).'
+        },
+        {
+            id: 3,
+            title: 'User Selects Source',
+            description: 'Call POST /swaps with the selected route – the API creates a unique deposit address and handles all bridging logic.'
+        },
+        {
+            id: 4,
+            title: 'Display to User',
+            description: 'Show the deposit address with clear instructions so the user sends from the source network they selected.'
+        },
+        {
+            id: 5,
+            title: 'Receive Funds',
+            description: 'User sends tokens → Layerswap detects the deposit → automatically converts and bridges → delivers to your wallet on the destination network (usually ~10s).'
+        }
+    ];
+
     // Phase 1 – Layout, navigation, header, overview section (Tailwind-assisted)
     return (
         <div className="max-w-8xl lg:flex mx-auto px-0 lg:px-5"  >
@@ -1226,7 +1257,7 @@ export const DepositWidget = () => {
                                         Documentation
                                     </div>
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center relative gap-2">
-                                        <h1 id="page-title" className="inline-block text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight dark:text-gray-200">
+                                        <h1 id="page-title" className={h1Styles}>
                                             Layerswap Deposit API Tutorial
                                         </h1>
                                     </div>
@@ -1240,12 +1271,10 @@ export const DepositWidget = () => {
                             <div className="mdx-content relative mt-8 mb-14 prose prose-gray dark:prose-invert">
                                 {/* Overview Section */}
                                 <div id="overview">
-                                    <h2 className="flex whitespace-pre-wrap group font-semibold" >
+                                    <h2 className={h2h3Styles} >
                                         Accept Deposits from Any Chain, Instantly
                                     </h2>
-                                    <p
-                                        className="text-base leading-relaxed text-gray-600 dark:text-gray-400"
-                                    >
+                                    <p>
                                         Give users a single deposit address. They send from any chain – funds automatically bridge and arrive to your destination. That's it.
                                     </p>
 
@@ -1281,107 +1310,28 @@ export const DepositWidget = () => {
                                     </div>
 
                                     {/* Integration Flow */}
-                                        <div className="mt-8 flex flex-col gap-4">
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+                                    <div className="">
+                                        <h3 className={h2h3Styles}>
                                             Integration Flow
                                         </h3>
 
-                                        <div className="ml-[14px] mt-8 flex flex-col gap-6">
-                                            {/* Step 1 */}
-                                            <div className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        1
+                                        <div className="mt-8 flex flex-col gap-6">
+                                            {integrationFlowSteps.map(step => (
+                                                <div key={step.id} className="flex items-start gap-4 pb-5">
+                                                    <div className="flex flex-col items-center pt-1">
+                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                            {step.id}
+                                                        </div>
+                                                        <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
                                                     </div>
-                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Set Your Destination</p>
-                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        Configure your wallet address and specify which network and token you want to receive (e.g., USDC on Base, ETH on Arbitrum).
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Step 2 */}
-                                            <div className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        2
+                                                    <div className="flex flex-1 flex-col gap-1.5">
+                                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{step.title}</p>
+                                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                            {step.description}
+                                                        </p>
                                                     </div>
-                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
                                                 </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Fetch Available Sources</p>
-                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        Call GET /sources endpoint – returns all networks and tokens your users can send from to reach your destination (70+ options).
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Step 3 */}
-                                            <div className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        3
-                                                    </div>
-                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">User Selects Source</p>
-                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        Display the available options to your user and let them choose which network and token they have (e.g., USDT on BSC, ETH on Polygon).
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Step 4 */}
-                                            <div className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        4
-                                                    </div>
-                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Generate Deposit Address</p>
-                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        Call POST /swaps with the selected route – the API creates a unique deposit address and handles all bridging logic.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Step 5 */}
-                                            <div className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        5
-                                                    </div>
-                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Display to User</p>
-                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        Show the deposit address with clear instructions so the user sends from the source network they selected.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Step 6 */}
-                                            <div className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        6
-                                                    </div>
-                                                    <div className="mt-2 h-full w-px bg-transparent"></div>
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Receive Funds</p>
-                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        User sends tokens → Layerswap detects the deposit → automatically converts and bridges → delivers to your wallet on the destination network (usually ~10s).
-                                                    </p>
-                                                </div>
-                                            </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -1402,10 +1352,10 @@ export const DepositWidget = () => {
                                 </div>
 
                                 {/* Divider */}
-                                <div className="my-4 h-px bg-gray-200 dark:bg-white/10"></div>
+                                <div className="mt-12 h-px bg-gray-200 dark:bg-white/10"></div>
 
                                 {/* Configuration Section */}
-                                <div className="mt-12 flex flex-col gap-6">
+                                <div className="flex flex-col gap-3">
                                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                                         Configuration
                                     </h2>
@@ -1471,6 +1421,9 @@ export const DepositWidget = () => {
                                     </div>
                                 </div>
 
+                                {/* Divider */}
+                                <div className="mt-12 h-px bg-gray-200 dark:bg-white/10"></div>
+
                                 {/* Step 1: Setup Destination */}
                                 <div
                                     id="step1"
@@ -1481,10 +1434,7 @@ export const DepositWidget = () => {
                                         opacity: 1
                                     }}
                                 >
-                                    <div className="flex flex-col gap-5">
-                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light">
-                                            Step 1:
-                                        </span>
+                                    <div className="flex flex-col gap-3">
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                                             Setup Destination
                                         </h2>
@@ -1796,18 +1746,15 @@ export const DepositWidget = () => {
                                         scrollMarginTop: '96px'
                                     }}
                                 >
-                                    <div className="flex flex-col gap-4">
-                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
-                                            Step 2:
-                                        </span>
+                                    <div className="flex flex-col gap-2">
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                                             Select Source
                                         </h2>
                                         {tokenMode === 'single' ? (
                                             <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                                                 Select which networks can send tokens to receive{' '}
-                                                <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                    {destinationToken} on {selectedNetworkDisplay}
+                                                <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                    <span>{destinationToken}</span> <span>on</span> <span>{selectedNetworkDisplay}</span>
                                                 </span>
                                                 {' '}on your network.
                                             </p>
@@ -1871,10 +1818,10 @@ export const DepositWidget = () => {
                                                             key={source.name}
                                                             type="button"
                                                             onClick={() => firstToken && selectSource(source.name, firstToken)}
-                                                            className={`flex flex-col items-start justify-center gap-1.5 rounded-xl px-4 py-4 text-left text-sm font-medium transition-all ${
+                                                            className={`flex flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
                                                                 isSelected
                                                                     ? 'border-primary dark:border-primary-light bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light shadow-md'
-                                                                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5'
+                                                                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5 hover:text-primary dark:hover:text-primary-light'
                                                             }`}
                                                         >
                                                             {source.logo && (
@@ -1882,6 +1829,7 @@ export const DepositWidget = () => {
                                                                     src={source.logo}
                                                                     alt={shortName}
                                                                     className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                    style={{ margin: 0 }}
                                                                     onError={(e) => e.target.style.display = 'none'}
                                                                 />
                                                             )}
@@ -1928,7 +1876,7 @@ export const DepositWidget = () => {
 
                                         {/* Selected Network Info */}
                                         {showSelectedNetworkInfo && sourceNetwork && (
-                                            <div className="flex items-center gap-2 rounded-xl border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            <div className="flex items-center gap-2 rounded-xl bg-primary/10 dark:bg-primary-light/10 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400">
                                                 <span className="font-semibold text-gray-900 dark:text-gray-200">Selected:</span>
                                                 <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 dark:border-primary-light/40 bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
                                                     {sourceNetwork.replace(/_/g, ' ')}
@@ -1956,9 +1904,6 @@ export const DepositWidget = () => {
                                         }}
                                     >
                                         <div className="flex flex-col gap-4">
-                                            <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
-                                                Step 3:
-                                            </span>
                                             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                                                 Select Destination
                                             </h2>
@@ -2345,9 +2290,6 @@ export const DepositWidget = () => {
                                     }}
                                 >
                                     <div className="flex flex-col gap-4">
-                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
-                                            {tokenMode === 'multiple' ? 'Step 5:' : 'Step 4:'}
-                                        </span>
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                                             Create Swap
                                         </h2>
@@ -2439,9 +2381,6 @@ export const DepositWidget = () => {
                                     }}
                                 >
                                     <div className="flex flex-col gap-4">
-                                        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary dark:text-primary-light w-fit">
-                                            {tokenMode === 'multiple' ? 'Step 6:' : 'Step 5:'}
-                                        </span>
                                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200">
                                             Check Status
                                         </h2>
