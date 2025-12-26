@@ -461,10 +461,7 @@ export const DepositWidget = () => {
     };
 
     const handleAutofillPlaceholder = () => {
-        // Generate a placeholder Ethereum address (0x followed by 40 hex characters)
-        const placeholderAddress = '0x' + Array.from({ length: 40 }, () => 
-            Math.floor(Math.random() * 16).toString(16)
-        ).join('');
+        const placeholderAddress = '0xB2029bbd8C1cBCC43c3A7b7fE3d118b0C57D7C31'
         setWalletAddress(placeholderAddress);
         setWalletAddressError(null);
     };
@@ -2056,11 +2053,26 @@ export const DepositWidget = () => {
 
                                     {/* Source Networks Grid */}
                                     {showSourceNetworks && sources.length > 0 && (() => {
-                                        const featuredSources = sources.filter(source => FEATURED_NETWORKS.includes(source.name));
-                                        const otherSources = sources.filter(source => !FEATURED_NETWORKS.includes(source.name));
-                                        // Always keep featured sources at the top, then add other sources when "Load More" is clicked
-                                        const displayedSources = showAllSourceNetworks ? [...featuredSources, ...otherSources] : featuredSources;
-                                        const hasMoreSources = otherSources.length > 0;
+                                        const sortedSources = sources.sort((a, b) => b.source_rank - a.source_rank);
+                                        const featuredSources = sortedSources.filter(source => FEATURED_NETWORKS.includes(source.name));
+                                        const otherSources = sortedSources.filter(source => !FEATURED_NETWORKS.includes(source.name));
+                                        
+                                        const minSourcesToShow = 9;
+                                        const allSources = [...featuredSources, ...otherSources];
+                                        
+                                        // Always keep featured sources at the top, then add other sources
+                                        let displayedSources;
+                                        if (showAllSourceNetworks) {
+                                            displayedSources = allSources;
+                                        } else {
+                                            // Show featured sources + enough other sources to fill at least 3 rows
+                                            const featuredCount = featuredSources.length;
+                                            const neededFromOthers = Math.max(0, minSourcesToShow - featuredCount);
+                                            const otherSourcesToShow = otherSources.slice(0, neededFromOthers);
+                                            displayedSources = [...featuredSources, ...otherSourcesToShow];
+                                        }
+                                        
+                                        const hasMoreSources = displayedSources.length < allSources.length;
 
                                         return (
                                             <div className="mt-4">
@@ -2113,7 +2125,7 @@ export const DepositWidget = () => {
                                                         onClick={() => setShowAllSourceNetworks(true)}
                                                         className="mt-4 w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5 hover:text-primary dark:hover:text-primary-light"
                                                     >
-                                                        Load More ({otherSources.length} more)
+                                                        Load More ({allSources.length - displayedSources.length} more)
                                                     </button>
                                                 )}
                                             </div>
