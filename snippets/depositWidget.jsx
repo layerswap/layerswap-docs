@@ -460,6 +460,15 @@ export const DepositWidget = () => {
         }
     };
 
+    const handleAutofillPlaceholder = () => {
+        // Generate a placeholder Ethereum address (0x followed by 40 hex characters)
+        const placeholderAddress = '0x' + Array.from({ length: 40 }, () => 
+            Math.floor(Math.random() * 16).toString(16)
+        ).join('');
+        setWalletAddress(placeholderAddress);
+        setWalletAddressError(null);
+    };
+
     const handleModeChange = (e) => {
         const mode = e.target.value;
         setTokenMode(mode);
@@ -810,15 +819,42 @@ export const DepositWidget = () => {
         return curl;
     };
 
-    // Copy to clipboard
-    const copyToClipboard = async (text) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            console.error('Failed to copy:', err);
-            return false;
-        }
+    // Reusable Copy Button Component
+    const CopyButton = ({ text, className = "", size = "sm" }) => {
+        const [copied, setCopied] = useState(false);
+
+        const handleCopy = async () => {
+            try {
+                await navigator.clipboard.writeText(text);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        };
+
+        const baseClasses = "inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light";
+        const sizeClasses = size === "sm" ? "px-3 py-1.5" : "px-3 py-2";
+        const finalClasses = `${baseClasses} ${sizeClasses} ${className}`;
+
+        return (
+            <button
+                onClick={handleCopy}
+                className={finalClasses}
+            >
+                {copied ? (
+                    <>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check"><path d="M20 6 9 17l-5-5" /></svg></span>
+                        <span>Copied!</span>
+                    </>
+                ) : (
+                    <>
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clipboard-icon lucide-clipboard"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg></span>
+                        <span>Copy</span>
+                    </>
+                )}
+            </button>
+        );
     };
 
     // Helper function to load JSONFormatter dynamically
@@ -847,7 +883,7 @@ export const DepositWidget = () => {
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/json-formatter-js@2.3.4/dist/json-formatter.umd.js';
             script.crossOrigin = 'anonymous';
-            
+
             window.__jsonFormatterLoading = new Promise((scriptResolve, scriptReject) => {
                 script.onload = () => {
                     if (window.JSONFormatter) {
@@ -884,7 +920,7 @@ export const DepositWidget = () => {
         const dataString = JSON.stringify(data);
         const existingDataAttr = jsonData.getAttribute('data-json-string');
         const existingTheme = jsonData.getAttribute('data-theme');
-        
+
         // If content and theme are the same, don't re-render
         if (existingDataAttr === dataString && existingTheme === currentTheme && jsonData.children.length > 0) {
             return;
@@ -892,7 +928,7 @@ export const DepositWidget = () => {
 
         // Clear previous content
         jsonData.innerHTML = '';
-        
+
         // Store current data and theme
         jsonData.setAttribute('data-json-string', dataString);
         jsonData.setAttribute('data-theme', currentTheme);
@@ -956,15 +992,15 @@ export const DepositWidget = () => {
 
                 // Serialize data to string for comparison
                 const dataString = JSON.stringify(data);
-                
+
                 // Check if element exists and already has the same content
                 const jsonData = document.getElementById(`${stepKey}-json-data`);
                 if (!jsonData) return;
 
                 // Check if we need to update - compare all values
-                const needsUpdate = 
-                    dataStringRef.current !== dataString || 
-                    lastStepKeyRef.current !== stepKey || 
+                const needsUpdate =
+                    dataStringRef.current !== dataString ||
+                    lastStepKeyRef.current !== stepKey ||
                     lastThemeRef.current !== theme;
 
                 if (!needsUpdate && jsonData.children.length > 0) {
@@ -980,15 +1016,15 @@ export const DepositWidget = () => {
                 const rafId = requestAnimationFrame(() => {
                     const currentJsonData = document.getElementById(`${stepKey}-json-data`);
                     if (!currentJsonData) return;
-                    
+
                     // Double-check the data hasn't changed while we were waiting
                     const currentDataString = JSON.stringify(data);
-                    if (currentDataString !== dataString || 
-                        lastStepKeyRef.current !== stepKey || 
+                    if (currentDataString !== dataString ||
+                        lastStepKeyRef.current !== stepKey ||
                         lastThemeRef.current !== theme) {
                         return;
                     }
-                    
+
                     displayJsonResponse(stepKey, data, theme);
                 });
 
@@ -1532,21 +1568,14 @@ export const DepositWidget = () => {
                                                                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
                                                                     <span>API Request</span>
                                                                     <div className="flex items-center gap-2">
-                                                                        <button
-                                                                            onClick={async () => {
-                                                                                const curl = generateCurlCommand(
-                                                                                    activity.request.url || `${API_BASE}${activity.request.endpoint}`,
-                                                                                    activity.request.method || 'GET',
-                                                                                    activity.request.headers || {},
-                                                                                    activity.request.body
-                                                                                );
-                                                                                await copyToClipboard(curl);
-                                                                            }}
-                                                                            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light"
-                                                                        >
-                                                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-icon lucide-clipboard"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg></span>
-                                                                            <span>Copy</span>
-                                                                        </button>
+                                                                        <CopyButton
+                                                                            text={generateCurlCommand(
+                                                                                activity.request.url || `${API_BASE}${activity.request.endpoint}`,
+                                                                                activity.request.method || 'GET',
+                                                                                activity.request.headers || {},
+                                                                                activity.request.body
+                                                                            )}
+                                                                        />
                                                                         {getApiDocsUrl(activeStepKey) && (
                                                                             <a
                                                                                 href={getApiDocsUrl(activeStepKey)}
@@ -1578,15 +1607,9 @@ export const DepositWidget = () => {
                                                             <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
                                                                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
                                                                     <span>API Response</span>
-                                                                    <button
-                                                                        onClick={async () => {
-                                                                            await copyToClipboard(JSON.stringify(activity.response, null, 2));
-                                                                        }}
-                                                                        className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light"
-                                                                    >
-                                                                        <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-icon lucide-clipboard"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg></span>
-                                                                        <span>Copy</span>
-                                                                    </button>
+                                                                    <CopyButton
+                                                                        text={JSON.stringify(activity.response, null, 2)}
+                                                                    />
                                                                 </div>
                                                                 <JsonResponseDisplay data={activity.response} theme={theme} stepKey={activeStepKey} />
                                                             </div>
@@ -1868,32 +1891,6 @@ export const DepositWidget = () => {
                                         className="grid gap-4"
                                         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}
                                     >
-                                        {/* Wallet Address */}
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                                                Your Wallet Address <span className="text-primary dark:text-primary-light">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={walletAddress}
-                                                onChange={handleWalletAddressChange}
-                                                placeholder="0x..."
-                                                className={`w-full min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${walletAddressError
-                                                    ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
-                                                    : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
-                                                    }`}
-                                                onBlur={(e) => {
-                                                    if (!walletAddressError) {
-                                                        e.target.style.boxShadow = 'none';
-                                                    }
-                                                }}
-                                            />
-                                            {walletAddressError && (
-                                                <div className="mt-1 text-xs text-destructive">
-                                                    {walletAddressError}
-                                                </div>
-                                            )}
-                                        </div>
 
                                         {/* Destination Network Dropdown */}
                                         <ReusableDropdown
@@ -1953,6 +1950,46 @@ export const DepositWidget = () => {
                                                 }}
                                             />
                                         )}
+
+                                        {/* Wallet Address */}
+                                        <div className="flex flex-col gap-2 col-span-2">
+                                            <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                Your Wallet Address <span className="text-primary dark:text-primary-light">*</span>
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={walletAddress}
+                                                    onChange={handleWalletAddressChange}
+                                                    placeholder="0x..."
+                                                    className={`flex-1 min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${walletAddressError
+                                                        ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
+                                                        : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
+                                                        }`}
+                                                    onBlur={(e) => {
+                                                        if (!walletAddressError) {
+                                                            e.target.style.boxShadow = 'none';
+                                                        }
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAutofillPlaceholder}
+                                                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light whitespace-nowrap"
+                                                    title="Fill with placeholder address"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" /></svg>
+                                                    <span>Fill</span>
+                                                </button>
+                                            </div>
+                                            {walletAddressError && (
+                                                <div className="mt-1 text-xs text-destructive">
+                                                    {walletAddressError}
+                                                </div>
+                                            )}
+                                        </div>
+
+
                                     </div>
                                 </div>
                             </div>
@@ -2021,7 +2058,8 @@ export const DepositWidget = () => {
                                     {showSourceNetworks && sources.length > 0 && (() => {
                                         const featuredSources = sources.filter(source => FEATURED_NETWORKS.includes(source.name));
                                         const otherSources = sources.filter(source => !FEATURED_NETWORKS.includes(source.name));
-                                        const displayedSources = showAllSourceNetworks ? sources : featuredSources;
+                                        // Always keep featured sources at the top, then add other sources when "Load More" is clicked
+                                        const displayedSources = showAllSourceNetworks ? [...featuredSources, ...otherSources] : featuredSources;
                                         const hasMoreSources = otherSources.length > 0;
 
                                         return (
@@ -2550,20 +2588,11 @@ export const DepositWidget = () => {
                                                 <span className="break-all flex-1 min-w-[200px]">
                                                     {depositAddress}
                                                 </span>
-                                                <button
-                                                    onClick={async () => {
-                                                        try {
-                                                            await navigator.clipboard.writeText(depositAddress);
-                                                            // Visual feedback could be added here
-                                                        } catch (err) {
-                                                            console.error('Failed to copy:', err);
-                                                        }
-                                                    }}
-                                                    className="inline-flex items-center gap-2 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light"
-                                                >
-                                                    <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-icon lucide-clipboard"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg></span>
-                                                    <span>Copy</span>
-                                                </button>
+                                                <CopyButton
+                                                    text={depositAddress}
+                                                    size="md"
+                                                    className="gap-2"
+                                                />
                                             </div>
                                             <div class="api-hint mt-3 flex items-start gap-2 rounded-lg border border-slate-200/60 bg-surface-soft px-3 py-2 text-xs leading-relaxed text-ink-soft dark:border-white/10 dark:bg-surface-dark-soft dark:text-ink-invert-soft">
                                                 <span className="text-sm text-primary dark:text-primary-light flex-shrink-0 mt-1">
