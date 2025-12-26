@@ -875,10 +875,27 @@ export const DepositWidget = () => {
             return;
         }
 
+        if (!data) {
+            jsonData.innerHTML = '';
+            return;
+        }
+
+        // Check if we already have the same content rendered
+        const dataString = JSON.stringify(data);
+        const existingDataAttr = jsonData.getAttribute('data-json-string');
+        const existingTheme = jsonData.getAttribute('data-theme');
+        
+        // If content and theme are the same, don't re-render
+        if (existingDataAttr === dataString && existingTheme === currentTheme && jsonData.children.length > 0) {
+            return;
+        }
+
         // Clear previous content
         jsonData.innerHTML = '';
-
-        if (!data) return;
+        
+        // Store current data and theme
+        jsonData.setAttribute('data-json-string', dataString);
+        jsonData.setAttribute('data-theme', currentTheme);
 
         try {
             // Try to load and use JSONFormatter
@@ -927,24 +944,64 @@ export const DepositWidget = () => {
     }, [loadJSONFormatter]);
 
     // Helper component for JSON response display with formatting
-    const JsonResponseDisplay = ({ data, theme, stepKey }) => {
-        useEffect(() => {
-            if (!data || !stepKey) return;
+    // Memoized to prevent re-creation on every render
+    const JsonResponseDisplay = useMemo(() => {
+        return ({ data, theme, stepKey }) => {
+            const dataStringRef = useRef('');
+            const lastStepKeyRef = useRef('');
+            const lastThemeRef = useRef('');
 
-            // Use a small delay to ensure DOM is ready
-            const timeoutId = setTimeout(() => {
-                displayJsonResponse(stepKey, data, theme);
-            }, 50);
+            useEffect(() => {
+                if (!data || !stepKey) return;
 
-            return () => clearTimeout(timeoutId);
-        }, [data, theme, stepKey, displayJsonResponse]);
+                // Serialize data to string for comparison
+                const dataString = JSON.stringify(data);
+                
+                // Check if element exists and already has the same content
+                const jsonData = document.getElementById(`${stepKey}-json-data`);
+                if (!jsonData) return;
 
-        return (
-            <div className="flex-1 overflow-y-auto bg-white dark:bg-background-dark px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
-                <div id={`${stepKey}-json-data`} className="json-content" />
-            </div>
-        );
-    };
+                // Check if we need to update - compare all values
+                const needsUpdate = 
+                    dataStringRef.current !== dataString || 
+                    lastStepKeyRef.current !== stepKey || 
+                    lastThemeRef.current !== theme;
+
+                if (!needsUpdate && jsonData.children.length > 0) {
+                    return;
+                }
+
+                // Update refs before rendering
+                dataStringRef.current = dataString;
+                lastStepKeyRef.current = stepKey;
+                lastThemeRef.current = theme;
+
+                // Use requestAnimationFrame to batch DOM updates and prevent flickering
+                const rafId = requestAnimationFrame(() => {
+                    const currentJsonData = document.getElementById(`${stepKey}-json-data`);
+                    if (!currentJsonData) return;
+                    
+                    // Double-check the data hasn't changed while we were waiting
+                    const currentDataString = JSON.stringify(data);
+                    if (currentDataString !== dataString || 
+                        lastStepKeyRef.current !== stepKey || 
+                        lastThemeRef.current !== theme) {
+                        return;
+                    }
+                    
+                    displayJsonResponse(stepKey, data, theme);
+                });
+
+                return () => cancelAnimationFrame(rafId);
+            }, [data, theme, stepKey]);
+
+            return (
+                <div className="flex-1 overflow-y-auto bg-white dark:bg-background-dark px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                    <div id={`${stepKey}-json-data`} className="json-content" />
+                </div>
+            );
+        };
+    }, []); // Empty deps - component function is stable
 
     // Get API docs URL for a step
     const getApiDocsUrl = (stepKey) => {
@@ -1446,12 +1503,12 @@ export const DepositWidget = () => {
             {/* Main Content */}
             <div className="w-full">
                 <div className="px-5 lg:pr-10 lg:pl-[5.5rem] lg:pt-10 mx-auto max-w-6xl flex flex-row-reverse gap-x-12 w-full pt-36">
-                    <div className="hidden xl:flex self-start sticky xl:flex-col max-w-[28rem] w-full h-[calc(100vh-9.5rem)] top-[calc(9.5rem-var(--sidenav-move-up,0px))] max-h-[80vh] overflow-y-auto overflow-x-hidden">
+                    <div className="hidden xl:flex self-start sticky xl:flex-col max-w-[28rem] w-full top-[calc(9.5rem-var(--sidenav-move-up,0px))] overflow-x-hidden" style={{ overflowY: 'visible' }}>
                         {/* API Sidebar */}
                         {windowWidth >= 1024 && (
                             <>
-                                <aside className="left-[calc(50vw+240px)] top-[140px] z-10 flex max-h-[calc(100vh-64px)] w-[416px] flex-shrink-0 flex-col gap-6 border-l border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/30 pl-6">
-                                    <div className="flex flex-col gap-4">
+                                <aside className="left-[calc(50vw+240px)] top-[140px] z-10 flex w-[416px] flex-shrink-0 flex-col gap-6 border-l border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/30 pl-6" style={{ overflowY: 'visible', maxHeight: 'none' }}>
+                                    <div className="flex flex-col gap-4" style={{ overflowY: 'visible' }}>
                                         {!hasApiActivity() ? (
                                             <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-8 text-center text-sm text-gray-600 dark:text-gray-400 shadow-sm">
                                                 <span className="mb-3 text-lg text-primary dark:text-primary-light">
@@ -1471,7 +1528,7 @@ export const DepositWidget = () => {
                                                     <div key={activeStepKey} className="flex flex-col gap-3">
                                                         {/* Request Card */}
                                                         {activity.request && (
-                                                            <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                                                            <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
                                                                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
                                                                     <span>API Request</span>
                                                                     <div className="flex items-center gap-2">
@@ -1505,7 +1562,7 @@ export const DepositWidget = () => {
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                                <div className="overflow-x-auto whitespace-pre-wrap break-words px-5 py-4 font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                                                                <div className="flex-1 overflow-y-auto overflow-x-auto whitespace-pre-wrap break-words px-5 py-4 font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-200">
                                                                     {generateCurlCommand(
                                                                         activity.request.url || `${API_BASE}${activity.request.endpoint}`,
                                                                         activity.request.method || 'GET',
@@ -1518,7 +1575,7 @@ export const DepositWidget = () => {
 
                                                         {/* Response Card */}
                                                         {activity.response && (
-                                                            <div className="flex max-h-[420px] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                                                            <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
                                                                 <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
                                                                     <span>API Response</span>
                                                                     <button
