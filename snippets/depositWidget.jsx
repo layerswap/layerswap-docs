@@ -10,7 +10,10 @@ export const DepositWidget = () => {
         'STARKNET_MAINNET',
         'OPTIMISM_MAINNET',
         'FUEL_MAINNET',
-        'BASE_MAINNET'
+        'BASE_MAINNET',
+        'SOLANA_MAINNET',
+        'TON_MAINNET',
+        'TRON_MAINNET'
     ];
 
     // ===== UTILITY FUNCTIONS (inside component) =====
@@ -122,6 +125,7 @@ export const DepositWidget = () => {
 
     // UI states
     const [showSourceNetworks, setShowSourceNetworks] = useState(false);
+    const [showAllSourceNetworks, setShowAllSourceNetworks] = useState(false);
     const [showSourceTokenSelector, setShowSourceTokenSelector] = useState(false);
     const [showSelectedNetworkInfo, setShowSelectedNetworkInfo] = useState(false);
     const [showDestinationTokens, setShowDestinationTokens] = useState(false);
@@ -233,6 +237,11 @@ export const DepositWidget = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Reset showAllSourceNetworks when sources change
+    useEffect(() => {
+        setShowAllSourceNetworks(false);
+    }, [sources]);
 
     // Scroll spy
     useEffect(() => {
@@ -785,15 +794,6 @@ export const DepositWidget = () => {
         }
     };
 
-    // Format JSON with simple syntax highlighting
-    const formatJson = (obj) => {
-        const jsonString = JSON.stringify(obj, null, 2);
-        return jsonString
-            .replace(/(".*?")\s*:/g, `<span style="color: ${theme === 'dark' ? '#9cdcfe' : '#0451a5'}">$1</span>:`)
-            .replace(/:\s*(".*?")/g, `: <span style="color: ${theme === 'dark' ? '#ce9178' : '#a31515'}">$1</span>`)
-            .replace(/:\s*(\d+\.?\d*)/g, `: <span style="color: ${theme === 'dark' ? '#b5cea8' : '#098658'}">$1</span>`)
-            .replace(/:\s*(true|false|null)/g, `: <span style="color: ${theme === 'dark' ? '#569cd6' : '#0000ff'}">$1</span>`);
-    };
 
     // Generate curl command
     const generateCurlCommand = (url, method, headers, body) => {
@@ -819,6 +819,131 @@ export const DepositWidget = () => {
             console.error('Failed to copy:', err);
             return false;
         }
+    };
+
+    // Helper function to load JSONFormatter dynamically
+    const loadJSONFormatter = useCallback(() => {
+        return new Promise((resolve, reject) => {
+            // Check if already loaded
+            if (typeof window !== 'undefined' && window.JSONFormatter) {
+                resolve(window.JSONFormatter);
+                return;
+            }
+
+            // Check if already loading
+            if (window.__jsonFormatterLoading) {
+                window.__jsonFormatterLoading.then(resolve).catch(reject);
+                return;
+            }
+
+            // Load CSS
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/json-formatter-js@2.3.4/dist/json-formatter.css';
+            link.crossOrigin = 'anonymous';
+            document.head.appendChild(link);
+
+            // Load JS
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/json-formatter-js@2.3.4/dist/json-formatter.umd.js';
+            script.crossOrigin = 'anonymous';
+            
+            window.__jsonFormatterLoading = new Promise((scriptResolve, scriptReject) => {
+                script.onload = () => {
+                    if (window.JSONFormatter) {
+                        resolve(window.JSONFormatter);
+                        scriptResolve(window.JSONFormatter);
+                    } else {
+                        reject(new Error('JSONFormatter failed to load'));
+                        scriptReject(new Error('JSONFormatter failed to load'));
+                    }
+                };
+                script.onerror = () => {
+                    reject(new Error('Failed to load JSONFormatter script'));
+                    scriptReject(new Error('Failed to load JSONFormatter script'));
+                };
+            });
+
+            document.head.appendChild(script);
+        });
+    }, []);
+
+    // Helper function to format JSON response (same as HTML version)
+    const displayJsonResponse = useCallback(async (stepKey, data, currentTheme) => {
+        const jsonData = document.getElementById(`${stepKey}-json-data`);
+        if (!jsonData) {
+            return;
+        }
+
+        // Clear previous content
+        jsonData.innerHTML = '';
+
+        if (!data) return;
+
+        try {
+            // Try to load and use JSONFormatter
+            let JSONFormatterClass = null;
+            try {
+                JSONFormatterClass = await loadJSONFormatter();
+            } catch (error) {
+                // JSONFormatter failed to load, will use fallback
+            }
+
+            if (JSONFormatterClass) {
+                // Create JSON formatter with 3 levels open by default
+                const formatter = new JSONFormatterClass(data, 3, {
+                    theme: currentTheme === 'dark' ? 'dark' : 'light',
+                    animateOpen: false,
+                    animateClose: false
+                });
+
+                jsonData.appendChild(formatter.render());
+            } else {
+                // Fallback to simple pre formatting if JSONFormatter is not loaded
+                const pre = document.createElement('pre');
+                pre.className = 'm-0 font-mono whitespace-pre-wrap break-words';
+                pre.style.color = currentTheme === 'dark' ? '#d4d4d4' : '#1f2937';
+                pre.style.fontSize = '12px';
+                pre.style.lineHeight = '1.6';
+                pre.style.margin = '0';
+                pre.style.whiteSpace = 'pre-wrap';
+                pre.style.wordBreak = 'break-all';
+                pre.textContent = JSON.stringify(data, null, 2);
+                jsonData.appendChild(pre);
+            }
+        } catch (error) {
+            // Fallback to simple pre formatting on error
+            const pre = document.createElement('pre');
+            pre.className = 'm-0 font-mono whitespace-pre-wrap break-words';
+            pre.style.color = currentTheme === 'dark' ? '#d4d4d4' : '#1f2937';
+            pre.style.fontSize = '12px';
+            pre.style.lineHeight = '1.6';
+            pre.style.margin = '0';
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.wordBreak = 'break-all';
+            pre.textContent = JSON.stringify(data, null, 2);
+            jsonData.appendChild(pre);
+        }
+    }, [loadJSONFormatter]);
+
+    // Helper component for JSON response display with formatting
+    const JsonResponseDisplay = ({ data, theme, stepKey }) => {
+        useEffect(() => {
+            if (!data || !stepKey) return;
+
+            // Use a small delay to ensure DOM is ready
+            const timeoutId = setTimeout(() => {
+                displayJsonResponse(stepKey, data, theme);
+            }, 50);
+
+            return () => clearTimeout(timeoutId);
+        }, [data, theme, stepKey, displayJsonResponse]);
+
+        return (
+            <div className="flex-1 overflow-y-auto bg-white dark:bg-background-dark px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                <div id={`${stepKey}-json-data`} className="json-content" />
+            </div>
+        );
     };
 
     // Get API docs URL for a step
@@ -911,6 +1036,7 @@ export const DepositWidget = () => {
 
         return null;
     }, [activeSection, apiActivity, lastUpdatedApiStep]);
+
 
     // Validation check for enabling steps
     useEffect(() => {
@@ -1405,9 +1531,7 @@ export const DepositWidget = () => {
                                                                         <span>Copy</span>
                                                                     </button>
                                                                 </div>
-                                                                <div className="flex-1 overflow-y-auto bg-white dark:bg-background-dark px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
-                                                                    <pre className="m-0 font-mono whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: formatJson(activity.response) }} />
-                                                                </div>
+                                                                <JsonResponseDisplay data={activity.response} theme={theme} stepKey={activeStepKey} />
                                                             </div>
                                                         )}
                                                     </div>
@@ -1837,51 +1961,69 @@ export const DepositWidget = () => {
                                     )}
 
                                     {/* Source Networks Grid */}
-                                    {showSourceNetworks && sources.length > 0 && (
-                                        <div
-                                            className="mt-4 grid gap-3"
-                                            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(148px, 1fr))' }}
-                                        >
-                                            {sources.map((source) => {
-                                                const firstToken = source.tokens && source.tokens.length > 0 ? source.tokens[0] : null;
-                                                const shortName = source.displayName
-                                                    .replace(/_MAINNET/g, '')
-                                                    .replace(/_SEPOLIA/g, ' Sep')
-                                                    .replace(/_/g, ' ');
-                                                const isSelected = sourceNetwork === source.name && sourceToken === firstToken;
+                                    {showSourceNetworks && sources.length > 0 && (() => {
+                                        const featuredSources = sources.filter(source => FEATURED_NETWORKS.includes(source.name));
+                                        const otherSources = sources.filter(source => !FEATURED_NETWORKS.includes(source.name));
+                                        const displayedSources = showAllSourceNetworks ? sources : featuredSources;
+                                        const hasMoreSources = otherSources.length > 0;
 
-                                                return (
+                                        return (
+                                            <div className="mt-4">
+                                                <div
+                                                    className="grid gap-3"
+                                                    style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(148px, 1fr))' }}
+                                                >
+                                                    {displayedSources.map((source) => {
+                                                        const firstToken = source.tokens && source.tokens.length > 0 ? source.tokens[0] : null;
+                                                        const shortName = source.displayName
+                                                            .replace(/_MAINNET/g, '')
+                                                            .replace(/_SEPOLIA/g, ' Sep')
+                                                            .replace(/_/g, ' ');
+                                                        const isSelected = sourceNetwork === source.name && sourceToken === firstToken;
+
+                                                        return (
+                                                            <button
+                                                                key={source.name}
+                                                                type="button"
+                                                                onClick={() => firstToken && selectSource(source.name, firstToken)}
+                                                                className={`flex flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${isSelected
+                                                                    ? 'border-primary dark:border-primary-light bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light shadow-md'
+                                                                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5 hover:text-primary dark:hover:text-primary-light'
+                                                                    }`}
+                                                            >
+                                                                {source.logo && (
+                                                                    <img
+                                                                        src={source.logo}
+                                                                        alt={shortName}
+                                                                        className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                        style={{ margin: 0 }}
+                                                                        onError={(e) => e.target.style.display = 'none'}
+                                                                    />
+                                                                )}
+                                                                <span className="text-sm font-semibold">
+                                                                    {shortName}
+                                                                </span>
+                                                                {source.tokens && source.tokens.length > 0 && (
+                                                                    <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400">
+                                                                        {source.tokens.slice(0, 3).join(', ')}{source.tokens.length > 3 ? '...' : ''}
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                                {!showAllSourceNetworks && hasMoreSources && (
                                                     <button
-                                                        key={source.name}
                                                         type="button"
-                                                        onClick={() => firstToken && selectSource(source.name, firstToken)}
-                                                        className={`flex flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${isSelected
-                                                            ? 'border-primary dark:border-primary-light bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light shadow-md'
-                                                            : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5 hover:text-primary dark:hover:text-primary-light'
-                                                            }`}
+                                                        onClick={() => setShowAllSourceNetworks(true)}
+                                                        className="mt-4 w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5 hover:text-primary dark:hover:text-primary-light"
                                                     >
-                                                        {source.logo && (
-                                                            <img
-                                                                src={source.logo}
-                                                                alt={shortName}
-                                                                className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
-                                                                style={{ margin: 0 }}
-                                                                onError={(e) => e.target.style.display = 'none'}
-                                                            />
-                                                        )}
-                                                        <span className="text-sm font-semibold">
-                                                            {shortName}
-                                                        </span>
-                                                        {source.tokens && source.tokens.length > 0 && (
-                                                            <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400">
-                                                                {source.tokens.slice(0, 3).join(', ')}{source.tokens.length > 3 ? '...' : ''}
-                                                            </span>
-                                                        )}
+                                                        Load More ({otherSources.length} more)
                                                     </button>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
 
                                     {/* Token Selector (Multiple Mode) */}
                                     {tokenMode === 'multiple' && showSourceTokenSelector && networkMap[sourceNetwork] && (
