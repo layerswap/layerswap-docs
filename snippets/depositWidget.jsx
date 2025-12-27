@@ -142,7 +142,6 @@ export const DepositWidget = () => {
     const [swapTransactions, setSwapTransactions] = useState([]);
 
     // Navigation states
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('overview');
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
@@ -566,6 +565,12 @@ export const DepositWidget = () => {
         const selectedToken = e.target.value;
         if (!selectedToken) return;
         setSourceToken(selectedToken);
+        setShowSelectedNetworkInfo(true);
+        setStep3DestinationLocked(false);
+    };
+
+    const selectSourceToken = (token) => {
+        setSourceToken(token);
         setShowSelectedNetworkInfo(true);
         setStep3DestinationLocked(false);
     };
@@ -1070,6 +1075,70 @@ export const DepositWidget = () => {
         return !!(activity?.request || activity?.response);
     };
 
+    // API Activity Component - shows API request/response for a specific step
+    // Can be used in both desktop sidebar and mobile sections
+    const ApiActivityDisplay = ({ stepKey, className = "" }) => {
+        if (!stepKey) return null;
+        
+        const activity = apiActivity[stepKey];
+        if (!activity || (!activity.request && !activity.response)) return null;
+
+        return (
+            <div className={`flex flex-col gap-3 ${className}`}>
+                {activity.request && (
+                    <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                        <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
+                            <span>API Request</span>
+                            <div className="flex items-center gap-2">
+                                <CopyButton
+                                    text={generateCurlCommand(
+                                        activity.request.url || `${API_BASE}${activity.request.endpoint}`,
+                                        activity.request.method || 'GET',
+                                        activity.request.headers || {},
+                                        activity.request.body
+                                    )}
+                                />
+                                {getApiDocsUrl(stepKey) && (
+                                    <a
+                                        href={getApiDocsUrl(stepKey)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:text-primary dark:hover:text-primary-light no-underline"
+                                    >
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link-icon lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
+                                        </span>
+                                        <span>API Docs</span>
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex-1 overflow-y-auto overflow-x-auto whitespace-pre-wrap break-words px-5 py-4 font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                            {generateCurlCommand(
+                                activity.request.url || `${API_BASE}${activity.request.endpoint}`,
+                                activity.request.method || 'GET',
+                                activity.request.headers || {},
+                                activity.request.body
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {activity.response && (
+                    <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                        <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
+                            <span>API Response</span>
+                            <CopyButton
+                                text={JSON.stringify(activity.response, null, 2)}
+                            />
+                        </div>
+                        <JsonResponseDisplay data={activity.response} theme={theme} stepKey={stepKey} />
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     // Get active step key for API sidebar based on current active section
     const getActiveApiStepKey = useMemo(() => {
         const API_SECTION_ORDER = ['step2', 'step3-destination', 'step3', 'step4', 'step5'];
@@ -1149,25 +1218,6 @@ export const DepositWidget = () => {
     // Get selected network tokens
     const selectedNetworkTokens = networks.find(n => n.name === destinationNetwork)?.tokens || [];
 
-    // Filter networks based on search
-    const filteredNetworks = useMemo(() => {
-        if (!networkSearchTerm) return networks;
-        const search = networkSearchTerm.toLowerCase();
-        return networks.filter(n =>
-            (n.display_name || n.name).toLowerCase().includes(search) ||
-            n.name.toLowerCase().includes(search)
-        );
-    }, [networks, networkSearchTerm]);
-
-    // Filter tokens based on search
-    const filteredTokens = useMemo(() => {
-        if (!tokenSearchTerm) return selectedNetworkTokens;
-        const search = tokenSearchTerm.toLowerCase();
-        return selectedNetworkTokens.filter(t =>
-            (t.symbol || t.display_asset || '').toLowerCase().includes(search)
-        );
-    }, [selectedNetworkTokens, tokenSearchTerm]);
-
     // Featured networks
     const featuredNetworks = useMemo(() => {
         return networks.filter(n => FEATURED_NETWORKS.includes(n.name));
@@ -1185,7 +1235,6 @@ export const DepositWidget = () => {
             const offsetTop = element.offsetTop - 96;
             window.scrollTo({ top: offsetTop, behavior: 'smooth' });
         }
-        setMobileMenuOpen(false);
     };
 
     const navItems = [
@@ -1461,81 +1510,10 @@ export const DepositWidget = () => {
                     </div>
                 </nav>
             )}
-            {/* Mobile Menu Overlay */}
-            {mobileMenuOpen && (
-                <div
-                    onClick={() => setMobileMenuOpen(false)}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        zIndex: 9998,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        opacity: mobileMenuOpen ? 1 : 0,
-                        pointerEvents: mobileMenuOpen ? 'auto' : 'none',
-                        transition: 'opacity 0.3s ease'
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            display: 'flex',
-                            height: '100%',
-                            width: '288px',
-                            maxWidth: '100%',
-                            flexDirection: 'column',
-                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                            transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
-                            transition: 'transform 0.3s ease'
-                        }}
-                        className="bg-white dark:bg-background-dark"
-                    >
-                        <div
-                            className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-white/10"
-                        >
-                            <h3
-                                className="text-sm font-semibold uppercase text-gray-700 dark:text-gray-300"
-                            >
-                                Navigation
-                            </h3>
-                            <button
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="cursor-pointer border-none bg-transparent p-1 text-2xl leading-none text-gray-700 dark:text-gray-300"
-                                aria-label="Close Menu"
-                            >
-                                ×
-                            </button>
-                        </div>
-                        <ul
-                            className="flex flex-1 flex-col overflow-y-auto py-4 text-sm"
-                            style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}
-                        >
-                            {navItems.map(item => {
-                                const locked = isStepLocked(item.id);
-                                const active = activeSection === item.id;
-                                return (
-                                    <li key={item.id}>
-                                        <a
-                                            href={`#${item.id}`}
-                                            onClick={(e) => handleNavClick(item.id, e)}
-                                            className={`group flex items-center pr-3 pl-4 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] ${active
-                                                ? 'bg-primary/10 text-primary [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:text-primary-light dark:bg-primary-light/10'
-                                                : 'hover:bg-gray-600/5 dark:hover:bg-gray-200/5 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
-                                                } ${locked ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                        >
-                                            <div className="flex-1 flex items-center space-x-2.5">
-                                                <div>{item.label}</div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </div>
-                </div>
-            )}
+
             {/* Main Content */}
             <div className="w-full">
-                <div className="px-5 lg:pr-10 lg:pl-[5.5rem] lg:pt-10 mx-auto max-w-6xl flex flex-row-reverse gap-x-12 w-full pt-36">
+                <div className="px-5 lg:pr-10 lg:pl-[5.5rem] lg:pt-10 mx-auto max-w-6xl flex flex-row-reverse gap-x-12 w-full pt-8 sm:pt-36">
                     <div className="hidden xl:flex self-start sticky xl:flex-col max-w-[28rem] w-full top-[calc(9.5rem-var(--sidenav-move-up,0px))] overflow-x-hidden" style={{ overflowY: 'visible' }}>
                         {/* API Sidebar */}
                         {windowWidth >= 1024 && (
@@ -1552,68 +1530,7 @@ export const DepositWidget = () => {
                                                 </p>
                                             </div>
                                         ) : (
-                                            (() => {
-                                                const activeStepKey = getActiveApiStepKey;
-                                                if (!activeStepKey) return null;
-                                                const activity = apiActivity[activeStepKey];
-
-                                                return (
-                                                    <div key={activeStepKey} className="flex flex-col gap-3">
-                                                        {/* Request Card */}
-                                                        {activity.request && (
-                                                            <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
-                                                                <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                                                    <span>API Request</span>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <CopyButton
-                                                                            text={generateCurlCommand(
-                                                                                activity.request.url || `${API_BASE}${activity.request.endpoint}`,
-                                                                                activity.request.method || 'GET',
-                                                                                activity.request.headers || {},
-                                                                                activity.request.body
-                                                                            )}
-                                                                        />
-                                                                        {getApiDocsUrl(activeStepKey) && (
-                                                                            <a
-                                                                                href={getApiDocsUrl(activeStepKey)}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                                className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:text-primary dark:hover:text-primary-light no-underline"
-                                                                            >
-                                                                                <span>
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link-icon lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
-                                                                                </span>
-                                                                                <span>API Docs</span>
-                                                                            </a>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex-1 overflow-y-auto overflow-x-auto whitespace-pre-wrap break-words px-5 py-4 font-mono text-xs leading-relaxed text-gray-900 dark:text-gray-200">
-                                                                    {generateCurlCommand(
-                                                                        activity.request.url || `${API_BASE}${activity.request.endpoint}`,
-                                                                        activity.request.method || 'GET',
-                                                                        activity.request.headers || {},
-                                                                        activity.request.body
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Response Card */}
-                                                        {activity.response && (
-                                                            <div className="flex max-h-[calc(50vh-120px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
-                                                                <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                                                    <span>API Response</span>
-                                                                    <CopyButton
-                                                                        text={JSON.stringify(activity.response, null, 2)}
-                                                                    />
-                                                                </div>
-                                                                <JsonResponseDisplay data={activity.response} theme={theme} stepKey={activeStepKey} />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })()
+                                            <ApiActivityDisplay stepKey={getActiveApiStepKey} />
                                         )}
                                     </div>
                                 </aside>
@@ -1621,19 +1538,6 @@ export const DepositWidget = () => {
                         )}
                     </div>
                     <div className="grow w-full mx-auto xl:w-[calc(100%-28rem)]">
-                        {/* Mobile Menu Button */}
-                        {windowWidth < 768 && (
-                            <button
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="mt-2 mb-10 inline-flex items-center justify-center gap-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all dark:border-white/10 dark:bg-background-dark dark:text-gray-300 hover:bg-gray-600/5 dark:hover:bg-gray-200/5"
-                                aria-label="Toggle Navigation Menu"
-                            >
-                                <span className="block h-[2px] w-5 rounded-[1px] bg-current transition-transform" />
-                                <span className="block h-[2px] w-5 rounded-[1px] bg-current transition-opacity" />
-                                <span className="block h-[2px] w-5 rounded-[1px] bg-current transition-transform" />
-                            </button>
-                        )}
-
                         {/* Header */}
                         <header id="header" className="realtive">
                             <div className="mt-0.5 space-y-2.5">
@@ -2138,24 +2042,39 @@ export const DepositWidget = () => {
                                             <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
                                                 Source Token <span className="text-primary dark:text-primary-light">*</span>
                                             </label>
-                                            <select
-                                                value={sourceToken}
-                                                onChange={handleSourceTokenSelect}
-                                                className="w-full min-h-[44px] cursor-pointer rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
-                                                onBlur={(e) => {
-                                                    e.target.style.boxShadow = 'none';
-                                                }}
+                                            <div
+                                                className="mt-2 grid gap-3"
+                                                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))' }}
                                             >
-                                                <option value="">Select a token</option>
                                                 {networkMap[sourceNetwork]?.tokens?.map(token => {
                                                     const tokenSymbol = token.symbol || token.asset || token;
+                                                    const isSelected = sourceToken === tokenSymbol;
+
                                                     return (
-                                                        <option key={tokenSymbol} value={tokenSymbol}>
-                                                            {tokenSymbol}
-                                                        </option>
+                                                        <button
+                                                            key={tokenSymbol}
+                                                            type="button"
+                                                            onClick={() => selectSourceToken(tokenSymbol)}
+                                                            className={`flex flex-col items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-all ${isSelected
+                                                                ? 'border-primary dark:border-primary-light bg-primary/15 dark:bg-primary-light/15 text-primary dark:text-primary-light shadow-md'
+                                                                : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5'
+                                                                }`}
+                                                        >
+                                                            {token.logo && (
+                                                                <img
+                                                                    src={token.logo}
+                                                                    alt={tokenSymbol}
+                                                                    className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                    onError={(e) => e.target.style.display = 'none'}
+                                                                />
+                                                            )}
+                                                            <span className="text-sm font-semibold">
+                                                                {tokenSymbol}
+                                                            </span>
+                                                        </button>
                                                     );
                                                 })}
-                                            </select>
+                                            </div>
                                         </div>
                                     )}
 
@@ -2173,6 +2092,9 @@ export const DepositWidget = () => {
                                             )}
                                         </div>
                                     )}
+
+                                    {/* Mobile API Activity */}
+                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step2" className="xl:hidden mt-6" />}
                                 </div>
                             </div>
 
@@ -2239,7 +2161,7 @@ export const DepositWidget = () => {
                                                             key={tokenSymbol}
                                                             type="button"
                                                             onClick={() => selectDestinationToken(tokenSymbol)}
-                                                            className={`flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-sm font-semibold transition-all ${isSelected
+                                                            className={`flex flex-col items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-all ${isSelected
                                                                 ? 'border-primary dark:border-primary-light bg-primary/15 dark:bg-primary-light/15 text-primary dark:text-primary-light shadow-md'
                                                                 : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5'
                                                                 }`}
@@ -2270,6 +2192,9 @@ export const DepositWidget = () => {
                                                 </span>
                                             </div>
                                         )}
+
+                                        {/* Mobile API Activity */}
+                                        {windowWidth < 1024 && <ApiActivityDisplay stepKey="step3-destination" className="xl:hidden mt-6" />}
                                     </div>
                                 </div>
                             )}
@@ -2537,6 +2462,9 @@ export const DepositWidget = () => {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Mobile API Activity */}
+                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step3" className="xl:hidden mt-6" />}
                                 </div>
                             </div>
 
@@ -2618,6 +2546,9 @@ export const DepositWidget = () => {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Mobile API Activity */}
+                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step4" className="xl:hidden mt-6" />}
                                 </div>
                             </div>
 
@@ -2745,6 +2676,9 @@ export const DepositWidget = () => {
                                             )}
                                         </div>
                                     )}
+
+                                    {/* Mobile API Activity */}
+                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step5" className="xl:hidden mt-6" />}
                                 </div>
                             </div>
 
