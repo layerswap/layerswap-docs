@@ -201,7 +201,7 @@
   "seo": {
     "metatags": {
       "og:title": "Layerswap Docs",
-      "og:description": "The Layerswap Widget and API are built to enable instant swapping and bridging across networks, directly within your app’s environment.",
+      "og:description": "Layerswap makes cross-chain asset swapping & bridging accessible to everyone. Explore its features, supported networks, tokens, & integration options",
       "og:logo": "/logo/dark.svg"
     },
     "indexing": "navigable"
