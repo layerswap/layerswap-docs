@@ -168,6 +168,7 @@ export const DepositWidget = () => {
     const step3Ref = useRef(null);
     const step4Ref = useRef(null);
     const step5Ref = useRef(null);
+    const trackingIntervalRef = useRef(null);
 
     // Styles
 
@@ -336,10 +337,10 @@ export const DepositWidget = () => {
     // Cleanup intervals on unmount
     useEffect(() => {
         return () => {
-            if (trackingInterval) clearInterval(trackingInterval);
+            if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
             if (countdownInterval) clearInterval(countdownInterval);
         };
-    }, [trackingInterval, countdownInterval]);
+    }, [countdownInterval]);
 
     // ===== API CALL FUNCTION =====
     const apiCall = useCallback(async (endpoint, method = 'GET', body = null, stepNumber = null) => {
@@ -620,11 +621,11 @@ export const DepositWidget = () => {
     const handleGetQuote = async () => {
         // Validate that previous steps are completed
         if (!sourceNetwork || !sourceToken) {
-            setStep3Result({ 
+            setStep3Result({
                 message: 'You must complete Step 2 first',
                 description: 'Please select a source network and token before getting a quote.',
-                variant: 'error', 
-                visible: true 
+                variant: 'error',
+                visible: true
             });
             return;
         }
@@ -667,31 +668,31 @@ export const DepositWidget = () => {
     const handleCreateSwap = async () => {
         // Validate that previous steps are completed
         if (!sourceNetwork || !sourceToken) {
-            setStep4Result({ 
+            setStep4Result({
                 message: 'You must complete Step 2 first',
                 description: 'Please select a source network and token before creating a swap.',
-                variant: 'error', 
-                visible: true 
+                variant: 'error',
+                visible: true
             });
             return;
         }
 
         if (!destinationNetwork || (tokenMode === 'single' ? !destinationToken : !destinationTokenMultiple)) {
-            setStep4Result({ 
+            setStep4Result({
                 message: 'You must complete Step 1 first',
                 description: 'Please select a destination network and token before creating a swap.',
-                variant: 'error', 
-                visible: true 
+                variant: 'error',
+                visible: true
             });
             return;
         }
 
         if (!walletAddress) {
-            setStep4Result({ 
+            setStep4Result({
                 message: 'You must complete Step 1 first',
                 description: 'Please enter a wallet address before creating a swap.',
-                variant: 'error', 
-                visible: true 
+                variant: 'error',
+                visible: true
             });
             return;
         }
@@ -755,6 +756,7 @@ export const DepositWidget = () => {
 
         if (trackingInterval) {
             clearInterval(trackingInterval);
+            trackingIntervalRef.current = null;
             setTrackingInterval(null);
             if (countdownInterval) {
                 clearInterval(countdownInterval);
@@ -784,6 +786,40 @@ export const DepositWidget = () => {
                     if (swap.deposit_actions && swap.deposit_actions.length > 0 && swap.deposit_actions[0].to_address) {
                         setDepositAddress(swap.deposit_actions[0].to_address);
                     }
+
+                    // Check if swap is completed and stop tracking
+                    if (swap.status === 'completed') {
+                        if (trackingIntervalRef.current) {
+                            clearInterval(trackingIntervalRef.current);
+                            trackingIntervalRef.current = null;
+                            setTrackingInterval(null);
+                        }
+                        if (countdownInterval) {
+                            clearInterval(countdownInterval);
+                            setCountdownInterval(null);
+                        }
+                        setStep5Result({
+                            message: 'Swap completed successfully!',
+                            variant: 'success',
+                            visible: true
+                        });
+                    } else if (swap.status === 'failed') {
+                        if (trackingIntervalRef.current) {
+                            clearInterval(trackingIntervalRef.current);
+                            trackingIntervalRef.current = null;
+                            setTrackingInterval(null);
+                        }
+                        if (countdownInterval) {
+                            clearInterval(countdownInterval);
+                            setCountdownInterval(null);
+                        }
+                        setStep5Result({
+                            message: 'Swap failed',
+                            description: 'The transfer could not be completed. Please contact support for assistance.',
+                            variant: 'error',
+                            visible: true
+                        });
+                    }
                 }
             } catch (error) {
                 setStep5Result({
@@ -796,6 +832,7 @@ export const DepositWidget = () => {
 
         track();
         const interval = setInterval(track, POLL_INTERVAL_MS);
+        trackingIntervalRef.current = interval;
         setTrackingInterval(interval);
     };
 
@@ -1088,7 +1125,7 @@ export const DepositWidget = () => {
         if (!result.visible) return null;
 
         const isErrorWithDescription = result.variant === 'error' && result.description;
-        
+
         return (
             <div className={`mt-4 rounded-lg border ${result.variant === 'success'
                 ? 'border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20'
@@ -1192,7 +1229,7 @@ export const DepositWidget = () => {
     // Can be used in both desktop sidebar and mobile sections
     const ApiActivityDisplay = ({ stepKey, className = "" }) => {
         if (!stepKey) return null;
-        
+
         const activity = apiActivity[stepKey];
         if (!activity || (!activity.request && !activity.response)) return null;
 
@@ -2058,10 +2095,10 @@ export const DepositWidget = () => {
                                         const sortedSources = sources.sort((a, b) => b.source_rank - a.source_rank);
                                         const featuredSources = sortedSources.filter(source => FEATURED_NETWORKS.includes(source.name));
                                         const otherSources = sortedSources.filter(source => !FEATURED_NETWORKS.includes(source.name));
-                                        
+
                                         const minSourcesToShow = 9;
                                         const allSources = [...featuredSources, ...otherSources];
-                                        
+
                                         // Always keep featured sources at the top, then add other sources
                                         let displayedSources;
                                         if (showAllSourceNetworks) {
@@ -2073,7 +2110,7 @@ export const DepositWidget = () => {
                                             const otherSourcesToShow = otherSources.slice(0, neededFromOthers);
                                             displayedSources = [...featuredSources, ...otherSourcesToShow];
                                         }
-                                        
+
                                         const hasMoreSources = displayedSources.length < allSources.length;
 
                                         return (
@@ -2162,7 +2199,8 @@ export const DepositWidget = () => {
                                                                 <img
                                                                     src={token.logo}
                                                                     alt={tokenSymbol}
-                                                                    className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                    className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5 pointer-events-none select-none"
+                                                                    style={{ touchAction: 'none', userSelect: 'none' }}
                                                                     onError={(e) => e.target.style.display = 'none'}
                                                                 />
                                                             )}
@@ -2258,7 +2296,8 @@ export const DepositWidget = () => {
                                                                 <img
                                                                     src={token.logo}
                                                                     alt={tokenSymbol}
-                                                                    className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                    className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5 pointer-events-none select-none"
+                                                                    style={{ touchAction: 'none', userSelect: 'none' }}
                                                                     onError={(e) => e.target.style.display = 'none'}
                                                                 />
                                                             )}
@@ -2714,11 +2753,11 @@ export const DepositWidget = () => {
                                                                         {tx.type || 'transfer'}
                                                                     </span>
                                                                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                                                        {tx.amount || 'N/A'} {tx.token || ''}
+                                                                        {tx.amount || 'N/A'} {typeof tx.token === 'object' ? (tx.token?.symbol || tx.token?.display_asset || '') : (tx.token || '')}
                                                                     </span>
                                                                 </div>
                                                                 <span className="text-[10px] text-gray-600 dark:text-gray-400">
-                                                                    {tx.network || 'N/A'}
+                                                                    {typeof tx.network === 'object' ? (tx.network?.name || tx.network?.display_name || 'N/A') : (tx.network || 'N/A')}
                                                                 </span>
                                                             </div>
                                                         </div>
