@@ -618,6 +618,17 @@ export const DepositWidget = () => {
     };
 
     const handleGetQuote = async () => {
+        // Validate that previous steps are completed
+        if (!sourceNetwork || !sourceToken) {
+            setStep3Result({ 
+                message: 'You must complete Step 2 first',
+                description: 'Please select a source network and token before getting a quote.',
+                variant: 'error', 
+                visible: true 
+            });
+            return;
+        }
+
         const params = new URLSearchParams({
             source_network: sourceNetwork,
             source_token: sourceToken,
@@ -654,6 +665,37 @@ export const DepositWidget = () => {
     };
 
     const handleCreateSwap = async () => {
+        // Validate that previous steps are completed
+        if (!sourceNetwork || !sourceToken) {
+            setStep4Result({ 
+                message: 'You must complete Step 2 first',
+                description: 'Please select a source network and token before creating a swap.',
+                variant: 'error', 
+                visible: true 
+            });
+            return;
+        }
+
+        if (!destinationNetwork || (tokenMode === 'single' ? !destinationToken : !destinationTokenMultiple)) {
+            setStep4Result({ 
+                message: 'You must complete Step 1 first',
+                description: 'Please select a destination network and token before creating a swap.',
+                variant: 'error', 
+                visible: true 
+            });
+            return;
+        }
+
+        if (!walletAddress) {
+            setStep4Result({ 
+                message: 'You must complete Step 1 first',
+                description: 'Please enter a wallet address before creating a swap.',
+                variant: 'error', 
+                visible: true 
+            });
+            return;
+        }
+
         const swapData = {
             source_network: sourceNetwork,
             source_token: sourceToken,
@@ -1041,6 +1083,77 @@ export const DepositWidget = () => {
         };
     }, []); // Empty deps - component function is stable
 
+    // Reusable Result Box Component
+    const ResultBox = ({ result }) => {
+        if (!result.visible) return null;
+
+        const isErrorWithDescription = result.variant === 'error' && result.description;
+        
+        return (
+            <div className={`mt-4 rounded-lg border ${result.variant === 'success'
+                ? 'border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20'
+                : result.variant === 'error'
+                    ? 'border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20'
+                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark'
+                }`}>
+                {isErrorWithDescription ? (
+                    <div className="flex items-start gap-3 px-4 py-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 dark:text-red-400">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-red-900 dark:text-red-300 mb-1">
+                                {result.message}
+                            </div>
+                            <div className="text-sm text-red-700/90 dark:text-red-400/90 leading-relaxed">
+                                {result.description}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className={`px-4 py-3 text-sm leading-relaxed break-words flex items-start gap-3 ${result.variant === 'success'
+                        ? 'text-green-800 dark:text-green-300'
+                        : result.variant === 'error'
+                            ? 'text-red-700 dark:text-red-400'
+                            : 'text-gray-900 dark:text-gray-200'
+                        }`}>
+                        {result.variant === 'error' && (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                        )}
+                        {result.variant === 'success' && (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        )}
+                        <div className="flex-1">
+                            {result.description ? (
+                                <>
+                                    <div className={`font-medium mb-1 ${result.variant === 'error' ? 'text-red-900 dark:text-red-300' : ''}`}>
+                                        {result.message}
+                                    </div>
+                                    <div className={`${result.variant === 'error' ? 'text-red-700/90 dark:text-red-400/90' : 'opacity-90'}`}>
+                                        {result.description}
+                                    </div>
+                                </>
+                            ) : (
+                                <div>{result.message}</div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     // Get API docs URL for a step
     const getApiDocsUrl = (stepKey) => {
         const docsMap = {
@@ -1248,12 +1361,7 @@ export const DepositWidget = () => {
     ];
 
     const isStepLocked = (sectionId) => {
-        if (sectionId === 'overview' || sectionId === 'step1') return false;
-        if (sectionId === 'step2') return step2Locked;
-        if (sectionId === 'step3-destination') return step3DestinationLocked;
-        if (sectionId === 'step3') return step3Locked;
-        if (sectionId === 'step4') return step4Locked;
-        if (sectionId === 'step5') return step5Locked;
+        // All steps are now enabled - no disabled states
         return false;
     };
 
@@ -1485,7 +1593,6 @@ export const DepositWidget = () => {
                                     id="sidebar-group"
                                 >
                                     {navItems.map(item => {
-                                        const locked = isStepLocked(item.id);
                                         const active = activeSection === item.id;
                                         return (
                                             <li className="relative scroll-m-4 first:scroll-m-20" key={item.id}>
@@ -1495,7 +1602,7 @@ export const DepositWidget = () => {
                                                     className={`group flex items-center pr-3 pl-4 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] ${active
                                                         ? 'bg-primary/10 text-primary [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:text-primary-light dark:bg-primary-light/10'
                                                         : 'hover:bg-gray-600/5 dark:hover:bg-gray-200/5 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
-                                                        } ${locked ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                                        }`}
                                                 >
                                                     <div className="flex-1 flex items-center space-x-2.5">
                                                         <div>{item.label}</div>
@@ -1899,7 +2006,7 @@ export const DepositWidget = () => {
                             <div
                                 id="step2"
                                 ref={step2Ref}
-                                className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${step2Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''}`}
+                                className="relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12"
                                 style={{
                                     scrollMarginTop: '96px'
                                 }}
@@ -1933,9 +2040,9 @@ export const DepositWidget = () => {
                                     {/* Get Sources Button */}
                                     <button
                                         onClick={handleGetSources}
-                                        disabled={step2Locked || isLoadingStep2}
+                                        disabled={isLoadingStep2}
                                         aria-label="Fetch available source networks"
-                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${step2Locked
+                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${isLoadingStep2
                                             ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                                             : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
                                             }`}
@@ -1944,16 +2051,7 @@ export const DepositWidget = () => {
                                     </button>
 
                                     {/* Result Box */}
-                                    {step2Result.visible && (
-                                        <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${step2Result.variant === 'success'
-                                            ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                                            : step2Result.variant === 'error'
-                                                ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
-                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
-                                            }`}>
-                                            {step2Result.message}
-                                        </div>
-                                    )}
+                                    <ResultBox result={step2Result} />
 
                                     {/* Source Networks Grid */}
                                     {showSourceNetworks && sources.length > 0 && (() => {
@@ -2103,8 +2201,7 @@ export const DepositWidget = () => {
                                 <div
                                     id="step3-destination"
                                     ref={step3DestinationRef}
-                                    className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${step3DestinationLocked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
-                                        }`}
+                                    className="relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12"
                                     style={{
                                         scrollMarginTop: '96px'
                                     }}
@@ -2124,9 +2221,9 @@ export const DepositWidget = () => {
                                         {/* Get Available Tokens Button */}
                                         <button
                                             onClick={handleGetDestinationTokens}
-                                            disabled={step3DestinationLocked || isLoadingStep3Destination}
+                                            disabled={isLoadingStep3Destination}
                                             aria-label="Fetch available destination tokens"
-                                            className={`mt-2 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${step3DestinationLocked
+                                            className={`mt-2 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${isLoadingStep3Destination
                                                 ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                                                 : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
                                                 }`}
@@ -2135,16 +2232,7 @@ export const DepositWidget = () => {
                                         </button>
 
                                         {/* Result Box */}
-                                        {step3DestinationResult.visible && (
-                                            <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${step3DestinationResult.variant === 'success'
-                                                ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                                                : step3DestinationResult.variant === 'error'
-                                                    ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
-                                                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
-                                                }`}>
-                                                {step3DestinationResult.message}
-                                            </div>
-                                        )}
+                                        <ResultBox result={step3DestinationResult} />
 
                                         {/* Destination Tokens Grid */}
                                         {showDestinationTokens && tokens.length > 0 && (
@@ -2203,8 +2291,7 @@ export const DepositWidget = () => {
                             <div
                                 id="step3"
                                 ref={step3Ref}
-                                className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${step3Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
-                                    }`}
+                                className="relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12"
                                 style={{
                                     scrollMarginTop: '96px'
                                 }}
@@ -2231,9 +2318,9 @@ export const DepositWidget = () => {
                                     {/* Get Quote Button */}
                                     <button
                                         onClick={handleGetQuote}
-                                        disabled={step3Locked || isLoadingStep3}
+                                        disabled={isLoadingStep3}
                                         aria-label="Get detailed transfer quote"
-                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${step3Locked
+                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${isLoadingStep3
                                             ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                                             : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
                                             }`}
@@ -2242,16 +2329,7 @@ export const DepositWidget = () => {
                                     </button>
 
                                     {/* Result Box */}
-                                    {step3Result.visible && (
-                                        <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${step3Result.variant === 'success'
-                                            ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                                            : step3Result.variant === 'error'
-                                                ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
-                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
-                                            }`}>
-                                            {step3Result.message}
-                                        </div>
-                                    )}
+                                    <ResultBox result={step3Result} />
 
                                     {/* Quote Details */}
                                     {showQuoteDetails && quotes.length > 0 && (
@@ -2472,8 +2550,7 @@ export const DepositWidget = () => {
                             <div
                                 id="step4"
                                 ref={step4Ref}
-                                className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${step4Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
-                                    }`}
+                                className="relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12"
                                 style={{
                                     scrollMarginTop: '96px'
                                 }}
@@ -2489,9 +2566,9 @@ export const DepositWidget = () => {
                                     {/* Create Swap Button */}
                                     <button
                                         onClick={handleCreateSwap}
-                                        disabled={step4Locked || isLoadingStep4}
+                                        disabled={isLoadingStep4}
                                         aria-label="Create a new swap transaction"
-                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${step4Locked
+                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${isLoadingStep4
                                             ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                                             : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
                                             }`}
@@ -2500,16 +2577,7 @@ export const DepositWidget = () => {
                                     </button>
 
                                     {/* Result Box */}
-                                    {step4Result.visible && (
-                                        <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${step4Result.variant === 'success'
-                                            ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                                            : step4Result.variant === 'error'
-                                                ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
-                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
-                                            }`}>
-                                            {step4Result.message}
-                                        </div>
-                                    )}
+                                    <ResultBox result={step4Result} />
 
                                     {/* Deposit Info */}
                                     {showDepositInfo && depositAddress && (
@@ -2556,8 +2624,7 @@ export const DepositWidget = () => {
                             <div
                                 id="step5"
                                 ref={step5Ref}
-                                className={`relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12 ${step5Locked ? 'opacity-35 pointer-events-none grayscale-[50%]' : ''
-                                    }`}
+                                className="relative flex flex-col gap-8 border-b border-gray-200 dark:border-white/10 pb-10 mb-12"
                                 style={{
                                     scrollMarginTop: '96px'
                                 }}
@@ -2573,13 +2640,10 @@ export const DepositWidget = () => {
                                     {/* Check Status Button */}
                                     <button
                                         onClick={handleTrackSwap}
-                                        disabled={step5Locked}
                                         aria-label="Check swap transaction status"
-                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${step5Locked
-                                            ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                                            : trackingInterval
-                                                ? 'bg-destructive dark:bg-destructive text-white hover:bg-destructive/90 dark:hover:bg-destructive/90 cursor-pointer'
-                                                : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
+                                        className={`mt-3 inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors ${trackingInterval
+                                            ? 'bg-destructive dark:bg-destructive text-white hover:bg-destructive/90 dark:hover:bg-destructive/90 cursor-pointer'
+                                            : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
                                             }`}
                                     >
                                         {trackingInterval ? 'Stop Tracking' : 'Check Status'}
@@ -2629,16 +2693,7 @@ export const DepositWidget = () => {
                                     )}
 
                                     {/* Result Box */}
-                                    {step5Result.visible && (
-                                        <div className={`mt-4 rounded-xl px-4 py-3 text-sm leading-relaxed break-words ${step5Result.variant === 'success'
-                                            ? 'border border-green-500/50 dark:border-green-400/50 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                                            : step5Result.variant === 'error'
-                                                ? 'border border-destructive/60 dark:border-destructive/60 bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive'
-                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200'
-                                            }`}>
-                                            {step5Result.message}
-                                        </div>
-                                    )}
+                                    <ResultBox result={step5Result} />
 
                                     {/* Swap Transactions */}
                                     {showSwapTransactions && swapStatus && (
