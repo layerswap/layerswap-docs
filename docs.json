@@ -97,7 +97,8 @@
                   "integration/UI/Widget/Troubleshooting/NextPolyfills",
                   "integration/UI/Widget/Troubleshooting/NextTranspilePackages"
                 ]
-              }
+              },
+              "integration/UI/Widget/Compatability"
             ]
           },
           {

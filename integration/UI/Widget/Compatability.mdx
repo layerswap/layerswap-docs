@@ -1,0 +1,195 @@
+---
+title: 'Framework Compatibility'
+description: 'Technical requirements and configurations for integrating the Layerswap Widget'
+---
+
+The Layerswap Widget is compatible with modern React frameworks. Each framework requires specific configurations to handle Node.js polyfills and package transpilation.
+
+## Framework Configurations
+
+### Next.js (App Router & Page Router)
+
+Next.js requires package transpilation and webpack configuration.
+
+```ts next.config.ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false }
+    config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    return config
+  },
+  transpilePackages: [
+    '@layerswap/widget',
+    '@layerswap/wallet-evm',
+    '@layerswap/wallet-bitcoin',
+    '@layerswap/wallet-fuel',
+    '@layerswap/wallet-paradex',
+    '@layerswap/wallet-starknet',
+    '@layerswap/wallet-svm',
+    '@layerswap/wallet-ton',
+    '@layerswap/wallet-tron',
+    '@layerswap/wallet-imtbl-x',
+    '@layerswap/wallet-imtbl-passport',
+    '@layerswap/wallet-module-zksync',
+    '@layerswap/wallet-module-loopring',
+    '@layerswap/wallets'
+  ],
+};
+
+export default nextConfig;
+```
+
+<Card title="View Example" icon="github" href="https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-app-router">
+  Next.js App Router Example
+</Card>
+
+---
+
+### Vite
+
+Vite requires Node.js polyfills for browser compatibility.
+
+**Install polyfill plugin:**
+```bash
+npm install -D vite-plugin-node-polyfills
+```
+
+**Configuration:**
+```ts vite.config.ts
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+
+export default defineConfig({
+  plugins: [react(), nodePolyfills()],
+  esbuild: {
+    target: 'esnext',
+  },
+})
+```
+
+<Card title="View Example" icon="github" href="https://github.com/layerswap/layerswapapp/tree/main/examples/vite">
+  Vite Example
+</Card>
+
+---
+
+### React Router 7
+
+React Router 7 requires global polyfills, SSR configuration, and dependency optimization.
+
+**Install dependencies:**
+```bash
+npm install buffer process stream-browserify
+npm install -D vite-tsconfig-paths
+```
+
+**Global polyfills in root:**
+```tsx app/root.tsx
+import {Buffer} from 'buffer'
+import process from 'process';
+import stream from 'stream-browserify';
+
+globalThis.Buffer = Buffer;
+globalThis.process = process;
+if (typeof globalThis.stream === 'undefined') {
+  (globalThis as any).stream = stream;
+}
+
+// ... rest of your root component
+```
+
+**Vite configuration:**
+```ts vite.config.ts
+import { reactRouter } from "@react-router/dev/vite";
+import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
+
+export default defineConfig({
+  plugins: [reactRouter(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      "react-router-dom": "react-router",
+      "stream": "stream-browserify",
+    },
+  },
+  define: {
+    global: "globalThis",
+  },
+  ssr: {
+    noExternal: [
+      "@layerswap/widget",
+      "@layerswap/wallet-evm",
+      "@layerswap/wallet-svm",
+      "@layerswap/wallet-bitcoin",
+      "@layerswap/wallet-starknet",
+      "@layerswap/wallets",
+      "@layerswap/wallet-fuel",
+      "@layerswap/wallet-ton",
+      "@layerswap/wallet-paradex",
+      "@layerswap/wallet-imtbl-x",
+      "@layerswap/wallet-imtbl-passport",
+      "@layerswap/wallet-module-zksync",
+      "@layerswap/wallet-module-loopring",
+      "@layerswap/wallet-tron",
+      "js-sha3"
+    ],
+  },
+  optimizeDeps: {
+    include: [
+      "@layerswap/widget",
+      "@layerswap/wallet-evm",
+      "@layerswap/wallet-svm",
+      "@layerswap/wallet-bitcoin",
+      "@layerswap/wallet-starknet",
+      "@layerswap/wallets",
+      "@layerswap/wallet-fuel",
+      "@layerswap/wallet-ton",
+      "@layerswap/wallet-paradex",
+      "@layerswap/wallet-imtbl-x",
+      "@layerswap/wallet-imtbl-passport",
+      "@layerswap/wallet-module-zksync",
+      "@layerswap/wallet-module-loopring",
+      "@layerswap/wallet-tron",
+      "js-sha3"
+    ],
+  },
+});
+```
+
+<Card title="View Example" icon="github" href="https://github.com/layerswap/layerswapapp/tree/main/examples/react-router-7">
+  React Router 7 Example
+</Card>
+
+---
+
+## Wallet Library Integrations
+
+The widget is compatible with popular wallet connection libraries:
+
+| Library | Example | Notes |
+|---------|---------|-------|
+| **Default Providers** | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-app-router) | Built-in support for all networks via `@layerswap/wallets` |
+| **RainbowKit** | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-rainbowkit) | Popular wallet UI library with wagmi |
+| **Reown AppKit** | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-reown) | WalletConnect's official React integration |
+| **Dynamic** | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-dynamic) | Enterprise wallet connection solution |
+
+---
+
+## All Examples
+
+| Framework | Example | Key Configuration |
+|-----------|---------|-------------------|
+| Next.js App Router | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-app-router) | `transpilePackages` + webpack fallbacks |
+| Next.js Page Router | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-page-router) | `transpilePackages` + webpack fallbacks |
+| Vite | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/vite) | `vite-plugin-node-polyfills` |
+| React Router 7 | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/react-router-7) | Global polyfills + SSR config |
+| Next.js + RainbowKit | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-rainbowkit) | Next.js config + wagmi setup |
+| Next.js + Reown | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-reown) | Next.js config + Reown AppKit |
+| Next.js + Dynamic | [View](https://github.com/layerswap/layerswapapp/tree/main/examples/nextjs-dynamic) | Next.js config + Dynamic SDK |
+
+<Info>
+  All examples include working implementations with proper TypeScript configurations.
+</Info>
