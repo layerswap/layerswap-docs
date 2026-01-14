@@ -207,7 +207,7 @@ export const QuickstartEmbed = () => {
       : 'npm install ';
   
   // Base packages always required
-  const basePkgs = ['@layerswap/widget', '@layerswap/wallets'];
+  const basePkgs = ['@layerswap/widget', '@layerswap/wallets', 'zustand@4.5.7'];
   
   // Wallet-specific additional dependencies mapping
   const walletDependencies = {
