@@ -16,6 +16,46 @@ export const DepositWidget = () => {
         'TRON_MAINNET'
     ];
 
+    // Address placeholder and demo address per network type (canonical keys).
+    // starkex, zksynclite, tron -> evm; paradex -> starknet (see normalizeAddressConfigType).
+    const ADDRESS_CONFIG_BY_TYPE = {
+        evm: { placeholder: '0x...', demoAddress: '0xB2029bbd8C1cBCC43c3A7b7fE3d118b0C57D7C31', label: 'EVM' },
+        starknet: { placeholder: '0x...', demoAddress: '0x01837e50abe7B59bc3d0A57F09D80a0C34aAF1127b2c5E36b9E9b817030FF11b', label: 'Starknet' },
+        bitcoin: { placeholder: 'bc1...', demoAddress: 'bc1q6hmkcmnaf6420wpuvxtyj3r7hz9wp6tqxd4acx', label: 'Bitcoin' },
+        solana: { placeholder: 'Enter Solana address', demoAddress: '4hLwFR5JpxztsYMyy574mcWsfYc9sbfeAx5FKMYfw8vB', label: 'Solana' },
+        ton: { placeholder: 'UQ...', demoAddress: 'UQBIzjyUe0ebJlqU4gVnQ0jwlsslPkAs0FD5h3I6wOZLPmGM', label: 'TON' },
+        fuel: { placeholder: '0x...', demoAddress: '0x9E22044B082B1ff5B2b824De1068F9A04A02ff0E1d36807B2b9Dda8bB65071C3', label: 'Fuel' },
+        default: { placeholder: '0x...', demoAddress: '0xB2029bbd8C1cBCC43c3A7b7fE3d118b0C57D7C31', label: 'EVM' }
+    };
+
+    const normalizeAddressConfigType = (apiType) => {
+        if (!apiType) return 'default';
+        const t = String(apiType).toLowerCase();
+        if (t === 'starkex' || t === 'zksynclite') return 'evm';
+        if (t === 'paradex') return 'starknet';
+        if (ADDRESS_CONFIG_BY_TYPE[t]) return t;
+        return 'default';
+    };
+
+    const NETWORK_NAME_TO_TYPE = {
+        BITCOIN_MAINNET: 'bitcoin',
+        ETHEREUM_MAINNET: 'evm',
+        STARKNET_MAINNET: 'starknet',
+        OPTIMISM_MAINNET: 'evm',
+        FUEL_MAINNET: 'fuel',
+        BASE_MAINNET: 'evm',
+        SOLANA_MAINNET: 'solana',
+        TON_MAINNET: 'ton',
+        TRON_MAINNET: 'evm',
+        PARADEX_MAINNET: 'paradex'
+    };
+
+    const getAddressConfigForDestination = (destNetwork, networksList) => {
+        const apiType = networksList?.find(n => n.name === destNetwork)?.type ?? NETWORK_NAME_TO_TYPE[destNetwork];
+        const canonical = normalizeAddressConfigType(apiType);
+        return ADDRESS_CONFIG_BY_TYPE[canonical] ?? ADDRESS_CONFIG_BY_TYPE.default;
+    };
+
     // ===== UTILITY FUNCTIONS (inside component) =====
     const resolveTheme = () => {
         if (typeof document === 'undefined') return 'dark';
@@ -206,7 +246,6 @@ export const DepositWidget = () => {
                 { id: 'overview', ref: overviewRef },
                 { id: 'step1', ref: step1Ref },
                 { id: 'step2', ref: step2Ref },
-                { id: 'step3-destination', ref: step3DestinationRef },
                 { id: 'step3', ref: step3Ref },
                 { id: 'step4', ref: step4Ref },
                 { id: 'step5', ref: step5Ref }
@@ -293,9 +332,7 @@ export const DepositWidget = () => {
 
     // Scroll spy
     useEffect(() => {
-        const sections = tokenMode === 'multiple'
-            ? ['overview', 'step1', 'step2', 'step3-destination', 'step3', 'step4', 'step5']
-            : ['overview', 'step1', 'step2', 'step3', 'step4', 'step5'];
+        const sections = ['overview', 'step1', 'step2', 'step3', 'step4', 'step5'];
 
         const updateActiveNav = throttle(() => {
             const offset = Math.max(window.innerHeight * 0.25, 180);
@@ -485,6 +522,33 @@ export const DepositWidget = () => {
         }
     }, [apiKey]);
 
+    // In multiple mode: when user selects source (network + token), derive destination token from the route
+    // so quote/swap work without a separate "Select Destination Token" step.
+    useEffect(() => {
+        if (tokenMode !== 'multiple' || !sourceNetwork || !sourceToken || !destinationNetwork) return;
+        let cancelled = false;
+        const params = new URLSearchParams({
+            source_network: sourceNetwork,
+            source_token: sourceToken
+        });
+        apiCall(`/destinations?${params.toString()}`, 'GET', null, null)
+            .then((data) => {
+                if (cancelled) return;
+                const destinations = data?.data || [];
+                const ourDestination = destinations.find(d => d.name === destinationNetwork);
+                const tokens = ourDestination?.tokens;
+                if (tokens && Array.isArray(tokens) && tokens.length > 0) {
+                    const first = tokens[0];
+                    const symbol = first.symbol ?? first.display_asset ?? (typeof first === 'string' ? first : null);
+                    if (symbol) setDestinationTokenMultiple(symbol);
+                } else {
+                    setDestinationTokenMultiple('');
+                }
+            })
+            .catch(() => { if (!cancelled) setDestinationTokenMultiple(''); });
+        return () => { cancelled = true; };
+    }, [tokenMode, sourceNetwork, sourceToken, destinationNetwork, apiCall]);
+
     // ===== EVENT HANDLERS =====
     const handleApiKeyChange = (e) => {
         const value = sanitizeInput(e.target.value);
@@ -544,8 +608,8 @@ export const DepositWidget = () => {
     };
 
     const handleAutofillPlaceholder = () => {
-        const placeholderAddress = '0xB2029bbd8C1cBCC43c3A7b7fE3d118b0C57D7C31'
-        handleWalletAddressChangeWithReset(placeholderAddress);
+        const config = getAddressConfigForDestination(destinationNetwork, networks);
+        handleWalletAddressChangeWithReset(config.demoAddress);
         setWalletAddressError(null);
     };
 
@@ -732,11 +796,11 @@ export const DepositWidget = () => {
             return;
         }
 
-        // In multiple mode, also validate that destination token is selected
+        // In multiple mode, destination token is derived from the selected source route; ensure it's set
         if (tokenMode === 'multiple' && !destinationTokenMultiple) {
             setStep3Result({
-                message: 'You must complete Step 3 first',
-                description: 'Please select a destination token before getting a quote.',
+                message: 'Destination token not ready',
+                description: 'The destination token for this route is still loading. Please wait a moment and try again.',
                 variant: 'error',
                 visible: true
             });
@@ -813,8 +877,8 @@ export const DepositWidget = () => {
 
         if (!destinationNetwork || (tokenMode === 'single' ? !destinationToken : !destinationTokenMultiple)) {
             setStep4Result({
-                message: 'You must complete Step 1 first',
-                description: 'Please select a destination network and token before creating a swap.',
+                message: 'Destination required',
+                description: 'Please select a destination network and token before creating a swap (in Step 1 and Step 2).',
                 variant: 'error',
                 visible: true
             });
@@ -995,10 +1059,9 @@ export const DepositWidget = () => {
         if (stepId === 'overview') return 0;
         if (stepId === 'step1') return 1;
         if (stepId === 'step2') return 2;
-        if (stepId === 'step3-destination') return 3;
-        if (stepId === 'step3') return tokenMode === 'multiple' ? 4 : 3;
-        if (stepId === 'step4') return tokenMode === 'multiple' ? 5 : 4;
-        if (stepId === 'step5') return tokenMode === 'multiple' ? 6 : 5;
+        if (stepId === 'step3') return 3;
+        if (stepId === 'step4') return 4;
+        if (stepId === 'step5') return 5;
         return 0;
     };
 
@@ -1007,10 +1070,9 @@ export const DepositWidget = () => {
         if (stepNum === 0) return 'overview';
         if (stepNum === 1) return 'step1';
         if (stepNum === 2) return 'step2';
-        if (stepNum === 3 && tokenMode === 'multiple') return 'step3-destination';
-        if (stepNum === 3 || (stepNum === 4 && tokenMode === 'multiple')) return 'step3';
-        if (stepNum === 4 || (stepNum === 5 && tokenMode === 'multiple')) return 'step4';
-        if (stepNum === 5 || (stepNum === 6 && tokenMode === 'multiple')) return 'step5';
+        if (stepNum === 3) return 'step3';
+        if (stepNum === 4) return 'step4';
+        if (stepNum === 5) return 'step5';
         return '';
     };
 
@@ -1018,20 +1080,13 @@ export const DepositWidget = () => {
     const getCompletedSteps = () => {
         const completed = [];
         
-        // Step 1 is complete if destination network and token are set
-        // In multiple mode, only destination network is required (token is selected in step3-destination)
-        const step1Complete = destinationNetwork && 
-            (tokenMode === 'single' ? destinationToken : true);
+        // Step 1 is complete if destination network is set
+        const step1Complete = !!destinationNetwork;
         if (step1Complete) completed.push('step1');
         
         // Step 2 is complete if source network and token are set
         const step2Complete = sourceNetwork && sourceToken;
         if (step2Complete) completed.push('step2');
-        
-        // Step 3-destination is complete if destinationTokenMultiple is set (multiple mode only)
-        if (tokenMode === 'multiple' && destinationTokenMultiple) {
-            completed.push('step3-destination');
-        }
         
         // Step 3 is complete if quotes are fetched
         if (quotes.length > 0) completed.push('step3');
@@ -1095,23 +1150,12 @@ export const DepositWidget = () => {
         setStep3Locked(stepNum <= 3 || (stepNum === 4 && tokenMode === 'multiple'));
         setStep3DestinationLocked(stepNum <= 3);
         // Step 4 should only be locked if step 2 is not complete, since step 3 (get quote) is optional
-        // In multiple mode, also requires step 3 (Select Destination Token) to be complete
         const step2Complete = sourceNetwork && sourceToken;
-        if (tokenMode === 'multiple') {
-            const step3DestinationComplete = destinationTokenMultiple;
-            if (step2Complete && step3DestinationComplete) {
-                // Don't lock step 4 if both step 2 and step 3-destination are complete
-                setStep4Locked(false);
-            } else {
-                setStep4Locked(stepNum <= 4 || (stepNum === 5 && tokenMode === 'multiple'));
-            }
+        if (step2Complete) {
+            // Don't lock step 4 if step 2 is complete, even if we're on an earlier step
+            setStep4Locked(false);
         } else {
-            if (step2Complete) {
-                // Don't lock step 4 if step 2 is complete, even if we're on an earlier step
-                setStep4Locked(false);
-            } else {
-                setStep4Locked(stepNum <= 4 || (stepNum === 5 && tokenMode === 'multiple'));
-            }
+            setStep4Locked(stepNum <= 4 || (stepNum === 5 && tokenMode === 'multiple'));
         }
         setStep5Locked(stepNum <= 5 || (stepNum === 6 && tokenMode === 'multiple'));
     };
@@ -1577,7 +1621,6 @@ export const DepositWidget = () => {
 
     // Map section ID to API step key
     const getApiSectionKey = (sectionId) => {
-        if (sectionId === 'step3-destination') return 'step3-destination';
         if (sectionId === 'step2') return 'step2';
         if (sectionId === 'step3') return 'step3';
         if (sectionId === 'step4') return 'step4';
@@ -1695,7 +1738,7 @@ export const DepositWidget = () => {
 
     // Get active step key for API sidebar based on current active section
     const getActiveApiStepKey = useMemo(() => {
-        const API_SECTION_ORDER = ['step2', 'step3-destination', 'step3', 'step4', 'step5'];
+        const API_SECTION_ORDER = ['step2', 'step3', 'step4', 'step5'];
         const currentKey = getApiSectionKey(activeSection);
 
         // Priority 1: If current section has data, show it
@@ -1768,20 +1811,12 @@ export const DepositWidget = () => {
 
     // Unlock step 4 (Create Swap) when step 2 (Select Source) is completed
     // Getting a quote is optional, so step 4 should be unlocked based on step 2 completion
-    // In multiple mode, also requires step 3 (Select Destination Token) to be completed
     useEffect(() => {
         const step2Complete = sourceNetwork && sourceToken;
-        if (tokenMode === 'multiple') {
-            const step3DestinationComplete = destinationTokenMultiple;
-            if (step2Complete && step3DestinationComplete) {
-                setStep4Locked(false);
-            }
-        } else {
-            if (step2Complete) {
-                setStep4Locked(false);
-            }
+        if (step2Complete) {
+            setStep4Locked(false);
         }
-    }, [sourceNetwork, sourceToken, destinationTokenMultiple, tokenMode]);
+    }, [sourceNetwork, sourceToken, tokenMode]);
 
     // Get selected network display name
     const selectedNetworkDisplay = networks.find(n => n.name === destinationNetwork)?.display_name || formatNetworkName(destinationNetwork);
@@ -1812,10 +1847,9 @@ export const DepositWidget = () => {
         { id: 'overview', label: 'Overview' },
         { id: 'step1', label: 'Step 1: Setup Destination' },
         { id: 'step2', label: 'Step 2: Select Source' },
-        ...(tokenMode === 'multiple' ? [{ id: 'step3-destination', label: 'Step 3: Select Destination Token' }] : []),
-        { id: 'step3', label: `${tokenMode === 'multiple' ? 'Step 4:' : 'Step 3:'} Get Quote` },
-        { id: 'step4', label: `${tokenMode === 'multiple' ? 'Step 5:' : 'Step 4:'} Create Swap` },
-        { id: 'step5', label: `${tokenMode === 'multiple' ? 'Step 6:' : 'Step 5:'} Check Status` }
+        { id: 'step3', label: 'Step 3: Get Quote' },
+        { id: 'step4', label: 'Step 4: Create Swap' },
+        { id: 'step5', label: 'Step 5: Check Status' }
     ];
 
     const isStepLocked = (sectionId) => {
@@ -1825,19 +1859,12 @@ export const DepositWidget = () => {
         }
         
         // Step 2 requires Step 1 to be completed (destination network, token, and wallet address)
-        // In multiple mode, only destination network is required (token is selected in step3-destination)
         if (sectionId === 'step2') {
             const walletValidation = validateWalletAddress(walletAddress);
             const step1Complete = destinationNetwork && 
                 (tokenMode === 'single' ? destinationToken : true) &&
                 walletValidation.valid;
             return !step1Complete;
-        }
-        
-        // Step 3-destination (multiple mode only) requires Step 2 to be completed
-        if (sectionId === 'step3-destination') {
-            const step2Complete = sourceNetwork && sourceToken;
-            return !step2Complete;
         }
         
         // Step 3 (Get Quote) requires Step 2 to be completed
@@ -1847,13 +1874,8 @@ export const DepositWidget = () => {
         }
         
         // Step 4 (Create Swap) requires Step 2 to be completed (get quote is optional)
-        // In multiple mode, also requires Step 3 (Select Destination Token) to be completed
         if (sectionId === 'step4') {
             const step2Complete = sourceNetwork && sourceToken;
-            if (tokenMode === 'multiple') {
-                const step3DestinationComplete = destinationTokenMultiple;
-                return !step2Complete || !step3DestinationComplete;
-            }
             return !step2Complete;
         }
         
@@ -1869,10 +1891,9 @@ export const DepositWidget = () => {
     // Helper function to get the prerequisite step name
     const getPrerequisiteStep = (sectionId) => {
         if (sectionId === 'step2') return 'Step 1: Setup Destination';
-        if (sectionId === 'step3-destination') return 'Step 2: Select Source';
         if (sectionId === 'step3') return 'Step 2: Select Source';
-        if (sectionId === 'step4') return tokenMode === 'multiple' ? 'Step 3: Select Destination Token' : 'Step 2: Select Source';
-        if (sectionId === 'step5') return tokenMode === 'multiple' ? 'Step 5: Create Swap' : 'Step 4: Create Swap';
+        if (sectionId === 'step4') return 'Step 2: Select Source';
+        if (sectionId === 'step5') return 'Step 4: Create Swap';
         return '';
     };
 
@@ -2933,7 +2954,7 @@ export const DepositWidget = () => {
                                                     type="text"
                                                     value={walletAddress}
                                                     onChange={handleWalletAddressChange}
-                                                    placeholder="0x..."
+                                                    placeholder={getAddressConfigForDestination(destinationNetwork, networks).placeholder}
                                                     className={`flex-1 min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${walletAddressError
                                                         ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
                                                         : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
@@ -2951,7 +2972,7 @@ export const DepositWidget = () => {
                                                         ? 'border-none bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light'
                                                         : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-600 dark:text-gray-400 hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light'
                                                         }`}
-                                                    title="Fill with placeholder address"
+                                                    title={`Fill with example ${getAddressConfigForDestination(destinationNetwork, networks).label} address`}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" /></svg>
                                                     <span>Fill</span>
@@ -3407,138 +3428,10 @@ export const DepositWidget = () => {
                                 </div>
                             </div>
 
-                                {/* Divider */}
-                                <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+                            {/* Divider */}
+                            <div className="h-px bg-gray-200 dark:bg-white/10"></div>
 
-                            {/* Step 3: Select Destination Token (Multiple Tokens Mode Only) */}
-                            {tokenMode === 'multiple' && (
-                                <>
-                                <div
-                                    id="step3-destination"
-                                    ref={step3DestinationRef}
-                                    className="relative flex flex-col gap-8"
-                                    style={{
-                                        scrollMarginTop: '96px'
-                                    }}
-                                >
-                                    <div className="flex flex-col gap-4">
-                                        <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">3</span>
-                                            Select Destination Token
-                                        </h2>
-                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                            After the user selects a source, use the destinations endpoint to determine the token they'll receive on{' '}
-                                            <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                {selectedNetworkDisplay}
-                                            </span>
-                                            .
-                                        </p>
-
-                                        {/* Get Available Tokens Button */}
-                                        {(() => {
-                                            const step2Complete = sourceNetwork && sourceToken;
-                                            const isDisabled = isLoadingStep3Destination || !step2Complete;
-                                            return (
-                                                <div className="relative mt-2 block group">
-                                                    <button
-                                                        onClick={handleGetDestinationTokens}
-                                                        disabled={isDisabled}
-                                                        aria-label={showDestinationTokens && tokens.length > 0 ? "Refresh available destination tokens" : "Fetch available destination tokens"}
-                                                        className={`inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full ${isDisabled
-                                                            ? 'cursor-pointer text-gray-400'
-                                                            : (showDestinationTokens && tokens.length > 0)
-                                                                ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer'
-                                                                : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
-                                                            }`}
-                                                        style={isDisabled ? { backgroundColor: '#590E25' } : {}}
-                                                    >
-                                                        {isLoadingStep3Destination ? 'Loading...' : (showDestinationTokens && tokens.length > 0 ? 'Refresh' : 'Get Available Tokens')}
-                                                    </button>
-                                                    {isDisabled && !step2Complete && (
-                                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                            Please complete Step 2: Select Source first
-                                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                                                                <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
-
-                                        {/* Success Message (inline, dimmed when loading) */}
-                                        {step3DestinationResult.visible && step3DestinationResult.variant === 'success' && (
-                                            <div className={`text-sm leading-relaxed flex items-start gap-3 text-green-600 dark:text-green-400 ${isLoadingStep3Destination ? 'opacity-50' : ''}`}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5">
-                                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                                    <polyline points="22 4 12 14.01 9 11.01" />
-                                                </svg>
-                                                <div className="flex-1">
-                                                    {step3DestinationResult.description ? (
-                                                        <>
-                                                            <div className="font-medium mb-1">
-                                                                {step3DestinationResult.message}
-                                                            </div>
-                                                            <div className="opacity-90">
-                                                                {step3DestinationResult.description}
-                                                            </div>
-                                                        </>
-                                                    ) : (
-                                                        <div>{step3DestinationResult.message}</div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Destination Tokens Grid */}
-                                        {showDestinationTokens && tokens.length > 0 && (
-                                            <div
-                                                className="mt-4 grid gap-3"
-                                                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))' }}
-                                            >
-                                                {tokens.map((token) => {
-                                                    const tokenSymbol = token.symbol || token.display_asset || token;
-                                                    const isSelected = destinationTokenMultiple === tokenSymbol;
-
-                                                    return (
-                                                        <button
-                                                            key={tokenSymbol}
-                                                            type="button"
-                                                            onClick={() => selectDestinationToken(tokenSymbol)}
-                                                            className={`flex flex-col items-center justify-center gap-2 rounded-xl border px-3 py-3 text-center text-sm font-semibold transition-all ${isSelected
-                                                                ? 'border-primary dark:border-primary-light bg-primary/15 dark:bg-primary-light/15 text-primary dark:text-primary-light shadow-md'
-                                                                : 'border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-900 dark:text-gray-200 shadow-sm hover:border-primary dark:hover:border-primary-light hover:bg-primary/5 dark:hover:bg-primary-light/5'
-                                                                }`}
-                                                        >
-                                                            {token.logo && (
-                                                                <img
-                                                                    src={token.logo}
-                                                                    alt={tokenSymbol}
-                                                                    className="h-9 w-9 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5 pointer-events-none select-none"
-                                                                    style={{ touchAction: 'none', userSelect: 'none', marginTop: '4px', marginBottom: '4px' }}
-                                                                    onError={(e) => e.target.style.display = 'none'}
-                                                                />
-                                                            )}
-                                                            <span className="text-sm font-semibold">
-                                                                {tokenSymbol}
-                                                            </span>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-
-                                        {/* Mobile API Activity */}
-                                        {windowWidth < 1024 && <ApiActivityDisplay stepKey="step3-destination" className="xl:hidden mt-6" />}
-                                    </div>
-                                </div>
-
-                                {/* Divider */}
-                                <div className="h-px bg-gray-200 dark:bg-white/10"></div>
-                                </>
-                            )}
-
-                                {/* Step 3/4: Get Quote */}
+                                {/* Step 3: Get Quote */}
                                 <div
                                     id="step3"
                                     ref={step3Ref}
@@ -3550,7 +3443,7 @@ export const DepositWidget = () => {
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col gap-2">
                                         <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 4 : 3}</span>
+                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">3</span>
                                             Get Quote (Optional)
                                         </h2>
                                         <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
@@ -3572,9 +3465,7 @@ export const DepositWidget = () => {
                                     {/* Get Quote Button */}
                                     {(() => {
                                         const step2Complete = sourceNetwork && sourceToken;
-                                        // In multiple mode, also requires Step 3 (Select Destination Token) to be completed
-                                        const step3DestinationComplete = tokenMode === 'multiple' ? destinationTokenMultiple : true;
-                                        const prerequisitesComplete = step2Complete && step3DestinationComplete;
+                                        const prerequisitesComplete = step2Complete;
                                         const isDisabled = isLoadingStep3 || !prerequisitesComplete;
                                         return (
                                             <div className="relative mt-3 block group">
@@ -3594,11 +3485,9 @@ export const DepositWidget = () => {
                                                 </button>
                                                 {isDisabled && !prerequisitesComplete && (
                                                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                        {tokenMode === 'multiple' && !step3DestinationComplete
-                                                            ? 'Please complete Step 3: Select Destination Token first'
-                                                            : !step2Complete
-                                                                ? 'Please complete Step 2: Select Source first'
-                                                                : `Please complete ${getPrerequisiteStep('step3')} first`}
+                                                        {!step2Complete
+                                                            ? 'Please complete Step 2: Select Source first'
+                                                            : `Please complete ${getPrerequisiteStep('step3')} first`}
                                                         <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                                                             <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
                                                         </div>
@@ -3863,10 +3752,8 @@ export const DepositWidget = () => {
                                         {/* Create Swap Button */}
                                         {(() => {
                                             // Step 2 completion is required (get quote is optional)
-                                            // In multiple mode, Step 3 (Select Destination Token) is also required
                                             const step2Complete = sourceNetwork && sourceToken;
-                                            const step3DestinationComplete = tokenMode === 'multiple' ? destinationTokenMultiple : true;
-                                            const prerequisitesComplete = step2Complete && step3DestinationComplete;
+                                            const prerequisitesComplete = step2Complete;
                                             const isDisabled = isLoadingStep4 || !prerequisitesComplete;
                                             const swapCreated = swapId !== null;
                                             return (
@@ -3887,11 +3774,9 @@ export const DepositWidget = () => {
                                                     </button>
                                                     {isDisabled && !prerequisitesComplete && (
                                                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                            {tokenMode === 'multiple' && !step3DestinationComplete
-                                                                ? 'Please complete Step 3: Select Destination Token first'
-                                                                : !step2Complete
-                                                                    ? 'Please complete Step 2: Select Source first'
-                                                                    : `Please complete ${getPrerequisiteStep('step4')} first`}
+                                                            {!step2Complete
+                                                                ? 'Please complete Step 2: Select Source first'
+                                                                : `Please complete ${getPrerequisiteStep('step4')} first`}
                                                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                                                                 <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
                                                             </div>
