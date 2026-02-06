@@ -1,0 +1,77 @@
+---
+title: 'Refunds'
+description: 'Learn how Layerswap handles refunds'
+icon: arrow-rotate-left
+---
+
+When a swap cannot be completed after the user has sent funds, Layerswap automatically initiates a refund. The refund is always processed on the **source chain** in the **source token**. Gas fees for processing the refund transaction are deducted from the refund amount.
+
+## When does a refund happen?
+
+Common scenarios that trigger a refund:
+
+- **Quote expiration:** The user's deposit arrived after the original quote expired, and Layerswap could not obtain a valid new quote.
+- **Insufficient liquidity:** The solver does not have enough liquidity to complete the transaction.
+- **Provider execution failure:** A swap provider (e.g. a DEX) encountered an error during execution.
+- **Destination chain unavailability:** The destination chain is unavailable due to an RPC outage or chain reorganization.
+
+## Refund statuses
+
+When a refund is initiated, the swap transitions to `refund_pending`. Once the refund transaction is confirmed on-chain, the status changes to `refunded`. See the [Swap lifecycle](/api-reference/swap-lifecycle) for the full status flow.
+
+## Refund address
+
+You can provide a `refund_address` when creating a swap. This must be a valid address on the source network. If the swap route involves a swap provider, the refund address is **required**.
+
+## Identifying a refund transaction
+
+A refunded swap will have a transaction with `type: "refund"` in its `transactions` array:
+
+```bash
+curl -X GET \
+  'https://api.layerswap.io/api/v2/swaps/d0050d05-4e75-4e9c-8b89-c1c8cbee4a62?exclude_deposit_actions=true' \
+  -H 'accept: application/json' \
+  -H 'X-LS-APIKEY: bwDJw8c1mesRyWfO3WrOB7iE48xAkVEI5QWlgnNFHnwH/4W+zHOcRoM5D3Sne3eCXRqUzHTMXBt0hrd+lO4ASw'
+```
+
+The response will contain the swap with `status: "refunded"` and a `refund` transaction in the `transactions` array:
+
+```json
+{
+  "data": {
+    "swap": {
+      "id": "d0050d05-4e75-4e9c-8b89-c1c8cbee4a62",
+      "status": "refunded",
+      "source_network": { "name": "ETHEREUM_MAINNET", "display_name": "Ethereum" },
+      "source_token": { "symbol": "mUSD", "display_asset": "MetaMask USD" },
+      "destination_network": { "name": "ETHEREUM_MAINNET", "display_name": "Ethereum" },
+      "destination_token": { "symbol": "ETH", "display_asset": "ETH" },
+      "requested_amount": 0.052854,
+      "transactions": [
+        {
+          "from": "0x425ce7a885c77b6b417e886ae542318250628a9d",
+          "to": "0x08b00ceee2fb66029b53d76110b19eeaabfd1e65",
+          "transaction_hash": "0x01885c930c698370b82f2614692eab5305e3d493238eb9750c88f80e172d0884",
+          "amount": 0.052854,
+          "type": "input",
+          "status": "completed",
+          "token": { "symbol": "mUSD" },
+          "network": { "name": "ETHEREUM_MAINNET" }
+        },
+        {
+          "from": "0x08b00ceee2fb66029b53d76110b19eeaabfd1e65",
+          "to": "0x425ce7a885c77b6b417e886ae542318250628a9d",
+          "transaction_hash": "0xa8a71bd2093c09b254f870fdeef38639f5ce712645f2c425acedb655616967ef",
+          "amount": 0.052854,
+          "type": "refund",
+          "status": "completed",
+          "token": { "symbol": "mUSD" },
+          "network": { "name": "ETHEREUM_MAINNET" }
+        }
+      ]
+    }
+  }
+}
+```
+
+The `refund` transaction shows the on-chain transfer back to the user in the original source token.
