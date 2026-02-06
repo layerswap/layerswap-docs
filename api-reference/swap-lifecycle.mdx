@@ -1,25 +1,68 @@
 ---
 title: 'Swap lifecycle'
-description: ''
+description: 'Understand the different statuses a swap goes through from creation to completion or refund.'
 icon: arrows-spin
 ---
 
-![Swap lifecycle](/images/swap-life.png)
+<div style={{backgroundColor: '#1a1a2e', padding: '24px', borderRadius: '12px'}}>
 
-### User transfer pending (user_transfer_pending)
-Whenever the swap is created, either programmatically or from the Layerswap UI, the swap has  user_transfer_pending status. At this stage, Layerswap is awaiting the incoming transaction to the deposit address in the source network to match it with the corresponding swap. Users have the option to cancel the swap.
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'background': '#1a1a2e', 'lineColor': '#94a3b8', 'fontSize': '14px'}}}%%
+graph TD
+    l1([Swap created]) --> B([user_transfer_pending])
+    B --> l2([User deposits]) --> D([ls_transfer_pending])
+    B --> l3([Timeout]) --> C([expired])
+    D --> l4([Success]) --> E([completed])
+    D --> l5([Execution failed]) --> G([refund_pending])
+    D -.-> l6([Internal error]) -.-> F([failed])
+    G --> l7([Confirmed]) --> H([refunded])
 
-### Cancelled (cancelled)
-If the user decides to cancel the swap, the swap status will be changed to cancelled. The swap can still be retrieved for historical purposes, however, no incoming transaction will be matched against the swap. 
+    classDef label fill:none,color:#cbd5e1,stroke:#334155,stroke-width:1px
 
-### Expired (expired)
-If the user does not cancel the swap and also does not initiate the transaction in the source network within 4 days, the Swap status will be changed to expired.
+    class l1,l2,l3,l4,l5,l6,l7 label
 
-### Layerswap Transfer Pending (ls_transfer_pending)
-After the user has initiated the transfer to the deposit address in the source network, Layerswap will monitor the blockchain network to verify that a transaction has been received. After receiving the transaction and matching it with the corresponding swap, Layerswap will create an Input transaction object, which will describe the transaction sent by the user and connect it with the corresponding swap. The swap status will be changed to ls_transfer_pending.
+    style B fill:#0891b2,color:#fff,stroke:#0891b2
+    style D fill:#ca8a04,color:#fff,stroke:#ca8a04
+    style E fill:#16a34a,color:#fff,stroke:#16a34a
+    style C fill:#6b7280,color:#fff,stroke:#6b7280
+    style F fill:#dc2626,color:#fff,stroke:#dc2626
+    style G fill:#9333ea,color:#fff,stroke:#9333ea
+    style H fill:#9333ea,color:#fff,stroke:#9333ea
+```
 
-### Completed (completed)
-After receiving the transaction and setting the swap status to ls_transfer_pending, Layerswap will initiate the outgoing transaction to the user-specified destination address in the destination network and the swap status will be changed to completed.
+</div>
 
-### Failed (failed)
-If there is an issue with Layerswap and the outgoing transaction to the user-specified destination address could not be initiated, the swap status will be changed to failed.
+### User Transfer Pending
+**Status:** `user_transfer_pending`
+
+When a swap is created, it starts with `user_transfer_pending` status. Layerswap is waiting for the user to complete the transaction in the source network.
+
+### Expired
+**Status:** `expired`
+
+If the user does not complete the transaction in the source network within 3 hours, the swap status will be changed to `expired`.
+
+### Layerswap Transfer Pending
+**Status:** `ls_transfer_pending`
+
+After the user has completed the transaction in the source network, Layerswap will verify the transaction and match it with the corresponding swap. An Input transaction object will be created to describe the user's transaction. The swap status will be changed to `ls_transfer_pending`.
+
+### Completed
+**Status:** `completed`
+
+Layerswap has successfully processed the swap and sent the funds to the destination address in the destination network.
+
+### Failed
+**Status:** `failed`
+
+In rare cases, an unexpected internal error may prevent Layerswap from processing the swap or initiating a refund automatically. The Layerswap team will be notified and will resolve the issue as soon as possible.
+
+### Refund Pending
+**Status:** `refund_pending`
+
+When a swap cannot be completed, Layerswap automatically initiates a refund. The swap status will be changed to `refund_pending` while the refund transaction is being processed on the **source chain** using the **source token**. See the [Refunds](/api-reference/refunds) page for details.
+
+### Refunded
+**Status:** `refunded`
+
+The refund transaction has been confirmed on the source chain and the user's funds have been returned. The swap's `transactions` array will include a transaction with `type: "refund"`.

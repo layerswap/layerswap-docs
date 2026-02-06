@@ -129,7 +129,13 @@
             "group": "Documentation",
             "pages": [
               "integration/API",
-              "api-reference/swap-lifecycle",
+              {
+                "group": "Swap lifecycle",
+                "pages": [
+                  "api-reference/swap-lifecycle",
+                  "api-reference/refunds"
+                ]
+              },
               "api-reference/webhook",
               "security"
             ]
