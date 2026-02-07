@@ -1,4 +1,23 @@
 export const DepositWidget = () => {
+    const StepActionButton = ({ onClick, disabled, ariaLabel, loadingText, primaryLabel, secondaryLabel, isSecondary }) => {
+        const baseClass = 'inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full';
+        const disabledClass = 'cursor-pointer text-white dark:text-gray-200 bg-primary dark:bg-primary-light opacity-50';
+        const secondaryClass = 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer';
+        const primaryClass = 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer';
+        const variantClass = disabled ? disabledClass : (isSecondary ? secondaryClass : primaryClass);
+        const label = loadingText ? loadingText : (isSecondary ? secondaryLabel : primaryLabel);
+        return (
+            <button
+                onClick={onClick}
+                disabled={disabled}
+                aria-label={ariaLabel}
+                className={`${baseClass} ${variantClass}`}
+            >
+                {label}
+            </button>
+        );
+    };
+
     // ===== CONSTANTS (inside component) =====
     const API_BASE = 'https://api.layerswap.io/api/v2';
     const POLL_INTERVAL_MS = 5000;
@@ -2873,11 +2892,8 @@ export const DepositWidget = () => {
                                                                                                             />
                                                                                                         )}
                                                                                                         <span 
-                                                                                                            className="font-semibold leading-none"
-                                                                                                            style={{ 
-                                                                                                                fontSize: '12px',
-                                                                                                                color: isTokenSelected ? 'white' : '#9da3ae'
-                                                                                                            }}
+                                                                                                            className={`font-semibold leading-none ${isTokenSelected ? 'text-black dark:text-white' : 'text-gray-900 dark:text-gray-200'}`}
+                                                                                                            style={{ fontSize: '12px' }}
                                                                                                         >
                                                                                                             {tokenSymbol}
                                                                                                         </span>
@@ -3035,20 +3051,15 @@ export const DepositWidget = () => {
                                         const isDisabled = isLoadingStep2 || !step1Complete;
                                         return (
                                             <div className="relative mt-3 block group">
-                                                <button
+                                                <StepActionButton
                                                     onClick={handleGetSources}
                                                     disabled={isDisabled}
-                                                    aria-label={showSourceNetworks && sources.length > 0 ? "Refresh available source networks" : "Fetch available source networks"}
-                                                    className={`inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full ${isDisabled
-                                                        ? 'cursor-pointer text-gray-400'
-                                                        : (showSourceNetworks && sources.length > 0)
-                                                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer'
-                                                            : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
-                                                        }`}
-                                                    style={isDisabled ? { backgroundColor: '#590E25' } : {}}
-                                                >
-                                                    {isLoadingStep2 ? 'Loading...' : (showSourceNetworks && sources.length > 0 ? 'Refresh' : 'Get Sources')}
-                                                </button>
+                                                    ariaLabel={showSourceNetworks && sources.length > 0 ? "Refresh available source networks" : "Fetch available source networks"}
+                                                    loadingText={isLoadingStep2 ? 'Loading...' : undefined}
+                                                    primaryLabel="Get Sources"
+                                                    secondaryLabel="Refresh"
+                                                    isSecondary={showSourceNetworks && sources.length > 0}
+                                                />
                                                 {isDisabled && !step1Complete && (
                                                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
                                                         {!walletValidation.valid
@@ -3469,20 +3480,15 @@ export const DepositWidget = () => {
                                         const isDisabled = isLoadingStep3 || !prerequisitesComplete;
                                         return (
                                             <div className="relative mt-3 block group">
-                                                <button
+                                                <StepActionButton
                                                     onClick={handleGetQuote}
                                                     disabled={isDisabled}
-                                                    aria-label="Get detailed transfer quote"
-                                                    className={`inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full ${isDisabled
-                                                        ? 'cursor-pointer text-gray-400'
-                                                        : (showQuoteDetails && quotes.length > 0)
-                                                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer'
-                                                            : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
-                                                        }`}
-                                                    style={isDisabled ? { backgroundColor: '#590E25' } : {}}
-                                                >
-                                                    {isLoadingStep3 ? 'Loading...' : (showQuoteDetails && quotes.length > 0 ? 'Refresh' : 'Get Detailed Quote')}
-                                                </button>
+                                                    ariaLabel="Get detailed transfer quote"
+                                                    loadingText={isLoadingStep3 ? 'Loading...' : undefined}
+                                                    primaryLabel="Get Detailed Quote"
+                                                    secondaryLabel="Refresh"
+                                                    isSecondary={showQuoteDetails && quotes.length > 0}
+                                                />
                                                 {isDisabled && !prerequisitesComplete && (
                                                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
                                                         {!step2Complete
@@ -3758,20 +3764,15 @@ export const DepositWidget = () => {
                                             const swapCreated = swapId !== null;
                                             return (
                                                 <div className="relative mt-3 block group">
-                                                    <button
+                                                    <StepActionButton
                                                         onClick={handleCreateSwap}
                                                         disabled={isDisabled}
-                                                        aria-label="Create a new swap transaction"
-                                                        className={`inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full ${isDisabled
-                                                            ? 'cursor-pointer text-gray-400'
-                                                            : swapCreated
-                                                                ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer'
-                                                                : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
-                                                            }`}
-                                                        style={isDisabled ? { backgroundColor: '#590E25' } : {}}
-                                                    >
-                                                        {isLoadingStep4 ? 'Creating...' : swapCreated ? 'Re-create' : 'Create Swap'}
-                                                    </button>
+                                                        ariaLabel="Create a new swap transaction"
+                                                        loadingText={isLoadingStep4 ? 'Creating...' : undefined}
+                                                        primaryLabel="Create Swap"
+                                                        secondaryLabel="Re-create"
+                                                        isSecondary={swapCreated}
+                                                    />
                                                     {isDisabled && !prerequisitesComplete && (
                                                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
                                                             {!step2Complete
@@ -3860,20 +3861,14 @@ export const DepositWidget = () => {
                                         const isDisabled = !step4Complete;
                                         return (
                                             <div className="relative mt-3 block group">
-                                                <button
+                                                <StepActionButton
                                                     onClick={handleTrackSwap}
                                                     disabled={isDisabled}
-                                                    aria-label="Check swap transaction status"
-                                                    className={`inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full ${isDisabled
-                                                        ? 'cursor-pointer text-gray-400'
-                                                        : trackingInterval
-                                                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer'
-                                                            : 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer'
-                                                        }`}
-                                                    style={isDisabled ? { backgroundColor: '#590E25' } : {}}
-                                                >
-                                                    {trackingInterval ? 'Stop Tracking' : 'Check Status'}
-                                                </button>
+                                                    ariaLabel="Check swap transaction status"
+                                                    primaryLabel="Check Status"
+                                                    secondaryLabel="Stop Tracking"
+                                                    isSecondary={!!trackingInterval}
+                                                />
                                                 {isDisabled && (
                                                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
                                                         Please complete {getPrerequisiteStep('step5')} first
