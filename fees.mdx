@@ -1,0 +1,78 @@
+---
+title: "Fees"
+description: "Understand how Layerswap fees are structured and how to retrieve them via the API"
+---
+
+### Fee breakdown
+
+Layerswap fees are designed to be transparent and predictable. Every quote includes a detailed cost breakdown so you know exactly what you're paying for. The total cost of a transfer is made up of three components:
+
+| Component | Description |
+|---|---|
+| **Layerswap fees** | A percentage-based service fee defined per route (e.g. 0.05%). This is Layerswap's commission for facilitating the transfer. |
+| **Bridge expenses** | Covers gas and network costs on the source and destination chains. This is typically a fixed USD amount, periodically updated to reflect current network conditions. On multi-provider routes, an external bridge may add a percentage-based component. |
+| **Market impact** | The price difference caused by on-chain swaps when the route involves a DEX. For same-token transfers (e.g. USDC → USDC) this is typically $0. |
+
+<Note>
+  The price impact breakdown is visible in the app by hovering over the fee indicator before confirming a transfer.
+</Note>
+
+### How fees are calculated
+
+**Layerswap fees** are calculated as a percentage of the transfer amount. The percentage varies by route — each source/destination pair has its own rate. Some routes may also include a small fixed USD component on top of the percentage.
+
+**Bridge expenses** are derived from the actual gas costs observed on recent transactions for that route. They cover:
+- The output transaction fee on the destination network
+- Sweeping fees (when deposit addresses are used)
+- Refuel fees (if native gas is sent to the destination address)
+
+**Market impact** only applies when the route involves an on-chain swap (e.g. bridging ETH on Arbitrum to USDC on Base). For direct token routes the market impact is $0.
+
+### Multi-provider routes
+
+Layerswap can chain its own liquidity with external bridges — CCTP, LayerZero, Axelar, CCIP, or native rollup bridges — to serve routes that aren't covered by direct liquidity alone.
+
+On these **multi-provider routes**, the bridge expenses may include costs from the external bridge, and the transfer time depends on the underlying protocol. For example, a route that uses CCTP + Layerswap may take around 20 minutes, while a direct Layerswap route typically completes in seconds.
+
+The availability of fast, direct routes depends on where liquidity is positioned at any given moment.
+
+### Fetching fees via the API
+
+To get the fee breakdown for a **specific amount**, use the [`/v2/quote`](/api-reference/swaps/get-quote) endpoint:
+
+```bash
+curl "https://api.layerswap.io/api/v2/quote?\
+source_network=ETHEREUM_MAINNET&\
+source_token=USDC&\
+destination_network=ARBITRUM_MAINNET&\
+destination_token=USDC&\
+amount=1000"
+```
+
+The response includes:
+
+```jsonc
+{
+  "quote": {
+    // blockchain_fee + service_fee
+    "total_fee": 0.55,
+    // total fee in USD
+    "total_fee_in_usd": 0.55,
+    // gas & network costs (bridge expenses)
+    "blockchain_fee": 0.05,
+    // Layerswap's commission
+    "service_fee": 0.50,
+    // estimated amount at destination
+    "receive_amount": 999.45,
+    // minimum after slippage tolerance
+    "min_receive_amount": 994.46,
+    ...
+  }
+}
+```
+
+To see fees **across all possible amounts** for a route, use the [`/v2/detailed_quote`](/api-reference/swaps/get-detailed-quote) endpoint instead — it returns the total percentage fee and fixed fee components, along with calculated fees at the minimum and maximum transfer amounts.
+
+### Fee discounts
+
+Layerswap runs fee discount campaigns with select partners. When a campaign is active for a route, the discount is automatically applied to the quote and reflected in the `fee_discount` field in the API response.

@@ -19,6 +19,7 @@
               "introduction",
               "Integrate",
               "api-keys",
+              "fees",
               "networks-tokens"
             ]
           }
@@ -33,6 +34,12 @@
               "integration/UI/IntegrationOverview",
               "integration/UI/Widget/Quickstart",
               "integration/UI/Configurations"
+            ]
+          },
+          {
+            "group": "Playground",
+            "pages": [
+              "Playground"
             ]
           },
           {
@@ -116,13 +123,6 @@
         ]
       },
       {
-        "tab": "Widget Playground",
-        "hidden": false,
-        "pages": [
-          "Playground"
-        ]
-      },
-      {
         "tab": "API Reference",
         "groups": [
           {
@@ -131,6 +131,7 @@
               "integration/API",
               {
                 "group": "Swap lifecycle",
+                "icon": "arrows-spin",
                 "pages": [
                   "api-reference/swap-lifecycle",
                   "api-reference/refunds"
