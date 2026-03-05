@@ -1,0 +1,204 @@
+---
+title: 'Fuel'
+description: 'Execute deposit transactions on the Fuel network using pre-built script transactions from call_data.'
+---
+
+## Overview
+
+Fuel deposits use a script-based transaction model. The Layerswap API returns a **pre-built script transaction** in `call_data` that you need to deserialize, fund with the required coin quantities, and submit.
+
+**Prerequisites:**
+- [fuels](https://docs.fuel.network/docs/fuels-ts/) (Fuel TypeScript SDK) for transaction construction and wallet interaction
+
+**Supported networks:** Fuel Mainnet, Fuel Testnet
+
+## call_data Format
+
+For Fuel, `call_data` is a **JSON string** containing two fields:
+
+```json
+{
+  "script": { /* ScriptTransactionRequest object */ },
+  "quantities": [
+    { "amount": "1000000", "assetId": "0x..." }
+  ]
+}
+```
+
+- `script` — A serialized `ScriptTransactionRequest` object containing the transaction script, inputs, outputs, and other parameters.
+- `quantities` — An array of coin quantities required to fund the transaction (covers the transfer amount and fees).
+
+## Transaction Construction
+
+<Steps>
+  <Step title="Parse call_data">
+    Deserialize the JSON string and extract the `script` and `quantities` fields.
+  </Step>
+  <Step title="Reconstruct the ScriptTransactionRequest">
+    Use `ScriptTransactionRequest.from()` to create a proper transaction request object from the serialized data.
+  </Step>
+  <Step title="Estimate and fund">
+    Call `estimateAndFund()` on the transaction with the wallet and required quantities. This estimates gas costs and adds the necessary coin inputs.
+  </Step>
+  <Step title="Simulate (optional)">
+    Simulate the transaction against the Fuel provider to verify it will succeed before sending.
+  </Step>
+  <Step title="Send the transaction">
+    Submit the transaction through the Fuel wallet and get the transaction ID.
+  </Step>
+</Steps>
+
+## Full Example (Server-side with Private Key)
+
+```typescript
+import {
+  Provider,
+  Wallet,
+  ScriptTransactionRequest,
+  coinQuantityfy,
+} from "fuels";
+
+async function executeFuelDeposit(
+  depositAction: any,
+  privateKey: string
+) {
+  const { call_data, network } = depositAction;
+
+  // Connect to the Fuel provider
+  const provider = new Provider(network.node_url);
+  const wallet = Wallet.fromPrivateKey(privateKey, provider);
+
+  // Parse the call_data
+  const parsedCallData = JSON.parse(call_data);
+
+  // Reconstruct the script transaction
+  const scriptTransaction = ScriptTransactionRequest.from(
+    parsedCallData.script
+  );
+
+  // Parse coin quantities
+  const quantities = parsedCallData.quantities.map((q: any) =>
+    coinQuantityfy(q)
+  );
+
+  // Estimate gas and fund the transaction with required coins
+  await scriptTransaction.estimateAndFund(wallet, { quantities });
+
+  // Simulate to verify (optional but recommended)
+  await provider.simulate(scriptTransaction);
+
+  // Send the transaction
+  const response = await wallet.sendTransaction(scriptTransaction);
+
+  return response.id;
+}
+```
+
+## Full Example (Browser with Fuel Wallet)
+
+When using the Fuel Wallet browser extension, access the wallet through the Fuel connector:
+
+```typescript
+import {
+  Provider,
+  ScriptTransactionRequest,
+  coinQuantityfy,
+} from "fuels";
+
+async function executeFuelDeposit(
+  depositAction: any,
+  fuel: any, // Fuel instance from @fuels/react
+  senderAddress: string
+) {
+  const { call_data, network } = depositAction;
+
+  const provider = new Provider(network.node_url);
+  const wallet = await fuel.getWallet(senderAddress, provider);
+
+  if (!wallet) {
+    throw new Error("Fuel wallet not found");
+  }
+
+  const parsedCallData = JSON.parse(call_data);
+  const scriptTransaction = ScriptTransactionRequest.from(
+    parsedCallData.script
+  );
+  const quantities = parsedCallData.quantities.map((q: any) =>
+    coinQuantityfy(q)
+  );
+
+  await scriptTransaction.estimateAndFund(wallet, { quantities });
+
+  // Simulate first
+  await provider.simulate(scriptTransaction);
+
+  // Send through the browser wallet
+  const response = await wallet.sendTransaction(scriptTransaction);
+
+  return response.id;
+}
+```
+
+## Using @fuels/react Hooks
+
+If you use the Fuel React SDK, you can integrate with the `useFuel` hook:
+
+```typescript
+import { useFuel } from "@fuels/react";
+import {
+  Provider,
+  ScriptTransactionRequest,
+  coinQuantityfy,
+} from "fuels";
+
+function useFuelDeposit() {
+  const { fuel } = useFuel();
+
+  async function executeDeposit(
+    depositAction: any,
+    senderAddress: string
+  ): Promise<string> {
+    if (!fuel) {
+      throw new Error("Fuel not initialized");
+    }
+
+    const { call_data, network } = depositAction;
+
+    const provider = new Provider(network.node_url);
+    const wallet = await fuel.getWallet(senderAddress, provider);
+
+    if (!wallet) {
+      throw new Error("Fuel wallet not found");
+    }
+
+    const parsedCallData = JSON.parse(call_data);
+    const scriptTransaction = ScriptTransactionRequest.from(
+      parsedCallData.script
+    );
+    const quantities = parsedCallData.quantities.map((q: any) =>
+      coinQuantityfy(q)
+    );
+
+    await scriptTransaction.estimateAndFund(wallet, { quantities });
+    await provider.simulate(scriptTransaction);
+
+    const response = await wallet.sendTransaction(scriptTransaction);
+    return response.id;
+  }
+
+  return { executeDeposit };
+}
+```
+
+## Next Step
+
+After the transaction is submitted, notify Layerswap so it can match your deposit faster:
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+  -H "X-LS-APIKEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "transaction_id": "YOUR_TX_HASH" }'
+```
+
+See the [full deposit flow](/api-reference/deposit-actions/overview) for details.
