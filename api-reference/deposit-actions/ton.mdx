@@ -1,0 +1,261 @@
+---
+title: 'TON'
+description: 'Execute deposit transactions on The Open Network for both native TON and Jetton (token) transfers.'
+---
+
+## Overview
+
+TON deposits require constructing a TON-specific message payload. The flow differs depending on whether you're transferring **native TON** or a **Jetton** (TRC-20-like token on TON). The `call_data` from the Layerswap API contains the information needed to build the correct payload.
+
+**Prerequisites:**
+- [@ton/ton](https://github.com/ton-org/ton) for cell building and TON client
+- [@tonconnect/ui-react](https://github.com/nicolo-ribaudo/tonconnect-ui-react) (for browser wallets) or a TON SDK for server-side signing
+
+## call_data Format
+
+For TON, `call_data` is a **JSON string** containing:
+
+```json
+{
+  "comment": "layerswap_memo_identifier",
+  "amount": "1000000000"
+}
+```
+
+- `comment` — A text memo that Layerswap uses to identify the deposit. This is embedded in the transaction payload.
+- `amount` — Present only for Jetton transfers; the Jetton amount in base units (nanojettons). For native TON transfers, use the deposit action's `amount` field instead.
+
+## Native TON Transfer
+
+For native TON transfers (when `token.contract` is null), the transaction is a simple message to the deposit address with a comment payload.
+
+### Transaction Construction
+
+<Steps>
+  <Step title="Parse call_data">
+    Extract the `comment` field from the JSON.
+  </Step>
+  <Step title="Build the comment cell">
+    Create a TON cell with a 32-bit zero prefix (indicates a text comment) followed by the comment string.
+  </Step>
+  <Step title="Construct the message">
+    Send a message to `to_address` with the deposit `amount` (converted to nanotons) and the comment cell as payload.
+  </Step>
+</Steps>
+
+### Full Example
+
+```typescript
+import { beginCell, toNano } from "@ton/ton";
+
+function buildNativeTonTransaction(
+  depositAction: any
+) {
+  const { call_data, to_address, amount } = depositAction;
+  const { comment } = JSON.parse(call_data);
+
+  const body = beginCell()
+    .storeUint(0, 32)           // 0 opcode = text comment
+    .storeStringTail(comment)
+    .endCell();
+
+  return {
+    validUntil: Math.floor(Date.now() / 1000) + 360,
+    messages: [
+      {
+        address: to_address,
+        amount: toNano(amount).toString(),
+        payload: body.toBoc().toString("base64"),
+      },
+    ],
+  };
+}
+```
+
+## Jetton Transfer
+
+For Jetton transfers (when `token.contract` is not null), you need to build a Jetton transfer message that targets the sender's Jetton wallet address (not the Jetton master contract).
+
+### Transaction Construction
+
+<Steps>
+  <Step title="Parse call_data">
+    Extract both `comment` and `amount` from the JSON.
+  </Step>
+  <Step title="Resolve the sender's Jetton wallet">
+    Use the Jetton master contract to look up the sender's Jetton wallet address via `get_wallet_address`.
+  </Step>
+  <Step title="Build the Jetton transfer cell">
+    Construct a cell with the Jetton transfer opcode (`0x0f8a7ea5`), the Jetton amount, the destination address, and a forward payload containing the comment.
+  </Step>
+  <Step title="Send the message">
+    Send the message to the sender's Jetton wallet address with enough TON attached to cover fees.
+  </Step>
+</Steps>
+
+### Full Example
+
+```typescript
+import {
+  Address,
+  JettonMaster,
+  TonClient,
+  beginCell,
+  toNano,
+} from "@ton/ton";
+
+async function buildJettonTransaction(
+  depositAction: any,
+  senderAddress: string,
+  tonClient: TonClient
+) {
+  const { call_data, to_address, token } = depositAction;
+  const { comment, amount: jettonAmount } = JSON.parse(call_data);
+
+  const destinationAddress = Address.parse(to_address);
+  const userAddress = Address.parse(senderAddress);
+
+  // Build the forward payload (comment)
+  const forwardPayload = beginCell()
+    .storeUint(0, 32)
+    .storeStringTail(comment)
+    .endCell();
+
+  // Build the Jetton transfer body
+  const body = beginCell()
+    .storeUint(0x0f8a7ea5, 32)         // Jetton transfer opcode
+    .storeUint(0, 64)                   // query_id
+    .storeCoins(BigInt(jettonAmount))   // Jetton amount in base units
+    .storeAddress(destinationAddress)   // destination
+    .storeAddress(destinationAddress)   // response excess destination
+    .storeBit(0)                        // no custom payload
+    .storeCoins(toNano("0.00002"))      // forward amount for notification
+    .storeBit(1)                        // forward payload as reference
+    .storeRef(forwardPayload)
+    .endCell();
+
+  // Resolve the sender's Jetton wallet address
+  const jettonMasterAddress = Address.parse(token.contract);
+  const jettonMaster = tonClient.open(
+    JettonMaster.create(jettonMasterAddress)
+  );
+  const jettonWalletAddress =
+    await jettonMaster.getWalletAddress(userAddress);
+
+  return {
+    validUntil: Math.floor(Date.now() / 1000) + 360,
+    messages: [
+      {
+        address: jettonWalletAddress.toString(),
+        amount: toNano("0.045").toString(), // TON for fees; excess is returned
+        payload: body.toBoc().toString("base64"),
+      },
+    ],
+  };
+}
+```
+
+## Sending via TON Connect
+
+If your users connect through a TON wallet (Tonkeeper, MyTonWallet, etc.), use TON Connect to send the built transaction:
+
+```typescript
+import { TonConnectUI } from "@tonconnect/ui-react";
+import { TonClient } from "@ton/ton";
+
+async function executeTonDeposit(
+  depositAction: any,
+  senderAddress: string,
+  tonConnectUI: TonConnectUI,
+  tonClient: TonClient
+) {
+  const { token } = depositAction;
+  let transaction;
+
+  if (token.contract) {
+    transaction = await buildJettonTransaction(
+      depositAction,
+      senderAddress,
+      tonClient
+    );
+  } else {
+    transaction = buildNativeTonTransaction(depositAction);
+  }
+
+  const result = await tonConnectUI.sendTransaction(transaction);
+
+  // result.boc contains the sent message BOC
+  // You can use it to track the transaction on-chain
+  return result.boc;
+}
+```
+
+## Server-side Sending
+
+For server-side execution without TON Connect, you can sign and send directly with a wallet key:
+
+```typescript
+import {
+  WalletContractV4,
+  internal,
+  TonClient,
+  beginCell,
+  toNano,
+} from "@ton/ton";
+import { mnemonicToPrivateKey } from "@ton/crypto";
+
+async function executeTonDepositServerSide(
+  depositAction: any,
+  mnemonic: string[]
+) {
+  const { call_data, to_address, amount, network } = depositAction;
+  const { comment } = JSON.parse(call_data);
+
+  const tonClient = new TonClient({
+    endpoint: network.node_url,
+  });
+
+  const keyPair = await mnemonicToPrivateKey(mnemonic);
+  const wallet = WalletContractV4.create({
+    publicKey: keyPair.publicKey,
+    workchain: 0,
+  });
+
+  const contract = tonClient.open(wallet);
+
+  const body = beginCell()
+    .storeUint(0, 32)
+    .storeStringTail(comment)
+    .endCell();
+
+  await contract.sendTransfer({
+    seqno: await contract.getSeqno(),
+    secretKey: keyPair.secretKey,
+    messages: [
+      internal({
+        to: to_address,
+        value: toNano(amount),
+        body,
+        bounce: false,
+      }),
+    ],
+  });
+}
+```
+
+<Note>
+  The server-side example above shows a native TON transfer. For Jetton transfers, build the Jetton cell as shown in the Jetton section and target the sender's Jetton wallet address.
+</Note>
+
+## Next Step
+
+After the transaction is submitted, notify Layerswap so it can match your deposit faster:
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+  -H "X-LS-APIKEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "transaction_id": "YOUR_TX_HASH" }'
+```
+
+See the [full deposit flow](/api-reference/deposit-actions/overview) for details.

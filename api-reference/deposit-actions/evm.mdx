@@ -1,0 +1,176 @@
+---
+title: 'EVM Chains'
+description: 'Execute deposit transactions on Ethereum, Arbitrum, Optimism, Base, Polygon, and other EVM-compatible networks.'
+---
+
+## Overview
+
+This guide covers all EVM-compatible networks supported by Layerswap, including Ethereum, Arbitrum, Optimism, Base, Polygon, Linea, zkSync Era, Scroll, and others.
+
+**Prerequisites:**
+- [viem](https://viem.sh/) (recommended) or [ethers.js](https://docs.ethers.org/)
+- A wallet client or signer with funds on the source network
+
+## call_data Format
+
+For EVM chains, `call_data` is a **hex-encoded string** (`0x...`) representing the transaction's `data` field:
+
+- **Native token transfers** (ETH, MATIC, etc.): `call_data` may be `0x` or contain contract interaction data if routed through a contract.
+- **ERC-20 token transfers**: `call_data` contains the encoded `transfer(address,uint256)` function call or a more complex contract interaction.
+
+The `to_address` from the deposit action is the transaction recipient, and `amount` is in human-readable units.
+
+## Transaction Construction
+
+<Steps>
+  <Step title="Parse the deposit action">
+    Extract `call_data`, `to_address`, `amount`, and `network.chain_id` from the deposit action.
+  </Step>
+  <Step title="Build the transaction">
+    Construct a transaction object with the deposit action fields mapped to standard EVM transaction parameters.
+  </Step>
+  <Step title="Estimate gas (optional)">
+    Call `eth_estimateGas` for a more accurate gas limit. If estimation fails, the transaction can still be sent without an explicit gas limit — the wallet or node will estimate it.
+  </Step>
+  <Step title="Send the transaction">
+    Sign and broadcast the transaction, then return the hash.
+  </Step>
+</Steps>
+
+## Full Example with viem
+
+```typescript
+import { createWalletClient, createPublicClient, http, parseEther } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { mainnet, arbitrum, optimism, base, polygon } from "viem/chains";
+
+const CHAIN_MAP = {
+  1: mainnet,
+  42161: arbitrum,
+  10: optimism,
+  8453: base,
+  137: polygon,
+  // Add other EVM chains as needed
+};
+
+async function executeEvmDeposit(depositAction, privateKey) {
+  const { call_data, to_address, amount, network } = depositAction;
+  const chainId = Number(network.chain_id);
+  const chain = CHAIN_MAP[chainId];
+
+  if (!chain) {
+    throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+
+  const account = privateKeyToAccount(privateKey);
+
+  const walletClient = createWalletClient({
+    account,
+    chain,
+    transport: http(network.node_url),
+  });
+
+  const publicClient = createPublicClient({
+    chain,
+    transport: http(network.node_url),
+  });
+
+  // Estimate gas
+  let gas;
+  try {
+    gas = await publicClient.estimateGas({
+      account: account.address,
+      to: to_address,
+      value: parseEther(amount.toString()),
+      data: call_data,
+    });
+  } catch (error) {
+    console.warn("Gas estimation failed, proceeding without explicit gas limit");
+  }
+
+  // Send transaction
+  const hash = await walletClient.sendTransaction({
+    to: to_address,
+    value: parseEther(amount.toString()),
+    data: call_data,
+    gas,
+  });
+
+  return hash;
+}
+```
+
+## Full Example with ethers.js
+
+```typescript
+import { ethers } from "ethers";
+
+async function executeEvmDeposit(depositAction, privateKey) {
+  const { call_data, to_address, amount, network } = depositAction;
+
+  const provider = new ethers.JsonRpcProvider(network.node_url);
+  const wallet = new ethers.Wallet(privateKey, provider);
+
+  // Estimate gas
+  let gasLimit;
+  try {
+    gasLimit = await provider.estimateGas({
+      from: wallet.address,
+      to: to_address,
+      value: ethers.parseEther(amount.toString()),
+      data: call_data,
+    });
+  } catch (error) {
+    console.warn("Gas estimation failed, proceeding without explicit gas limit");
+  }
+
+  // Send transaction
+  const tx = await wallet.sendTransaction({
+    to: to_address,
+    value: ethers.parseEther(amount.toString()),
+    data: call_data,
+    gasLimit,
+  });
+
+  return tx.hash;
+}
+```
+
+## Browser Wallet Example (wagmi)
+
+If your users connect wallets through a browser, you can use [wagmi](https://wagmi.sh/):
+
+```typescript
+import { sendTransaction } from "@wagmi/core";
+import { parseEther } from "viem";
+
+async function executeEvmDeposit(depositAction, wagmiConfig) {
+  const { call_data, to_address, amount, network } = depositAction;
+
+  const hash = await sendTransaction(wagmiConfig, {
+    chainId: Number(network.chain_id),
+    to: to_address,
+    value: parseEther(amount.toString()),
+    data: call_data,
+  });
+
+  return hash;
+}
+```
+
+<Note>
+  When using a browser wallet, ensure the user is connected to the correct chain (`network.chain_id`). If not, prompt them to switch networks before sending the transaction.
+</Note>
+
+## Next Step
+
+After the transaction is submitted, notify Layerswap so it can match your deposit faster:
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+  -H "X-LS-APIKEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "transaction_id": "YOUR_TX_HASH" }'
+```
+
+See the [full deposit flow](/api-reference/deposit-actions/overview) for details.
