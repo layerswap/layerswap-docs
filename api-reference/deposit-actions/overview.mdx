@@ -1,0 +1,114 @@
+---
+title: 'Handling Transfer Actions'
+description: 'Learn how to execute transfer transactions on different blockchains after creating a swap via the Layerswap API.'
+---
+
+## Overview
+
+When you create a swap via `POST /api/v2/swaps`, the response includes a `deposit_actions` array. Each transfer action contains the destination address, amount, and a blockchain-specific `call_data` payload — everything you need to construct and submit a transaction on the source chain. After broadcasting the transaction, you notify Layerswap with the transaction hash via the speedup endpoint so it can match the deposit and complete the swap.
+
+## Transfer Action Schema
+
+Each item in the `deposit_actions` array has the following structure:
+
+<ResponseField name="type" type="string" required>
+  Either `transfer` (wallet transaction) or `manual_transfer` (manual deposit to an address). Use the action with `type: "transfer"` for programmatic transfers.
+</ResponseField>
+
+<ResponseField name="to_address" type="string">
+  The deposit address to send funds to.
+</ResponseField>
+
+<ResponseField name="amount" type="number" required>
+  The amount to transfer in human-readable units (e.g. `0.1` ETH, not wei).
+</ResponseField>
+
+<ResponseField name="amount_in_base_units" type="string" required>
+  The amount in the token's smallest unit (e.g. wei for ETH, satoshi for BTC).
+</ResponseField>
+
+<ResponseField name="call_data" type="string" required>
+  Blockchain-specific payload used to construct the transaction. The format varies by chain — see the chain-specific guides below.
+</ResponseField>
+
+<ResponseField name="network" type="object" required>
+  The source network object, including `name`, `type`, `chain_id`, and `node_url`.
+</ResponseField>
+
+<ResponseField name="token" type="object" required>
+  The token being transferred, including `symbol`, `decimals`, and `contract` (null for native tokens).
+</ResponseField>
+
+<ResponseField name="fee_token" type="object" required>
+  The token used to pay transaction fees on this network.
+</ResponseField>
+
+<ResponseField name="order" type="number" required>
+  Execution order if there are multiple transfer actions.
+</ResponseField>
+
+## Step-by-Step Flow
+
+<Steps>
+  <Step title="Create a Swap">
+    Call `POST /api/v2/swaps` with `use_deposit_address: false` and include the `source_address` parameter. The response will contain `deposit_actions`.
+
+    ```bash
+    curl -X POST https://api.layerswap.io/api/v2/swaps \
+      -H "X-LS-APIKEY: your_api_key" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "source_network": "ETHEREUM_MAINNET",
+        "source_token": "ETH",
+        "destination_network": "ARBITRUM_MAINNET",
+        "destination_token": "ETH",
+        "destination_address": "0xRecipient...",
+        "source_address": "0xSender...",
+        "amount": "0.1",
+        "use_deposit_address": false
+      }'
+    ```
+  </Step>
+  <Step title="Extract the Transfer Action">
+    From the response, find the transfer action with `type: "transfer"`:
+
+    ```javascript
+    const response = await createSwap(/* ... */);
+    const depositAction = response.deposit_actions.find(
+      action => action.type === "transfer"
+    );
+
+    const { call_data, to_address, amount, network, token } = depositAction;
+    ```
+  </Step>
+  <Step title="Execute the Transaction">
+    Use the `call_data`, `to_address`, and `amount` to construct and send a blockchain-specific transaction. See the chain guides below for implementation details.
+  </Step>
+  <Step title="Notify Layerswap">
+    After the transaction is submitted, call the speedup endpoint so Layerswap can match it faster:
+
+    ```bash
+    curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+      -H "X-LS-APIKEY: your_api_key" \
+      -H "Content-Type: application/json" \
+      -d '{ "transaction_id": "0xYourTransactionHash..." }'
+    ```
+  </Step>
+  <Step title="Monitor Status">
+    Poll `GET /api/v2/swaps/{swap_id}` or use [webhooks](/api-reference/webhook) to track the swap through its [lifecycle](/api-reference/swap-lifecycle).
+  </Step>
+</Steps>
+
+## call_data Format by Chain
+
+The `call_data` field is the key piece — its format depends on the source blockchain:
+
+| Blockchain | call_data Format | Guide |
+|---|---|---|
+| EVM (Ethereum, Arbitrum, Base, etc.) | Hex-encoded transaction data (`0x...`) | [EVM Guide](/api-reference/deposit-actions/evm) |
+| Bitcoin | Numeric memo (encoded as OP_RETURN) | [Bitcoin Guide](/api-reference/deposit-actions/bitcoin) |
+| Solana | Base64-encoded serialized transaction | [Solana Guide](/api-reference/deposit-actions/solana) |
+| Starknet | JSON array of Starknet calls | [Starknet Guide](/api-reference/deposit-actions/starknet) |
+| TON | JSON object with `comment` (and `amount` for Jettons) | [TON Guide](/api-reference/deposit-actions/ton) |
+| Tron | String memo (hex-encoded into transaction data) | [Tron Guide](/api-reference/deposit-actions/tron) |
+| Fuel | JSON object with `script` and `quantities` | [Fuel Guide](/api-reference/deposit-actions/fuel) |
