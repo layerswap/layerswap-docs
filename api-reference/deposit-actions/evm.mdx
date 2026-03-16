@@ -18,16 +18,16 @@ For EVM chains, `call_data` is a **hex-encoded string** (`0x...`) representing t
 - **Native token transfers** (ETH, MATIC, etc.): `call_data` may be `0x` or contain contract interaction data if routed through a contract.
 - **ERC-20 token transfers**: `call_data` contains the encoded `transfer(address,uint256)` function call or a more complex contract interaction.
 
-The `to_address` from the deposit action is the transaction recipient, and `amount` is in human-readable units.
+The `to_address` from the transfer action is the transaction recipient, and `amount` is in human-readable units.
 
 ## Transaction Construction
 
 <Steps>
-  <Step title="Parse the deposit action">
-    Extract `call_data`, `to_address`, `amount`, and `network.chain_id` from the deposit action.
+  <Step title="Parse the transfer action">
+    Extract `call_data`, `to_address`, `amount`, and `network.chain_id` from the transfer action.
   </Step>
   <Step title="Build the transaction">
-    Construct a transaction object with the deposit action fields mapped to standard EVM transaction parameters.
+    Construct a transaction object with the transfer action fields mapped to standard EVM transaction parameters.
   </Step>
   <Step title="Estimate gas (optional)">
     Call `eth_estimateGas` for a more accurate gas limit. If estimation fails, the transaction can still be sent without an explicit gas limit — the wallet or node will estimate it.

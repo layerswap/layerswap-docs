@@ -1,18 +1,18 @@
 ---
-title: 'Handling Deposit Actions'
-description: 'Learn how to execute deposit transactions on different blockchains after creating a swap via the Layerswap API.'
+title: 'Handling Transfer Actions'
+description: 'Learn how to execute transfer transactions on different blockchains after creating a swap via the Layerswap API.'
 ---
 
 ## Overview
 
-When you create a swap via `POST /api/v2/swaps`, the response includes a `deposit_actions` array. Each deposit action contains the destination address, amount, and a blockchain-specific `call_data` payload — everything you need to construct and submit a deposit transaction on the source chain. After broadcasting the transaction, you notify Layerswap with the transaction hash via the speedup endpoint so it can match the deposit and complete the swap.
+When you create a swap via `POST /api/v2/swaps`, the response includes a `deposit_actions` array. Each transfer action contains the destination address, amount, and a blockchain-specific `call_data` payload — everything you need to construct and submit a transaction on the source chain. After broadcasting the transaction, you notify Layerswap with the transaction hash via the speedup endpoint so it can match the deposit and complete the swap.
 
-## Deposit Action Schema
+## Transfer Action Schema
 
 Each item in the `deposit_actions` array has the following structure:
 
 <ResponseField name="type" type="string" required>
-  Either `transfer` (wallet transaction) or `manual_transfer` (manual deposit to an address). Use the action with `type: "transfer"` for programmatic deposits.
+  Either `transfer` (wallet transaction) or `manual_transfer` (manual deposit to an address). Use the action with `type: "transfer"` for programmatic transfers.
 </ResponseField>
 
 <ResponseField name="to_address" type="string">
@@ -44,7 +44,7 @@ Each item in the `deposit_actions` array has the following structure:
 </ResponseField>
 
 <ResponseField name="order" type="number" required>
-  Execution order if there are multiple deposit actions.
+  Execution order if there are multiple transfer actions.
 </ResponseField>
 
 ## Step-by-Step Flow
@@ -69,8 +69,8 @@ Each item in the `deposit_actions` array has the following structure:
       }'
     ```
   </Step>
-  <Step title="Extract the Deposit Action">
-    From the response, find the deposit action with `type: "transfer"`:
+  <Step title="Extract the Transfer Action">
+    From the response, find the transfer action with `type: "transfer"`:
 
     ```javascript
     const response = await createSwap(/* ... */);
@@ -112,7 +112,3 @@ The `call_data` field is the key piece — its format depends on the source bloc
 | TON | JSON object with `comment` (and `amount` for Jettons) | [TON Guide](/api-reference/deposit-actions/ton) |
 | Tron | String memo (hex-encoded into transaction data) | [Tron Guide](/api-reference/deposit-actions/tron) |
 | Fuel | JSON object with `script` and `quantities` | [Fuel Guide](/api-reference/deposit-actions/fuel) |
-
-<Note>
-  zkSync Lite, Loopring, Paradex, and Immutable require multi-step authorization flows that are best handled through the [Layerswap Widget](/integration/UI/IntegrationOverview). They are not covered in this API-level guide.
-</Note>

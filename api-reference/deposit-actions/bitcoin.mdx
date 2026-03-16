@@ -5,7 +5,7 @@ description: 'Execute deposit transactions on Bitcoin mainnet and testnet using 
 
 ## Overview
 
-Bitcoin deposits use a UTXO-based model. The `call_data` from the deposit action is a **numeric memo** that must be embedded in the transaction as an `OP_RETURN` output. This memo is how Layerswap identifies and matches your deposit.
+Bitcoin deposits use a UTXO-based model. The `call_data` from the transfer action is a **numeric memo** that must be embedded in the transaction as an `OP_RETURN` output. This memo is how Layerswap identifies and matches your deposit.
 
 **Prerequisites:**
 - [bitcoinjs-lib](https://github.com/bitcoinjs/bitcoinjs-lib) for PSBT construction
