@@ -1,0 +1,287 @@
+---
+title: 'Layerswap API — Integration Guide for LI.FI'
+description: 'Integration guide for LI.FI covering route discovery, quoting, deposit actions, and transfer status'
+seo:
+  noIndex: true
+---
+
+- **Base URL:** `https://api.layerswap.io`
+- **API Reference:** [API Reference](/api-reference)
+
+## 1. Network & Token Identification
+
+Networks are identified by a human-readable name following the convention `{CHAIN}_{NETWORK}`, e.g.:
+- `ETHEREUM_MAINNET`, `ARBITRUM_MAINNET`, `SOLANA_MAINNET`, `TON_MAINNET`
+
+For **EVM networks**, you can alternatively use the `chain_id` (e.g. `"1"` for Ethereum, `"42161"` for Arbitrum). For **non-EVM networks** (Solana, TON, Bitcoin, etc.), the name is the only identifier.
+
+Tokens can be identified by either:
+- **Symbol** — e.g. `"USDC"`, `"ETH"`, `"USDT"`
+- **Contract address** — e.g. `"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"` (USDC on Ethereum)
+
+The full list of supported networks and tokens is available at:
+- [Networks & Tokens](/networks-tokens)
+- Programmatically via `GET /api/v2/networks`
+
+## 2. Route Discovery
+
+For discovering available routes, chains, tokens, and their statuses, use the **Sources** and **Destinations** endpoints.
+
+### GET /api/v2/sources
+Returns all available source networks and their tokens, optionally filtered by a destination.
+
+Query params:
+- `destination_network` — filter by destination chain (e.g. `"ARBITRUM_MAINNET"`)
+- `destination_token` — filter by destination token (e.g. `"USDC"`)
+- `include_swaps` — include swap routes (bool)
+- `include_unavailable` — include routes that are currently unavailable (bool)
+
+### GET /api/v2/destinations
+Same structure as sources, filtered the other way.
+
+Query params:
+- `source_network`, `source_token`, `include_swaps`, `include_unavailable`
+
+Both return a list of networks with their available tokens. Each token includes `symbol`, `contract` address, `decimals`, `price_in_usd`, and a `status` field (active/inactive). Each network includes `chain_id`, `type` (evm, starknet, solana, etc.), and explorer templates.
+
+**Docs:**
+- [GET Sources](/api-reference/swaps/get-sources)
+- [GET Destinations](/api-reference/swaps/get-destinations)
+
+### GET /api/v2/limits
+Returns the minimum and maximum transfer amounts for a specific route.
+
+Query params (all required):
+- `source_network`, `source_token`, `destination_network`, `destination_token`
+
+Response:
+```json
+{
+  "data": {
+    "min_amount": 10.0,
+    "min_amount_in_usd": 10.0,
+    "max_amount": 500000.0,
+    "max_amount_in_usd": 500000.0
+  }
+}
+```
+
+**Docs:** [GET Limits](/api-reference/swaps/get-swap-route-limits)
+
+### Estimated Duration & Fees
+
+Estimated duration and fees depend on the transfer amount, so they are only available in the quote (see below). If needed, we can add fee/duration ranges to the sources/destinations response.
+
+## 3. Quoting
+
+### GET /api/v2/quote (lightweight)
+Returns a quote for a given amount without creating a swap.
+
+Query params:
+- `source_network` (required)
+- `source_token` (required)
+- `destination_network` (required)
+- `destination_token` (required)
+- `amount` (required) — amount in source token
+- `source_address` (optional)
+- `slippage` (optional, e.g. `"0.5"` for 0.5%)
+
+Response:
+```json
+{
+  "data": {
+    "quote": {
+      "receive_amount": 99.50,
+      "min_receive_amount": 98.50,
+      "avg_completion_time": "00:02:00",
+      "blockchain_fee": 0.15,
+      "service_fee": 0.35,
+      "total_fee": 0.50,
+      "total_fee_in_usd": 0.50,
+      "slippage": 0.5,
+      "rate": 0.995
+    }
+  }
+}
+```
+
+### POST /api/v2/swaps (full quote + swap creation)
+Creates a swap and returns the quote **plus contract interaction parameters** (`deposit_actions`).
+
+Request body:
+```json
+{
+  "source_network": "ETHEREUM_MAINNET",
+  "source_token": "USDC",
+  "destination_network": "ARBITRUM_MAINNET",
+  "destination_token": "USDC",
+  "destination_address": "0x...",
+  "amount": 100.0,
+  "source_address": "0x...",
+  "slippage": "0.5",
+  "use_depository": true
+}
+```
+
+Set `use_depository: true` to get deposit actions that interact with our on-chain depository contract. This is the recommended method for integrators — it provides pre-built contract call parameters so you don't need to construct transactions manually.
+
+Response includes everything from GET /quote, plus:
+- `swap` — the created swap object (with `id`, `status`, `transactions`)
+- `deposit_actions` — array of actions to execute on-chain
+
+#### Deposit Actions — Depository Method
+
+The depository contract exposes two functions depending on the asset type:
+
+**Native asset deposit (ETH, MATIC, etc.)** — `depositNative(bytes32 id, address receiver)` (payable):
+```json
+{
+  "deposit_actions": [
+    {
+      "order": 0,
+      "type": "transfer",
+      "to_address": "0x<depository_contract>",
+      "amount": 0.1,
+      "amount_in_base_units": "100000000000000000",
+      "network": { "name": "ETHEREUM_MAINNET", "chain_id": "1", "type": "evm", "..." : "..." },
+      "token": { "symbol": "ETH", "decimals": 18, "contract": null, "..." : "..." },
+      "fee_token": { "symbol": "ETH", "decimals": 18, "..." : "..." },
+      "call_data": "0x<encoded_depositNative_call>",
+      "gas_limit": "65000",
+      "encoded_args": [
+        "0x<swap_id_bytes32>",
+        "0x<receiver_address>"
+      ]
+    }
+  ]
+}
+```
+
+**ERC20 token deposit** — `depositERC20(bytes32 id, address token, address receiver, uint256 amount)`:
+```json
+{
+  "deposit_actions": [
+    {
+      "order": 0,
+      "type": "transfer",
+      "to_address": "0x<depository_contract>",
+      "amount": 0,
+      "amount_in_base_units": "0",
+      "network": { "name": "ETHEREUM_MAINNET", "chain_id": "1", "type": "evm", "..." : "..." },
+      "token": { "symbol": "USDC", "decimals": 6, "contract": "0x...", "..." : "..." },
+      "fee_token": { "symbol": "ETH", "decimals": 18, "..." : "..." },
+      "call_data": "0x<encoded_depositERC20_call>",
+      "gas_limit": "85000",
+      "encoded_args": [
+        "0x<swap_id_bytes32>",
+        "0x<token_contract_address>",
+        "0x<receiver_address>",
+        "0x<amount_in_wei_hex>"
+      ]
+    }
+  ]
+}
+```
+
+**Field descriptions:**
+
+| Field | Description |
+|---|---|
+| `to_address` | Depository contract address on the source chain |
+| `call_data` | Fully encoded contract call data — can be used directly as transaction `data` |
+| `gas_limit` | Pre-estimated gas units for the contract interaction |
+| `encoded_args` | Individual contract function arguments (for integrators who want to encode the call themselves) |
+| `amount` | For native assets: the ETH/MATIC value to send. For ERC20: `0` (amount is in call_data) |
+| `amount_in_base_units` | Same as `amount` but in smallest unit (wei) as a string |
+| `network` | Full network object (`name`, `chain_id`, `type`, etc.) |
+| `token` | Token being deposited (`symbol`, `decimals`, `contract`, etc.) |
+| `fee_token` | Token used for gas fees on this chain |
+
+<Note>For ERC20 deposits, the integrator must first approve the depository contract to spend the token before calling `depositERC20`. The approval target is the `to_address` in the deposit action.</Note>
+
+### Mapping to LI.FI expected fields
+
+| LI.FI expects | Layerswap field | Notes |
+|---|---|---|
+| `fromChain` | `source_network` | Chain name (e.g. `ETHEREUM_MAINNET`) or `chain_id` for EVM (e.g. `1`) |
+| `toChain` | `destination_network` | Chain name or `chain_id` for EVM |
+| `fromToken` | `source_token` | Token symbol (e.g. `USDC`) or contract address (e.g. `0xA0b8...`) |
+| `toToken` | `destination_token` | Token symbol or contract address |
+| `fromAmount` | `amount` | In source token decimal units |
+| `toAddress` | `destination_address` | Receiver wallet address |
+| `slippage` | `slippage` | String, e.g. `"0.5"` for 0.5% |
+| `toAmount` | `quote.receive_amount` | Expected output amount |
+| `toAmountMin` | `quote.min_receive_amount` | Minimum after slippage |
+| `executionDuration` | `quote.avg_completion_time` | ISO 8601 duration string (e.g. `"00:02:00"` = 2 min) |
+| `gasEstimate` | `deposit_actions[].gas_limit` | Gas units for contract call |
+| `feeCosts` | `quote.blockchain_fee`, `quote.service_fee`, `quote.total_fee` | Fee breakdown |
+| Contract params | `deposit_actions[]` | `to_address`, `call_data`, `amount_in_base_units`, `gas_limit` |
+| `deadline` | N/A | Currently not provided; quotes are valid for a reasonable window |
+
+## 4. Transfer Status
+
+After executing a transfer on-chain, you can poll for the bridging status using the source transaction hash.
+
+### GET /api/v2/swaps/by_transaction_hash/{transactionHash}
+Look up a swap by its on-chain transaction hash (case-insensitive).
+
+Returns the full swap details including status and all associated transactions:
+```json
+{
+  "data": {
+    "swap": {
+      "id": "550e8400-...",
+      "status": "completed",
+      "fail_reason": null,
+      "destination_address": "0x...",
+      "requested_amount": 100.0,
+      "transactions": [
+        {
+          "type": "input",
+          "transaction_hash": "0xabc...",
+          "from": "0x...",
+          "to": "0x...",
+          "amount": 100.0,
+          "status": "completed",
+          "confirmations": 12,
+          "max_confirmations": 12,
+          "token": { "symbol": "USDC", "contract": "0x...", "decimals": 6 },
+          "network": { "name": "ETHEREUM_MAINNET", "chain_id": "1" }
+        },
+        {
+          "type": "output",
+          "transaction_hash": "0xdef...",
+          "from": "0x...",
+          "to": "0x...",
+          "amount": 99.50,
+          "status": "completed",
+          "token": { "symbol": "USDC", "contract": "0x...", "decimals": 6 },
+          "network": { "name": "ARBITRUM_MAINNET", "chain_id": "42161" }
+        }
+      ]
+    },
+    "quote": { "..." }
+  }
+}
+```
+
+The `transactions` array contains both the source (`type: "input"`) and destination (`type: "output"`) legs. The `output` transaction appears once the funds have been delivered on the destination chain.
+
+### Mapping to LI.FI expected status fields
+
+| LI.FI expects | Layerswap field | Notes |
+|---|---|---|
+| `status` | `swap.status` | See [Swap Lifecycle](/api-reference/swap-lifecycle) for full details. Values: `user_transfer_pending`, `user_transfer_delayed`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
+| `substatus` | `swap.fail_reason` | `null` on success; on failure: `received_less_than_valid_range`, `received_more_than_valid_range`, `swap_route_unavailable`, `degraded_quote` |
+| `receiving.txHash` | `transactions[type="output"].transaction_hash` | Destination chain tx hash |
+| `receiving.chainId` | `transactions[type="output"].network.chain_id` | Destination chain ID |
+| `receiving.tokenAddress` | `transactions[type="output"].token.contract` | Destination token contract |
+| `receiving.tokenAmount` | `transactions[type="output"].amount` | Received amount |
+
+## 5. Optional Endpoints
+
+- **Health:** `GET /api/v2/health` — returns `200 OK` if the API is running
+- **Statistics:** not currently exposed
+- **Referral fees:** not currently exposed
+
+These can be discussed if needed for the integration.

@@ -158,6 +158,13 @@
         ]
       },
       {
+        "tab": "LI.FI Integration",
+        "hidden": true,
+        "pages": [
+          "lifi-integration"
+        ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "groups": [
