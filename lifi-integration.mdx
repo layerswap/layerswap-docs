@@ -285,3 +285,35 @@ The `transactions` array contains both the source (`type: "input"`) and destinat
 - **Referral fees:** not currently exposed
 
 These can be discussed if needed for the integration.
+
+## 6. Deposit Actions — Bitcoin
+
+For Bitcoin, the API returns a **deposit address** and a **numeric memo**.
+
+- `to_address` — the Bitcoin deposit address to send funds to
+- `call_data` — a numeric memo string (e.g. `"12345"`) that **must** be embedded as an `OP_RETURN` output in the transaction. This is how Layerswap identifies and matches the deposit. The memo should be hex-encoded: `Number(call_data).toString(16)`.
+- `amount` — the BTC amount to send (decimal)
+- `amount_in_base_units` — the amount in satoshis
+
+Example deposit action response:
+```json
+{
+  "deposit_actions": [
+    {
+      "order": 0,
+      "type": "transfer",
+      "to_address": "bc1plxa9q77gz9r33g8pd4c2ygzezchjffuedtzdrkclyceseyw8v80qasmquf",
+      "amount": 0.03755,
+      "amount_in_base_units": "3755000",
+      "network": { "name": "BITCOIN_MAINNET", "type": "bitcoin", "..." : "..." },
+      "token": { "symbol": "BTC", "decimals": 8, "..." : "..." },
+      "fee_token": { "symbol": "BTC", "decimals": 8, "..." : "..." },
+      "call_data": "11177265"
+    }
+  ]
+}
+```
+
+Example input transaction: [`0ecfb9b7...9e1532`](https://mempool.space/tx/0ecfb9b7117b34fb7c1881a3615bbe5208881293956892f5af11b13bb89e1532) — the `OP_RETURN` output contains `aa8d31`, which is the hex encoding of the memo (`Number("11177265").toString(16)`).
+
+<Note>`gas_limit` and `encoded_args` are not applicable for Bitcoin.</Note>
