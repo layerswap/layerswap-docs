@@ -584,13 +584,13 @@ export const DepositWidget = () => {
     const handleDestinationNetworkChange = async (network, tokens) => {
         const wasStep2Loaded = showSourceNetworks;
         const newToken = tokens && tokens.length > 0 ? tokens[0].symbol : destinationToken;
-        
+
         // Set the new values directly (don't use handleStepChange to avoid double refresh)
         setDestinationNetwork(network);
         if (tokens && tokens.length > 0) {
             setDestinationToken(tokens[0].symbol);
         }
-        
+
         // If step 2 was loaded, refresh it with new destination (pass new values directly to avoid stale state)
         if (wasStep2Loaded) {
             await refreshStepAndReload(2, { destinationNetwork: network, destinationToken: newToken });
@@ -611,10 +611,10 @@ export const DepositWidget = () => {
 
     const handleDestinationTokenChange = async (token) => {
         const wasStep2Loaded = showSourceNetworks;
-        
+
         // Set the new value directly (don't use handleStepChange to avoid double refresh)
         setDestinationToken(token);
-        
+
         // If step 2 was loaded, refresh it with new destination token (pass new value directly to avoid stale state)
         if (wasStep2Loaded && tokenMode === 'single') {
             await refreshStepAndReload(2, { destinationNetwork, destinationToken: token });
@@ -650,11 +650,11 @@ export const DepositWidget = () => {
     const handleGetSources = async (overrides = {}, modeOverride = null) => {
         // Use modeOverride if provided (for immediate mode changes), otherwise use current tokenMode state
         const currentMode = modeOverride ?? tokenMode;
-        
+
         // Use overrides if provided, otherwise fall back to state values
         const destNetwork = overrides.destinationNetwork ?? destinationNetwork;
         const destToken = overrides.destinationToken ?? destinationToken;
-        
+
         const params = new URLSearchParams();
         if (currentMode === 'single') {
             params.append('destination_network', destNetwork);
@@ -694,7 +694,7 @@ export const DepositWidget = () => {
     const displaySources = (sourcesData) => {
         const networksObj = {};
         const newNetworkMap = {}; // Create new map object instead of merging
-        
+
         sourcesData.forEach(source => {
             const networkName = source.name;
             newNetworkMap[networkName] = source; // Build new map
@@ -833,7 +833,7 @@ export const DepositWidget = () => {
             const stepNum = getStepNumber(step);
             return stepNum > currentStepNum;
         });
-        
+
         // If there are completed steps after this, refresh them (clear selections but keep unlocked)
         if (stepsAfterStep3.length > 0) {
             refreshStepsFrom(currentStepNum + 1);
@@ -845,11 +845,12 @@ export const DepositWidget = () => {
             destination_network: destinationNetwork,
             destination_token: tokenMode === 'single' ? destinationToken : destinationTokenMultiple,
             destination_address: walletAddress,
-            refuel: false
+            refuel: false,
+            use_deposit_address: true
         });
         const endpoint = `/detailed_quote?${params.toString()}`;
         setIsLoadingStep3(true);
-        
+
         // When refreshing, keep the previous success message and just dim it
         const isRefreshing = showQuoteDetails && quotes.length > 0;
         if (!isRefreshing) {
@@ -921,7 +922,7 @@ export const DepositWidget = () => {
             const stepNum = getStepNumber(step);
             return stepNum > currentStepNum;
         });
-        
+
         // If there are completed steps after this, refresh them (clear selections but keep unlocked)
         if (stepsAfterStep4.length > 0) {
             refreshStepsFrom(currentStepNum + 1);
@@ -1098,21 +1099,21 @@ export const DepositWidget = () => {
     // Helper function to check which steps are completed
     const getCompletedSteps = () => {
         const completed = [];
-        
+
         // Step 1 is complete if destination network is set
         const step1Complete = !!destinationNetwork;
         if (step1Complete) completed.push('step1');
-        
+
         // Step 2 is complete if source network and token are set
         const step2Complete = sourceNetwork && sourceToken;
         if (step2Complete) completed.push('step2');
-        
+
         // Step 3 is complete if quotes are fetched
         if (quotes.length > 0) completed.push('step3');
-        
+
         // Step 4 is complete if swap is created
         if (swapId) completed.push('step4');
-        
+
         return completed;
     };
 
@@ -1232,27 +1233,27 @@ export const DepositWidget = () => {
     const refreshStepAndReload = async (stepNum, overrides = {}, modeOverride = null) => {
         // Use modeOverride if provided (for immediate mode changes), otherwise use current tokenMode state
         const currentMode = modeOverride ?? tokenMode;
-        
+
         // Check if step was previously loaded BEFORE clearing
         const wasStep2Loaded = stepNum === 2 && showSourceNetworks;
         const wasStep3DestinationLoaded = stepNum === 3 && currentMode === 'multiple' && showDestinationTokens;
         const wasStep3QuoteLoaded = stepNum === 3 && currentMode === 'single' && showQuoteDetails;
-        
+
         // Use overrides if provided, otherwise fall back to state values
         const destNetwork = overrides.destinationNetwork ?? destinationNetwork;
         const destToken = overrides.destinationToken ?? destinationToken;
-        
+
         // Clear selections
         refreshStepsFrom(stepNum);
-        
+
         // Auto-refresh step data if prerequisites are met
         if (stepNum === 2 && wasStep2Loaded) {
             // Refresh Step 2: Get sources
             // Prerequisites: destinationNetwork is required, destinationToken only for single mode
-            const hasPrerequisites = currentMode === 'multiple' 
-                ? destNetwork 
+            const hasPrerequisites = currentMode === 'multiple'
+                ? destNetwork
                 : destNetwork && destToken;
-            
+
             if (hasPrerequisites) {
                 // Auto-refresh the data with overrides and mode
                 await handleGetSources({ destinationNetwork: destNetwork, destinationToken: destToken }, currentMode);
@@ -1588,7 +1589,7 @@ export const DepositWidget = () => {
                             ? 'text-red-700 dark:text-red-400'
                             : 'text-gray-900 dark:text-gray-200'
                         }`}>
-                            {result.variant === 'error' && (
+                        {result.variant === 'error' && (
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="8" x2="12" y2="12" />
@@ -1733,7 +1734,7 @@ export const DepositWidget = () => {
                                 <span className="text-sm text-primary dark:text-primary-light flex-shrink-0 mt-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
                                 </span>
-                                <span>The <code 
+                                <span>The <code
                                     className="rounded bg-primary/10 dark:bg-primary-light/10 px-1 py-0.5 font-mono text-[11px] text-primary dark:text-primary-light cursor-pointer hover:bg-primary/20 dark:hover:bg-primary-light/20 transition-colors"
                                     onClick={() => setHighlightParam(highlightParam === 'has_deposit_address=true' ? null : 'has_deposit_address=true')}
                                     role="button"
@@ -1876,34 +1877,34 @@ export const DepositWidget = () => {
         if (sectionId === 'overview' || sectionId === 'step1') {
             return false;
         }
-        
+
         // Step 2 requires Step 1 to be completed (destination network, token, and wallet address)
         if (sectionId === 'step2') {
             const walletValidation = validateWalletAddress(walletAddress);
-            const step1Complete = destinationNetwork && 
+            const step1Complete = destinationNetwork &&
                 (tokenMode === 'single' ? destinationToken : true) &&
                 walletValidation.valid;
             return !step1Complete;
         }
-        
+
         // Step 3 (Get Quote) requires Step 2 to be completed
         if (sectionId === 'step3') {
             const step2Complete = sourceNetwork && sourceToken;
             return !step2Complete;
         }
-        
+
         // Step 4 (Create Swap) requires Step 2 to be completed (get quote is optional)
         if (sectionId === 'step4') {
             const step2Complete = sourceNetwork && sourceToken;
             return !step2Complete;
         }
-        
+
         // Step 5 (Check Status) requires Step 4 to be completed (swap created)
         if (sectionId === 'step5') {
             const step4Complete = swapId !== null;
             return !step4Complete;
         }
-        
+
         return false;
     };
 
@@ -1919,19 +1920,19 @@ export const DepositWidget = () => {
     // Generic function to handle step changes with automatic refresh
     const handleStepChange = async (stepNum, newValue, setter, additionalActions = null) => {
         const completedSteps = getCompletedSteps();
-        
+
         // Find all steps that come after this step
         const stepsAfterCurrent = completedSteps.filter(step => {
             const stepNumAfter = getStepNumber(step);
             return stepNumAfter > stepNum;
         });
-        
+
         // Apply the change
         setter(newValue);
         if (additionalActions) {
             additionalActions();
         }
-        
+
         // If there are completed steps after this, refresh them (clear selections and reload if prerequisites met)
         if (stepsAfterCurrent.length > 0) {
             await refreshStepAndReload(stepNum + 1);
@@ -2001,86 +2002,126 @@ export const DepositWidget = () => {
                 }
             }, [isOpen, onSearchChange]);
 
-        const filteredItems = useMemo(() => {
-            if (!searchTerm) return items;
-            const search = searchTerm.toLowerCase();
-            return items.filter(item => {
-                const display = getItemDisplay(item);
-                return display.toLowerCase().includes(search);
-            });
-        }, [items, searchTerm, getItemDisplay]);
+            const filteredItems = useMemo(() => {
+                if (!searchTerm) return items;
+                const search = searchTerm.toLowerCase();
+                return items.filter(item => {
+                    const display = getItemDisplay(item);
+                    return display.toLowerCase().includes(search);
+                });
+            }, [items, searchTerm, getItemDisplay]);
 
-        const filteredFeaturedItems = useMemo(() => {
-            if (!searchTerm || !showFeaturedSection) return featuredItems;
-            const search = searchTerm.toLowerCase();
-            return featuredItems.filter(item => {
-                const display = getItemDisplay(item);
-                return display.toLowerCase().includes(search);
-            });
-        }, [featuredItems, searchTerm, showFeaturedSection, getItemDisplay]);
+            const filteredFeaturedItems = useMemo(() => {
+                if (!searchTerm || !showFeaturedSection) return featuredItems;
+                const search = searchTerm.toLowerCase();
+                return featuredItems.filter(item => {
+                    const display = getItemDisplay(item);
+                    return display.toLowerCase().includes(search);
+                });
+            }, [featuredItems, searchTerm, showFeaturedSection, getItemDisplay]);
 
-        const handleItemClick = (item) => {
-            const value = getItemValue(item);
-            if (onItemSelect) {
-                onItemSelect(item, value);
-            } else if (onSelect) {
-                onSelect(value);
-            }
-            onToggle(false);
-            if (onSearchChange) {
-                onSearchChange('');
-            }
-        };
+            const handleItemClick = (item) => {
+                const value = getItemValue(item);
+                if (onItemSelect) {
+                    onItemSelect(item, value);
+                } else if (onSelect) {
+                    onSelect(value);
+                }
+                onToggle(false);
+                if (onSearchChange) {
+                    onSearchChange('');
+                }
+            };
 
-        return (
-            <div className="relative flex flex-col gap-2 w-full" ref={dropdownRef}>
-                {label && (
-                    <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                        {label}
-                    </label>
-                )}
-                <div
-                    onClick={() => onToggle(!isOpen)}
-                    className="flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light"
-                >
-                    <span className="block overflow-hidden text-ellipsis whitespace-nowrap pr-3">
-                        {selectedDisplay || placeholder || 'Select...'}
-                    </span>
-                    <svg
-                        width="12"
-                        height="8"
-                        viewBox="0 0 12 8"
-                        fill="none"
-                        className={`flex-shrink-0 text-gray-600 dark:text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            return (
+                <div className="relative flex flex-col gap-2 w-full" ref={dropdownRef}>
+                    {label && (
+                        <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                            {label}
+                        </label>
+                    )}
+                    <div
+                        onClick={() => onToggle(!isOpen)}
+                        className="flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light"
                     >
-                        <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </div>
-                {isOpen && (
-                    <div className="absolute left-0 right-0 top-full z-40 mt-2 flex max-h-[400px] w-full max-w-[448px] flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-lg">
-                        {onSearchChange && (
-                            <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3">
-                                <input
-                                    ref={searchInputRef}
-                                    type="text"
-                                    value={searchTerm || ''}
-                                    onChange={(e) => onSearchChange(e.target.value)}
-                                    placeholder={searchPlaceholder || 'Search...'}
-                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
-                                    onBlur={(e) => {
-                                        e.target.style.boxShadow = 'none';
-                                    }}
-                                />
-                            </div>
-                        )}
-                        <div className="max-h-[350px] overflow-y-auto py-2">
-                            {showFeaturedSection && filteredFeaturedItems.length > 0 && (
-                                <div className="mb-4">
-                                    <div className="px-4 pb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                        Featured Networks
+                        <span className="block overflow-hidden text-ellipsis whitespace-nowrap pr-3">
+                            {selectedDisplay || placeholder || 'Select...'}
+                        </span>
+                        <svg
+                            width="12"
+                            height="8"
+                            viewBox="0 0 12 8"
+                            fill="none"
+                            className={`flex-shrink-0 text-gray-600 dark:text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                        >
+                            <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                    {isOpen && (
+                        <div className="absolute left-0 right-0 top-full z-40 mt-2 flex max-h-[400px] w-full max-w-[448px] flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-lg">
+                            {onSearchChange && (
+                                <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3">
+                                    <input
+                                        ref={searchInputRef}
+                                        type="text"
+                                        value={searchTerm || ''}
+                                        onChange={(e) => onSearchChange(e.target.value)}
+                                        placeholder={searchPlaceholder || 'Search...'}
+                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                        onBlur={(e) => {
+                                            e.target.style.boxShadow = 'none';
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            <div className="max-h-[350px] overflow-y-auto py-2">
+                                {showFeaturedSection && filteredFeaturedItems.length > 0 && (
+                                    <div className="mb-4">
+                                        <div className="px-4 pb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                            Featured Networks
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            {filteredFeaturedItems.map(item => {
+                                                const key = getItemKey(item);
+                                                const display = getItemDisplay(item);
+                                                const image = getItemImage ? getItemImage(item) : null;
+                                                const value = getItemValue(item);
+                                                const isSelected = selectedValue === value;
+                                                return (
+                                                    <div
+                                                        key={key}
+                                                        onClick={() => handleItemClick(item)}
+                                                        className={`flex items-center gap-3 rounded-lg px-4 py-2 h-10 text-sm transition-all ${isSelected
+                                                            ? 'bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light'
+                                                            : 'text-gray-900 dark:text-gray-200 hover:bg-gray-600/5 dark:hover:bg-gray-200/5'
+                                                            }`}
+                                                    >
+                                                        {image && (
+                                                            <img
+                                                                src={image}
+                                                                alt={display}
+                                                                className="h-6 w-6 rounded-full object-contain"
+                                                                onError={(e) => e.target.style.display = 'none'}
+                                                            />
+                                                        )}
+                                                        <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {display}
+                                                        </span>
+                                                        {showFeaturedSection && <span className="text-xs" style={{ color: '#fbbf24' }}>★</span>}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
+                                )}
+                                <div>
+                                    {showFeaturedSection && filteredItems.length > 0 && (
+                                        <div className="px-4 pb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                            All Networks
+                                        </div>
+                                    )}
                                     <div className="flex flex-col gap-1">
-                                        {filteredFeaturedItems.map(item => {
+                                        {filteredItems.map(item => {
                                             const key = getItemKey(item);
                                             const display = getItemDisplay(item);
                                             const image = getItemImage ? getItemImage(item) : null;
@@ -2106,63 +2147,24 @@ export const DepositWidget = () => {
                                                     <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {display}
                                                     </span>
-                                                    {showFeaturedSection && <span className="text-xs" style={{ color: '#fbbf24' }}>★</span>}
                                                 </div>
                                             );
                                         })}
                                     </div>
                                 </div>
-                            )}
-                            <div>
-                                {showFeaturedSection && filteredItems.length > 0 && (
-                                    <div className="px-4 pb-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                        All Networks
-                                    </div>
-                                )}
-                                <div className="flex flex-col gap-1">
-                                    {filteredItems.map(item => {
-                                        const key = getItemKey(item);
-                                        const display = getItemDisplay(item);
-                                        const image = getItemImage ? getItemImage(item) : null;
-                                        const value = getItemValue(item);
-                                        const isSelected = selectedValue === value;
-                                        return (
-                                            <div
-                                                key={key}
-                                                onClick={() => handleItemClick(item)}
-                                                className={`flex items-center gap-3 rounded-lg px-4 py-2 h-10 text-sm transition-all ${isSelected
-                                                    ? 'bg-primary/10 dark:bg-primary-light/10 text-primary dark:text-primary-light'
-                                                    : 'text-gray-900 dark:text-gray-200 hover:bg-gray-600/5 dark:hover:bg-gray-200/5'
-                                                    }`}
-                                            >
-                                                {image && (
-                                                    <img
-                                                        src={image}
-                                                        alt={display}
-                                                        className="h-6 w-6 rounded-full object-contain"
-                                                        onError={(e) => e.target.style.display = 'none'}
-                                                    />
-                                                )}
-                                                <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                    {display}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
-        );
+                    )}
+                </div>
+            );
         };
     }, []);
 
     // Phase 1 – Layout, navigation, header, overview section (Tailwind-assisted)
     return (
         <>
-            <style dangerouslySetInnerHTML={{__html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 6px;
                 }
@@ -2190,593 +2192,1116 @@ export const DepositWidget = () => {
                     scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
                 }
             `}} />
-        <div className="max-w-8xl lg:flex mx-auto px-0 lg:px-5"  >
-            {/* Desktop Navigation Sidebar */}
-            {windowWidth >= 768 && (
-                <nav id="sidebar-content" className="hidden sticky shrink-0 w-[18rem] lg:flex flex-col left-0 top-[6rem] bottom-0 right-auto border-r border-gray-100 dark:border-white/10 transition-transform duration-100 h-[95dvh]">
-                    <div id="navigation-items" className="flex-1 pr-5 pt-5 pb-4 overflow-y-auto stable-scrollbar-gutter">
-                        <div className="text-sm relative">
-                            <div>
-                                <div className="sidebar-group-header flex items-center gap-2.5 pl-4 mb-3.5 lg:mb-2.5 font-semibold text-gray-700 dark:text-gray-300 text-xs">
-                                    <h5 id="sidebar-title">
-                                        Documentation
-                                    </h5>
+            <div className="max-w-8xl lg:flex mx-auto px-0 lg:px-5"  >
+                {/* Desktop Navigation Sidebar */}
+                {windowWidth >= 768 && (
+                    <nav id="sidebar-content" className="hidden sticky shrink-0 w-[18rem] lg:flex flex-col left-0 top-[6rem] bottom-0 right-auto border-r border-gray-100 dark:border-white/10 transition-transform duration-100 h-[95dvh]">
+                        <div id="navigation-items" className="flex-1 pr-5 pt-5 pb-4 overflow-y-auto stable-scrollbar-gutter">
+                            <div className="text-sm relative">
+                                <div>
+                                    <div className="sidebar-group-header flex items-center gap-2.5 pl-4 mb-3.5 lg:mb-2.5 font-semibold text-gray-700 dark:text-gray-300 text-xs">
+                                        <h5 id="sidebar-title">
+                                            Documentation
+                                        </h5>
+                                    </div>
+                                    <ul
+                                        className="space-y-px"
+                                        id="sidebar-group"
+                                    >
+                                        {navItems.map(item => {
+                                            const active = activeSection === item.id;
+                                            return (
+                                                <li className="relative scroll-m-4 first:scroll-m-20" key={item.id}>
+                                                    <a
+                                                        href={`#${item.id}`}
+                                                        onClick={(e) => handleNavClick(item.id, e)}
+                                                        className={`group flex items-center pr-3 pl-4 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] ${active
+                                                            ? 'bg-primary/10 text-primary [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:text-primary-light dark:bg-primary-light/10'
+                                                            : 'hover:bg-gray-600/5 dark:hover:bg-gray-200/5 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
+                                                            }`}
+                                                    >
+                                                        <div className="flex-1 flex items-center space-x-2.5">
+                                                            <div>{item.label}</div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
                                 </div>
-                                <ul
-                                    className="space-y-px"
-                                    id="sidebar-group"
-                                >
-                                    {navItems.map(item => {
-                                        const active = activeSection === item.id;
-                                        return (
-                                            <li className="relative scroll-m-4 first:scroll-m-20" key={item.id}>
-                                                <a
-                                                    href={`#${item.id}`}
-                                                    onClick={(e) => handleNavClick(item.id, e)}
-                                                    className={`group flex items-center pr-3 pl-4 py-1.5 cursor-pointer gap-x-3 text-left rounded-xl w-full outline-offset-[-1px] ${active
-                                                        ? 'bg-primary/10 text-primary [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:text-primary-light dark:bg-primary-light/10'
-                                                        : 'hover:bg-gray-600/5 dark:hover:bg-gray-200/5 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
-                                                        }`}
-                                                >
-                                                    <div className="flex-1 flex items-center space-x-2.5">
-                                                        <div>{item.label}</div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
                             </div>
                         </div>
-                    </div>
-                </nav>
-            )}
+                    </nav>
+                )}
 
-            {/* Main Content */}
-            <div className="w-full">
-                <div className="px-5 lg:pr-10 lg:pl-[3.25rem] lg:pt-10 mx-auto max-w-6xl flex flex-row-reverse gap-x-12 w-full pt-8 sm:pt-36" style={{ gap: '48px' }}>
-                    <div className="hidden xl:flex self-start sticky xl:flex-col max-w-[28rem] w-full top-[calc(9.5rem-var(--sidenav-move-up,0px))] overflow-x-hidden" style={{ height: 'calc(100vh - 10rem)' }}>
-                        {/* API Sidebar */}
-                        {windowWidth >= 1024 && (
-                            <>
-                                <aside className="left-[calc(50vw+240px)] top-[140px] z-10 flex w-[416px] flex-shrink-0 flex-col gap-6 border-l border-gray-200 dark:border-white/10 pl-6 h-full" style={{ background: 'unset' }}>
-                                    <div className="flex flex-col gap-4 flex-1 min-h-0">
-                                        {!hasApiActivity() ? (
-                                            <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-8 text-center text-sm text-gray-600 dark:text-gray-400 shadow-sm">
-                                                <span className="mb-3 text-lg text-primary dark:text-primary-light">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch-icon lucide-git-branch"><line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" /></svg>
-                                                </span>
-                                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                    Run an API step to see live requests and responses here.
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <ApiActivityDisplay stepKey={getActiveApiStepKey} />
-                                        )}
-                                    </div>
-                                </aside>
-                            </>
-                        )}
-                    </div>
-                    <div className="grow w-full mx-auto xl:w-[calc(100%-28rem)]">
-                        {/* Header */}
-                        <header id="header" className="realtive">
-                            <div className="mt-0.5 space-y-2.5">
-                                <div className="eyebrow h-5 text-primary dark:text-primary-light text-sm font-semibold">
-                                    Documentation
-                                </div>
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center relative gap-2">
-                                    <h1 id="page-title" className={h1Styles}>
-                                        Layerswap Deposit API Tutorial
-                                    </h1>
-                                </div>
-                                <div className="mt-2 text-lg prose prose-gray dark:prose-invert [&>*]:[overflow-wrap:anywhere]">
-                                    <p>
-                                        Interactive guide to integrate cross-chain deposits into your wallet or application.
-                                    </p>
-                                </div>
-                            </div>
-                        </header>
-                        <div className="mdx-content relative mt-8 mb-14 prose prose-gray dark:prose-invert">
-                            {/* Overview Section */}
-                            <div id="overview" className="mb-6">
-                                <h2 className={h2h3Styles} >
-                                    Accept Deposits from Any Chain, Instantly
-                                </h2>
-                                <p>
-                                    Give users a single deposit address. They send from any chain – funds automatically bridge and arrive to your destination. That's it.
-                                </p>
-
-                                {/* Stats Cards */}
-                                <div
-                                    className="mt-6 grid gap-4"
-                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}
-                                >
-                                    <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
-                                        <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
-                                            70+
-                                        </span>
-                                        <span className="mt-1 text-xs uppercase text-gray-600 dark:text-gray-400">
-                                            Networks
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
-                                        <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
-                                            &lt;10s
-                                        </span>
-                                        <span className="mt-1 text-xs uppercase text-gray-600 dark:text-gray-400">
-                                            Processing
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
-                                        <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
-                                            $1B+
-                                        </span>
-                                        <span className="mt-1 text-xs uppercase text-gray-600 dark:text-gray-400">
-                                            Volume
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Integration Flow */}
-                                <div className="">
-                                    <h3 className={h2h3Styles}>
-                                        Integration Flow
-                                    </h3>
-
-                                    <div className="mt-8 flex flex-col gap-3">
-                                        {integrationFlowSteps.map(step => (
-                                            <div key={step.id} className="flex items-start gap-4 pb-5">
-                                                <div className="flex flex-col items-center pt-1">
-                                                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
-                                                        {step.id}
-                                                    </div>
-                                                    <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-1.5">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{step.title}</p>
+                {/* Main Content */}
+                <div className="w-full">
+                    <div className="px-5 lg:pr-10 lg:pl-[3.25rem] lg:pt-10 mx-auto max-w-6xl flex flex-row-reverse gap-x-12 w-full pt-8 sm:pt-36" style={{ gap: '48px' }}>
+                        <div className="hidden xl:flex self-start sticky xl:flex-col max-w-[28rem] w-full top-[calc(9.5rem-var(--sidenav-move-up,0px))] overflow-x-hidden" style={{ height: 'calc(100vh - 10rem)' }}>
+                            {/* API Sidebar */}
+                            {windowWidth >= 1024 && (
+                                <>
+                                    <aside className="left-[calc(50vw+240px)] top-[140px] z-10 flex w-[416px] flex-shrink-0 flex-col gap-6 border-l border-gray-200 dark:border-white/10 pl-6 h-full" style={{ background: 'unset' }}>
+                                        <div className="flex flex-col gap-4 flex-1 min-h-0">
+                                            {!hasApiActivity() ? (
+                                                <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-8 text-center text-sm text-gray-600 dark:text-gray-400 shadow-sm">
+                                                    <span className="mb-3 text-lg text-primary dark:text-primary-light">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch-icon lucide-git-branch"><line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" /></svg>
+                                                    </span>
                                                     <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        {step.description}
+                                                        Run an API step to see live requests and responses here.
                                                     </p>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Mobile-Friendly Note */}
-                                <div className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-4 text-sm">
-                                    <div className="mt-1 text-lg text-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <div className="text-sm font-semibold uppercase text-gray-900 dark:text-gray-200">
-                                            No Wallet Connections Required
+                                            ) : (
+                                                <ApiActivityDisplay stepKey={getActiveApiStepKey} />
+                                            )}
                                         </div>
-                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                            Just a simple deposit address—no WalletConnect, no browser extensions, no popups. Users can send from any wallet app (MetaMask, Trust Wallet, exchange wallets, hardware wallets) using their preferred method. Perfect for mobile users.
+                                    </aside>
+                                </>
+                            )}
+                        </div>
+                        <div className="grow w-full mx-auto xl:w-[calc(100%-28rem)]">
+                            {/* Header */}
+                            <header id="header" className="realtive">
+                                <div className="mt-0.5 space-y-2.5">
+                                    <div className="eyebrow h-5 text-primary dark:text-primary-light text-sm font-semibold">
+                                        Documentation
+                                    </div>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center relative gap-2">
+                                        <h1 id="page-title" className={h1Styles}>
+                                            Layerswap Deposit API Tutorial
+                                        </h1>
+                                    </div>
+                                    <div className="mt-2 text-lg prose prose-gray dark:prose-invert [&>*]:[overflow-wrap:anywhere]">
+                                        <p>
+                                            Interactive guide to integrate cross-chain deposits into your wallet or application.
                                         </p>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Divider */}
-                            <div className="mt-3 h-px bg-gray-200 dark:bg-white/10 opacity-0"></div>
-
-                            {/* Configuration Section */}
-                            <div className="flex flex-col gap-2">
-                                <div className="flex flex-col gap-2">
-                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ margin: 0 }}>
-                                        Configuration
+                            </header>
+                            <div className="mdx-content relative mt-8 mb-14 prose prose-gray dark:prose-invert">
+                                {/* Overview Section */}
+                                <div id="overview" className="mb-6">
+                                    <h2 className={h2h3Styles} >
+                                        Accept Deposits from Any Chain, Instantly
                                     </h2>
-                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                        Set up your API credentials to get started.
+                                    <p>
+                                        Give users a single deposit address. They send from any chain – funds automatically bridge and arrive to your destination. That's it.
                                     </p>
-                                </div>
 
-                                <div
-                                    className="grid gap-4"
-                                    style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}
-                                >
-                                    {/* Base API URL */}
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                            Base API URL
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={API_BASE}
-                                            disabled
-                                            className="w-full cursor-not-allowed rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-4 py-3 text-sm opacity-60 text-gray-900 dark:text-gray-200"
-                                            style={{ backgroundColor: 'unset', background: 'unset' }}
-                                        />
+                                    {/* Stats Cards */}
+                                    <div
+                                        className="mt-6 grid gap-4"
+                                        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}
+                                    >
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                            <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
+                                                70+
+                                            </span>
+                                            <span className="mt-1 text-xs uppercase text-gray-600 dark:text-gray-400">
+                                                Networks
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                            <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
+                                                &lt;10s
+                                            </span>
+                                            <span className="mt-1 text-xs uppercase text-gray-600 dark:text-gray-400">
+                                                Processing
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                            <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
+                                                $1B+
+                                            </span>
+                                            <span className="mt-1 text-xs uppercase text-gray-600 dark:text-gray-400">
+                                                Volume
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    {/* API Key */}
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                            API Key <span className="text-xs font-normal text-gray-600 dark:text-gray-400">(Optional)</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={apiKey}
-                                            onChange={handleApiKeyChange}
-                                            placeholder="Optional - for higher rate limits & analytics"
-                                            aria-label="API Key"
-                                            className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${apiKeyError ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30' : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
-                                                }`}
-                                            onBlur={(e) => {
-                                                if (!apiKeyError) {
-                                                    e.target.style.boxShadow = 'none';
-                                                }
-                                            }}
-                                        />
-                                        {apiKeyError && (
-                                            <div className="mt-1 text-xs text-destructive">
-                                                {apiKeyError}
+                                    {/* Integration Flow */}
+                                    <div className="">
+                                        <h3 className={h2h3Styles}>
+                                            Integration Flow
+                                        </h3>
+
+                                        <div className="mt-8 flex flex-col gap-3">
+                                            {integrationFlowSteps.map(step => (
+                                                <div key={step.id} className="flex items-start gap-4 pb-5">
+                                                    <div className="flex flex-col items-center pt-1">
+                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                            {step.id}
+                                                        </div>
+                                                        <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
+                                                    </div>
+                                                    <div className="flex flex-1 flex-col gap-1.5">
+                                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{step.title}</p>
+                                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                            {step.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Mobile-Friendly Note */}
+                                    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-4 text-sm">
+                                        <div className="mt-1 text-lg text-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="text-sm font-semibold uppercase text-gray-900 dark:text-gray-200">
+                                                No Wallet Connections Required
                                             </div>
-                                        )}
-                                        <small className="mt-1 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">
-                                            No API key needed for basic usage. Get one at{' '}
-                                            <a
-                                                href="https://www.layerswap.io/dashboard"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="transition hover:underline text-primary dark:text-primary-light"
-                                            >
-                                                layerswap.io/dashboard
-                                            </a>
-                                            {' '}for higher rate limits and analytics.
-                                        </small>
+                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                Just a simple deposit address—no WalletConnect, no browser extensions, no popups. Users can send from any wallet app (MetaMask, Trust Wallet, exchange wallets, hardware wallets) using their preferred method. Perfect for mobile users.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Divider */}
-                            <div className="mt-12 mb-6 h-px bg-gray-200 dark:bg-white/10"></div>
+                                {/* Divider */}
+                                <div className="mt-3 h-px bg-gray-200 dark:bg-white/10 opacity-0"></div>
 
-                            {/* Steps Container */}
-                            <div className="flex flex-col gap-12">
-                                {/* Step 1: Setup Destination */}
-                                <div
-                                    id="step1"
-                                    ref={step1Ref}
-                                    className="relative flex flex-col gap-8"
-                                style={{
-                                    scrollMarginTop: '96px',
-                                    opacity: 1
-                                }}
-                            >
-                                <div className="flex flex-col gap-5">
-                                    <div className="flex flex-col gap-2" style={{ gap: '8px' }}>
-                                        <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">1</span>
-                                            Setup Destination
+                                {/* Configuration Section */}
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2">
+                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ margin: 0 }}>
+                                            Configuration
                                         </h2>
                                         <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                            Configure your destination wallet and select the appropriate integration mode for your use case.
+                                            Set up your API credentials to get started.
                                         </p>
                                     </div>
 
-                                    {/* Mode Selector */}
-                                        <div className="flex flex-col gap-4 border border-gray-200 dark:border-white/10 rounded-2xl p-4">
-                                         <span className="block text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                            Select Your Use Case:
-                                        </span>
-                                        <div className="flex flex-col gap-3">
-                                            <label className="flex items-start gap-3 cursor-pointer">
-                                                <div className="relative mt-0.5 flex items-center justify-center">
-                                                    <input
-                                                        type="radio"
-                                                        name="tokenMode"
-                                                        value="single"
-                                                        checked={tokenMode === 'single'}
-                                                        onChange={handleModeChange}
-                                                        className={`w-4 h-4 border-2 rounded-full appearance-none cursor-pointer transition-colors ${
-                                                            tokenMode === 'single'
-                                                                ? 'border-primary dark:border-primary-light'
-                                                                : 'border-gray-300 dark:border-gray-600'
-                                                        }`}
-                                                    />
-                                                    {tokenMode === 'single' && (
-                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                            <div className="w-2 h-2 rounded-full bg-primary dark:bg-primary-light" />
+                                    <div
+                                        className="grid gap-4"
+                                        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}
+                                    >
+                                        {/* Base API URL */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                Base API URL
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={API_BASE}
+                                                disabled
+                                                className="w-full cursor-not-allowed rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-4 py-3 text-sm opacity-60 text-gray-900 dark:text-gray-200"
+                                                style={{ backgroundColor: 'unset', background: 'unset' }}
+                                            />
+                                        </div>
+
+                                        {/* API Key */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                API Key <span className="text-xs font-normal text-gray-600 dark:text-gray-400">(Optional)</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={apiKey}
+                                                onChange={handleApiKeyChange}
+                                                placeholder="Optional - for higher rate limits & analytics"
+                                                aria-label="API Key"
+                                                className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${apiKeyError ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30' : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
+                                                    }`}
+                                                onBlur={(e) => {
+                                                    if (!apiKeyError) {
+                                                        e.target.style.boxShadow = 'none';
+                                                    }
+                                                }}
+                                            />
+                                            {apiKeyError && (
+                                                <div className="mt-1 text-xs text-destructive">
+                                                    {apiKeyError}
+                                                </div>
+                                            )}
+                                            <small className="mt-1 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                                                No API key needed for basic usage. Get one at{' '}
+                                                <a
+                                                    href="https://www.layerswap.io/dashboard"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="transition hover:underline text-primary dark:text-primary-light"
+                                                >
+                                                    layerswap.io/dashboard
+                                                </a>
+                                                {' '}for higher rate limits and analytics.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="mt-12 mb-6 h-px bg-gray-200 dark:bg-white/10"></div>
+
+                                {/* Steps Container */}
+                                <div className="flex flex-col gap-12">
+                                    {/* Step 1: Setup Destination */}
+                                    <div
+                                        id="step1"
+                                        ref={step1Ref}
+                                        className="relative flex flex-col gap-8"
+                                        style={{
+                                            scrollMarginTop: '96px',
+                                            opacity: 1
+                                        }}
+                                    >
+                                        <div className="flex flex-col gap-5">
+                                            <div className="flex flex-col gap-2" style={{ gap: '8px' }}>
+                                                <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">1</span>
+                                                    Setup Destination
+                                                </h2>
+                                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                    Configure your destination wallet and select the appropriate integration mode for your use case.
+                                                </p>
+                                            </div>
+
+                                            {/* Mode Selector */}
+                                            <div className="flex flex-col gap-4 border border-gray-200 dark:border-white/10 rounded-2xl p-4">
+                                                <span className="block text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                    Select Your Use Case:
+                                                </span>
+                                                <div className="flex flex-col gap-3">
+                                                    <label className="flex items-start gap-3 cursor-pointer">
+                                                        <div className="relative mt-0.5 flex items-center justify-center">
+                                                            <input
+                                                                type="radio"
+                                                                name="tokenMode"
+                                                                value="single"
+                                                                checked={tokenMode === 'single'}
+                                                                onChange={handleModeChange}
+                                                                className={`w-4 h-4 border-2 rounded-full appearance-none cursor-pointer transition-colors ${tokenMode === 'single'
+                                                                        ? 'border-primary dark:border-primary-light'
+                                                                        : 'border-gray-300 dark:border-gray-600'
+                                                                    }`}
+                                                            />
+                                                            {tokenMode === 'single' && (
+                                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                                    <div className="w-2 h-2 rounded-full bg-primary dark:bg-primary-light" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className={`text-base font-semibold transition-colors ${tokenMode === 'single'
+                                                                    ? 'text-primary dark:text-primary-light'
+                                                                    : 'text-gray-900 dark:text-gray-200'
+                                                                }`}>
+                                                                Fixed Destination Token
+                                                            </span>
+                                                            <span className="text-sm leading-relaxed text-gray-600 dark:text-gray-400" style={{ fontSize: '14px' }}>
+                                                                <strong className="font-semibold">DApp Integration:</strong> For prediction markets, DEXs, or apps requiring a specific token (e.g., only USDC)
+                                                            </span>
+                                                        </div>
+                                                    </label>
+                                                    <label className="flex items-start gap-3 cursor-pointer">
+                                                        <div className="relative mt-0.5 flex items-center justify-center">
+                                                            <input
+                                                                type="radio"
+                                                                name="tokenMode"
+                                                                value="multiple"
+                                                                checked={tokenMode === 'multiple'}
+                                                                onChange={handleModeChange}
+                                                                className={`w-4 h-4 border-2 rounded-full appearance-none cursor-pointer transition-colors ${tokenMode === 'multiple'
+                                                                        ? 'border-primary dark:border-primary-light'
+                                                                        : 'border-gray-300 dark:border-gray-600'
+                                                                    }`}
+                                                            />
+                                                            {tokenMode === 'multiple' && (
+                                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                                    <div className="w-2 h-2 rounded-full bg-primary dark:bg-primary-light" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className={`text-base font-semibold transition-colors ${tokenMode === 'multiple'
+                                                                    ? 'text-primary dark:text-primary-light'
+                                                                    : 'text-gray-900 dark:text-gray-200'
+                                                                }`}>
+                                                                Multiple Destination Tokens
+                                                            </span>
+                                                            <span className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                                <strong className="font-semibold">Wallet Integration:</strong> Accept various tokens and deliver their respective counterparts on your network
+                                                            </span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {/* Destination Fields */}
+                                            <div
+                                                className="flex flex-col gap-4"
+                                            >
+                                                {/* Destination Networks Grid */}
+                                                {networks.length > 0 && (() => {
+                                                    // Filter networks based on search term (prioritize startsWith, then includes)
+                                                    const filteredDestNetworks = networkSearchTerm
+                                                        ? (() => {
+                                                            const search = networkSearchTerm.toLowerCase().trim();
+                                                            const startsWithMatches = [];
+                                                            const includesMatches = [];
+
+                                                            networks.forEach(network => {
+                                                                const displayName = (network.display_name || formatNetworkName(network.name))?.toLowerCase() || '';
+                                                                const name = network.name?.toLowerCase() || '';
+                                                                const startsWith = displayName.startsWith(search) || name.startsWith(search);
+                                                                const includes = displayName.includes(search) || name.includes(search);
+
+                                                                if (startsWith) {
+                                                                    startsWithMatches.push(network);
+                                                                } else if (includes) {
+                                                                    includesMatches.push(network);
+                                                                }
+                                                            });
+
+                                                            // Prioritize startsWith matches, then includes matches
+                                                            return [...startsWithMatches, ...includesMatches];
+                                                        })()
+                                                        : networks;
+
+                                                    const featuredDestNetworks = filteredDestNetworks.filter(n => FEATURED_NETWORKS.includes(n.name));
+                                                    const otherDestNetworks = filteredDestNetworks.filter(n => !FEATURED_NETWORKS.includes(n.name));
+
+                                                    const minNetworksToShow = 9;
+                                                    // When searching, preserve search priority (startsWith first, then includes)
+                                                    // When not searching, use featured/other split
+                                                    const allDestNetworks = networkSearchTerm
+                                                        ? filteredDestNetworks  // Preserve search priority order
+                                                        : [...featuredDestNetworks, ...otherDestNetworks];  // Featured first when not searching
+
+                                                    // Use pagination logic - when searching, preserve search priority; when not searching, use featured/other split
+                                                    let displayedDestNetworks;
+                                                    if (showAllDestinationNetworks) {
+                                                        displayedDestNetworks = allDestNetworks;
+                                                    } else if (networkSearchTerm) {
+                                                        // When searching, use allDestNetworks directly with pagination (preserves search priority)
+                                                        displayedDestNetworks = allDestNetworks.slice(0, minNetworksToShow);
+
+                                                        // Ensure selected network is always visible when collapsed
+                                                        if (destinationNetwork) {
+                                                            const selectedNetwork = allDestNetworks.find(n => n.name === destinationNetwork);
+                                                            if (selectedNetwork && !displayedDestNetworks.some(n => n.name === destinationNetwork)) {
+                                                                // Remove last item and add selected network
+                                                                displayedDestNetworks = [
+                                                                    ...allDestNetworks.slice(0, minNetworksToShow - 1),
+                                                                    selectedNetwork
+                                                                ];
+                                                            }
+                                                        }
+                                                    } else {
+                                                        // When not searching, show featured networks + enough other networks to fill at least 3 rows
+                                                        const featuredCount = featuredDestNetworks.length;
+
+                                                        // Ensure selected network is always visible when collapsed (if it's from extended list)
+                                                        if (destinationNetwork) {
+                                                            const selectedNetwork = allDestNetworks.find(n => n.name === destinationNetwork);
+                                                            const isSelectedInFeatured = selectedNetwork && featuredDestNetworks.some(n => n.name === destinationNetwork);
+
+                                                            if (selectedNetwork && !isSelectedInFeatured) {
+                                                                // Selected network is from extended list - include it in the first 9, but keep total at exactly 9
+                                                                // Reduce featured networks by 1 to make room for the selected network
+                                                                const featuredToShow = featuredDestNetworks.slice(0, Math.min(featuredCount, minNetworksToShow - 1));
+                                                                const remainingSlots = minNetworksToShow - featuredToShow.length - 1; // -1 for selected network
+                                                                const otherNetworksWithoutSelected = otherDestNetworks.filter(n => n.name !== destinationNetwork);
+                                                                const otherNetworksToInclude = otherNetworksWithoutSelected.slice(0, Math.max(0, remainingSlots));
+                                                                // Insert selected network after featured networks, before other networks
+                                                                // Total will be: featuredToShow.length + 1 (selected) + otherNetworksToInclude.length = exactly 9
+                                                                displayedDestNetworks = [
+                                                                    ...featuredToShow,
+                                                                    selectedNetwork,
+                                                                    ...otherNetworksToInclude
+                                                                ];
+                                                            } else {
+                                                                // Selected network is in featured or not selected - show normal featured + others
+                                                                const neededFromOthers = Math.max(0, minNetworksToShow - featuredCount);
+                                                                const otherNetworksToShow = otherDestNetworks.slice(0, neededFromOthers);
+                                                                displayedDestNetworks = [...featuredDestNetworks, ...otherNetworksToShow];
+                                                            }
+                                                        } else {
+                                                            // No network selected - show normal featured + others
+                                                            const neededFromOthers = Math.max(0, minNetworksToShow - featuredCount);
+                                                            const otherNetworksToShow = otherDestNetworks.slice(0, neededFromOthers);
+                                                            displayedDestNetworks = [...featuredDestNetworks, ...otherNetworksToShow];
+                                                        }
+                                                    }
+
+                                                    // Calculate if there would be more networks when collapsed (for showing the toggle button)
+                                                    const hasMoreDestNetworks = networkSearchTerm
+                                                        ? allDestNetworks.length > displayedDestNetworks.length  // When searching, check if there are more than displayed
+                                                        : (() => {
+                                                            // When not searching, use featured/other logic
+                                                            const featuredCount = featuredDestNetworks.length;
+                                                            const neededFromOthers = Math.max(0, minNetworksToShow - featuredCount);
+                                                            const collapsedCount = featuredCount + Math.min(otherDestNetworks.length, neededFromOthers);
+                                                            return allDestNetworks.length > collapsedCount;
+                                                        })();
+
+                                                    return (
+                                                        <div className="mt-4 flex flex-col gap-2">
+                                                            <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                                Destination Network <span className="text-primary dark:text-primary-light">*</span>
+                                                                {tokenMode === 'single' && ' / Token'}
+                                                            </label>
+                                                            {/* Search Bar */}
+                                                            <div className="mb-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={networkSearchTerm}
+                                                                    onChange={(e) => setNetworkSearchTerm(e.target.value)}
+                                                                    placeholder="Search networks..."
+                                                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                />
+                                                            </div>
+                                                            <div
+                                                                className="grid gap-3 relative"
+                                                                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}
+                                                            >
+                                                                {displayedDestNetworks.map((network) => {
+                                                                    const shortName = (network.display_name || formatNetworkName(network.name))
+                                                                        .replace(/_MAINNET/g, '')
+                                                                        .replace(/_SEPOLIA/g, ' Sep')
+                                                                        .replace(/_/g, ' ');
+                                                                    const isNetworkSelected = destinationNetwork === network.name;
+                                                                    const hasSelectedToken = isNetworkSelected && destinationToken;
+                                                                    const isDropdownOpen = openDestinationTokenDropdown === network.name;
+                                                                    const networkTokens = network.tokens || [];
+                                                                    const tokenSymbols = networkTokens.map(t => t.symbol || t.asset || t);
+                                                                    const tokenPreview = tokenSymbols.slice(0, 3).join(', ') + (tokenSymbols.length > 3 ? '...' : '');
+
+                                                                    // In single token mode, we don't need dropdown - just select first token
+                                                                    const isSingleTokenMode = tokenMode === 'single';
+                                                                    const firstToken = networkTokens.length > 0 ? networkTokens[0] : null;
+                                                                    const firstTokenSymbol = firstToken ? (firstToken.symbol || firstToken.asset || firstToken) : null;
+
+                                                                    // Handle card click - select network and open dropdown if not already selected
+                                                                    const handleCardClick = (e) => {
+                                                                        e.stopPropagation();
+                                                                        if (!isNetworkSelected) {
+                                                                            // If only one token, auto-select
+                                                                            if (networkTokens.length === 1) {
+                                                                                if (firstTokenSymbol) {
+                                                                                    handleDestinationNetworkChange(network.name, networkTokens);
+                                                                                    if (isSingleTokenMode) {
+                                                                                        handleDestinationTokenChange(firstTokenSymbol);
+                                                                                    }
+                                                                                }
+                                                                            } else {
+                                                                                // Multiple tokens - show dropdown
+                                                                                handleDestinationNetworkChange(network.name, networkTokens);
+                                                                                setOpenDestinationTokenDropdown(network.name);
+                                                                                setDestinationTokenDropdownSearchTerm(''); // Clear search when opening dropdown
+                                                                            }
+                                                                        }
+                                                                    };
+
+                                                                    // Handle token area click - open dropdown
+                                                                    const handleTokenAreaClick = (e) => {
+                                                                        e.stopPropagation();
+
+                                                                        // If only one token, auto-select it
+                                                                        if (networkTokens.length === 1) {
+                                                                            if (firstTokenSymbol) {
+                                                                                handleDestinationNetworkChange(network.name, networkTokens);
+                                                                                if (isSingleTokenMode) {
+                                                                                    handleDestinationTokenChange(firstTokenSymbol);
+                                                                                }
+                                                                            }
+                                                                            return;
+                                                                        }
+
+                                                                        if (!isNetworkSelected) {
+                                                                            // Select network first
+                                                                            handleDestinationNetworkChange(network.name, networkTokens);
+                                                                        }
+                                                                        if (isDropdownOpen) {
+                                                                            setOpenDestinationTokenDropdown(null);
+                                                                            setDestinationTokenDropdownSearchTerm(''); // Clear search when closing dropdown
+                                                                        } else {
+                                                                            setOpenDestinationTokenDropdown(network.name);
+                                                                        }
+                                                                    };
+
+                                                                    // Handle token selection from dropdown
+                                                                    const handleTokenSelect = (token, e) => {
+                                                                        e.stopPropagation();
+                                                                        const tokenSymbol = token.symbol || token.asset || token;
+                                                                        handleDestinationNetworkChange(network.name, networkTokens);
+                                                                        if (isSingleTokenMode) {
+                                                                            handleDestinationTokenChange(tokenSymbol);
+                                                                        }
+                                                                        setOpenDestinationTokenDropdown(null);
+                                                                        setDestinationTokenDropdownSearchTerm(''); // Clear search when token is selected
+                                                                    };
+
+                                                                    return (
+                                                                        <div
+                                                                            key={network.name}
+                                                                            data-destination-card
+                                                                            data-network-name={network.name}
+                                                                            className={`relative flex flex-col gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${isNetworkSelected
+                                                                                ? 'border-primary dark:border-primary-light'
+                                                                                : 'border-gray-200 bg-white dark:bg-background-dark hover:border-primary/50 dark:hover:border-primary-light/50'
+                                                                                }`}
+                                                                            style={!isNetworkSelected ? { borderColor: theme === 'dark' ? 'rgba(20, 26, 39, 1)' : undefined } : undefined}
+                                                                            onClick={handleCardClick}
+                                                                        >
+                                                                            {/* Network Info */}
+                                                                            <div className="flex flex-col gap-2 pl-1">
+                                                                                {network.logo && (
+                                                                                    <img
+                                                                                        src={network.logo}
+                                                                                        alt={shortName}
+                                                                                        className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                                        style={{ margin: 0 }}
+                                                                                        onError={(e) => e.target.style.display = 'none'}
+                                                                                    />
+                                                                                )}
+                                                                                <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                                                    {shortName}
+                                                                                </span>
+                                                                            </div>
+
+                                                                            {/* Token Area */}
+                                                                            <div
+                                                                                className={`flex items-center justify-between rounded-lg bg-gray-100 p-2 transition-colors ${isSingleTokenMode ? 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800/50' : 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800/50'
+                                                                                    }`}
+                                                                                style={theme === 'dark' ? { backgroundColor: 'rgba(20, 26, 39, 0.5)' } : {}}
+                                                                                onClick={handleTokenAreaClick}
+                                                                            >
+                                                                                {isSingleTokenMode ? (
+                                                                                    // Single token mode: show token preview (like sources in multiple mode)
+                                                                                    !isNetworkSelected ? (
+                                                                                        // Default state: show token preview
+                                                                                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                                            {tokenPreview || 'No tokens'}
+                                                                                        </span>
+                                                                                    ) : hasSelectedToken ? (
+                                                                                        // Selected state with token: show selected token
+                                                                                        <span className="text-xs font-medium text-gray-900 dark:text-gray-200">
+                                                                                            {destinationToken}
+                                                                                        </span>
+                                                                                    ) : (
+                                                                                        // Selected state without token: show "Select Token"
+                                                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                            Select Token
+                                                                                        </span>
+                                                                                    )
+                                                                                ) : !isNetworkSelected ? (
+                                                                                    // Default state: show token preview
+                                                                                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                                        {tokenPreview || 'No tokens'}
+                                                                                    </span>
+                                                                                ) : hasSelectedToken ? (
+                                                                                    // Selected state with token: show selected token
+                                                                                    <span className="text-xs font-medium text-gray-900 dark:text-gray-200">
+                                                                                        {destinationToken}
+                                                                                    </span>
+                                                                                ) : (
+                                                                                    // Selected state without token: show "Select Token"
+                                                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                        Select Token
+                                                                                    </span>
+                                                                                )}
+                                                                                {/* Show dropdown chevron when network is selected */}
+                                                                                {isNetworkSelected && (
+                                                                                    <svg
+                                                                                        className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                                                                                        fill="none"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        stroke="currentColor"
+                                                                                    >
+                                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                                                    </svg>
+                                                                                )}
+                                                                            </div>
+
+                                                                            {/* Token Dropdown - show when network is selected and dropdown is open */}
+                                                                            {isDropdownOpen && networkTokens.length > 0 && (() => {
+                                                                                // Filter tokens based on search term
+                                                                                const filteredDropdownTokens = destinationTokenDropdownSearchTerm
+                                                                                    ? networkTokens.filter(token => {
+                                                                                        const search = destinationTokenDropdownSearchTerm.toLowerCase().trim();
+                                                                                        const tokenSymbol = (token.symbol || token.asset || token).toLowerCase();
+                                                                                        const displayAsset = (token.display_asset || '').toLowerCase();
+                                                                                        return tokenSymbol.includes(search) || displayAsset.includes(search);
+                                                                                    })
+                                                                                    : networkTokens;
+
+                                                                                return (
+                                                                                    <div
+                                                                                        data-token-dropdown
+                                                                                        className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg bg-gray-100 dark:bg-[#181818] shadow-lg overflow-hidden"
+                                                                                        style={{ display: 'flex', flexDirection: 'column' }}
+                                                                                    >
+                                                                                        {/* Search Bar */}
+                                                                                        <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#181818] px-2 py-2">
+                                                                                            <input
+                                                                                                type="text"
+                                                                                                value={destinationTokenDropdownSearchTerm}
+                                                                                                onChange={(e) => setDestinationTokenDropdownSearchTerm(e.target.value)}
+                                                                                                placeholder="Search tokens..."
+                                                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-2 py-1.5 text-xs text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-1 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                                                onClick={(e) => e.stopPropagation()}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                        </div>
+                                                                                        {/* Tokens List */}
+                                                                                        <div
+                                                                                            className={filteredDropdownTokens.length > 8 ? 'custom-scrollbar' : ''}
+                                                                                            style={{
+                                                                                                padding: '4px',
+                                                                                                display: 'flex',
+                                                                                                flexDirection: 'column',
+                                                                                                gap: '8px',
+                                                                                                ...(filteredDropdownTokens.length > 8 ? { maxHeight: '256px', overflowY: 'auto' } : {})
+                                                                                            }}
+                                                                                        >
+                                                                                            {filteredDropdownTokens.length === 0 ? (
+                                                                                                <div className="px-2 py-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+                                                                                                    No tokens found
+                                                                                                </div>
+                                                                                            ) : (
+                                                                                                filteredDropdownTokens.map((token) => {
+                                                                                                    const tokenSymbol = token.symbol || token.asset || token;
+                                                                                                    const isTokenSelected = destinationToken === tokenSymbol;
+                                                                                                    return (
+                                                                                                        <div
+                                                                                                            key={tokenSymbol}
+                                                                                                            className={`flex items-center justify-between cursor-pointer transition-colors ${isTokenSelected
+                                                                                                                    ? 'bg-gray-200/50 dark:bg-white/5'
+                                                                                                                    : 'hover:bg-gray-200 dark:hover:bg-white/10'
+                                                                                                                }`}
+                                                                                                            style={{ padding: '4px', borderRadius: '6px', height: '24px' }}
+                                                                                                            onClick={(e) => handleTokenSelect(token, e)}
+                                                                                                        >
+                                                                                                            <div className="flex items-center" style={{ gap: '4px' }}>
+                                                                                                                {token.logo && (
+                                                                                                                    <img
+                                                                                                                        src={token.logo}
+                                                                                                                        alt={tokenSymbol}
+                                                                                                                        className="rounded-full object-contain flex-shrink-0"
+                                                                                                                        style={{ width: '16px', height: '16px' }}
+                                                                                                                        onError={(e) => e.target.style.display = 'none'}
+                                                                                                                    />
+                                                                                                                )}
+                                                                                                                <span
+                                                                                                                    className={`font-semibold leading-none ${isTokenSelected ? 'text-black dark:text-white' : 'text-gray-900 dark:text-gray-200'}`}
+                                                                                                                    style={{ fontSize: '12px' }}
+                                                                                                                >
+                                                                                                                    {tokenSymbol}
+                                                                                                                </span>
+                                                                                                            </div>
+                                                                                                            {isTokenSelected && (
+                                                                                                                <svg
+                                                                                                                    className="text-white flex-shrink-0"
+                                                                                                                    style={{ width: '16px', height: '16px' }}
+                                                                                                                    fill="none"
+                                                                                                                    viewBox="0 0 24 24"
+                                                                                                                    stroke="currentColor"
+                                                                                                                >
+                                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                                                                                </svg>
+                                                                                                            )}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                })
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            })()}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                            {showAllDestinationNetworks && (
+                                                                <div className="sticky bottom-4 flex justify-center z-10 -mt-12 mb-4" style={{ pointerEvents: 'none' }}>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            // Scroll to top of destination list when collapsing
+                                                                            step1Ref.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+                                                                            setShowAllDestinationNetworks(false);
+                                                                        }}
+                                                                        className="flex items-center gap-1.5 bg-gray-700 dark:bg-gray-600 text-white px-3 h-8 text-sm font-medium transition-colors hover:bg-gray-800 dark:hover:bg-gray-500 pointer-events-auto"
+                                                                        style={{ height: '32px', borderRadius: '72px' }}
+                                                                    >
+                                                                        <span>Collapse</span>
+                                                                        <svg
+                                                                            className="w-4 h-4"
+                                                                            fill="none"
+                                                                            viewBox="0 0 24 24"
+                                                                            stroke="currentColor"
+                                                                        >
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {hasMoreDestNetworks && !showAllDestinationNetworks && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setShowAllDestinationNetworks(true);
+                                                                    }}
+                                                                    className="mt-4 w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:text-primary dark:hover:text-primary-light"
+                                                                >
+                                                                    {`Load More (${allDestNetworks.length - displayedDestNetworks.length} more)`}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
+
+                                                {/* Wallet Address */}
+                                                <div className="flex flex-col gap-2 col-span-2">
+                                                    <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                        Your Wallet Address <span className="text-primary dark:text-primary-light">*</span>
+                                                    </label>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={walletAddress}
+                                                            onChange={handleWalletAddressChange}
+                                                            placeholder={getAddressConfigForDestination(destinationNetwork, networks).placeholder}
+                                                            className={`flex-1 min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${walletAddressError
+                                                                ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
+                                                                : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
+                                                                }`}
+                                                            onBlur={(e) => {
+                                                                if (!walletAddressError) {
+                                                                    e.target.style.boxShadow = 'none';
+                                                                }
+                                                            }}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleAutofillPlaceholder}
+                                                            className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition whitespace-nowrap ${!walletAddress
+                                                                ? 'border-none bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light'
+                                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-600 dark:text-gray-400 hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light'
+                                                                }`}
+                                                            title={`Fill with example ${getAddressConfigForDestination(destinationNetwork, networks).label} address`}
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" /></svg>
+                                                            <span>Fill</span>
+                                                        </button>
+                                                    </div>
+                                                    {walletAddressError && (
+                                                        <div className="mt-1 text-xs text-destructive">
+                                                            {walletAddressError}
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <span className={`text-base font-semibold transition-colors ${
-                                                        tokenMode === 'single'
-                                                            ? 'text-primary dark:text-primary-light'
-                                                            : 'text-gray-900 dark:text-gray-200'
-                                                    }`}>
-                                                        Fixed Destination Token
-                                                    </span>
-                                                    <span className="text-sm leading-relaxed text-gray-600 dark:text-gray-400" style={{ fontSize: '14px' }}>
-                                                        <strong className="font-semibold">DApp Integration:</strong> For prediction markets, DEXs, or apps requiring a specific token (e.g., only USDC)
-                                                    </span>
-                                                </div>
-                                            </label>
-                                            <label className="flex items-start gap-3 cursor-pointer">
-                                                <div className="relative mt-0.5 flex items-center justify-center">
-                                                    <input
-                                                        type="radio"
-                                                        name="tokenMode"
-                                                        value="multiple"
-                                                        checked={tokenMode === 'multiple'}
-                                                        onChange={handleModeChange}
-                                                        className={`w-4 h-4 border-2 rounded-full appearance-none cursor-pointer transition-colors ${
-                                                            tokenMode === 'multiple'
-                                                                ? 'border-primary dark:border-primary-light'
-                                                                : 'border-gray-300 dark:border-gray-600'
-                                                        }`}
-                                                    />
-                                                    {tokenMode === 'multiple' && (
-                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                            <div className="w-2 h-2 rounded-full bg-primary dark:bg-primary-light" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <span className={`text-base font-semibold transition-colors ${
-                                                        tokenMode === 'multiple'
-                                                            ? 'text-primary dark:text-primary-light'
-                                                            : 'text-gray-900 dark:text-gray-200'
-                                                    }`}>
-                                                        Multiple Destination Tokens
-                                                    </span>
-                                                    <span className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                        <strong className="font-semibold">Wallet Integration:</strong> Accept various tokens and deliver their respective counterparts on your network
-                                                    </span>
-                                                </div>
-                                            </label>
+
+
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Destination Fields */}
+                                    {/* Divider */}
+                                    <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+
+                                    {/* Step 2: Select Source */}
                                     <div
-                                        className="flex flex-col gap-4"
+                                        id="step2"
+                                        ref={step2Ref}
+                                        className="relative flex flex-col gap-8"
+                                        style={{
+                                            scrollMarginTop: '96px'
+                                        }}
                                     >
-                                        {/* Destination Networks Grid */}
-                                        {networks.length > 0 && (() => {
-                                            // Filter networks based on search term (prioritize startsWith, then includes)
-                                            const filteredDestNetworks = networkSearchTerm
-                                                ? (() => {
-                                                    const search = networkSearchTerm.toLowerCase().trim();
-                                                    const startsWithMatches = [];
-                                                    const includesMatches = [];
-                                                    
-                                                    networks.forEach(network => {
-                                                        const displayName = (network.display_name || formatNetworkName(network.name))?.toLowerCase() || '';
-                                                        const name = network.name?.toLowerCase() || '';
-                                                        const startsWith = displayName.startsWith(search) || name.startsWith(search);
-                                                        const includes = displayName.includes(search) || name.includes(search);
-                                                        
-                                                        if (startsWith) {
-                                                            startsWithMatches.push(network);
-                                                        } else if (includes) {
-                                                            includesMatches.push(network);
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">2</span>
+                                                    Select Source
+                                                </h2>
+                                                {tokenMode === 'single' ? (
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Select which networks can send tokens to receive{' '}
+                                                        <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                            <span>{destinationToken}</span> <span>on</span> <span>{selectedNetworkDisplay}</span>
+                                                        </span>
+                                                        {' '}on your network.
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                        Select the source network and token - users will receive the matching token on your destination network.
+                                                    </p>
+                                                )}
+                                            </div>
+
+
+                                            {/* Get Sources Button */}
+                                            {(() => {
+                                                // In multiple mode, only destination network is required (token is selected in step3-destination)
+                                                // Wallet address is also required
+                                                const walletValidation = validateWalletAddress(walletAddress);
+                                                const destinationComplete = destinationNetwork &&
+                                                    (tokenMode === 'single' ? destinationToken : true);
+                                                const step1Complete = destinationComplete && walletValidation.valid;
+                                                const isDisabled = isLoadingStep2 || !step1Complete;
+                                                return (
+                                                    <div className="relative mt-3 block group">
+                                                        <StepActionButton
+                                                            onClick={handleGetSources}
+                                                            disabled={isDisabled}
+                                                            ariaLabel={showSourceNetworks && sources.length > 0 ? "Refresh available source networks" : "Fetch available source networks"}
+                                                            loadingText={isLoadingStep2 ? 'Loading...' : undefined}
+                                                            primaryLabel="Get Sources"
+                                                            secondaryLabel="Refresh"
+                                                            isSecondary={showSourceNetworks && sources.length > 0}
+                                                        />
+                                                        {isDisabled && !step1Complete && (
+                                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
+                                                                {!walletValidation.valid
+                                                                    ? 'Please enter your wallet address in Step 1 first'
+                                                                    : 'Please complete Step 1: Setup Destination first'}
+                                                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                                                    <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
+
+                                            {/* Result Box */}
+                                            <ResultBox result={step2Result} />
+
+                                            {/* Source Networks Grid */}
+                                            {showSourceNetworks && sources.length > 0 && (() => {
+                                                const sortedSources = sources.sort((a, b) => b.source_rank - a.source_rank);
+
+                                                // Filter sources based on search term (prioritize startsWith, then includes)
+                                                const filteredSources = sourceSearchTerm
+                                                    ? (() => {
+                                                        const search = sourceSearchTerm.toLowerCase().trim();
+                                                        const startsWithMatches = [];
+                                                        const includesMatches = [];
+
+                                                        sortedSources.forEach(source => {
+                                                            const displayName = source.displayName?.toLowerCase() || '';
+                                                            const name = source.name?.toLowerCase() || '';
+                                                            const startsWith = displayName.startsWith(search) || name.startsWith(search);
+                                                            const includes = displayName.includes(search) || name.includes(search);
+
+                                                            if (startsWith) {
+                                                                startsWithMatches.push(source);
+                                                            } else if (includes) {
+                                                                includesMatches.push(source);
+                                                            }
+                                                        });
+
+                                                        // Prioritize startsWith matches, then includes matches
+                                                        return [...startsWithMatches, ...includesMatches];
+                                                    })()
+                                                    : sortedSources;
+
+                                                const featuredSources = filteredSources.filter(source => FEATURED_NETWORKS.includes(source.name));
+                                                const otherSources = filteredSources.filter(source => !FEATURED_NETWORKS.includes(source.name));
+
+                                                const minSourcesToShow = 9;
+                                                // When searching, preserve search priority (startsWith first, then includes)
+                                                // When not searching, use featured/other split
+                                                const allSources = sourceSearchTerm
+                                                    ? filteredSources  // Preserve search priority order
+                                                    : [...featuredSources, ...otherSources];  // Featured first when not searching
+
+                                                // Use pagination logic - when searching, preserve search priority; when not searching, use featured/other split
+                                                let displayedSources;
+                                                if (showAllSourceNetworks) {
+                                                    displayedSources = allSources;
+                                                } else if (sourceSearchTerm) {
+                                                    // When searching, use allSources directly with pagination (preserves search priority)
+                                                    displayedSources = allSources.slice(0, minSourcesToShow);
+
+                                                    // Ensure selected source is always visible when collapsed
+                                                    if (sourceNetwork) {
+                                                        const selectedSource = allSources.find(source => source.name === sourceNetwork);
+                                                        if (selectedSource && !displayedSources.some(source => source.name === sourceNetwork)) {
+                                                            // Remove last item and add selected source
+                                                            displayedSources = [
+                                                                ...allSources.slice(0, minSourcesToShow - 1),
+                                                                selectedSource
+                                                            ];
                                                         }
-                                                    });
-                                                    
-                                                    // Prioritize startsWith matches, then includes matches
-                                                    return [...startsWithMatches, ...includesMatches];
-                                                })()
-                                                : networks;
-                                            
-                                            const featuredDestNetworks = filteredDestNetworks.filter(n => FEATURED_NETWORKS.includes(n.name));
-                                            const otherDestNetworks = filteredDestNetworks.filter(n => !FEATURED_NETWORKS.includes(n.name));
-
-                                            const minNetworksToShow = 9;
-                                            // When searching, preserve search priority (startsWith first, then includes)
-                                            // When not searching, use featured/other split
-                                            const allDestNetworks = networkSearchTerm 
-                                                ? filteredDestNetworks  // Preserve search priority order
-                                                : [...featuredDestNetworks, ...otherDestNetworks];  // Featured first when not searching
-
-                                            // Use pagination logic - when searching, preserve search priority; when not searching, use featured/other split
-                                            let displayedDestNetworks;
-                                            if (showAllDestinationNetworks) {
-                                                displayedDestNetworks = allDestNetworks;
-                                            } else if (networkSearchTerm) {
-                                                // When searching, use allDestNetworks directly with pagination (preserves search priority)
-                                                displayedDestNetworks = allDestNetworks.slice(0, minNetworksToShow);
-                                                
-                                                // Ensure selected network is always visible when collapsed
-                                                if (destinationNetwork) {
-                                                    const selectedNetwork = allDestNetworks.find(n => n.name === destinationNetwork);
-                                                    if (selectedNetwork && !displayedDestNetworks.some(n => n.name === destinationNetwork)) {
-                                                        // Remove last item and add selected network
-                                                        displayedDestNetworks = [
-                                                            ...allDestNetworks.slice(0, minNetworksToShow - 1),
-                                                            selectedNetwork
-                                                        ];
-                                                    }
-                                                }
-                                            } else {
-                                                // When not searching, show featured networks + enough other networks to fill at least 3 rows
-                                                const featuredCount = featuredDestNetworks.length;
-                                                
-                                                // Ensure selected network is always visible when collapsed (if it's from extended list)
-                                                if (destinationNetwork) {
-                                                    const selectedNetwork = allDestNetworks.find(n => n.name === destinationNetwork);
-                                                    const isSelectedInFeatured = selectedNetwork && featuredDestNetworks.some(n => n.name === destinationNetwork);
-                                                    
-                                                    if (selectedNetwork && !isSelectedInFeatured) {
-                                                        // Selected network is from extended list - include it in the first 9, but keep total at exactly 9
-                                                        // Reduce featured networks by 1 to make room for the selected network
-                                                        const featuredToShow = featuredDestNetworks.slice(0, Math.min(featuredCount, minNetworksToShow - 1));
-                                                        const remainingSlots = minNetworksToShow - featuredToShow.length - 1; // -1 for selected network
-                                                        const otherNetworksWithoutSelected = otherDestNetworks.filter(n => n.name !== destinationNetwork);
-                                                        const otherNetworksToInclude = otherNetworksWithoutSelected.slice(0, Math.max(0, remainingSlots));
-                                                        // Insert selected network after featured networks, before other networks
-                                                        // Total will be: featuredToShow.length + 1 (selected) + otherNetworksToInclude.length = exactly 9
-                                                        displayedDestNetworks = [
-                                                            ...featuredToShow,
-                                                            selectedNetwork,
-                                                            ...otherNetworksToInclude
-                                                        ];
-                                                    } else {
-                                                        // Selected network is in featured or not selected - show normal featured + others
-                                                        const neededFromOthers = Math.max(0, minNetworksToShow - featuredCount);
-                                                        const otherNetworksToShow = otherDestNetworks.slice(0, neededFromOthers);
-                                                        displayedDestNetworks = [...featuredDestNetworks, ...otherNetworksToShow];
                                                     }
                                                 } else {
-                                                    // No network selected - show normal featured + others
-                                                    const neededFromOthers = Math.max(0, minNetworksToShow - featuredCount);
-                                                    const otherNetworksToShow = otherDestNetworks.slice(0, neededFromOthers);
-                                                    displayedDestNetworks = [...featuredDestNetworks, ...otherNetworksToShow];
+                                                    // When not searching, show featured sources + enough other sources to fill at least 3 rows
+                                                    const featuredCount = featuredSources.length;
+                                                    const neededFromOthers = Math.max(0, minSourcesToShow - featuredCount);
+                                                    const otherSourcesToShow = otherSources.slice(0, neededFromOthers);
+                                                    displayedSources = [...featuredSources, ...otherSourcesToShow];
+
+                                                    // Ensure selected source is always visible when collapsed
+                                                    if (sourceNetwork) {
+                                                        const selectedSource = allSources.find(source => source.name === sourceNetwork);
+                                                        if (selectedSource && !displayedSources.some(source => source.name === sourceNetwork)) {
+                                                            // Filter out the selected source from otherSourcesToShow
+                                                            const otherSourcesWithoutSelected = otherSourcesToShow.filter(source => source.name !== sourceNetwork);
+                                                            // Calculate how many other sources we can show (accounting for the selected source)
+                                                            const slotsForOthers = minSourcesToShow - featuredCount - 1; // -1 for selected source
+                                                            const otherSourcesToInclude = otherSourcesWithoutSelected.slice(0, Math.max(0, slotsForOthers));
+                                                            // Insert selected source after featured sources, before other sources
+                                                            displayedSources = [
+                                                                ...featuredSources,
+                                                                selectedSource,
+                                                                ...otherSourcesToInclude
+                                                            ];
+                                                        }
+                                                    }
                                                 }
-                                            }
 
-                                            // Calculate if there would be more networks when collapsed (for showing the toggle button)
-                                            const hasMoreDestNetworks = networkSearchTerm
-                                                ? allDestNetworks.length > displayedDestNetworks.length  // When searching, check if there are more than displayed
-                                                : (() => {
-                                                    // When not searching, use featured/other logic
-                                                    const featuredCount = featuredDestNetworks.length;
-                                                    const neededFromOthers = Math.max(0, minNetworksToShow - featuredCount);
-                                                    const collapsedCount = featuredCount + Math.min(otherDestNetworks.length, neededFromOthers);
-                                                    return allDestNetworks.length > collapsedCount;
-                                                })();
+                                                // Calculate if there would be more sources when collapsed (for showing the toggle button)
+                                                const hasMoreSources = sourceSearchTerm
+                                                    ? allSources.length > displayedSources.length  // When searching, check if there are more than displayed
+                                                    : (() => {
+                                                        // When not searching, use featured/other logic
+                                                        const featuredCount = featuredSources.length;
+                                                        const neededFromOthers = Math.max(0, minSourcesToShow - featuredCount);
+                                                        const collapsedCount = featuredCount + Math.min(otherSources.length, neededFromOthers);
+                                                        return allSources.length > collapsedCount;
+                                                    })();
 
-                                            return (
-                                                <div className="mt-4 flex flex-col gap-2">
-                                                    <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                                                        Destination Network <span className="text-primary dark:text-primary-light">*</span>
-                                                        {tokenMode === 'single' && ' / Token'}
-                                                    </label>
-                                                    {/* Search Bar */}
-                                                    <div className="mb-2">
-                                                        <input
-                                                            type="text"
-                                                            value={networkSearchTerm}
-                                                            onChange={(e) => setNetworkSearchTerm(e.target.value)}
-                                                            placeholder="Search networks..."
-                                                            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
-                                                        />
-                                                    </div>
-                                                    <div
-                                                        className="grid gap-3 relative"
-                                                        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}
-                                                    >
-                                                        {displayedDestNetworks.map((network) => {
-                                                            const shortName = (network.display_name || formatNetworkName(network.name))
-                                                                .replace(/_MAINNET/g, '')
-                                                                .replace(/_SEPOLIA/g, ' Sep')
-                                                                .replace(/_/g, ' ');
-                                                            const isNetworkSelected = destinationNetwork === network.name;
-                                                            const hasSelectedToken = isNetworkSelected && destinationToken;
-                                                            const isDropdownOpen = openDestinationTokenDropdown === network.name;
-                                                            const networkTokens = network.tokens || [];
-                                                            const tokenSymbols = networkTokens.map(t => t.symbol || t.asset || t);
-                                                            const tokenPreview = tokenSymbols.slice(0, 3).join(', ') + (tokenSymbols.length > 3 ? '...' : '');
+                                                return (
+                                                    <div className="mt-4 flex flex-col gap-2">
+                                                        {/* Search Bar */}
+                                                        <div className="mb-2">
+                                                            <input
+                                                                ref={sourceSearchInputRef}
+                                                                type="text"
+                                                                value={sourceSearchTerm}
+                                                                onChange={(e) => setSourceSearchTerm(e.target.value)}
+                                                                placeholder="Search networks..."
+                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                            />
+                                                        </div>
+                                                        <div
+                                                            className="grid gap-3 relative"
+                                                            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}
+                                                        >
+                                                            {displayedSources.map((source) => {
+                                                                const shortName = source.displayName
+                                                                    .replace(/_MAINNET/g, '')
+                                                                    .replace(/_SEPOLIA/g, ' Sep')
+                                                                    .replace(/_/g, ' ');
+                                                                const isNetworkSelected = sourceNetwork === source.name;
+                                                                const hasSelectedToken = isNetworkSelected && sourceToken;
+                                                                const isDropdownOpen = openTokenDropdown === source.name;
+                                                                // Use networkMap for full token objects (with logos), fall back to source.tokens (strings)
+                                                                const fullTokens = networkMap[source.name]?.tokens || [];
+                                                                const tokenSymbols = source.tokens || [];
+                                                                const tokenPreview = tokenSymbols.slice(0, 3).join(', ') + (tokenSymbols.length > 3 ? '...' : '');
 
-                                                            // In single token mode, we don't need dropdown - just select first token
-                                                            const isSingleTokenMode = tokenMode === 'single';
-                                                            const firstToken = networkTokens.length > 0 ? networkTokens[0] : null;
-                                                            const firstTokenSymbol = firstToken ? (firstToken.symbol || firstToken.asset || firstToken) : null;
+                                                                // In single token mode, we don't need dropdown - just select first token
+                                                                const isSingleTokenMode = tokenMode === 'single';
+                                                                const firstToken = fullTokens.length > 0 ? fullTokens[0] : null;
+                                                                const firstTokenSymbol = firstToken ? (firstToken.symbol || firstToken.asset || firstToken) : null;
 
-                                                            // Handle card click - select network and open dropdown if not already selected
-                                                            const handleCardClick = (e) => {
-                                                                e.stopPropagation();
-                                                                if (!isNetworkSelected) {
-                                                                    // If only one token, auto-select
-                                                                    if (networkTokens.length === 1) {
-                                                                        if (firstTokenSymbol) {
-                                                                            handleDestinationNetworkChange(network.name, networkTokens);
-                                                                            if (isSingleTokenMode) {
-                                                                                handleDestinationTokenChange(firstTokenSymbol);
+                                                                // Handle card click - select network and open dropdown if not already selected
+                                                                const handleCardClick = (e) => {
+                                                                    e.stopPropagation();
+                                                                    if (!isNetworkSelected) {
+                                                                        // In single token mode or only one token, auto-select
+                                                                        if (isSingleTokenMode || fullTokens.length === 1) {
+                                                                            if (firstTokenSymbol) {
+                                                                                selectSource(source.name, firstTokenSymbol);
                                                                             }
-                                                                        }
-                                                                    } else {
-                                                                        // Multiple tokens - show dropdown
-                                                                        handleDestinationNetworkChange(network.name, networkTokens);
-                                                                        setOpenDestinationTokenDropdown(network.name);
-                                                                        setDestinationTokenDropdownSearchTerm(''); // Clear search when opening dropdown
-                                                                    }
-                                                                }
-                                                            };
-
-                                                            // Handle token area click - open dropdown
-                                                            const handleTokenAreaClick = (e) => {
-                                                                e.stopPropagation();
-                                                                
-                                                                // If only one token, auto-select it
-                                                                if (networkTokens.length === 1) {
-                                                                    if (firstTokenSymbol) {
-                                                                        handleDestinationNetworkChange(network.name, networkTokens);
-                                                                        if (isSingleTokenMode) {
-                                                                            handleDestinationTokenChange(firstTokenSymbol);
+                                                                        } else {
+                                                                            // Multiple token mode with multiple tokens - show dropdown
+                                                                            setSourceNetwork(source.name);
+                                                                            setSourceToken('');
+                                                                            setShowSelectedNetworkInfo(true);
+                                                                            setOpenTokenDropdown(source.name);
+                                                                            // Clear any subsequent steps
+                                                                            refreshStepsFrom(3);
                                                                         }
                                                                     }
-                                                                    return;
-                                                                }
-                                                                
-                                                                if (!isNetworkSelected) {
-                                                                    // Select network first
-                                                                    handleDestinationNetworkChange(network.name, networkTokens);
-                                                                }
-                                                                if (isDropdownOpen) {
-                                                                    setOpenDestinationTokenDropdown(null);
-                                                                    setDestinationTokenDropdownSearchTerm(''); // Clear search when closing dropdown
-                                                                } else {
-                                                                    setOpenDestinationTokenDropdown(network.name);
-                                                                }
-                                                            };
+                                                                };
 
-                                                            // Handle token selection from dropdown
-                                                            const handleTokenSelect = (token, e) => {
-                                                                e.stopPropagation();
-                                                                const tokenSymbol = token.symbol || token.asset || token;
-                                                                handleDestinationNetworkChange(network.name, networkTokens);
-                                                                if (isSingleTokenMode) {
-                                                                    handleDestinationTokenChange(tokenSymbol);
-                                                                }
-                                                                setOpenDestinationTokenDropdown(null);
-                                                                setDestinationTokenDropdownSearchTerm(''); // Clear search when token is selected
-                                                            };
+                                                                // Handle token area click - open dropdown (only in multiple token mode)
+                                                                const handleTokenAreaClick = (e) => {
+                                                                    e.stopPropagation();
 
-                                                            return (
-                                                                <div
-                                                                    key={network.name}
-                                                                    data-destination-card
-                                                                    data-network-name={network.name}
-                                                                    className={`relative flex flex-col gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${isNetworkSelected
-                                                                        ? 'border-primary dark:border-primary-light'
-                                                                        : 'border-gray-200 bg-white dark:bg-background-dark hover:border-primary/50 dark:hover:border-primary-light/50'
-                                                                        }`}
-                                                                    style={!isNetworkSelected ? { borderColor: theme === 'dark' ? 'rgba(20, 26, 39, 1)' : undefined } : undefined}
-                                                                    onClick={handleCardClick}
-                                                                >
-                                                                    {/* Network Info */}
-                                                                    <div className="flex flex-col gap-2 pl-1">
-                                                                        {network.logo && (
-                                                                            <img
-                                                                                src={network.logo}
-                                                                                alt={shortName}
-                                                                                className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
-                                                                                style={{ margin: 0 }}
-                                                                                onError={(e) => e.target.style.display = 'none'}
-                                                                            />
-                                                                        )}
-                                                                        <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                                                                            {shortName}
-                                                                        </span>
-                                                                    </div>
+                                                                    // In single token mode, just select the network and token
+                                                                    if (isSingleTokenMode) {
+                                                                        if (firstTokenSymbol) {
+                                                                            selectSource(source.name, firstTokenSymbol);
+                                                                        }
+                                                                        return;
+                                                                    }
 
-                                                                    {/* Token Area */}
+                                                                    // If only one token, auto-select it
+                                                                    if (fullTokens.length === 1) {
+                                                                        if (firstTokenSymbol) {
+                                                                            selectSource(source.name, firstTokenSymbol);
+                                                                        }
+                                                                        return;
+                                                                    }
+
+                                                                    if (!isNetworkSelected) {
+                                                                        // Select network first, then open dropdown
+                                                                        setSourceNetwork(source.name);
+                                                                        setSourceToken('');
+                                                                        setShowSelectedNetworkInfo(true);
+                                                                        refreshStepsFrom(3);
+                                                                    }
+                                                                    setOpenTokenDropdown(isDropdownOpen ? null : source.name);
+                                                                };
+
+                                                                // Handle token selection from dropdown
+                                                                const handleTokenSelect = (token, e) => {
+                                                                    e.stopPropagation();
+                                                                    const tokenSymbol = token.symbol || token.asset || token;
+                                                                    selectSource(source.name, tokenSymbol);
+                                                                    setOpenTokenDropdown(null);
+                                                                };
+
+                                                                return (
                                                                     <div
-                                                                        className={`flex items-center justify-between rounded-lg bg-gray-100 p-2 transition-colors ${
-                                                                            isSingleTokenMode ? 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800/50' : 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800/50'
-                                                                        }`}
-                                                                        style={theme === 'dark' ? { backgroundColor: 'rgba(20, 26, 39, 0.5)' } : {}}
-                                                                        onClick={handleTokenAreaClick}
+                                                                        key={source.name}
+                                                                        data-source-card
+                                                                        className={`relative flex flex-col gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${isNetworkSelected
+                                                                            ? 'border-primary dark:border-primary-light'
+                                                                            : 'border-gray-200 bg-white dark:bg-background-dark hover:border-primary/50 dark:hover:border-primary-light/50'
+                                                                            }`}
+                                                                        style={!isNetworkSelected ? { borderColor: theme === 'dark' ? 'rgba(20, 26, 39, 1)' : undefined } : undefined}
+                                                                        onClick={handleCardClick}
                                                                     >
-                                                                        {isSingleTokenMode ? (
-                                                                            // Single token mode: show token preview (like sources in multiple mode)
-                                                                            !isNetworkSelected ? (
+                                                                        {/* Network Info */}
+                                                                        <div className="flex flex-col gap-2 pl-1">
+                                                                            {source.logo && (
+                                                                                <img
+                                                                                    src={source.logo}
+                                                                                    alt={shortName}
+                                                                                    className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
+                                                                                    style={{ margin: 0 }}
+                                                                                    onError={(e) => e.target.style.display = 'none'}
+                                                                                />
+                                                                            )}
+                                                                            <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                                                {shortName}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        {/* Token Area */}
+                                                                        <div
+                                                                            className={`flex items-center justify-between rounded-lg bg-gray-100 p-2 transition-colors ${isSingleTokenMode ? '' : 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800/50'
+                                                                                }`}
+                                                                            style={theme === 'dark' ? { backgroundColor: 'rgba(20, 26, 39, 0.5)' } : {}}
+                                                                            onClick={handleTokenAreaClick}
+                                                                        >
+                                                                            {isSingleTokenMode ? (
+                                                                                // Single token mode: just show the token name
+                                                                                <span className={`text-xs truncate ${isNetworkSelected ? 'font-medium text-gray-900 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                                                    {firstTokenSymbol || tokenPreview || 'No tokens'}
+                                                                                </span>
+                                                                            ) : !isNetworkSelected ? (
                                                                                 // Default state: show token preview
                                                                                 <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                                                                     {tokenPreview || 'No tokens'}
@@ -2784,1307 +3309,776 @@ export const DepositWidget = () => {
                                                                             ) : hasSelectedToken ? (
                                                                                 // Selected state with token: show selected token
                                                                                 <span className="text-xs font-medium text-gray-900 dark:text-gray-200">
-                                                                                    {destinationToken}
+                                                                                    {sourceToken}
                                                                                 </span>
                                                                             ) : (
                                                                                 // Selected state without token: show "Select Token"
                                                                                 <span className="text-xs text-gray-500 dark:text-gray-400">
                                                                                     Select Token
                                                                                 </span>
-                                                                            )
-                                                                        ) : !isNetworkSelected ? (
-                                                                            // Default state: show token preview
-                                                                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                                                {tokenPreview || 'No tokens'}
-                                                                            </span>
-                                                                        ) : hasSelectedToken ? (
-                                                                            // Selected state with token: show selected token
-                                                                            <span className="text-xs font-medium text-gray-900 dark:text-gray-200">
-                                                                                {destinationToken}
-                                                                            </span>
-                                                                        ) : (
-                                                                            // Selected state without token: show "Select Token"
-                                                                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                                                Select Token
-                                                                            </span>
-                                                                        )}
-                                                                        {/* Show dropdown chevron when network is selected */}
-                                                                        {isNetworkSelected && (
-                                                                            <svg
-                                                                                className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                                                                                fill="none"
-                                                                                viewBox="0 0 24 24"
-                                                                                stroke="currentColor"
+                                                                            )}
+                                                                            {/* Only show dropdown chevron in multiple token mode when network is selected */}
+                                                                            {!isSingleTokenMode && isNetworkSelected && (
+                                                                                <svg
+                                                                                    className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                                                                                    fill="none"
+                                                                                    viewBox="0 0 24 24"
+                                                                                    stroke="currentColor"
+                                                                                >
+                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                                                </svg>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {/* Token Dropdown - only in multiple token mode */}
+                                                                        {!isSingleTokenMode && isDropdownOpen && fullTokens.length > 0 && (
+                                                                            <div
+                                                                                className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg bg-gray-100 dark:bg-[#181818] shadow-lg"
+                                                                                style={{ padding: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}
                                                                             >
-                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                                            </svg>
+                                                                                {fullTokens.map((token) => {
+                                                                                    const tokenSymbol = token.symbol || token.asset || token;
+                                                                                    const isTokenSelected = sourceToken === tokenSymbol;
+                                                                                    return (
+                                                                                        <div
+                                                                                            key={tokenSymbol}
+                                                                                            className={`flex items-center justify-between cursor-pointer transition-colors ${isTokenSelected
+                                                                                                    ? 'bg-gray-200/50 dark:bg-white/5'
+                                                                                                    : 'hover:bg-gray-200 dark:hover:bg-white/10'
+                                                                                                }`}
+                                                                                            style={{ padding: '4px', borderRadius: '6px', height: '24px' }}
+                                                                                            onClick={(e) => handleTokenSelect(token, e)}
+                                                                                        >
+                                                                                            <div className="flex items-center" style={{ gap: '4px' }}>
+                                                                                                {token.logo && (
+                                                                                                    <img
+                                                                                                        src={token.logo}
+                                                                                                        alt={tokenSymbol}
+                                                                                                        className="rounded-full object-contain flex-shrink-0"
+                                                                                                        style={{ width: '16px', height: '16px' }}
+                                                                                                        onError={(e) => e.target.style.display = 'none'}
+                                                                                                    />
+                                                                                                )}
+                                                                                                <span
+                                                                                                    className="font-semibold leading-none"
+                                                                                                    style={{
+                                                                                                        fontSize: '12px',
+                                                                                                        color: isTokenSelected ? 'white' : '#9da3ae'
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {tokenSymbol}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            {isTokenSelected && (
+                                                                                                <svg
+                                                                                                    className="text-white flex-shrink-0"
+                                                                                                    style={{ width: '16px', height: '16px' }}
+                                                                                                    fill="none"
+                                                                                                    viewBox="0 0 24 24"
+                                                                                                    stroke="currentColor"
+                                                                                                >
+                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                                                                </svg>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
                                                                         )}
                                                                     </div>
-
-                                                                    {/* Token Dropdown - show when network is selected and dropdown is open */}
-                                                                    {isDropdownOpen && networkTokens.length > 0 && (() => {
-                                                                        // Filter tokens based on search term
-                                                                        const filteredDropdownTokens = destinationTokenDropdownSearchTerm
-                                                                            ? networkTokens.filter(token => {
-                                                                                const search = destinationTokenDropdownSearchTerm.toLowerCase().trim();
-                                                                                const tokenSymbol = (token.symbol || token.asset || token).toLowerCase();
-                                                                                const displayAsset = (token.display_asset || '').toLowerCase();
-                                                                                return tokenSymbol.includes(search) || displayAsset.includes(search);
-                                                                            })
-                                                                            : networkTokens;
-                                                                        
-                                                                        return (
-                                                                            <div 
-                                                                                data-token-dropdown
-                                                                                className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg bg-gray-100 dark:bg-[#181818] shadow-lg overflow-hidden"
-                                                                                style={{ display: 'flex', flexDirection: 'column' }}
-                                                                            >
-                                                                                {/* Search Bar */}
-                                                                                <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#181818] px-2 py-2">
-                                                                                    <input
-                                                                                        type="text"
-                                                                                        value={destinationTokenDropdownSearchTerm}
-                                                                                        onChange={(e) => setDestinationTokenDropdownSearchTerm(e.target.value)}
-                                                                                        placeholder="Search tokens..."
-                                                                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-2 py-1.5 text-xs text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-1 focus:ring-primary/30 dark:focus:ring-primary-light/30"
-                                                                                        onClick={(e) => e.stopPropagation()}
-                                                                                        onKeyDown={(e) => e.stopPropagation()}
-                                                                                    />
-                                                                                </div>
-                                                                                {/* Tokens List */}
-                                                                                <div 
-                                                                                    className={filteredDropdownTokens.length > 8 ? 'custom-scrollbar' : ''}
-                                                                                    style={{ 
-                                                                                        padding: '4px', 
-                                                                                        display: 'flex', 
-                                                                                        flexDirection: 'column', 
-                                                                                        gap: '8px',
-                                                                                        ...(filteredDropdownTokens.length > 8 ? { maxHeight: '256px', overflowY: 'auto' } : {})
-                                                                                    }}
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        {showAllSourceNetworks && (
+                                                            <div className="sticky bottom-4 flex justify-center z-10 -mt-12 mb-4" style={{ pointerEvents: 'none' }}>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        // Scroll to top of source list when collapsing
+                                                                        step2Ref.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+                                                                        setShowAllSourceNetworks(false);
+                                                                    }}
+                                                                    className="flex items-center gap-1.5 bg-gray-700 dark:bg-gray-600 text-white px-3 h-8 text-sm font-medium transition-colors hover:bg-gray-800 dark:hover:bg-gray-500 pointer-events-auto"
+                                                                    style={{ height: '32px', borderRadius: '72px' }}
                                                                 >
-                                                                                    {filteredDropdownTokens.length === 0 ? (
-                                                                                        <div className="px-2 py-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                                                                                            No tokens found
-                                                                                        </div>
-                                                                                    ) : (
-                                                                                        filteredDropdownTokens.map((token) => {
-                                                                                            const tokenSymbol = token.symbol || token.asset || token;
-                                                                                            const isTokenSelected = destinationToken === tokenSymbol;
-                                                                                            return (
-                                                                                                <div
-                                                                                                    key={tokenSymbol}
-                                                                                                    className={`flex items-center justify-between cursor-pointer transition-colors ${
-                                                                                                        isTokenSelected 
-                                                                                                            ? 'bg-gray-200/50 dark:bg-white/5' 
-                                                                                                            : 'hover:bg-gray-200 dark:hover:bg-white/10'
-                                                                                                    }`}
-                                                                                                    style={{ padding: '4px', borderRadius: '6px', height: '24px' }}
-                                                                                                    onClick={(e) => handleTokenSelect(token, e)}
-                                                                                                >
-                                                                                                    <div className="flex items-center" style={{ gap: '4px' }}>
-                                                                                                        {token.logo && (
-                                                                                                            <img
-                                                                                                                src={token.logo}
-                                                                                                                alt={tokenSymbol}
-                                                                                                                className="rounded-full object-contain flex-shrink-0"
-                                                                                                                style={{ width: '16px', height: '16px' }}
-                                                                                                                onError={(e) => e.target.style.display = 'none'}
-                                                                                                            />
-                                                                                                        )}
-                                                                                                        <span 
-                                                                                                            className={`font-semibold leading-none ${isTokenSelected ? 'text-black dark:text-white' : 'text-gray-900 dark:text-gray-200'}`}
-                                                                                                            style={{ fontSize: '12px' }}
-                                                                                                        >
-                                                                                                            {tokenSymbol}
-                                                                                                        </span>
-                                                                                                    </div>
-                                                                                                    {isTokenSelected && (
-                                                                                                        <svg 
-                                                                                                            className="text-white flex-shrink-0" 
-                                                                                                            style={{ width: '16px', height: '16px' }}
-                                                                                                            fill="none" 
-                                                                                                            viewBox="0 0 24 24" 
-                                                                                                            stroke="currentColor"
-                                                                                                        >
-                                                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                                                                        </svg>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            );
-                                                                                        })
-                                                                                    )}
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-                                                                    })()}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                    {showAllDestinationNetworks && (
-                                                        <div className="sticky bottom-4 flex justify-center z-10 -mt-12 mb-4" style={{ pointerEvents: 'none' }}>
+                                                                    <span>Collapse</span>
+                                                                    <svg
+                                                                        className="w-4 h-4"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke="currentColor"
+                                                                    >
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                        {hasMoreSources && !showAllSourceNetworks && (
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {
-                                                                    // Scroll to top of destination list when collapsing
-                                                                    step1Ref.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
-                                                                    setShowAllDestinationNetworks(false);
+                                                                    setShowAllSourceNetworks(true);
                                                                 }}
-                                                                className="flex items-center gap-1.5 bg-gray-700 dark:bg-gray-600 text-white px-3 h-8 text-sm font-medium transition-colors hover:bg-gray-800 dark:hover:bg-gray-500 pointer-events-auto"
-                                                                style={{ height: '32px', borderRadius: '72px' }}
+                                                                className="mt-4 w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:text-primary dark:hover:text-primary-light"
                                                             >
-                                                                <span>Collapse</span>
-                                                                <svg
-                                                                    className="w-4 h-4"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                    stroke="currentColor"
-                                                                >
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                                                </svg>
+                                                                {`Load More (${allSources.length - displayedSources.length} more)`}
                                                             </button>
-                                                        </div>
-                                                    )}
-                                                    {hasMoreDestNetworks && !showAllDestinationNetworks && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setShowAllDestinationNetworks(true);
-                                                            }}
-                                                            className="mt-4 w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:text-primary dark:hover:text-primary-light"
-                                                        >
-                                                            {`Load More (${allDestNetworks.length - displayedDestNetworks.length} more)`}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
-
-                                        {/* Wallet Address */}
-                                        <div className="flex flex-col gap-2 col-span-2">
-                                            <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                                                Your Wallet Address <span className="text-primary dark:text-primary-light">*</span>
-                                            </label>
-                                            <div className="flex gap-2">
-                                                <input
-                                                    type="text"
-                                                    value={walletAddress}
-                                                    onChange={handleWalletAddressChange}
-                                                    placeholder={getAddressConfigForDestination(destinationNetwork, networks).placeholder}
-                                                    className={`flex-1 min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${walletAddressError
-                                                        ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
-                                                        : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
-                                                        }`}
-                                                    onBlur={(e) => {
-                                                        if (!walletAddressError) {
-                                                            e.target.style.boxShadow = 'none';
-                                                        }
-                                                    }}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={handleAutofillPlaceholder}
-                                                    className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition whitespace-nowrap ${!walletAddress
-                                                        ? 'border-none bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light'
-                                                        : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-600 dark:text-gray-400 hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light'
-                                                        }`}
-                                                    title={`Fill with example ${getAddressConfigForDestination(destinationNetwork, networks).label} address`}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" /></svg>
-                                                    <span>Fill</span>
-                                                </button>
-                                            </div>
-                                            {walletAddressError && (
-                                                <div className="mt-1 text-xs text-destructive">
-                                                    {walletAddressError}
-                                                </div>
-                                            )}
-                                        </div>
-
-
-                                    </div>
-                                </div>
-                            </div>
-
-                                {/* Divider */}
-                                <div className="h-px bg-gray-200 dark:bg-white/10"></div>
-
-                                {/* Step 2: Select Source */}
-                                <div
-                                    id="step2"
-                                    ref={step2Ref}
-                                    className="relative flex flex-col gap-8"
-                                style={{
-                                    scrollMarginTop: '96px'
-                                }}
-                            >
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">2</span>
-                                            Select Source
-                                        </h2>
-                                        {tokenMode === 'single' ? (
-                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                Select which networks can send tokens to receive{' '}
-                                                <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                    <span>{destinationToken}</span> <span>on</span> <span>{selectedNetworkDisplay}</span>
-                                                </span>
-                                                {' '}on your network.
-                                            </p>
-                                        ) : (
-                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                                Select the source network and token - users will receive the matching token on your destination network.
-                                            </p>
-                                        )}
-                                    </div>
-
-
-                                    {/* Get Sources Button */}
-                                    {(() => {
-                                        // In multiple mode, only destination network is required (token is selected in step3-destination)
-                                        // Wallet address is also required
-                                        const walletValidation = validateWalletAddress(walletAddress);
-                                        const destinationComplete = destinationNetwork && 
-                                            (tokenMode === 'single' ? destinationToken : true);
-                                        const step1Complete = destinationComplete && walletValidation.valid;
-                                        const isDisabled = isLoadingStep2 || !step1Complete;
-                                        return (
-                                            <div className="relative mt-3 block group">
-                                                <StepActionButton
-                                                    onClick={handleGetSources}
-                                                    disabled={isDisabled}
-                                                    ariaLabel={showSourceNetworks && sources.length > 0 ? "Refresh available source networks" : "Fetch available source networks"}
-                                                    loadingText={isLoadingStep2 ? 'Loading...' : undefined}
-                                                    primaryLabel="Get Sources"
-                                                    secondaryLabel="Refresh"
-                                                    isSecondary={showSourceNetworks && sources.length > 0}
-                                                />
-                                                {isDisabled && !step1Complete && (
-                                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                        {!walletValidation.valid
-                                                            ? 'Please enter your wallet address in Step 1 first'
-                                                            : 'Please complete Step 1: Setup Destination first'}
-                                                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                                                            <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                                                        </div>
+                                                        )}
                                                     </div>
-                                                )}
+                                                );
+                                            })()}
+
+                                            {/* Mobile API Activity */}
+                                            {windowWidth < 1024 && <ApiActivityDisplay stepKey="step2" className="xl:hidden mt-6" />}
+                                        </div>
+                                    </div>
+
+                                    {/* Divider */}
+                                    <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+
+                                    {/* Step 3: Get Quote */}
+                                    <div
+                                        id="step3"
+                                        ref={step3Ref}
+                                        className="relative flex flex-col gap-8"
+                                        style={{
+                                            scrollMarginTop: '96px'
+                                        }}
+                                    >
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">3</span>
+                                                    Get Quote (Optional)
+                                                </h2>
+                                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                    Get a detailed quote for bridging from{' '}
+                                                    <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                        {sourceNetwork ? `${sourceNetwork.replace(/_/g, ' ')} (${sourceToken})` : 'your selected network'}
+                                                    </span>
+                                                    {' '}to{' '}
+                                                    <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                        {selectedNetworkDisplay} ({tokenMode === 'single' ? destinationToken : destinationTokenMultiple || 'token'})
+                                                    </span>
+                                                    .
+                                                </p>
                                             </div>
-                                        );
-                                    })()}
+                                            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                <strong>Note:</strong> Getting a quote is optional for creating a swap, but recommended to show users the exact fees, limits, and estimated processing time before they deposit.
+                                            </p>
 
-                                    {/* Result Box */}
-                                    <ResultBox result={step2Result} />
+                                            {/* Get Quote Button */}
+                                            {(() => {
+                                                const step2Complete = sourceNetwork && sourceToken;
+                                                const prerequisitesComplete = step2Complete;
+                                                const isDisabled = isLoadingStep3 || !prerequisitesComplete;
+                                                return (
+                                                    <div className="relative mt-3 block group">
+                                                        <StepActionButton
+                                                            onClick={handleGetQuote}
+                                                            disabled={isDisabled}
+                                                            ariaLabel="Get detailed transfer quote"
+                                                            loadingText={isLoadingStep3 ? 'Loading...' : undefined}
+                                                            primaryLabel="Get Detailed Quote"
+                                                            secondaryLabel="Refresh"
+                                                            isSecondary={showQuoteDetails && quotes.length > 0}
+                                                        />
+                                                        {isDisabled && !prerequisitesComplete && (
+                                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
+                                                                {!step2Complete
+                                                                    ? 'Please complete Step 2: Select Source first'
+                                                                    : `Please complete ${getPrerequisiteStep('step3')} first`}
+                                                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                                                    <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
 
-                                    {/* Source Networks Grid */}
-                                    {showSourceNetworks && sources.length > 0 && (() => {
-                                        const sortedSources = sources.sort((a, b) => b.source_rank - a.source_rank);
-                                        
-                                        // Filter sources based on search term (prioritize startsWith, then includes)
-                                        const filteredSources = sourceSearchTerm
-                                            ? (() => {
-                                                const search = sourceSearchTerm.toLowerCase().trim();
-                                                const startsWithMatches = [];
-                                                const includesMatches = [];
-                                                
-                                                sortedSources.forEach(source => {
-                                                    const displayName = source.displayName?.toLowerCase() || '';
-                                                    const name = source.name?.toLowerCase() || '';
-                                                    const startsWith = displayName.startsWith(search) || name.startsWith(search);
-                                                    const includes = displayName.includes(search) || name.includes(search);
-                                                    
-                                                    if (startsWith) {
-                                                        startsWithMatches.push(source);
-                                                    } else if (includes) {
-                                                        includesMatches.push(source);
-                                                    }
-                                                });
-                                                
-                                                // Prioritize startsWith matches, then includes matches
-                                                return [...startsWithMatches, ...includesMatches];
-                                            })()
-                                            : sortedSources;
-                                        
-                                        const featuredSources = filteredSources.filter(source => FEATURED_NETWORKS.includes(source.name));
-                                        const otherSources = filteredSources.filter(source => !FEATURED_NETWORKS.includes(source.name));
+                                            {/* Result Box */}
+                                            <ResultBox result={step3Result} />
 
-                                        const minSourcesToShow = 9;
-                                        // When searching, preserve search priority (startsWith first, then includes)
-                                        // When not searching, use featured/other split
-                                        const allSources = sourceSearchTerm 
-                                            ? filteredSources  // Preserve search priority order
-                                            : [...featuredSources, ...otherSources];  // Featured first when not searching
-
-                                        // Use pagination logic - when searching, preserve search priority; when not searching, use featured/other split
-                                        let displayedSources;
-                                        if (showAllSourceNetworks) {
-                                            displayedSources = allSources;
-                                        } else if (sourceSearchTerm) {
-                                            // When searching, use allSources directly with pagination (preserves search priority)
-                                            displayedSources = allSources.slice(0, minSourcesToShow);
-                                            
-                                            // Ensure selected source is always visible when collapsed
-                                            if (sourceNetwork) {
-                                                const selectedSource = allSources.find(source => source.name === sourceNetwork);
-                                                if (selectedSource && !displayedSources.some(source => source.name === sourceNetwork)) {
-                                                    // Remove last item and add selected source
-                                                    displayedSources = [
-                                                        ...allSources.slice(0, minSourcesToShow - 1),
-                                                        selectedSource
-                                                    ];
-                                                }
-                                            }
-                                        } else {
-                                            // When not searching, show featured sources + enough other sources to fill at least 3 rows
-                                            const featuredCount = featuredSources.length;
-                                            const neededFromOthers = Math.max(0, minSourcesToShow - featuredCount);
-                                            const otherSourcesToShow = otherSources.slice(0, neededFromOthers);
-                                            displayedSources = [...featuredSources, ...otherSourcesToShow];
-                                            
-                                            // Ensure selected source is always visible when collapsed
-                                            if (sourceNetwork) {
-                                                const selectedSource = allSources.find(source => source.name === sourceNetwork);
-                                                if (selectedSource && !displayedSources.some(source => source.name === sourceNetwork)) {
-                                                    // Filter out the selected source from otherSourcesToShow
-                                                    const otherSourcesWithoutSelected = otherSourcesToShow.filter(source => source.name !== sourceNetwork);
-                                                    // Calculate how many other sources we can show (accounting for the selected source)
-                                                    const slotsForOthers = minSourcesToShow - featuredCount - 1; // -1 for selected source
-                                                    const otherSourcesToInclude = otherSourcesWithoutSelected.slice(0, Math.max(0, slotsForOthers));
-                                                    // Insert selected source after featured sources, before other sources
-                                                    displayedSources = [
-                                                        ...featuredSources,
-                                                        selectedSource,
-                                                        ...otherSourcesToInclude
-                                                    ];
-                                                }
-                                            }
-                                        }
-
-                                        // Calculate if there would be more sources when collapsed (for showing the toggle button)
-                                        const hasMoreSources = sourceSearchTerm
-                                            ? allSources.length > displayedSources.length  // When searching, check if there are more than displayed
-                                            : (() => {
-                                                // When not searching, use featured/other logic
-                                                const featuredCount = featuredSources.length;
-                                                const neededFromOthers = Math.max(0, minSourcesToShow - featuredCount);
-                                                const collapsedCount = featuredCount + Math.min(otherSources.length, neededFromOthers);
-                                                return allSources.length > collapsedCount;
-                                            })();
-
-                                        return (
-                                            <div className="mt-4 flex flex-col gap-2">
-                                                {/* Search Bar */}
-                                                <div className="mb-2">
-                                                    <input
-                                                        ref={sourceSearchInputRef}
-                                                        type="text"
-                                                        value={sourceSearchTerm}
-                                                        onChange={(e) => setSourceSearchTerm(e.target.value)}
-                                                        placeholder="Search networks..."
-                                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
-                                                    />
-                                                </div>
-                                                <div
-                                                    className="grid gap-3 relative"
-                                                    style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))' }}
-                                                >
-                                                    {displayedSources.map((source) => {
-                                                        const shortName = source.displayName
-                                                            .replace(/_MAINNET/g, '')
-                                                            .replace(/_SEPOLIA/g, ' Sep')
-                                                            .replace(/_/g, ' ');
-                                                        const isNetworkSelected = sourceNetwork === source.name;
-                                                        const hasSelectedToken = isNetworkSelected && sourceToken;
-                                                        const isDropdownOpen = openTokenDropdown === source.name;
-                                                        // Use networkMap for full token objects (with logos), fall back to source.tokens (strings)
-                                                        const fullTokens = networkMap[source.name]?.tokens || [];
-                                                        const tokenSymbols = source.tokens || [];
-                                                        const tokenPreview = tokenSymbols.slice(0, 3).join(', ') + (tokenSymbols.length > 3 ? '...' : '');
-
-                                                        // In single token mode, we don't need dropdown - just select first token
-                                                        const isSingleTokenMode = tokenMode === 'single';
-                                                        const firstToken = fullTokens.length > 0 ? fullTokens[0] : null;
-                                                        const firstTokenSymbol = firstToken ? (firstToken.symbol || firstToken.asset || firstToken) : null;
-
-                                                        // Handle card click - select network and open dropdown if not already selected
-                                                        const handleCardClick = (e) => {
-                                                            e.stopPropagation();
-                                                            if (!isNetworkSelected) {
-                                                                // In single token mode or only one token, auto-select
-                                                                if (isSingleTokenMode || fullTokens.length === 1) {
-                                                                    if (firstTokenSymbol) {
-                                                                        selectSource(source.name, firstTokenSymbol);
-                                                                    }
-                                                                } else {
-                                                                    // Multiple token mode with multiple tokens - show dropdown
-                                                                    setSourceNetwork(source.name);
-                                                                    setSourceToken('');
-                                                                    setShowSelectedNetworkInfo(true);
-                                                                    setOpenTokenDropdown(source.name);
-                                                                    // Clear any subsequent steps
-                                                                    refreshStepsFrom(3);
-                                                                }
-                                                            }
+                                            {/* Quote Details */}
+                                            {showQuoteDetails && quotes.length > 0 && (
+                                                <div className="mt-4 space-y-4">
+                                                    {quotes.length > 1 && (
+                                                        <h4 className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                                                            Available Routes ({quotes.length})
+                                                        </h4>
+                                                    )}
+                                                    {quotes.map((quote, index) => {
+                                                        const formatTime = (ms) => {
+                                                            if (!ms || ms === 0) return 'Instant';
+                                                            const totalSeconds = Math.floor(ms / 1000);
+                                                            const hours = Math.floor(totalSeconds / 3600);
+                                                            const minutes = Math.floor((totalSeconds % 3600) / 60);
+                                                            const seconds = totalSeconds % 60;
+                                                            if (hours > 0) return `~${hours}h ${minutes}m`;
+                                                            if (minutes > 0) return `~${minutes}m`;
+                                                            return `~${seconds}s`;
                                                         };
 
-                                                        // Handle token area click - open dropdown (only in multiple token mode)
-                                                        const handleTokenAreaClick = (e) => {
-                                                            e.stopPropagation();
-                                                            
-                                                            // In single token mode, just select the network and token
-                                                            if (isSingleTokenMode) {
-                                                                if (firstTokenSymbol) {
-                                                                    selectSource(source.name, firstTokenSymbol);
-                                                                }
-                                                                return;
-                                                            }
-                                                            
-                                                            // If only one token, auto-select it
-                                                            if (fullTokens.length === 1) {
-                                                                if (firstTokenSymbol) {
-                                                                    selectSource(source.name, firstTokenSymbol);
-                                                                }
-                                                                return;
-                                                            }
-                                                            
-                                                            if (!isNetworkSelected) {
-                                                                // Select network first, then open dropdown
-                                                                setSourceNetwork(source.name);
-                                                                setSourceToken('');
-                                                                setShowSelectedNetworkInfo(true);
-                                                                refreshStepsFrom(3);
-                                                            }
-                                                            setOpenTokenDropdown(isDropdownOpen ? null : source.name);
-                                                        };
+                                                        const minAmount = formatAmount(quote.min_amount) || '0';
+                                                        const maxAmount = formatAmount(quote.max_amount) || '0';
+                                                        const feeForMin = formatAmount(quote.fee_amount_for_min) || '0';
+                                                        const feeForMax = formatAmount(quote.fee_amount_for_max) || '0';
+                                                        const percentageFee = formatAmount(quote.total_percentage_fee) || '0';
+                                                        const fixedFeeUsd = formatAmount(quote.total_fixed_fee_in_usd) || '0';
+                                                        const timeDisplay = formatTime(quote.avg_completion_milliseconds);
 
-                                                        // Handle token selection from dropdown
-                                                        const handleTokenSelect = (token, e) => {
-                                                            e.stopPropagation();
-                                                            const tokenSymbol = token.symbol || token.asset || token;
-                                                            selectSource(source.name, tokenSymbol);
-                                                            setOpenTokenDropdown(null);
-                                                        };
+                                                        let usdRate = 0;
+                                                        if (quote.max_amount_in_usd && quote.max_amount && quote.max_amount > 0) {
+                                                            usdRate = quote.max_amount_in_usd / quote.max_amount;
+                                                        } else if (quote.min_amount_in_usd && quote.min_amount && quote.min_amount > 0) {
+                                                            usdRate = quote.min_amount_in_usd / quote.min_amount;
+                                                        }
+
+                                                        const feeForMinUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMin) * usdRate) : '';
+                                                        const feeForMaxUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMax) * usdRate) : '';
+
+                                                        const usdRange = (quote.min_amount_in_usd && quote.max_amount_in_usd)
+                                                            ? `$${formatAmount(quote.min_amount_in_usd)} - $${formatAmount(quote.max_amount_in_usd)}`
+                                                            : '';
+
+                                                        const hasPercentageFee = parseFloat(percentageFee) > 0;
+                                                        const hasFixedFee = parseFloat(fixedFeeUsd) > 0;
+                                                        const feeStructureParts = [];
+                                                        if (hasPercentageFee) feeStructureParts.push(`${percentageFee}%`);
+                                                        if (hasFixedFee) feeStructureParts.push(`$${fixedFeeUsd}`);
+                                                        const feeStructureText = feeStructureParts.length ? feeStructureParts.join(' + ') : 'No fees';
 
                                                         return (
-                                                            <div
-                                                                key={source.name}
-                                                                data-source-card
-                                                                className={`relative flex flex-col gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${isNetworkSelected
-                                                                    ? 'border-primary dark:border-primary-light'
-                                                                    : 'border-gray-200 bg-white dark:bg-background-dark hover:border-primary/50 dark:hover:border-primary-light/50'
-                                                                    }`}
-                                                                style={!isNetworkSelected ? { borderColor: theme === 'dark' ? 'rgba(20, 26, 39, 1)' : undefined } : undefined}
-                                                                onClick={handleCardClick}
-                                                            >
-                                                                {/* Network Info */}
-                                                                <div className="flex flex-col gap-2 pl-1">
-                                                                    {source.logo && (
-                                                                        <img
-                                                                            src={source.logo}
-                                                                            alt={shortName}
-                                                                            className="h-8 w-8 rounded-full object-contain bg-gray-100 dark:bg-gray-800 p-0.5"
-                                                                            style={{ margin: 0 }}
-                                                                            onError={(e) => e.target.style.display = 'none'}
-                                                                        />
-                                                                    )}
-                                                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                                                                        {shortName}
-                                                                    </span>
+                                                            <div key={index} className="rounded-xl border border-gray-200 dark:border-white/10 p-4 flex flex-col gap-4">
+                                                                {/* Amount Range */}
+                                                                <div className="flex items-baseline gap-[12px]">
+                                                                    <div className="flex flex-col gap-0">
+                                                                        <div className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">{minAmount}</div>
+                                                                        {quote.min_amount_in_usd && (
+                                                                            <div className="text-xs text-gray-500" style={{ lineHeight: '16px' }}>${formatAmount(quote.min_amount_in_usd)}</div>
+                                                                        )}
+                                                                    </div>
+                                                                    <span className="text-gray-400 dark:text-gray-500">-</span>
+                                                                    <div className="flex flex-col gap-0">
+                                                                        <div className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">{maxAmount} {sourceToken}</div>
+                                                                        {quote.max_amount_in_usd && (
+                                                                            <div className="text-xs text-gray-500" style={{ lineHeight: '16px' }}>${formatAmount(quote.max_amount_in_usd)}</div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
 
-                                                                {/* Token Area */}
-                                                                <div
-                                                                    className={`flex items-center justify-between rounded-lg bg-gray-100 p-2 transition-colors ${
-                                                                        isSingleTokenMode ? '' : 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800/50'
-                                                                    }`}
-                                                                    style={theme === 'dark' ? { backgroundColor: 'rgba(20, 26, 39, 0.5)' } : {}}
-                                                                    onClick={handleTokenAreaClick}
-                                                                >
-                                                                    {isSingleTokenMode ? (
-                                                                        // Single token mode: just show the token name
-                                                                        <span className={`text-xs truncate ${isNetworkSelected ? 'font-medium text-gray-900 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400'}`}>
-                                                                            {firstTokenSymbol || tokenPreview || 'No tokens'}
-                                                                        </span>
-                                                                    ) : !isNetworkSelected ? (
-                                                                        // Default state: show token preview
-                                                                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                                            {tokenPreview || 'No tokens'}
-                                                                        </span>
-                                                                    ) : hasSelectedToken ? (
-                                                                        // Selected state with token: show selected token
-                                                                        <span className="text-xs font-medium text-gray-900 dark:text-gray-200">
-                                                                            {sourceToken}
-                                                                        </span>
-                                                                    ) : (
-                                                                        // Selected state without token: show "Select Token"
-                                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                                            Select Token
-                                                                        </span>
-                                                                    )}
-                                                                    {/* Only show dropdown chevron in multiple token mode when network is selected */}
-                                                                    {!isSingleTokenMode && isNetworkSelected && (
-                                                                        <svg
-                                                                            className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                                                                            fill="none"
-                                                                            viewBox="0 0 24 24"
-                                                                            stroke="currentColor"
-                                                                        >
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                                        </svg>
-                                                                    )}
-                                                                </div>
+                                                                {/* Divider */}
+                                                                <div className="h-px bg-gray-200 dark:bg-white/10"></div>
 
-                                                                {/* Token Dropdown - only in multiple token mode */}
-                                                                {!isSingleTokenMode && isDropdownOpen && fullTokens.length > 0 && (
-                                                                    <div 
-                                                                        className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg bg-gray-100 dark:bg-[#181818] shadow-lg"
-                                                                        style={{ padding: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}
-                                                                    >
-                                                                        {fullTokens.map((token) => {
-                                                                            const tokenSymbol = token.symbol || token.asset || token;
-                                                                            const isTokenSelected = sourceToken === tokenSymbol;
-                                                                            return (
-                                                                                <div
-                                                                                    key={tokenSymbol}
-                                                                                    className={`flex items-center justify-between cursor-pointer transition-colors ${
-                                                                                        isTokenSelected 
-                                                                                            ? 'bg-gray-200/50 dark:bg-white/5' 
-                                                                                            : 'hover:bg-gray-200 dark:hover:bg-white/10'
-                                                                                    }`}
-                                                                                    style={{ padding: '4px', borderRadius: '6px', height: '24px' }}
-                                                                                    onClick={(e) => handleTokenSelect(token, e)}
-                                                                                >
-                                                                                    <div className="flex items-center" style={{ gap: '4px' }}>
-                                                                                        {token.logo && (
-                                                                                            <img
-                                                                                                src={token.logo}
-                                                                                                alt={tokenSymbol}
-                                                                                                className="rounded-full object-contain flex-shrink-0"
-                                                                                                style={{ width: '16px', height: '16px' }}
-                                                                                                onError={(e) => e.target.style.display = 'none'}
-                                                                                            />
-                                                                                        )}
-                                                                                        <span 
-                                                                                            className="font-semibold leading-none"
-                                                                                            style={{ 
-                                                                                                fontSize: '12px',
-                                                                                                color: isTokenSelected ? 'white' : '#9da3ae'
-                                                                                            }}
-                                                                                        >
-                                                                                            {tokenSymbol}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                    {isTokenSelected && (
-                                                                                        <svg 
-                                                                                            className="text-white flex-shrink-0" 
-                                                                                            style={{ width: '16px', height: '16px' }}
-                                                                                            fill="none" 
-                                                                                            viewBox="0 0 24 24" 
-                                                                                            stroke="currentColor"
-                                                                                        >
-                                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                                                        </svg>
-                                                                                    )}
+                                                                {/* Routing Path */}
+                                                                {quote.path && quote.path.length > 0 && (
+                                                                    <div className="flex flex-col items-start gap-2">
+                                                                        <span className="text-sm text-gray-500 dark:text-gray-400">Routing Path</span>
+                                                                        <div className="flex flex-nowrap items-center gap-2">
+                                                                            {quote.path.map((step, pathIndex) => (
+                                                                                <div key={pathIndex} className="flex items-center gap-2">
+                                                                                    <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                                                        {step.provider_name}
+                                                                                    </span>
                                                                                 </div>
-                                                                            );
-                                                                        })}
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
                                                                 )}
+
+                                                                {/* Fee Structure + Processing Time */}
+                                                                <div className="flex gap-0 justify-between">
+                                                                    <div className="w-fit flex flex-col gap-1">
+                                                                        <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Fee Structure</div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {hasPercentageFee && (
+                                                                                <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                                                    {percentageFee}%
+                                                                                </span>
+                                                                            )}
+                                                                            {hasPercentageFee && hasFixedFee && (
+                                                                                <span className="text-gray-400 dark:text-gray-500">+</span>
+                                                                            )}
+                                                                            {hasFixedFee && (
+                                                                                <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                                                    ${fixedFeeUsd}
+                                                                                </span>
+                                                                            )}
+                                                                            {!hasPercentageFee && !hasFixedFee && (
+                                                                                <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                                                    No fees
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="w-fit flex flex-col gap-1">
+                                                                        <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Processing Time</div>
+                                                                        <div className="text-sm font-semibold text-gray-900 dark:text-white flex py-2 px-3 w-fit dark:bg-[#141A27] rounded-lg justify-center items-start">{timeDisplay}</div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         );
                                                     })}
                                                 </div>
-                                                {showAllSourceNetworks && (
-                                                    <div className="sticky bottom-4 flex justify-center z-10 -mt-12 mb-4" style={{ pointerEvents: 'none' }}>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                // Scroll to top of source list when collapsing
-                                                                step2Ref.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
-                                                                setShowAllSourceNetworks(false);
-                                                            }}
-                                                            className="flex items-center gap-1.5 bg-gray-700 dark:bg-gray-600 text-white px-3 h-8 text-sm font-medium transition-colors hover:bg-gray-800 dark:hover:bg-gray-500 pointer-events-auto"
-                                                            style={{ height: '32px', borderRadius: '72px' }}
-                                                        >
-                                                            <span>Collapse</span>
-                                                            <svg
-                                                                className="w-4 h-4"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                )}
-                                                {hasMoreSources && !showAllSourceNetworks && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setShowAllSourceNetworks(true);
-                                                        }}
-                                                        className="mt-4 w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:text-primary dark:hover:text-primary-light"
-                                                    >
-                                                        {`Load More (${allSources.length - displayedSources.length} more)`}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        );
-                                    })()}
-
-                                    {/* Mobile API Activity */}
-                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step2" className="xl:hidden mt-6" />}
-                                </div>
-                            </div>
-
-                            {/* Divider */}
-                            <div className="h-px bg-gray-200 dark:bg-white/10"></div>
-
-                                {/* Step 3: Get Quote */}
-                                <div
-                                    id="step3"
-                                    ref={step3Ref}
-                                    className="relative flex flex-col gap-8"
-                                style={{
-                                    scrollMarginTop: '96px'
-                                }}
-                            >
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">3</span>
-                                            Get Quote (Optional)
-                                        </h2>
-                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                            Get a detailed quote for bridging from{' '}
-                                            <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                {sourceNetwork ? `${sourceNetwork.replace(/_/g, ' ')} (${sourceToken})` : 'your selected network'}
-                                            </span>
-                                            {' '}to{' '}
-                                            <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                {selectedNetworkDisplay} ({tokenMode === 'single' ? destinationToken : destinationTokenMultiple || 'token'})
-                                            </span>
-                                            .
-                                        </p>
-                                    </div>
-                                    <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                        <strong>Note:</strong> Getting a quote is optional for creating a swap, but recommended to show users the exact fees, limits, and estimated processing time before they deposit.
-                                    </p>
-
-                                    {/* Get Quote Button */}
-                                    {(() => {
-                                        const step2Complete = sourceNetwork && sourceToken;
-                                        const prerequisitesComplete = step2Complete;
-                                        const isDisabled = isLoadingStep3 || !prerequisitesComplete;
-                                        return (
-                                            <div className="relative mt-3 block group">
-                                                <StepActionButton
-                                                    onClick={handleGetQuote}
-                                                    disabled={isDisabled}
-                                                    ariaLabel="Get detailed transfer quote"
-                                                    loadingText={isLoadingStep3 ? 'Loading...' : undefined}
-                                                    primaryLabel="Get Detailed Quote"
-                                                    secondaryLabel="Refresh"
-                                                    isSecondary={showQuoteDetails && quotes.length > 0}
-                                                />
-                                                {isDisabled && !prerequisitesComplete && (
-                                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                        {!step2Complete
-                                                            ? 'Please complete Step 2: Select Source first'
-                                                            : `Please complete ${getPrerequisiteStep('step3')} first`}
-                                                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                                                            <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })()}
-
-                                    {/* Result Box */}
-                                    <ResultBox result={step3Result} />
-
-                                    {/* Quote Details */}
-                                    {showQuoteDetails && quotes.length > 0 && (
-                                        <div className="mt-4 space-y-4">
-                                            {quotes.length > 1 && (
-                                                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                                                    Available Routes ({quotes.length})
-                                                </h4>
                                             )}
-                                            {quotes.map((quote, index) => {
-                                                const formatTime = (ms) => {
-                                                    if (!ms || ms === 0) return 'Instant';
-                                                    const totalSeconds = Math.floor(ms / 1000);
-                                                    const hours = Math.floor(totalSeconds / 3600);
-                                                    const minutes = Math.floor((totalSeconds % 3600) / 60);
-                                                    const seconds = totalSeconds % 60;
-                                                    if (hours > 0) return `~${hours}h ${minutes}m`;
-                                                    if (minutes > 0) return `~${minutes}m`;
-                                                    return `~${seconds}s`;
-                                                };
 
-                                                const minAmount = formatAmount(quote.min_amount) || '0';
-                                                const maxAmount = formatAmount(quote.max_amount) || '0';
-                                                const feeForMin = formatAmount(quote.fee_amount_for_min) || '0';
-                                                const feeForMax = formatAmount(quote.fee_amount_for_max) || '0';
-                                                const percentageFee = formatAmount(quote.total_percentage_fee) || '0';
-                                                const fixedFeeUsd = formatAmount(quote.total_fixed_fee_in_usd) || '0';
-                                                const timeDisplay = formatTime(quote.avg_completion_milliseconds);
-
-                                                let usdRate = 0;
-                                                if (quote.max_amount_in_usd && quote.max_amount && quote.max_amount > 0) {
-                                                    usdRate = quote.max_amount_in_usd / quote.max_amount;
-                                                } else if (quote.min_amount_in_usd && quote.min_amount && quote.min_amount > 0) {
-                                                    usdRate = quote.min_amount_in_usd / quote.min_amount;
-                                                }
-
-                                                const feeForMinUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMin) * usdRate) : '';
-                                                const feeForMaxUsd = usdRate > 0 ? formatAmount(parseFloat(feeForMax) * usdRate) : '';
-
-                                                const usdRange = (quote.min_amount_in_usd && quote.max_amount_in_usd)
-                                                    ? `$${formatAmount(quote.min_amount_in_usd)} - $${formatAmount(quote.max_amount_in_usd)}`
-                                                    : '';
-
-                                                const hasPercentageFee = parseFloat(percentageFee) > 0;
-                                                const hasFixedFee = parseFloat(fixedFeeUsd) > 0;
-                                                const feeStructureParts = [];
-                                                if (hasPercentageFee) feeStructureParts.push(`${percentageFee}%`);
-                                                if (hasFixedFee) feeStructureParts.push(`$${fixedFeeUsd}`);
-                                                const feeStructureText = feeStructureParts.length ? feeStructureParts.join(' + ') : 'No fees';
-
-                                                return (
-                                                    <div key={index} className="rounded-xl border border-gray-200 dark:border-white/10 p-4 flex flex-col gap-4">
-                                                        {/* Amount Range */}
-                                                        <div className="flex items-baseline gap-[12px]">
-                                                            <div className="flex flex-col gap-0">
-                                                                <div className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">{minAmount}</div>
-                                                                {quote.min_amount_in_usd && (
-                                                                    <div className="text-xs text-gray-500" style={{ lineHeight: '16px' }}>${formatAmount(quote.min_amount_in_usd)}</div>
-                                                                )}
+                                            {/* Swap Request Fields */}
+                                            {showSwapRequestFields && (
+                                                <div className="rounded-xl border border-gray-200 dark:border-[#141A27] p-4 flex flex-col gap-4">
+                                                    <p className="text-[14px] text-gray-600 dark:text-[#99a0ac]">
+                                                        Request Body
+                                                    </p>
+                                                    <div className="h-px w-full bg-gray-200 dark:bg-[#141A27]" />
+                                                    <div className="flex flex-col gap-5">
+                                                        {/* Row 1: SOURCE_NETWORK + SOURCE_TOKEN */}
+                                                        <div className="flex gap-5 w-full">
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    SOURCE_NETWORK
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] text-gray-900 dark:text-white">
+                                                                        {sourceNetwork}
+                                                                    </p>
+                                                                </div>
                                                             </div>
-                                                            <span className="text-gray-400 dark:text-gray-500">-</span>
-                                                            <div className="flex flex-col gap-0">
-                                                                <div className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">{maxAmount} {sourceToken}</div>
-                                                                {quote.max_amount_in_usd && (
-                                                                    <div className="text-xs text-gray-500" style={{ lineHeight: '16px' }}>${formatAmount(quote.max_amount_in_usd)}</div>
-                                                                )}
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    SOURCE_TOKEN
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] text-gray-900 dark:text-white">
+                                                                        {sourceToken}
+                                                                    </p>
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                        {/* Row 2: DESTINATION_NETWORK + DESTINATION_TOKEN */}
+                                                        <div className="flex gap-5 w-full">
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    DESTINATION_NETWORK
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] text-gray-900 dark:text-white">
+                                                                        {destinationNetwork}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    DESTINATION_TOKEN
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] text-gray-900 dark:text-white">
+                                                                        {tokenMode === 'single' ? destinationToken : destinationTokenMultiple}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {/* Row 3: DESTINATION_ADDRESS (full width) */}
+                                                        <div className="flex w-full">
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    DESTINATION_ADDRESS
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] break-all text-gray-900 dark:text-white">
+                                                                        {walletAddress}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {/* Row 4: REFUEL + USE_DEPOSIT_ADDRESS */}
+                                                        <div className="flex gap-5 w-full">
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    REFUEL
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] text-gray-900 dark:text-white">
+                                                                        false
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex-1 flex flex-col gap-2">
+                                                                <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
+                                                                    USE_DEPOSIT_ADDRESS
+                                                                </p>
+                                                                <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
+                                                                    <p className="font-mono text-[14px] text-gray-900 dark:text-white">
+                                                                        true
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-start gap-2 rounded-lg border border-gray-200 dark:border-white/10 px-3 py-2 text-xs leading-relaxed text-warning dark:text-warning">
+                                                        <span className="text-sm flex-shrink-0">⚠️</span>
+                                                        <span>
+                                                            <strong>Important:</strong> The <code className="rounded bg-warning/20 dark:bg-warning/10 px-1 py-[2px] text-[11px] font-mono">use_deposit_address: true</code> parameter is critical for this API flow. When set to true, the swap response will include a deposit address that users can send funds to from any supported chain.
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                                        {/* Divider */}
-                                                        <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+                                            {/* Mobile API Activity */}
+                                            {windowWidth < 1024 && <ApiActivityDisplay stepKey="step3" className="xl:hidden mt-6" />}
+                                        </div>
+                                    </div>
 
-                                                        {/* Routing Path */}
-                                                        {quote.path && quote.path.length > 0 && (
-                                                            <div className="flex flex-col items-start gap-2">
-                                                                <span className="text-sm text-gray-500 dark:text-gray-400">Routing Path</span>
-                                                                <div className="flex flex-nowrap items-center gap-2">
-                                                                    {quote.path.map((step, pathIndex) => (
-                                                                        <div key={pathIndex} className="flex items-center gap-2">
-                                                                            <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                                                {step.provider_name}
-                                                                            </span>
-                                                                        </div>
-                                                                    ))}
+                                    {/* Divider */}
+                                    <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+
+                                    {/* Step 4/5: Create Swap */}
+                                    <div
+                                        id="step4"
+                                        ref={step4Ref}
+                                        className="relative flex flex-col gap-8"
+                                        style={{
+                                            scrollMarginTop: '96px'
+                                        }}
+                                    >
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 5 : 4}</span>
+                                                    Create Swap
+                                                </h2>
+                                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                    Create a swap to get your unique deposit address.
+                                                </p>
+                                                {/* Create Swap Button */}
+                                                {(() => {
+                                                    // Step 2 completion is required (get quote is optional)
+                                                    const step2Complete = sourceNetwork && sourceToken;
+                                                    const prerequisitesComplete = step2Complete;
+                                                    const isDisabled = isLoadingStep4 || !prerequisitesComplete;
+                                                    const swapCreated = swapId !== null;
+                                                    return (
+                                                        <div className="relative mt-3 block group">
+                                                            <StepActionButton
+                                                                onClick={handleCreateSwap}
+                                                                disabled={isDisabled}
+                                                                ariaLabel="Create a new swap transaction"
+                                                                loadingText={isLoadingStep4 ? 'Creating...' : undefined}
+                                                                primaryLabel="Create Swap"
+                                                                secondaryLabel="Re-create"
+                                                                isSecondary={swapCreated}
+                                                            />
+                                                            {isDisabled && !prerequisitesComplete && (
+                                                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
+                                                                    {!step2Complete
+                                                                        ? 'Please complete Step 2: Select Source first'
+                                                                        : `Please complete ${getPrerequisiteStep('step4')} first`}
+                                                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                                                        <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </div>
+
+                                            {/* Result Box */}
+                                            {(!isLoadingStep4 || (isLoadingStep4 && swapId !== null && step4Result.variant === 'success')) && <ResultBox result={step4Result} />}
+
+                                            {/* Deposit Info */}
+                                            {showDepositInfo && depositAddress && (
+                                                <div className="mt-3 flex flex-col gap-1">
+                                                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '8px' }}>
+                                                        Send{' '}
+                                                        <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                            {sourceToken}
+                                                        </span>
+                                                        {' '}to this address on{' '}
+                                                        <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
+                                                            {sourceNetwork.replace(/_MAINNET/g, '').replace(/_SEPOLIA/g, ' Sepolia').replace(/_/g, ' ')}
+                                                        </span>
+                                                    </h3>
+                                                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3 font-mono text-sm text-gray-900 dark:text-gray-200" style={{ backgroundColor: 'rgba(20, 26, 39, 1)' }}>
+                                                        <span className="break-all flex-1 min-w-[200px]">
+                                                            {depositAddress}
+                                                        </span>
+                                                        <CopyButton
+                                                            text={depositAddress}
+                                                            size="md"
+                                                            className="gap-2"
+                                                        />
+                                                    </div>
+                                                    <div class="api-hint mt-3 flex items-start gap-2 rounded-lg border border-slate-200/60 bg-surface-soft px-3 py-2 text-xs leading-relaxed text-ink-soft dark:border-white/10 dark:bg-surface-dark-soft dark:text-ink-invert-soft">
+                                                        <span className="text-sm text-primary dark:text-primary-light flex-shrink-0 mt-1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                                                        </span>
+                                                        <span>This address is retrieved from the API response at:{' '}
+                                                            <code class="rounded bg-primary/10 dark:bg-primary-light/10 px-1 py-0.5 font-mono text-[11px] text-primary dark:text-primary-light">
+                                                                data.deposit_actions[0].to_address
+                                                            </code>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Mobile API Activity */}
+                                            {windowWidth < 1024 && <ApiActivityDisplay stepKey="step4" className="xl:hidden mt-6" />}
+                                        </div>
+                                    </div>
+
+                                    {/* Divider */}
+                                    <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+
+                                    {/* Step 5/6: Check Status */}
+                                    <div
+                                        id="step5"
+                                        ref={step5Ref}
+                                        className="relative flex flex-col gap-8"
+                                        style={{
+                                            scrollMarginTop: '96px'
+                                        }}
+                                    >
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 6 : 5}</span>
+                                                    Check Status
+                                                </h2>
+                                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                                    Monitor your transaction status in real-time.
+                                                </p>
+                                            </div>
+
+                                            {/* Check Status Button */}
+                                            {(() => {
+                                                const step4Complete = swapId !== null;
+                                                const isDisabled = !step4Complete;
+                                                return (
+                                                    <div className="relative mt-3 block group">
+                                                        <StepActionButton
+                                                            onClick={handleTrackSwap}
+                                                            disabled={isDisabled}
+                                                            ariaLabel="Check swap transaction status"
+                                                            primaryLabel="Check Status"
+                                                            secondaryLabel="Stop Tracking"
+                                                            isSecondary={!!trackingInterval}
+                                                        />
+                                                        {isDisabled && (
+                                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
+                                                                Please complete {getPrerequisiteStep('step5')} first
+                                                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                                                    <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
                                                                 </div>
                                                             </div>
                                                         )}
+                                                    </div>
+                                                );
+                                            })()}
 
-                                                        {/* Fee Structure + Processing Time */}
-                                                        <div className="flex gap-0 justify-between">
-                                                            <div className="w-fit flex flex-col gap-1">
-                                                                <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Fee Structure</div>
-                                                                <div className="flex items-center gap-2">
-                                                                    {hasPercentageFee && (
-                                                                        <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                                            {percentageFee}%
-                                                                        </span>
-                                                                    )}
-                                                                    {hasPercentageFee && hasFixedFee && (
-                                                                        <span className="text-gray-400 dark:text-gray-500">+</span>
-                                                                    )}
-                                                                    {hasFixedFee && (
-                                                                        <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                                            ${fixedFeeUsd}
-                                                                        </span>
-                                                                    )}
-                                                                    {!hasPercentageFee && !hasFixedFee && (
-                                                                        <span className="rounded-lg bg-gray-100 dark:bg-[#141A27] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                                            No fees
-                                                                        </span>
-                                                                    )}
-                                                                </div>
+                                            {/* Swap Route Display */}
+                                            {showSwapRoute && swapStatus && (() => {
+                                                // Get source network and token info
+                                                const sourceNetworkData = sources.find(s => s.name === sourceNetwork);
+                                                const sourceNetworkLogo = networkMap[sourceNetwork]?.logo || sourceNetworkData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                                const sourceNetworkDisplayName = sourceNetworkData?.displayName || formatNetworkName(sourceNetwork);
+                                                const sourceTokenData = networkMap[sourceNetwork]?.tokens?.find(t => t.symbol === sourceToken);
+                                                const sourceTokenLogo = sourceTokenData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+
+                                                // Get destination network and token info
+                                                const destNetworkData = networks.find(n => n.name === destinationNetwork);
+                                                const destNetworkLogo = destNetworkData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+                                                const destToken = tokenMode === 'single' ? destinationToken : destinationTokenMultiple;
+                                                const destTokenData = destNetworkData?.tokens?.find(t => t.symbol === destToken);
+                                                const destTokenLogo = destTokenData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
+
+                                                return (
+                                                    <div className="flex items-center justify-center gap-5 rounded-xl bg-[#141A27] px-3 py-3">
+                                                        {/* Source */}
+                                                        <div className="flex gap-2 flex-1 min-w-0 items-center">
+                                                            <div className="shrink-0 relative" style={{ width: '32px', height: '32px' }}>
+                                                                <img
+                                                                    src={sourceNetworkLogo}
+                                                                    alt={sourceNetworkDisplayName}
+                                                                    className="absolute rounded-md object-cover"
+                                                                    style={{ top: '-32px', left: 0, width: '24px', height: '24px' }}
+                                                                />
+                                                                <img
+                                                                    src={sourceTokenLogo}
+                                                                    alt={sourceToken}
+                                                                    className="absolute rounded-full object-cover border border-[#141A27]"
+                                                                    style={{ top: '-20px', left: '9px', width: '20px', height: '20px' }}
+                                                                />
                                                             </div>
-                                                            <div className="w-fit flex flex-col gap-1">
-                                                                <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">Processing Time</div>
-                                                                <div className="text-sm font-semibold text-gray-900 dark:text-white flex py-2 px-3 w-fit dark:bg-[#141A27] rounded-lg justify-center items-start">{timeDisplay}</div>
+                                                            <div className="flex flex-col justify-center">
+                                                                <span className="text-sm font-medium text-white leading-normal">{sourceNetworkDisplayName}</span>
+                                                                <span className="text-sm font-medium text-gray-400 leading-normal">{sourceToken}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Arrow */}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400">
+                                                            <path d="M5 12h14" />
+                                                            <path d="m12 5 7 7-7 7" />
+                                                        </svg>
+
+                                                        {/* Destination */}
+                                                        <div className="flex gap-2 flex-1 min-w-0 items-center">
+                                                            <div className="shrink-0 relative" style={{ width: '32px', height: '32px' }}>
+                                                                <img
+                                                                    src={destNetworkLogo}
+                                                                    alt={selectedNetworkDisplay}
+                                                                    className="absolute rounded-md object-cover"
+                                                                    style={{ top: '-32px', left: 0, width: '24px', height: '24px' }}
+                                                                />
+                                                                <img
+                                                                    src={destTokenLogo}
+                                                                    alt={destToken}
+                                                                    className="absolute rounded-full object-cover border border-[#141A27]"
+                                                                    style={{ top: '-20px', left: '9px', width: '20px', height: '20px' }}
+                                                                />
+                                                            </div>
+                                                            <div className="flex flex-col justify-center">
+                                                                <span className="text-sm font-medium text-white leading-normal">{selectedNetworkDisplay}</span>
+                                                                <span className="text-sm font-medium text-gray-400 leading-normal">{destToken}</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 );
-                                            })}
-                                        </div>
-                                    )}
+                                            })()}
 
-                                    {/* Swap Request Fields */}
-                                    {showSwapRequestFields && (
-                                        <div className="rounded-xl border border-gray-200 dark:border-[#141A27] p-4 flex flex-col gap-4">
-                                            <p className="text-[14px] text-gray-600 dark:text-[#99a0ac]">
-                                                Request Body
-                                            </p>
-                                            <div className="h-px w-full bg-gray-200 dark:bg-[#141A27]" />
-                                            <div className="flex flex-col gap-5">
-                                                {/* Row 1: SOURCE_NETWORK + SOURCE_TOKEN */}
-                                                <div className="flex gap-5 w-full">
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            SOURCE_NETWORK
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] text-gray-900 dark:text-white">
-                                                                {sourceNetwork}
-                                                            </p>
-                                                        </div>
+                                            {/* Status Guide */}
+                                            {showStatusGuide && (
+                                                <div className="mt-4 flex flex-col gap-3 rounded-xl px-4 py-4 text-xs leading-relaxed text-gray-600 dark:text-gray-400" style={{ backgroundColor: 'rgba(20, 26, 39, 1)', border: 'none' }}>
+                                                    <div className="flex flex-col items-baseline gap-0">
+                                                        <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
+                                                            user_transfer_pending
+                                                        </span>
+                                                        <span>Awaiting your deposit to the provided address.</span>
                                                     </div>
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            SOURCE_TOKEN
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] text-gray-900 dark:text-white">
-                                                                {sourceToken}
-                                                            </p>
-                                                        </div>
+                                                    <div className="flex flex-col items-baseline gap-0">
+                                                        <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
+                                                            ls_transfer_pending
+                                                        </span>
+                                                        <span>Deposit received—Layerswap is processing your transfer.</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-baseline gap-0">
+                                                        <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
+                                                            completed
+                                                        </span>
+                                                        <span>Transfer successfully sent to the destination account.</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-baseline gap-0">
+                                                        <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
+                                                            failed
+                                                        </span>
+                                                        <span>The transfer could not be completed. Contact support.</span>
                                                     </div>
                                                 </div>
-                                                {/* Row 2: DESTINATION_NETWORK + DESTINATION_TOKEN */}
-                                                <div className="flex gap-5 w-full">
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            DESTINATION_NETWORK
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] text-gray-900 dark:text-white">
-                                                                {destinationNetwork}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            DESTINATION_TOKEN
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] text-gray-900 dark:text-white">
-                                                                {tokenMode === 'single' ? destinationToken : destinationTokenMultiple}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {/* Row 3: DESTINATION_ADDRESS (full width) */}
-                                                <div className="flex w-full">
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            DESTINATION_ADDRESS
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] break-all text-gray-900 dark:text-white">
-                                                                {walletAddress}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {/* Row 4: REFUEL + USE_DEPOSIT_ADDRESS */}
-                                                <div className="flex gap-5 w-full">
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            REFUEL
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] text-gray-900 dark:text-white">
-                                                                false
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex-1 flex flex-col gap-2">
-                                                        <p className="text-[12px] text-gray-600 dark:text-[#99a0ac]">
-                                                            USE_DEPOSIT_ADDRESS
-                                                        </p>
-                                                        <div className="rounded-md bg-gray-50 dark:bg-[#141A27] px-3 py-2">
-                                                            <p className="font-mono text-[14px] text-gray-900 dark:text-white">
-                                                                true
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-start gap-2 rounded-lg border border-gray-200 dark:border-white/10 px-3 py-2 text-xs leading-relaxed text-warning dark:text-warning">
-                                                <span className="text-sm flex-shrink-0">⚠️</span>
-                                                <span>
-                                                    <strong>Important:</strong> The <code className="rounded bg-warning/20 dark:bg-warning/10 px-1 py-[2px] text-[11px] font-mono">use_deposit_address: true</code> parameter is critical for this API flow. When set to true, the swap response will include a deposit address that users can send funds to from any supported chain.
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
+                                            )}
 
-                                    {/* Mobile API Activity */}
-                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step3" className="xl:hidden mt-6" />}
-                                </div>
-                            </div>
+                                            {/* Result Box */}
+                                            <ResultBox result={step5Result} />
 
-                                {/* Divider */}
-                                <div className="h-px bg-gray-200 dark:bg-white/10"></div>
-
-                                {/* Step 4/5: Create Swap */}
-                                <div
-                                    id="step4"
-                                    ref={step4Ref}
-                                    className="relative flex flex-col gap-8"
-                                style={{
-                                    scrollMarginTop: '96px'
-                                }}
-                            >
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 5 : 4}</span>
-                                            Create Swap
-                                        </h2>
-                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                            Create a swap to get your unique deposit address.
-                                        </p>
-                                        {/* Create Swap Button */}
-                                        {(() => {
-                                            // Step 2 completion is required (get quote is optional)
-                                            const step2Complete = sourceNetwork && sourceToken;
-                                            const prerequisitesComplete = step2Complete;
-                                            const isDisabled = isLoadingStep4 || !prerequisitesComplete;
-                                            const swapCreated = swapId !== null;
-                                            return (
-                                                <div className="relative mt-3 block group">
-                                                    <StepActionButton
-                                                        onClick={handleCreateSwap}
-                                                        disabled={isDisabled}
-                                                        ariaLabel="Create a new swap transaction"
-                                                        loadingText={isLoadingStep4 ? 'Creating...' : undefined}
-                                                        primaryLabel="Create Swap"
-                                                        secondaryLabel="Re-create"
-                                                        isSecondary={swapCreated}
-                                                    />
-                                                    {isDisabled && !prerequisitesComplete && (
-                                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                            {!step2Complete
-                                                                ? 'Please complete Step 2: Select Source first'
-                                                                : `Please complete ${getPrerequisiteStep('step4')} first`}
-                                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                                                                <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                                                            </div>
+                                            {/* Swap Transactions */}
+                                            {showSwapTransactions && swapStatus && (
+                                                <div className="mt-4">
+                                                    <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                        Transactions
+                                                    </h4>
+                                                    {swapTransactions.length > 0 ? (
+                                                        <div className="flex flex-col gap-2">
+                                                            {swapTransactions.map((tx, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 transition-all"
+                                                                >
+                                                                    <div className="flex flex-1 flex-col gap-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-[2px] text-[11px] font-semibold uppercase text-gray-600 dark:text-gray-400">
+                                                                                {tx.type || 'transfer'}
+                                                                            </span>
+                                                                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
+                                                                                {tx.amount || 'N/A'} {typeof tx.token === 'object' ? (tx.token?.symbol || tx.token?.display_asset || '') : (tx.token || '')}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className="text-[10px] text-gray-600 dark:text-gray-400">
+                                                                            {typeof tx.network === 'object' ? (tx.network?.name || tx.network?.display_name || 'N/A') : (tx.network || 'N/A')}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 text-sm italic text-gray-600 dark:text-gray-400">
+                                                            No transactions available yet. Waiting for deposit...
                                                         </div>
                                                     )}
                                                 </div>
-                                            );
-                                        })()}
-                                    </div>
+                                            )}
 
-                                    {/* Result Box */}
-                                    {(!isLoadingStep4 || (isLoadingStep4 && swapId !== null && step4Result.variant === 'success')) && <ResultBox result={step4Result} />}
-
-                                    {/* Deposit Info */}
-                                    {showDepositInfo && depositAddress && (
-                                        <div className="mt-3 flex flex-col gap-1">
-                                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '8px' }}>
-                                                Send{' '}
-                                                <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                    {sourceToken}
-                                                </span>
-                                                {' '}to this address on{' '}
-                                                <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 dark:bg-primary-light/10 px-2.5 py-1 text-xs font-semibold text-primary dark:text-primary-light">
-                                                    {sourceNetwork.replace(/_MAINNET/g, '').replace(/_SEPOLIA/g, ' Sepolia').replace(/_/g, ' ')}
-                                                </span>
-                                            </h3>
-                                            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3 font-mono text-sm text-gray-900 dark:text-gray-200" style={{ backgroundColor: 'rgba(20, 26, 39, 1)' }}>
-                                                <span className="break-all flex-1 min-w-[200px]">
-                                                    {depositAddress}
-                                                </span>
-                                                <CopyButton
-                                                    text={depositAddress}
-                                                    size="md"
-                                                    className="gap-2"
-                                                />
-                                            </div>
-                                            <div class="api-hint mt-3 flex items-start gap-2 rounded-lg border border-slate-200/60 bg-surface-soft px-3 py-2 text-xs leading-relaxed text-ink-soft dark:border-white/10 dark:bg-surface-dark-soft dark:text-ink-invert-soft">
-                                                <span className="text-sm text-primary dark:text-primary-light flex-shrink-0 mt-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
-                                                </span>
-                                                <span>This address is retrieved from the API response at:{' '}
-                                                    <code class="rounded bg-primary/10 dark:bg-primary-light/10 px-1 py-0.5 font-mono text-[11px] text-primary dark:text-primary-light">
-                                                        data.deposit_actions[0].to_address
-                                                    </code>
-                                                </span>
-                                            </div>
+                                            {/* Mobile API Activity */}
+                                            {windowWidth < 1024 && <ApiActivityDisplay stepKey="step5" className="xl:hidden mt-6" />}
                                         </div>
-                                    )}
-
-                                    {/* Mobile API Activity */}
-                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step4" className="xl:hidden mt-6" />}
+                                    </div>
                                 </div>
-                            </div>
 
-                                {/* Divider */}
-                                <div className="h-px bg-gray-200 dark:bg-white/10"></div>
+                                {/* Contact Section */}
+                                <div className="mt-12 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-6 text-center shadow-sm">
+                                    <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-200">
+                                        Need Help with Integration?
+                                    </h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                        For partnership inquiries and integration support, our team is here to help.
+                                    </p>
+                                    <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+                                        <a
+                                            href="mailto:partners@layerswap.io"
+                                            className="inline-flex items-center gap-2 rounded-lg border-none bg-primary dark:bg-primary-light px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark dark:hover:bg-primary-light no-underline"
+                                        >
+                                            ✉️ partners@layerswap.io
+                                        </a>
+                                        <a
+                                            href="https://t.me/layerswap_dev"
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-2 rounded-lg border-none bg-gradient-to-br from-[#2AABEE] to-[#229ED9] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-105 no-underline"
+                                        >
+                                            💬 Join Dev Community
+                                        </a>
+                                    </div>
+                                </div>
 
-                                {/* Step 5/6: Check Status */}
-                                <div
-                                    id="step5"
-                                    ref={step5Ref}
-                                    className="relative flex flex-col gap-8"
-                                style={{
-                                    scrollMarginTop: '96px'
-                                }}
-                            >
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 6 : 5}</span>
-                                            Check Status
-                                        </h2>
-                                        <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                            Monitor your transaction status in real-time.
+                                {/* Footer */}
+                                <footer class="mt-12 border-t border-slate-200/60 pt-6 dark:border-white/10">
+                                    <div class="flex flex-col items-center gap-4">
+                                        <div class="flex flex-wrap justify-center gap-5 text-xs font-medium text-ink-soft dark:text-ink-invert-soft">
+                                            <a href="https://www.layerswap.io" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
+                                                Layerswap
+                                            </a>
+                                            <a href="https://docs.layerswap.io" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
+                                                Documentation
+                                            </a>
+                                            <a href="https://x.com/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
+                                                X
+                                            </a>
+                                            <a href="https://discord.com/invite/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
+                                                Discord
+                                            </a>
+                                            <a href="https://github.com/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
+                                                GitHub
+                                            </a>
+                                        </div>
+                                        <p class="text-xs text-ink-soft/80 dark:text-ink-invert-soft">
+                                            © {new Date().getFullYear()} Layerswap Labs, Inc.
                                         </p>
                                     </div>
-
-                                    {/* Check Status Button */}
-                                    {(() => {
-                                        const step4Complete = swapId !== null;
-                                        const isDisabled = !step4Complete;
-                                        return (
-                                            <div className="relative mt-3 block group">
-                                                <StepActionButton
-                                                    onClick={handleTrackSwap}
-                                                    disabled={isDisabled}
-                                                    ariaLabel="Check swap transaction status"
-                                                    primaryLabel="Check Status"
-                                                    secondaryLabel="Stop Tracking"
-                                                    isSecondary={!!trackingInterval}
-                                                />
-                                                {isDisabled && (
-                                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50" style={{ fontSize: '14px' }}>
-                                                        Please complete {getPrerequisiteStep('step5')} first
-                                                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                                                            <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })()}
-
-                                    {/* Swap Route Display */}
-                                    {showSwapRoute && swapStatus && (() => {
-                                        // Get source network and token info
-                                        const sourceNetworkData = sources.find(s => s.name === sourceNetwork);
-                                        const sourceNetworkLogo = networkMap[sourceNetwork]?.logo || sourceNetworkData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
-                                        const sourceNetworkDisplayName = sourceNetworkData?.displayName || formatNetworkName(sourceNetwork);
-                                        const sourceTokenData = networkMap[sourceNetwork]?.tokens?.find(t => t.symbol === sourceToken);
-                                        const sourceTokenLogo = sourceTokenData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
-                                        
-                                        // Get destination network and token info
-                                        const destNetworkData = networks.find(n => n.name === destinationNetwork);
-                                        const destNetworkLogo = destNetworkData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
-                                        const destToken = tokenMode === 'single' ? destinationToken : destinationTokenMultiple;
-                                        const destTokenData = destNetworkData?.tokens?.find(t => t.symbol === destToken);
-                                        const destTokenLogo = destTokenData?.logo || 'https://cdn.layerswap.io/logos/layerswap.svg';
-                                        
-                                        return (
-                                            <div className="flex items-center justify-center gap-5 rounded-xl bg-[#141A27] px-3 py-3">
-                                                {/* Source */}
-                                                <div className="flex gap-2 flex-1 min-w-0 items-center">
-                                                    <div className="shrink-0 relative" style={{ width: '32px', height: '32px' }}>
-                                                        <img 
-                                                            src={sourceNetworkLogo} 
-                                                            alt={sourceNetworkDisplayName}
-                                                            className="absolute rounded-md object-cover"
-                                                            style={{ top: '-32px', left: 0, width: '24px', height: '24px' }}
-                                                        />
-                                                        <img 
-                                                            src={sourceTokenLogo} 
-                                                            alt={sourceToken}
-                                                            className="absolute rounded-full object-cover border border-[#141A27]"
-                                                            style={{ top: '-20px', left: '9px', width: '20px', height: '20px' }}
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-col justify-center">
-                                                        <span className="text-sm font-medium text-white leading-normal">{sourceNetworkDisplayName}</span>
-                                                        <span className="text-sm font-medium text-gray-400 leading-normal">{sourceToken}</span>
-                                                    </div>
-                                                </div>
-                                                
-                                                {/* Arrow */}
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400">
-                                                    <path d="M5 12h14" />
-                                                    <path d="m12 5 7 7-7 7" />
-                                                </svg>
-                                                
-                                                {/* Destination */}
-                                                <div className="flex gap-2 flex-1 min-w-0 items-center">
-                                                    <div className="shrink-0 relative" style={{ width: '32px', height: '32px' }}>
-                                                        <img 
-                                                            src={destNetworkLogo} 
-                                                            alt={selectedNetworkDisplay}
-                                                            className="absolute rounded-md object-cover"
-                                                            style={{ top: '-32px', left: 0, width: '24px', height: '24px' }}
-                                                        />
-                                                        <img 
-                                                            src={destTokenLogo} 
-                                                            alt={destToken}
-                                                            className="absolute rounded-full object-cover border border-[#141A27]"
-                                                            style={{ top: '-20px', left: '9px', width: '20px', height: '20px' }}
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-col justify-center">
-                                                        <span className="text-sm font-medium text-white leading-normal">{selectedNetworkDisplay}</span>
-                                                        <span className="text-sm font-medium text-gray-400 leading-normal">{destToken}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })()}
-
-                                    {/* Status Guide */}
-                                    {showStatusGuide && (
-                                        <div className="mt-4 flex flex-col gap-3 rounded-xl px-4 py-4 text-xs leading-relaxed text-gray-600 dark:text-gray-400" style={{ backgroundColor: 'rgba(20, 26, 39, 1)', border: 'none' }}>
-                                            <div className="flex flex-col items-baseline gap-0">
-                                                <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
-                                                    user_transfer_pending
-                                                </span>
-                                                <span>Awaiting your deposit to the provided address.</span>
-                                            </div>
-                                            <div className="flex flex-col items-baseline gap-0">
-                                                <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
-                                                    ls_transfer_pending
-                                                </span>
-                                                <span>Deposit received—Layerswap is processing your transfer.</span>
-                                            </div>
-                                            <div className="flex flex-col items-baseline gap-0">
-                                                <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
-                                                    completed
-                                                </span>
-                                                <span>Transfer successfully sent to the destination account.</span>
-                                            </div>
-                                            <div className="flex flex-col items-baseline gap-0">
-                                                <span className="min-w-[150px] font-semibold uppercase text-gray-900 dark:text-gray-200 text-sm">
-                                                    failed
-                                                </span>
-                                                <span>The transfer could not be completed. Contact support.</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Result Box */}
-                                    <ResultBox result={step5Result} />
-
-                                    {/* Swap Transactions */}
-                                    {showSwapTransactions && swapStatus && (
-                                        <div className="mt-4">
-                                            <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                                Transactions
-                                            </h4>
-                                            {swapTransactions.length > 0 ? (
-                                                <div className="flex flex-col gap-2">
-                                                    {swapTransactions.map((tx, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 transition-all"
-                                                        >
-                                                            <div className="flex flex-1 flex-col gap-1">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-[2px] text-[11px] font-semibold uppercase text-gray-600 dark:text-gray-400">
-                                                                        {tx.type || 'transfer'}
-                                                                    </span>
-                                                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-200">
-                                                                        {tx.amount || 'N/A'} {typeof tx.token === 'object' ? (tx.token?.symbol || tx.token?.display_asset || '') : (tx.token || '')}
-                                                                    </span>
-                                                                </div>
-                                                                <span className="text-[10px] text-gray-600 dark:text-gray-400">
-                                                                    {typeof tx.network === 'object' ? (tx.network?.name || tx.network?.display_name || 'N/A') : (tx.network || 'N/A')}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 text-sm italic text-gray-600 dark:text-gray-400">
-                                                    No transactions available yet. Waiting for deposit...
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Mobile API Activity */}
-                                    {windowWidth < 1024 && <ApiActivityDisplay stepKey="step5" className="xl:hidden mt-6" />}
-                                </div>
+                                </footer>
                             </div>
-                            </div>
-
-                            {/* Contact Section */}
-                            <div className="mt-12 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-6 text-center shadow-sm">
-                                <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-200">
-                                    Need Help with Integration?
-                                </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                                    For partnership inquiries and integration support, our team is here to help.
-                                </p>
-                                <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
-                                    <a
-                                        href="mailto:partners@layerswap.io"
-                                        className="inline-flex items-center gap-2 rounded-lg border-none bg-primary dark:bg-primary-light px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark dark:hover:bg-primary-light no-underline"
-                                    >
-                                        ✉️ partners@layerswap.io
-                                    </a>
-                                    <a
-                                        href="https://t.me/layerswap_dev"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center gap-2 rounded-lg border-none bg-gradient-to-br from-[#2AABEE] to-[#229ED9] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-105 no-underline"
-                                    >
-                                        💬 Join Dev Community
-                                    </a>
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <footer class="mt-12 border-t border-slate-200/60 pt-6 dark:border-white/10">
-                                <div class="flex flex-col items-center gap-4">
-                                    <div class="flex flex-wrap justify-center gap-5 text-xs font-medium text-ink-soft dark:text-ink-invert-soft">
-                                        <a href="https://www.layerswap.io" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
-                                            Layerswap
-                                        </a>
-                                        <a href="https://docs.layerswap.io" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
-                                            Documentation
-                                        </a>
-                                        <a href="https://x.com/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
-                                            X
-                                        </a>
-                                        <a href="https://discord.com/invite/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
-                                            Discord
-                                        </a>
-                                        <a href="https://github.com/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
-                                            GitHub
-                                        </a>
-                                    </div>
-                                    <p class="text-xs text-ink-soft/80 dark:text-ink-invert-soft">
-                                        © {new Date().getFullYear()} Layerswap Labs, Inc.
-                                    </p>
-                                </div>
-                            </footer>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
+            </div>
         </>
     );
 };
