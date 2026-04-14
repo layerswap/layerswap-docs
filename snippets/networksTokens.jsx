@@ -18,10 +18,10 @@ export const NetworksTokensEmbed = () => {
                 borderColor: 'rgba(255,255,255,0.08)',
                 textColor: '#f3f4f6',
                 subTextColor: '#a1a1aa',
-                highlight: 'rgba(204, 45, 93, 0.14)',
+                highlight: 'rgba(224, 91, 138, 0.14)',
                 cardBg: 'rgba(255,255,255,0.04)',
-                cardHover: 'rgba(204, 45, 93, 0.2)',
-                badgeBg: 'rgba(204, 45, 93, 0.12)',
+                cardHover: 'rgba(224, 91, 138, 0.2)',
+                badgeBg: 'rgba(224, 91, 138, 0.12)',
                 badgeColor: '#f9fafb',
                 tableHeaderBg: 'rgba(255,255,255,0.04)',
                 tableBorder: 'rgba(255,255,255,0.12)',
@@ -32,11 +32,11 @@ export const NetworksTokensEmbed = () => {
                 borderColor: 'rgba(15,23,42,0.08)',
                 textColor: '#0f172a',
                 subTextColor: '#475569',
-                highlight: 'rgba(204, 45, 93, 0.12)',
+                highlight: 'rgba(224, 91, 138, 0.12)',
                 cardBg: '#ffffff',
-                cardHover: 'rgba(204, 45, 93, 0.08)',
-                badgeBg: 'rgba(204, 45, 93, 0.15)',
-                badgeColor: '#c81d56',
+                cardHover: 'rgba(224, 91, 138, 0.08)',
+                badgeBg: 'rgba(224, 91, 138, 0.15)',
+                badgeColor: '#d4497a',
                 tableHeaderBg: 'rgba(241, 245, 249, 0.85)',
                 tableBorder: 'rgba(15,23,42,0.12)',
                 divider: 'rgba(15,23,42,0.08)',
@@ -307,7 +307,7 @@ export const NetworksTokensEmbed = () => {
                                     }}
                                     onMouseEnter={(event) => {
                                         event.currentTarget.style.background = palette.cardHover;
-                                        event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                        event.currentTarget.style.borderColor = 'rgba(224, 91, 138, 0.3)';
                                     }}
                                     onMouseLeave={(event) => {
                                         event.currentTarget.style.background = palette.cardBg;
@@ -430,7 +430,7 @@ export const NetworksTokensEmbed = () => {
                                     onClick={() => setViewMode('networks')}
                                     className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        border: viewMode === 'networks' ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
                                         fontWeight: viewMode === 'networks' ? 600 : 400,
@@ -442,7 +442,7 @@ export const NetworksTokensEmbed = () => {
                                     onClick={() => setViewMode('tokens')}
                                     className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        border: viewMode === 'tokens' ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
                                         fontWeight: viewMode === 'tokens' ? 600 : 400,
@@ -476,7 +476,7 @@ export const NetworksTokensEmbed = () => {
                                         onClick={() => setSelectedTypeFilter(null)}
                                         className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                         style={{
-                                            border: selectedTypeFilter === null ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                            border: selectedTypeFilter === null ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                             background: selectedTypeFilter === null ? palette.highlight : palette.cardBg,
                                             color: selectedTypeFilter === null ? palette.textColor : palette.subTextColor,
                                             fontWeight: selectedTypeFilter === null ? 600 : 400,
@@ -492,7 +492,7 @@ export const NetworksTokensEmbed = () => {
                                                 onClick={() => setSelectedTypeFilter(isSelected ? null : type)}
                                                 className="rounded-lg px-3 py-1.5 text-xs uppercase transition-all"
                                                 style={{
-                                                    border: isSelected ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                                    border: isSelected ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                                     background: isSelected ? palette.highlight : palette.cardBg,
                                                     color: isSelected ? palette.textColor : palette.subTextColor,
                                                     fontWeight: isSelected ? 600 : 400,
@@ -536,7 +536,7 @@ export const NetworksTokensEmbed = () => {
                                                 }}
                                                 onMouseEnter={(event) => {
                                                     event.currentTarget.style.background = palette.cardHover;
-                                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                                    event.currentTarget.style.borderColor = 'rgba(224, 91, 138, 0.3)';
                                                     event.currentTarget.style.transform = 'translateY(-2px)';
                                                 }}
                                                 onMouseLeave={(event) => {
@@ -601,7 +601,7 @@ export const NetworksTokensEmbed = () => {
                                     }}
                                     onMouseEnter={(event) => {
                                         event.currentTarget.style.background = palette.cardHover;
-                                        event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                        event.currentTarget.style.borderColor = 'rgba(224, 91, 138, 0.3)';
                                     }}
                                     onMouseLeave={(event) => {
                                         event.currentTarget.style.background = palette.cardBg;
@@ -638,7 +638,7 @@ export const NetworksTokensEmbed = () => {
                                         onClick={() => setNetworkDisplayStyle('card')}
                                         className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                         style={{
-                                            border: networkDisplayStyle === 'card' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                            border: networkDisplayStyle === 'card' ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                             background: networkDisplayStyle === 'card' ? palette.highlight : palette.cardBg,
                                             color: networkDisplayStyle === 'card' ? palette.textColor : palette.subTextColor,
                                             fontWeight: networkDisplayStyle === 'card' ? 600 : 400,
@@ -650,7 +650,7 @@ export const NetworksTokensEmbed = () => {
                                         onClick={() => setNetworkDisplayStyle('list')}
                                         className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                         style={{
-                                            border: networkDisplayStyle === 'list' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                            border: networkDisplayStyle === 'list' ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                             background: networkDisplayStyle === 'list' ? palette.highlight : palette.cardBg,
                                             color: networkDisplayStyle === 'list' ? palette.textColor : palette.subTextColor,
                                             fontWeight: networkDisplayStyle === 'list' ? 600 : 400,
@@ -684,7 +684,7 @@ export const NetworksTokensEmbed = () => {
                                                 }}
                                                 onMouseEnter={(event) => {
                                                     event.currentTarget.style.background = palette.cardHover;
-                                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                                    event.currentTarget.style.borderColor = 'rgba(224, 91, 138, 0.3)';
                                                     event.currentTarget.style.transform = 'translateY(-2px)';
                                                 }}
                                                 onMouseLeave={(event) => {
@@ -803,7 +803,7 @@ export const NetworksTokensEmbed = () => {
                                     onClick={() => setViewMode('networks')}
                                     className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        border: viewMode === 'networks' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        border: viewMode === 'networks' ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'networks' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'networks' ? palette.textColor : palette.subTextColor,
                                         fontWeight: viewMode === 'networks' ? 600 : 400,
@@ -815,7 +815,7 @@ export const NetworksTokensEmbed = () => {
                                     onClick={() => setViewMode('tokens')}
                                     className="rounded-lg px-3 py-1.5 text-xs transition-all"
                                     style={{
-                                        border: viewMode === 'tokens' ? `1px solid rgba(204, 45, 93, 0.5)` : `1px solid ${palette.borderColor}`,
+                                        border: viewMode === 'tokens' ? `1px solid rgba(224, 91, 138, 0.5)` : `1px solid ${palette.borderColor}`,
                                         background: viewMode === 'tokens' ? palette.highlight : palette.cardBg,
                                         color: viewMode === 'tokens' ? palette.textColor : palette.subTextColor,
                                         fontWeight: viewMode === 'tokens' ? 600 : 400,
@@ -873,7 +873,7 @@ export const NetworksTokensEmbed = () => {
                                                 }}
                                                 onMouseEnter={(event) => {
                                                     event.currentTarget.style.background = palette.cardHover;
-                                                    event.currentTarget.style.borderColor = 'rgba(204, 45, 93, 0.3)';
+                                                    event.currentTarget.style.borderColor = 'rgba(224, 91, 138, 0.3)';
                                                     event.currentTarget.style.transform = 'translateY(-2px)';
                                                 }}
                                                 onMouseLeave={(event) => {

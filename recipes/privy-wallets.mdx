@@ -1,0 +1,148 @@
+---
+title: 'Bridge with Privy Server Wallets'
+description: 'Bridge tokens through Layerswap from a Privy server wallet using gas sponsorship'
+---
+
+Bridge tokens through Layerswap from a Privy server wallet using Privy's native gas sponsorship. See the [full example on GitHub](https://github.com/layerswap/examples/tree/main/privy-wallets).
+
+## Prerequisites
+
+- A [Layerswap API key](https://layerswap.io/dashboard)
+- A [Privy app](https://docs.privy.io/guide/quickstart) with [server wallets](https://docs.privy.io/guide/server-wallets) and gas sponsorship enabled
+- Source-token funds on the Privy wallet address
+
+<Tip>
+  Testnets are supported — use a testnet API key from the [dashboard](https://layerswap.io/dashboard) and get testnet funds from the [Circle faucet](https://faucet.circle.com/).
+</Tip>
+
+## Integration
+
+<Steps>
+  <Step title="Create a Layerswap swap">
+    Create the swap with `use_depository: true` for the Privy wallet address:
+
+    ```bash
+    curl --request POST 'https://api.layerswap.io/api/v2/swaps' \
+      --header 'Content-Type: application/json' \
+      --header 'X-LS-APIKEY: <LAYERSWAP_API_KEY>' \
+      --data '{
+        "source_network": "ETHEREUM_SEPOLIA",
+        "source_token": "USDC",
+        "destination_network": "ARC_TESTNET",
+        "destination_token": "USDC",
+        "destination_address": "<WALLET_ADDRESS>",
+        "amount": 1,
+        "use_depository": true
+      }'
+    ```
+
+    <Note>
+      `use_depository: true` is recommended when using Layerswap from a contract or a server wallet.
+    </Note>
+
+    The response includes `deposit_actions` with everything needed for the on-chain calls:
+
+    ```json
+    {
+      "data": {
+        "swap": {
+          "id": "...",
+          "status": "user_transfer_pending",
+          "requested_amount": 1,
+          "source_token": { "symbol": "USDC", "contract": "0xA0b8...", "decimals": 6 }
+        },
+        "deposit_actions": [
+          {
+            "order": 0,
+            "type": "transfer",
+            "to_address": "<depository_contract>",
+            "call_data": "<encoded_call>",
+            "amount_in_base_units": "0",
+            "token": { "symbol": "USDC", "contract": "0xA0b8...", "decimals": 6 },
+            "encoded_args": ["<swap_id>", "<token>", "<receiver>", "0x<amount>"]
+          }
+        ],
+        "quote": { "..." : "..." }
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Check allowance and build the call batch">
+    For ERC-20 transfers, the wallet needs to approve the depository contract before the bridge call:
+
+    ```ts
+    import { encodeFunctionData, erc20Abi, parseUnits, toHex } from "viem";
+
+    const depositAction = preparedSwap.deposit_actions.find(
+      (a) => a.type.toLowerCase().includes("transfer"),
+    );
+
+    const requiredAmount = parseUnits(
+      preparedSwap.swap.requested_amount,
+      preparedSwap.swap.source_token.decimals,
+    );
+
+    const allowance = await publicClient.readContract({
+      address: depositAction.token.contract,
+      abi: erc20Abi,
+      functionName: "allowance",
+      args: [walletAddress, depositAction.to_address],
+    });
+
+    const bridgeCall = {
+      to: depositAction.to_address,
+      data: depositAction.call_data,
+      value: toHex(BigInt(depositAction.amount_in_base_units)),
+    };
+
+    const calls =
+      allowance < requiredAmount
+        ? [
+            {
+              to: depositAction.token.contract,
+              data: encodeFunctionData({
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [depositAction.to_address, requiredAmount],
+              }),
+              value: "0x0",
+            },
+            bridgeCall,
+          ]
+        : [bridgeCall];
+    ```
+
+    <Tip>If allowance is already sufficient the `approve` call is skipped. Otherwise both calls are batched into a single sponsored `wallet_sendCalls` request.</Tip>
+  </Step>
+
+  <Step title="Submit the sponsored transaction">
+    Submit the batched calls with Privy `wallet_sendCalls` and `sponsor: true`:
+
+    ```ts
+    const sendCallsResponse = await privyClient.wallets().rpc(walletId, {
+      method: "wallet_sendCalls",
+      chain_type: "ethereum",
+      caip2: "eip155:11155111",
+      sponsor: true,
+      params: {
+        calls,
+      },
+    });
+    ```
+
+    Privy returns a `transaction_id` — poll `privyClient.transactions().get(transactionId)` until `transaction_hash` is available, then use it in the next step.
+  </Step>
+
+  <Step title="Check the swap status">
+    After Privy returns the final chain transaction hash, look it up through Layerswap:
+
+    ```bash
+    curl \
+      --header 'X-LS-APIKEY: <LAYERSWAP_API_KEY>' \
+      "https://api.layerswap.io/api/v2/swaps/by_transaction_hash/<OUTER_TRANSACTION_HASH>"
+    ```
+
+    This maps the final transaction back to the Layerswap swap record. See the [Swap Lifecycle](/api-reference/swap-lifecycle) for all possible statuses.
+  </Step>
+</Steps>

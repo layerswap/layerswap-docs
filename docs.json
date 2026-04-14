@@ -3,9 +3,9 @@
   "theme": "aspen",
   "name": "Layerswap Developer Portal",
   "colors": {
-    "primary": "#CC2D5D",
-    "light": "#CC2D5D",
-    "dark": "#E53E7B"
+    "primary": "#E05B8A",
+    "light": "#E05B8A",
+    "dark": "#E05B8A"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -123,7 +123,7 @@
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "API Integration",
         "groups": [
           {
             "group": "Documentation",
@@ -139,6 +139,12 @@
               },
               "api-reference/webhook",
               "security"
+            ]
+          },
+          {
+            "group": "Recipes",
+            "pages": [
+              "recipes/privy-wallets"
             ]
           },
           {
@@ -193,7 +199,8 @@
   },
   "background": {
     "color": {
-      "dark": "#000000"
+      "dark": "#0C0A0E",
+      "light": "#FEFCFD"
     }
   },
   "navbar": {
