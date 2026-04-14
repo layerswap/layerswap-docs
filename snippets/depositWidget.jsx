@@ -1,7 +1,7 @@
 export const DepositWidget = () => {
     const StepActionButton = ({ onClick, disabled, ariaLabel, loadingText, primaryLabel, secondaryLabel, isSecondary }) => {
         const baseClass = 'inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full';
-        const disabledClass = 'cursor-pointer text-white dark:text-gray-200 bg-primary dark:bg-primary-light opacity-50';
+        const disabledClass = 'cursor-not-allowed text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700';
         const secondaryClass = 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer';
         const primaryClass = 'bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light cursor-pointer';
         const variantClass = disabled ? disabledClass : (isSecondary ? secondaryClass : primaryClass);
