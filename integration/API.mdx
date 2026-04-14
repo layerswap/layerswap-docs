@@ -19,6 +19,9 @@ Layerswap handles millions of dollars in transactions every day across multiple 
   <Step title="Create Swap">
     Create Swap using the Layerswap API.
   </Step>
+  <Step title="Execute Transfer">
+    Use the `deposit_actions` from the swap response to submit a transaction on the source chain. See [Handling Deposits](/api-reference/deposit-actions/overview) for chain-specific guides.
+  </Step>
   <Step title="Status (Optional)">
     Poll via Get Swap endpoint to see if the matching transaction Input was added to the swap
   </Step>

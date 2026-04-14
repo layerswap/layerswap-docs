@@ -142,7 +142,7 @@
             ]
           },
           {
-            "group": "Handling Deposits",
+            "group": "Transfer Actions",
             "pages": [
               "api-reference/deposit-actions/overview",
               "api-reference/deposit-actions/evm",

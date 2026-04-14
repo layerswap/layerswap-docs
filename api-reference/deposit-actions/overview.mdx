@@ -11,7 +11,7 @@ When you create a swap via `POST /api/v2/swaps`, the response includes a `deposi
 
 Each item in the `deposit_actions` array has the following structure:
 
-<ResponseField name="type" type="string" required>
+<ResponseField name="type" type="string">
   Either `transfer` (wallet transaction) or `manual_transfer` (manual deposit to an address). Use the action with `type: "transfer"` for programmatic transfers.
 </ResponseField>
 
@@ -19,31 +19,31 @@ Each item in the `deposit_actions` array has the following structure:
   The deposit address to send funds to.
 </ResponseField>
 
-<ResponseField name="amount" type="number" required>
+<ResponseField name="amount" type="number">
   The amount to transfer in human-readable units (e.g. `0.1` ETH, not wei).
 </ResponseField>
 
-<ResponseField name="amount_in_base_units" type="string" required>
+<ResponseField name="amount_in_base_units" type="string">
   The amount in the token's smallest unit (e.g. wei for ETH, satoshi for BTC).
 </ResponseField>
 
-<ResponseField name="call_data" type="string" required>
+<ResponseField name="call_data" type="string">
   Blockchain-specific payload used to construct the transaction. The format varies by chain — see the chain-specific guides below.
 </ResponseField>
 
-<ResponseField name="network" type="object" required>
+<ResponseField name="network" type="object">
   The source network object, including `name`, `type`, `chain_id`, and `node_url`.
 </ResponseField>
 
-<ResponseField name="token" type="object" required>
+<ResponseField name="token" type="object">
   The token being transferred, including `symbol`, `decimals`, and `contract` (null for native tokens).
 </ResponseField>
 
-<ResponseField name="fee_token" type="object" required>
+<ResponseField name="fee_token" type="object">
   The token used to pay transaction fees on this network.
 </ResponseField>
 
-<ResponseField name="order" type="number" required>
+<ResponseField name="order" type="number">
   Execution order if there are multiple transfer actions.
 </ResponseField>
 
