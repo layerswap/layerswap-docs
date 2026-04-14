@@ -1,0 +1,149 @@
+---
+title: 'Starknet'
+description: 'Execute deposit transactions on Starknet using the multicall format from call_data.'
+---
+
+## Overview
+
+Starknet deposits are simple to execute because the Layerswap API returns a **pre-built array of Starknet calls** in `call_data`. You parse the JSON and pass it directly to the account's `execute` method, which handles multicall execution natively.
+
+**Prerequisites:**
+- [starknet.js](https://github.com/starknet-io/starknet.js) for account interaction and transaction execution
+
+**Supported networks:** Starknet Mainnet, Starknet Sepolia
+
+## call_data Format
+
+For Starknet, `call_data` is a **JSON-encoded array of call objects**. Each call in the array specifies a contract invocation:
+
+```json
+[
+  {
+    "contractAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "entrypoint": "transfer",
+    "calldata": ["0xRecipient", "0xAmountLow", "0xAmountHigh"]
+  }
+]
+```
+
+For ERC-20 token transfers, the array typically contains a single `transfer` or `approve` + `transfer` call. For native ETH on Starknet, it's a direct transfer call on the ETH contract.
+
+## Transaction Construction
+
+<Steps>
+  <Step title="Parse call_data">
+    Deserialize the JSON string into an array of Starknet call objects.
+  </Step>
+  <Step title="Execute via Account">
+    Pass the calls array to `account.execute()`. Starknet natively supports multicall, so all calls in the array are executed atomically in a single transaction.
+  </Step>
+  <Step title="Return the transaction hash">
+    The `execute` method returns an object with `transaction_hash`.
+  </Step>
+</Steps>
+
+## Full Example (Server-side with Private Key)
+
+```typescript
+import { Account, RpcProvider, Call } from "starknet";
+
+async function executeStarknetDeposit(
+  depositAction: any,
+  senderAddress: string,
+  privateKey: string
+) {
+  const { call_data, network } = depositAction;
+
+  const provider = new RpcProvider({ nodeUrl: network.node_url });
+  const account = new Account(provider, senderAddress, privateKey);
+
+  // Parse the call_data JSON into Starknet calls
+  const calls: Call[] = JSON.parse(call_data);
+
+  // Execute the multicall transaction
+  const { transaction_hash } = await account.execute(calls);
+
+  if (!transaction_hash) {
+    throw new Error("No transaction hash returned");
+  }
+
+  // Optionally wait for confirmation
+  await provider.waitForTransaction(transaction_hash);
+
+  return transaction_hash;
+}
+```
+
+## Full Example (Browser with starknet.js + Wallet)
+
+When using a browser wallet like ArgentX or Braavos, the wallet injects a `starknet` object. Use `get-starknet` to connect:
+
+```typescript
+import { connect } from "get-starknet";
+import { Call } from "starknet";
+
+async function executeStarknetDeposit(depositAction: any) {
+  const { call_data } = depositAction;
+
+  // Connect to wallet
+  const starknet = await connect();
+  if (!starknet?.isConnected || !starknet.account) {
+    throw new Error("Starknet wallet not connected");
+  }
+
+  // Parse the call_data JSON
+  const calls: Call[] = JSON.parse(call_data);
+
+  // Execute through the connected wallet
+  const { transaction_hash } = await starknet.account.execute(calls);
+
+  if (!transaction_hash) {
+    throw new Error("No transaction hash returned");
+  }
+
+  return transaction_hash;
+}
+```
+
+## Full Example (Using starknet-react hooks)
+
+If you use [starknet-react](https://starknet-react.com/), you can access the account from the hook:
+
+```typescript
+import { useAccount } from "@starknet-react/core";
+import { Call } from "starknet";
+
+function useStarknetDeposit() {
+  const { account } = useAccount();
+
+  async function executeDeposit(depositAction: any): Promise<string> {
+    if (!account) {
+      throw new Error("Starknet account not connected");
+    }
+
+    const calls: Call[] = JSON.parse(depositAction.call_data);
+    const { transaction_hash } = await account.execute(calls);
+
+    if (!transaction_hash) {
+      throw new Error("No transaction hash returned");
+    }
+
+    return transaction_hash;
+  }
+
+  return { executeDeposit };
+}
+```
+
+## Next Step
+
+After the transaction is submitted, notify Layerswap so it can match your deposit faster:
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+  -H "X-LS-APIKEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "transaction_id": "YOUR_TX_HASH" }'
+```
+
+See the [full deposit flow](/api-reference/deposit-actions/overview) for details.

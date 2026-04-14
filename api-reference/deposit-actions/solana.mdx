@@ -1,0 +1,197 @@
+---
+title: 'Solana'
+description: 'Execute deposit transactions on Solana by deserializing and signing the pre-built transaction from call_data.'
+---
+
+## Overview
+
+Solana deposits are straightforward because the Layerswap API returns a **fully constructed, serialized transaction** in `call_data`. You only need to decode it, set a fresh blockhash, sign it, and send it.
+
+**Prerequisites:**
+- [@solana/web3.js](https://github.com/solana-foundation/solana-web3.js) for transaction handling and RPC communication
+
+## call_data Format
+
+For Solana, `call_data` is a **base64-encoded serialized `Transaction`**. It contains all the instructions, accounts, and program IDs already set up by the Layerswap backend — including SPL token transfers when applicable.
+
+```javascript
+// Node.js / server-side
+const buffer = Buffer.from(callData, "base64");
+const transaction = Transaction.from(buffer);
+
+// Browser
+const buffer = Uint8Array.from(atob(callData), (c) => c.charCodeAt(0));
+const transaction = Transaction.from(buffer);
+```
+
+## Transaction Construction
+
+<Steps>
+  <Step title="Decode the transaction">
+    Convert the base64 `call_data` string into a `Transaction` object.
+  </Step>
+  <Step title="Set a fresh blockhash">
+    Fetch the latest blockhash from the Solana RPC and update the transaction. This ensures the transaction doesn't expire before it's confirmed.
+  </Step>
+  <Step title="Validate balances (optional)">
+    Estimate the transaction fee and verify the sender has enough SOL for fees and enough of the source token for the transfer amount.
+  </Step>
+  <Step title="Sign the transaction">
+    Sign the transaction with the sender's keypair or wallet adapter.
+  </Step>
+  <Step title="Send and confirm">
+    Submit the signed transaction to the network and wait for confirmation.
+  </Step>
+</Steps>
+
+## Full Example (Server-side with Keypair)
+
+```typescript
+import {
+  Connection,
+  Transaction,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
+import bs58 from "bs58";
+
+async function executeSolanaDeposit(
+  depositAction: any,
+  senderKeypair: Keypair
+) {
+  const { call_data, network } = depositAction;
+
+  const connection = new Connection(network.node_url, "confirmed");
+
+  // Decode base64 call_data into a Transaction
+  const buffer = Buffer.from(call_data, "base64");
+  const transaction = Transaction.from(buffer);
+
+  // Set a fresh blockhash
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash();
+  transaction.recentBlockhash = blockhash;
+  transaction.lastValidBlockHeight = lastValidBlockHeight;
+
+  // Send and confirm
+  const signature = await sendAndConfirmTransaction(
+    connection,
+    transaction,
+    [senderKeypair],
+    { commitment: "confirmed" }
+  );
+
+  return signature;
+}
+```
+
+## Full Example (Browser with Wallet Adapter)
+
+When your users connect via a Solana wallet (Phantom, Solflare, etc.), use the wallet adapter's `signTransaction` method:
+
+```typescript
+import { Connection, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+async function executeSolanaDeposit(
+  depositAction: any,
+  nodeUrl: string,
+  signTransaction: (tx: Transaction) => Promise<Transaction>
+) {
+  const { call_data } = depositAction;
+
+  const connection = new Connection(nodeUrl, "confirmed");
+
+  // Decode base64 call_data
+  const buffer = Uint8Array.from(atob(call_data), (c) => c.charCodeAt(0));
+  const transaction = Transaction.from(buffer);
+
+
+  // Set fresh blockhash
+  const blockHash = await connection.getLatestBlockhash();
+  transaction.recentBlockhash = blockHash.blockhash;
+  transaction.lastValidBlockHeight = blockHash.lastValidBlockHeight;
+
+  // Sign with wallet adapter
+  const signed = await signTransaction(transaction);
+
+  // Send the signed transaction
+  const rawTransaction = signed.serialize();
+  const txid = await connection.sendRawTransaction(rawTransaction, {
+    skipPreflight: true,
+  });
+
+  // Confirm
+  await connection.confirmTransaction(
+    {
+      signature: txid,
+      blockhash: blockHash.blockhash,
+      lastValidBlockHeight: blockHash.lastValidBlockHeight,
+    },
+    "confirmed"
+  );
+
+  return txid;
+}
+```
+
+## Sending with Retry Logic
+
+Solana transactions can sometimes fail to land due to network congestion. A robust implementation resends the transaction periodically until it's confirmed or the blockhash expires:
+
+```typescript
+import { Connection, Transaction } from "@solana/web3.js";
+
+async function sendWithRetry(
+  connection: Connection,
+  serializedTx: Buffer,
+  blockhash: string,
+  lastValidBlockHeight: number
+): Promise<string> {
+  const txid = await connection.sendRawTransaction(serializedTx, {
+    skipPreflight: true,
+  });
+
+  const controller = new AbortController();
+
+  // Resend every 2 seconds in the background
+  const resendLoop = async () => {
+    while (!controller.signal.aborted) {
+      await new Promise((r) => setTimeout(r, 2000));
+      if (controller.signal.aborted) return;
+      try {
+        await connection.sendRawTransaction(serializedTx, {
+          skipPreflight: true,
+        });
+      } catch {
+        // Ignore resend errors
+      }
+    }
+  };
+  resendLoop();
+
+  try {
+    await connection.confirmTransaction(
+      { signature: txid, blockhash, lastValidBlockHeight },
+      "confirmed"
+    );
+  } finally {
+    controller.abort();
+  }
+
+  return txid;
+}
+```
+
+## Next Step
+
+After the transaction is submitted, notify Layerswap so it can match your deposit faster:
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+  -H "X-LS-APIKEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "transaction_id": "YOUR_TX_HASH" }'
+```
+
+See the [full deposit flow](/api-reference/deposit-actions/overview) for details.

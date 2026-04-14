@@ -1,0 +1,147 @@
+---
+title: 'Tron'
+description: 'Execute deposit transactions on Tron for TRC-20 token transfers.'
+---
+
+## Overview
+
+Tron deposits require building a TRC-20 token transfer transaction using TronWeb, then appending the `call_data` as hex-encoded data before signing and broadcasting.
+
+**Prerequisites:**
+- [tronweb](https://github.com/tronprotocol/tronweb) for transaction building and RPC communication
+
+**Supported networks:** Tron Mainnet, Tron Testnet (Shasta/Nile)
+
+## call_data Format
+
+For Tron, `call_data` is a **plain string** (a memo identifier). It is converted to hex and embedded in the transaction data field:
+
+```javascript
+const hexData = Buffer.from(callData).toString("hex");
+```
+
+This hex data is appended to the transaction using TronWeb's `addUpdateData` method, which Layerswap uses to identify and match the deposit.
+
+## Full Example (Server-side)
+
+```typescript
+import { TronWeb } from "tronweb";
+
+async function executeTronDeposit(
+  depositAction: any,
+  senderAddress: string,
+  privateKey: string
+) {
+  const { call_data, to_address, amount, token, network } = depositAction;
+
+  const tronWeb = new TronWeb({
+    fullNode: network.node_url,
+    solidityNode: network.node_url,
+    privateKey,
+  });
+
+  const amountInBaseUnits = Math.floor(
+    amount * Math.pow(10, token.decimals)
+  );
+
+  // Build the TRC-20 transfer via smart contract
+  const { transaction: initialTransaction } =
+    await tronWeb.transactionBuilder.triggerSmartContract(
+      token.contract,
+      "transfer(address,uint256)",
+      {
+        feeLimit: 100_000_000, // 100 TRX fee limit
+      },
+      [
+        { type: "address", value: to_address },
+        { type: "uint256", value: amountInBaseUnits },
+      ],
+      senderAddress
+    );
+
+  // Append call_data as hex data
+  const hexData = Buffer.from(call_data).toString("hex");
+  const transaction = await tronWeb.transactionBuilder.addUpdateData(
+    initialTransaction,
+    hexData,
+    "hex"
+  );
+
+  // Sign and broadcast
+  const signedTransaction = await tronWeb.trx.sign(transaction);
+  const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+
+  if (result.result) {
+    return signedTransaction.txID;
+  }
+
+  throw new Error("Transaction broadcast failed");
+}
+```
+
+## Browser Wallet Example
+
+When using a Tron wallet adapter (TronLink, etc.) in the browser:
+
+```typescript
+import { TronWeb } from "tronweb";
+
+async function executeTronDeposit(
+  depositAction: any,
+  senderAddress: string,
+  signTransaction: (tx: any) => Promise<any>
+) {
+  const { call_data, to_address, amount, token, network } = depositAction;
+
+  const tronWeb = new TronWeb({
+    fullNode: network.node_url,
+    solidityNode: network.node_url,
+  });
+
+  const amountInBaseUnits = Math.floor(
+    amount * Math.pow(10, token.decimals)
+  );
+
+  const { transaction: initialTransaction } =
+    await tronWeb.transactionBuilder.triggerSmartContract(
+      token.contract,
+      "transfer(address,uint256)",
+      { feeLimit: 100_000_000 },
+      [
+        { type: "address", value: to_address },
+        { type: "uint256", value: amountInBaseUnits },
+      ],
+      senderAddress
+    );
+
+  const hexData = Buffer.from(call_data).toString("hex");
+  const transaction = await tronWeb.transactionBuilder.addUpdateData(
+    initialTransaction,
+    hexData,
+    "hex"
+  );
+
+  // Sign using the wallet adapter
+  const signedTransaction = await signTransaction(transaction);
+  const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+
+  if (result.result) {
+    return signedTransaction.txID;
+  }
+
+  throw new Error("Transaction broadcast failed");
+}
+```
+
+## Next Step
+
+After the transaction is submitted, notify Layerswap so it can match your deposit faster:
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+  -H "X-LS-APIKEY: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "transaction_id": "YOUR_TX_HASH" }'
+```
+
+See the [full deposit flow](/api-reference/deposit-actions/overview) for details.
