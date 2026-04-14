@@ -49,7 +49,7 @@ Bridge tokens through Layerswap from a Privy server wallet using Privy's native 
           "id": "...",
           "status": "user_transfer_pending",
           "requested_amount": 1,
-          "source_token": { "symbol": "USDC", "contract": "0xA0b8...", "decimals": 6 }
+          "source_token": { "symbol": "USDC", "contract": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", "decimals": 6 }
         },
         "deposit_actions": [
           {
@@ -58,7 +58,7 @@ Bridge tokens through Layerswap from a Privy server wallet using Privy's native 
             "to_address": "<depository_contract>",
             "call_data": "<encoded_call>",
             "amount_in_base_units": "0",
-            "token": { "symbol": "USDC", "contract": "0xA0b8...", "decimals": 6 },
+            "token": { "symbol": "USDC", "contract": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", "decimals": 6 },
             "encoded_args": ["<swap_id>", "<token>", "<receiver>", "0x<amount>"]
           }
         ],
@@ -79,7 +79,7 @@ Bridge tokens through Layerswap from a Privy server wallet using Privy's native 
     );
 
     const requiredAmount = parseUnits(
-      preparedSwap.swap.requested_amount,
+      String(preparedSwap.swap.requested_amount),
       preparedSwap.swap.source_token.decimals,
     );
 
