@@ -1,9 +1,9 @@
 ---
-title: 'Bridge with Privy Server Wallets'
-description: 'Bridge tokens through Layerswap from a Privy server wallet using gas sponsorship'
+title: 'Bridge ERC-20 Tokens with Privy Server Wallets'
+description: 'Bridge ERC-20 tokens through Layerswap from a Privy server wallet using gas sponsorship'
 ---
 
-This flow creates a Layerswap swap with `use_depository: true`, batches ERC-20 approval when needed, and submits the calls through Privy gas sponsorship. See the [full example on GitHub](https://github.com/layerswap/examples/tree/main/privy-wallets).
+This flow bridges ERC-20 tokens through Layerswap using a Privy server wallet. It creates a swap with `use_depository: true`, batches the token approval with the bridge call, and submits everything through Privy's gas sponsorship — so the wallet doesn't need native tokens for gas. See the [full example on GitHub](https://github.com/layerswap/examples/tree/main/privy-wallets).
 
 ## Prerequisites
 
