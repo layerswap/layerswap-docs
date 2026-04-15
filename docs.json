@@ -20,7 +20,8 @@
               "Integrate",
               "api-keys",
               "fees",
-              "networks-tokens"
+              "networks-tokens",
+              "security"
             ]
           }
         ]
@@ -137,8 +138,7 @@
                   "api-reference/refunds"
                 ]
               },
-              "api-reference/webhook",
-              "security"
+              "api-reference/webhook"
             ]
           },
           {
