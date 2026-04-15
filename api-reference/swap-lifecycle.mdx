@@ -69,6 +69,7 @@ Refund is sent to `refund_address` on the source chain in the source token, **mi
 | Scenario | With refund_address | Without refund_address |
 |---|---|---|
 | Deposited less than minimum | failed | failed |
-| Liquidity exhausted | Retries, then refunded | Retries |
-| Blockchain or DEX issue | Retries, then refunded | Retries |
-| Price moved beyond slippage tolerance | Retries, then refunded | Retries |
+| No liquidity or route available across providers | Retries, then refunded | Retries |
+| Slippage tolerance cannot be met | Retries, then refunded | Retries |
+| Blockchain issue across multiple RPCs | Retries, then refunded | Retries |
+| DEX or DEX aggregator issue | Retries, then refunded | Retries |
