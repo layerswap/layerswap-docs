@@ -7,19 +7,24 @@ icon: arrows-spin
 <div style={{backgroundColor: '#1a1a2e', padding: '24px', borderRadius: '12px'}}>
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'background': '#1a1a2e', 'lineColor': '#94a3b8', 'fontSize': '14px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'background': '#1a1a2e', 'lineColor': '#94a3b8', 'fontSize': '14px', 'edgeLabelBackground': 'transparent', 'tertiaryTextColor': '#ffffff'}}}%%
 graph TD
     l1([Swap created]) --> B([user_transfer_pending])
-    B --> l2([User deposits]) --> D([ls_transfer_pending])
-    B --> l3([Timeout]) --> C([expired])
+    B --> l2([Deposit confirmed]) --> D([ls_transfer_pending])
+    B --> l3([No deposit in 6h]) --> C([expired])
     D --> l4([Success]) --> E([completed])
-    D --> l5([Execution failed]) --> G([refund_pending])
-    D -.-> l6([Internal error]) -.-> F([failed])
+    D --> l5([Below minimum]) --> F([failed])
+    D --> l6([Execution failed]) --> R{refund_address?}
+    R --> |Yes| G([refund_pending])
+    R -.-> |No| M([Retries])
     G --> l7([Confirmed]) --> H([refunded])
 
     classDef label fill:none,color:#cbd5e1,stroke:#334155,stroke-width:1px
 
     class l1,l2,l3,l4,l5,l6,l7 label
+
+    style R fill:#475569,color:#fff,stroke:#475569
+    style M fill:#6b7280,color:#fff,stroke:#6b7280
 
     style B fill:#0891b2,color:#fff,stroke:#0891b2
     style D fill:#ca8a04,color:#fff,stroke:#ca8a04
@@ -32,37 +37,38 @@ graph TD
 
 </div>
 
-### User Transfer Pending
-**Status:** `user_transfer_pending`
+## Flow
 
-When a swap is created, it starts with `user_transfer_pending` status. Layerswap is waiting for the user to complete the transaction in the source network.
+### 1. `user_transfer_pending`
 
-### Expired
-**Status:** `expired`
+Swap is created. Layerswap is waiting for the user to complete the transaction in the source network.
 
-If the user does not complete the transaction in the source network within 3 hours, the swap status will be changed to `expired`.
+- If no deposit arrives within **6 hours** → `expired`
+- Once the deposit is confirmed with enough confirmations → `ls_transfer_pending`
 
-### Layerswap Transfer Pending
-**Status:** `ls_transfer_pending`
+### 2. `ls_transfer_pending`
 
-After the user has completed the transaction in the source network, Layerswap will verify the transaction and match it with the corresponding swap. An Input transaction object will be created to describe the user's transaction. The swap status will be changed to `ls_transfer_pending`.
+Layerswap is processing the swap. If something goes wrong during execution:
 
-### Completed
-**Status:** `completed`
+- If deposited amount is **below the minimum** → `failed`
+- If the swap cannot be completed for any other reason (e.g. price moved beyond slippage tolerance) → Layerswap **retries automatically**.
+  - **With `refund_address`** → if retries are exhausted, moves to `refund_pending`
+  - **Without `refund_address`** → Layerswap keeps retrying. The swap remains in `ls_transfer_pending` until resolved.
+- If execution succeeds → `completed`
 
-Layerswap has successfully processed the swap and sent the funds to the destination address in the destination network.
+### 3. `completed`
 
-### Failed
-**Status:** `failed`
+Funds are delivered to the destination address.
 
-In rare cases, an unexpected internal error may prevent Layerswap from processing the swap or initiating a refund automatically. The Layerswap team will be notified and will resolve the issue as soon as possible.
+### 4. `refund_pending` → `refunded`
 
-### Refund Pending
-**Status:** `refund_pending`
+Refund is sent to `refund_address` on the source chain in the source token, **minus gas fees**. If the refund amount is less than the gas fee, no refund is issued. See the [Refunds](/api-reference/refunds) page for details.
 
-When a swap cannot be completed, Layerswap automatically initiates a refund. The swap status will be changed to `refund_pending` while the refund transaction is being processed on the **source chain** using the **source token**. See the [Refunds](/api-reference/refunds) page for details.
+## What can go wrong
 
-### Refunded
-**Status:** `refunded`
-
-The refund transaction has been confirmed on the source chain and the user's funds have been returned. The swap's `transactions` array will include a transaction with `type: "refund"`.
+| Scenario | With refund_address | Without refund_address |
+|---|---|---|
+| Deposited less than minimum | failed | failed |
+| Liquidity exhausted | Retries, then refunded | Retries |
+| Blockchain or DEX issue | Retries, then refunded | Retries |
+| Price moved beyond slippage tolerance | Retries, then refunded | Retries |
