@@ -44,9 +44,12 @@ const transaction = Transaction.from(buffer);
   </Step>
 </Steps>
 
-## Full Example (Server-side with Keypair)
+## Full Example
 
-```typescript
+The `Server-side` tab signs locally with a `Keypair`. The `Browser` tab uses a connected wallet adapter (Phantom, Solflare, etc.) and its `signTransaction` method.
+
+<CodeGroup>
+```typescript Server-side
 import {
   Connection,
   Transaction,
@@ -86,11 +89,7 @@ async function executeSolanaDeposit(
 }
 ```
 
-## Full Example (Browser with Wallet Adapter)
-
-When your users connect via a Solana wallet (Phantom, Solflare, etc.), use the wallet adapter's `signTransaction` method:
-
-```typescript
+```typescript Browser
 import { Connection, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 async function executeSolanaDeposit(
@@ -134,6 +133,7 @@ async function executeSolanaDeposit(
   return txid;
 }
 ```
+</CodeGroup>
 
 ## Sending with Retry Logic
 

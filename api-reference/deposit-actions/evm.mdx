@@ -37,9 +37,12 @@ The `to_address` from the transfer action is the transaction recipient, and `amo
   </Step>
 </Steps>
 
-## Full Example with viem
+## Full Example
 
-```typescript
+Pick the library that fits your stack. The `viem` and `ethers.js` tabs cover server-side or Node.js usage. The `wagmi` tab is for browser-side use with a connected wallet.
+
+<CodeGroup>
+```typescript viem
 import { createWalletClient, createPublicClient, http, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet, arbitrum, optimism, base, polygon } from "viem/chains";
@@ -100,9 +103,7 @@ async function executeEvmDeposit(depositAction, privateKey) {
 }
 ```
 
-## Full Example with ethers.js
-
-```typescript
+```typescript ethers.js
 import { ethers } from "ethers";
 
 async function executeEvmDeposit(depositAction, privateKey) {
@@ -136,11 +137,7 @@ async function executeEvmDeposit(depositAction, privateKey) {
 }
 ```
 
-## Browser Wallet Example (wagmi)
-
-If your users connect wallets through a browser, you can use [wagmi](https://wagmi.sh/):
-
-```typescript
+```typescript wagmi
 import { sendTransaction } from "@wagmi/core";
 import { parseEther } from "viem";
 
@@ -157,9 +154,10 @@ async function executeEvmDeposit(depositAction, wagmiConfig) {
   return hash;
 }
 ```
+</CodeGroup>
 
 <Note>
-  When using a browser wallet, ensure the user is connected to the correct chain (`network.chain_id`). If not, prompt them to switch networks before sending the transaction.
+  When using a browser wallet ([wagmi](https://wagmi.sh/)), ensure the user is connected to the correct chain (`network.chain_id`). If not, prompt them to switch networks before sending the transaction.
 </Note>
 
 ## Next Step

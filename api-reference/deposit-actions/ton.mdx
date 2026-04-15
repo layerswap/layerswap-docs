@@ -155,11 +155,12 @@ async function buildJettonTransaction(
 }
 ```
 
-## Sending via TON Connect
+## Sending the Transaction
 
-If your users connect through a TON wallet (Tonkeeper, MyTonWallet, etc.), use TON Connect to send the built transaction:
+The `TON Connect` tab is for browser wallets like Tonkeeper or MyTonWallet — it picks between the native and Jetton builders above based on `token.contract`. The `Server-side` tab signs and sends directly with a wallet key for backend use.
 
-```typescript
+<CodeGroup>
+```typescript TON Connect
 import { TonConnectUI } from "@tonconnect/ui-react";
 import { TonClient } from "@ton/ton";
 
@@ -190,11 +191,7 @@ async function executeTonDeposit(
 }
 ```
 
-## Server-side Sending
-
-For server-side execution without TON Connect, you can sign and send directly with a wallet key:
-
-```typescript
+```typescript Server-side
 import {
   WalletContractV4,
   internal,
@@ -242,6 +239,7 @@ async function executeTonDepositServerSide(
   });
 }
 ```
+</CodeGroup>
 
 <Note>
   The server-side example above shows a native TON transfer. For Jetton transfers, build the Jetton cell as shown in the Jetton section and target the sender's Jetton wallet address.

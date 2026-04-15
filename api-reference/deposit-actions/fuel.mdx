@@ -48,9 +48,12 @@ For Fuel, `call_data` is a **JSON string** containing two fields:
   </Step>
 </Steps>
 
-## Full Example (Server-side with Private Key)
+## Full Example
 
-```typescript
+Pick the flavor that matches your setup. The `Server-side` tab signs with a raw private key. The `Browser` tab uses the Fuel Wallet extension via the Fuel connector. The `@fuels/react` tab wraps it as a hook for React apps.
+
+<CodeGroup>
+```typescript Server-side
 import {
   Provider,
   Wallet,
@@ -94,11 +97,7 @@ async function executeFuelDeposit(
 }
 ```
 
-## Full Example (Browser with Fuel Wallet)
-
-When using the Fuel Wallet browser extension, access the wallet through the Fuel connector:
-
-```typescript
+```typescript Browser
 import {
   Provider,
   ScriptTransactionRequest,
@@ -139,11 +138,7 @@ async function executeFuelDeposit(
 }
 ```
 
-## Using @fuels/react Hooks
-
-If you use the Fuel React SDK, you can integrate with the `useFuel` hook:
-
-```typescript
+```typescript @fuels/react
 import { useFuel } from "@fuels/react";
 import {
   Provider,
@@ -189,6 +184,7 @@ function useFuelDeposit() {
   return { executeDeposit };
 }
 ```
+</CodeGroup>
 
 ## Next Step
 

@@ -42,9 +42,12 @@ For ERC-20 token transfers, the array typically contains a single `transfer` or 
   </Step>
 </Steps>
 
-## Full Example (Server-side with Private Key)
+## Full Example
 
-```typescript
+Pick the flavor that matches your setup. The `Server-side` tab signs with a raw private key via `starknet.js`. The `Browser` tab connects to an injected wallet like ArgentX or Braavos via `get-starknet`. The `starknet-react` tab wraps it as a hook for React apps.
+
+<CodeGroup>
+```typescript Server-side
 import { Account, RpcProvider, Call } from "starknet";
 
 async function executeStarknetDeposit(
@@ -74,11 +77,7 @@ async function executeStarknetDeposit(
 }
 ```
 
-## Full Example (Browser with starknet.js + Wallet)
-
-When using a browser wallet like ArgentX or Braavos, the wallet injects a `starknet` object. Use `get-starknet` to connect:
-
-```typescript
+```typescript Browser
 import { connect } from "get-starknet";
 import { Call } from "starknet";
 
@@ -105,11 +104,7 @@ async function executeStarknetDeposit(depositAction: any) {
 }
 ```
 
-## Full Example (Using starknet-react hooks)
-
-If you use [starknet-react](https://starknet-react.com/), you can access the account from the hook:
-
-```typescript
+```typescript starknet-react
 import { useAccount } from "@starknet-react/core";
 import { Call } from "starknet";
 
@@ -134,6 +129,7 @@ function useStarknetDeposit() {
   return { executeDeposit };
 }
 ```
+</CodeGroup>
 
 ## Next Step
 

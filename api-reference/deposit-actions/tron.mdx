@@ -22,9 +22,12 @@ const hexData = Buffer.from(callData).toString("hex");
 
 This hex data is appended to the transaction using TronWeb's `addUpdateData` method, which Layerswap uses to identify and match the deposit.
 
-## Full Example (Server-side)
+## Full Example
 
-```typescript
+The `Server-side` tab signs with a raw private key. The `Browser` tab uses a Tron wallet adapter (TronLink, etc.) and its `signTransaction` method.
+
+<CodeGroup>
+```typescript Server-side
 import { TronWeb } from "tronweb";
 
 async function executeTronDeposit(
@@ -79,11 +82,7 @@ async function executeTronDeposit(
 }
 ```
 
-## Browser Wallet Example
-
-When using a Tron wallet adapter (TronLink, etc.) in the browser:
-
-```typescript
+```typescript Browser
 import { TronWeb } from "tronweb";
 
 async function executeTronDeposit(
@@ -132,6 +131,7 @@ async function executeTronDeposit(
   throw new Error("Transaction broadcast failed");
 }
 ```
+</CodeGroup>
 
 ## Next Step
 

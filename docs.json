@@ -145,13 +145,18 @@
             "group": "Transfer Actions",
             "pages": [
               "api-reference/deposit-actions/overview",
-              "api-reference/deposit-actions/evm",
-              "api-reference/deposit-actions/bitcoin",
-              "api-reference/deposit-actions/solana",
-              "api-reference/deposit-actions/starknet",
-              "api-reference/deposit-actions/ton",
-              "api-reference/deposit-actions/tron",
-              "api-reference/deposit-actions/fuel"
+              {
+                "group": "Blockchains",
+                "pages": [
+                  "api-reference/deposit-actions/evm",
+                  "api-reference/deposit-actions/bitcoin",
+                  "api-reference/deposit-actions/solana",
+                  "api-reference/deposit-actions/starknet",
+                  "api-reference/deposit-actions/ton",
+                  "api-reference/deposit-actions/tron",
+                  "api-reference/deposit-actions/fuel"
+                ]
+              }
             ]
           },
           {
