@@ -19,11 +19,8 @@ Layerswap handles millions of dollars in transactions every day across multiple 
   <Step title="Create Swap">
     Create Swap using the Layerswap API.
   </Step>
-  <Step title="Transaction">
-    Layerswap will monitor the source network for a transaction and will try to match it with the corresponding swap
-  </Step>
-  <Step title="Match">
-    Once the transaction is matched and added to the swap, Layerswap will initiate a counterparty transaction to the destination_address
+  <Step title="Execute Transfer">
+    Use the `deposit_actions` from the swap response to submit a transaction on the source chain. See [Handling Deposits](/api-reference/deposit-actions/overview) for chain-specific guides.
   </Step>
   <Step title="Status (Optional)">
     Poll via Get Swap endpoint to see if the matching transaction Input was added to the swap
