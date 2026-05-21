@@ -13,12 +13,12 @@ This guide covers all EVM-compatible networks supported by Layerswap, including 
 
 ## call_data Format
 
-For EVM chains, `call_data` is a **hex-encoded string** (`0x...`) representing the transaction's `data` field:
+For EVM chains, `call_data` is a **hex-encoded string** (`0x...`) representing the transaction's `data` field. It always carries a Layerswap memo (a fixed prefix followed by a sequence number) that the backend uses to match the deposit:
 
-- **Native token transfers** (ETH, MATIC, etc.): `call_data` may be `0x` or contain contract interaction data if routed through a contract.
-- **ERC-20 token transfers**: `call_data` contains the encoded `transfer(address,uint256)` function call or a more complex contract interaction.
+- **Native token transfers** (ETH, MATIC, etc.): `call_data` is the memo hex. `to_address` is the deposit address and `amount` / `amount_in_base_units` carry the value to send.
+- **ERC-20 token transfers**: `call_data` is the encoded `transfer(address,uint256)` function call with the memo hex appended. `to_address` is the **token contract**, and `amount` / `amount_in_base_units` are `0` — the actual transfer value is encoded inside `call_data`.
 
-The `to_address` from the transfer action is the transaction recipient, and `amount` is in human-readable units.
+In both cases, build the transaction with `to: to_address`, `value: amount`, and `data: call_data` and the wallet will route it correctly.
 
 ## Transaction Construction
 

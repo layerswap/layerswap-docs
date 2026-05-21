@@ -17,13 +17,15 @@ For TON, `call_data` is a **JSON string** containing:
 
 ```json
 {
-  "comment": "layerswap_memo_identifier",
-  "amount": "1000000000"
+  "amount": "1000000000",
+  "asset": "TON",
+  "comment": "layerswap_memo_identifier"
 }
 ```
 
 - `comment` — A text memo that Layerswap uses to identify the deposit. This is embedded in the transaction payload.
-- `amount` — Present only for Jetton transfers; the Jetton amount in base units (nanojettons). For native TON transfers, use the transfer action's `amount` field instead.
+- `amount` — The transfer amount in base units (nanotons for TON, base units of the Jetton otherwise). Always present; for native TON it matches the transfer action's `amount` field.
+- `asset` — The source asset symbol (e.g. `TON`, `USDT`). Informational; the actual contract is on the transfer action's `token.contract`.
 
 ## Native TON Transfer
 

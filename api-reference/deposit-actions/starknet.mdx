@@ -14,7 +14,10 @@ Starknet deposits are simple to execute because the Layerswap API returns a **pr
 
 ## call_data Format
 
-For Starknet, `call_data` is a **JSON-encoded array of call objects**. Each call in the array specifies a contract invocation:
+For Starknet, `call_data` is a **JSON-encoded array of call objects**. Layerswap always returns **two calls**:
+
+1. A `transfer` call on the token contract (ETH on Starknet is also an ERC-20).
+2. A `watch` call on the Layerswap **Watchdog** contract, which the backend uses to match the deposit.
 
 ```json
 [
@@ -22,11 +25,16 @@ For Starknet, `call_data` is a **JSON-encoded array of call objects**. Each call
     "contractAddress": "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
     "entrypoint": "transfer",
     "calldata": ["0xRecipient", "0xAmountLow", "0xAmountHigh"]
+  },
+  {
+    "contractAddress": "0xWatchdogContract...",
+    "entrypoint": "watch",
+    "calldata": ["0xSequenceNumber"]
   }
 ]
 ```
 
-For ERC-20 token transfers, the array typically contains a single `transfer` or `approve` + `transfer` call. For native ETH on Starknet, it's a direct transfer call on the ETH contract.
+Both calls must execute atomically — pass the whole array to `account.execute()` as shown below; Starknet handles them as a single multicall transaction.
 
 ## Transaction Construction
 

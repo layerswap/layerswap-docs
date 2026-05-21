@@ -53,6 +53,10 @@ Each item in the `deposit_actions` array has the following structure:
   <Step title="Create a Swap">
     Call `POST /api/v2/swaps` with `use_deposit_address: false` and include the `source_address` parameter. The response will contain `deposit_actions`.
 
+    <Note>
+      Starknet, Paradex, and TON only support the transfer flow — `use_deposit_address: true` is rejected for these networks. All other source networks accept either mode.
+    </Note>
+
     ```bash
     curl -X POST https://api.layerswap.io/api/v2/swaps \
       -H "X-LS-APIKEY: your_api_key" \
