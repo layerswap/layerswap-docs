@@ -3,9 +3,9 @@
   "theme": "aspen",
   "name": "Layerswap Developer Portal",
   "colors": {
-    "primary": "#CC2D5D",
-    "light": "#CC2D5D",
-    "dark": "#E53E7B"
+    "primary": "#E05B8A",
+    "light": "#E05B8A",
+    "dark": "#E05B8A"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -20,7 +20,8 @@
               "Integrate",
               "api-keys",
               "fees",
-              "networks-tokens"
+              "networks-tokens",
+              "security"
             ]
           }
         ]
@@ -123,7 +124,7 @@
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "API Integration",
         "groups": [
           {
             "group": "Documentation",
@@ -137,8 +138,13 @@
                   "api-reference/refunds"
                 ]
               },
-              "api-reference/webhook",
-              "security"
+              "api-reference/webhook"
+            ]
+          },
+          {
+            "group": "Recipes",
+            "pages": [
+              "recipes/privy-wallets"
             ]
           },
           {
@@ -176,6 +182,13 @@
         ]
       },
       {
+        "tab": "LI.FI Integration",
+        "hidden": true,
+        "pages": [
+          "lifi-integration"
+        ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "groups": [
@@ -204,7 +217,8 @@
   },
   "background": {
     "color": {
-      "dark": "#000000"
+      "dark": "#0C0A0E",
+      "light": "#FEFCFD"
     }
   },
   "navbar": {
