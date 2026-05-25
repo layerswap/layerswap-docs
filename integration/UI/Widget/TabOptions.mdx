@@ -1,12 +1,13 @@
 ---
-title: "Swap or Deposit from CEX"
-description: "Configuring the Swap and Deposit from CEX flows in Layerswap Widget"
+title: "Tab Options"
+description: "Configuring the Swap, Deposit from CEX, and Easy Deposit flows in Layerswap Widget"
 ---
 
-Layerswap Widget supports two main flows that can be configured using the `defaultTab` parameter:
+Layerswap Widget supports three flows that can be configured using the `defaultTab` parameter:
 
 - **Swap**: Cross-chain token transfers and swaps across blockchain networks
 - **Deposit from CEX**: Direct deposits from centralized exchange accounts to networks
+- **Easy Deposit**: A streamlined flow that gives the user a deposit address — no WalletConnect, browser extension, or popup needed on the source side. Funds can be sent from any wallet app, hardware wallet, or exchange account.
 
 ## Default Tab Configuration
 
@@ -18,7 +19,7 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
     apiKey: 'YOUR_API_KEY',
     version: 'mainnet',
     initialValues: {
-      defaultTab: 'swap' // or 'cex'
+      defaultTab: 'swap' // 'swap' | 'cex' | 'deposit' (alias: 'easy')
     }
   }}
   walletProviders={[createEVMProvider()]}
@@ -27,9 +28,16 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
 </LayerswapProvider>
 ```
 
+<ResponseField name="defaultTab" type="string">
+  Controls which flow is shown on first render. Accepted values:
+  - `'swap'` — Cross-chain Swap flow (default)
+  - `'cex'` — Deposit from CEX flow
+  - `'deposit'` — Easy Deposit flow (`'easy'` is accepted as an alias)
+</ResponseField>
+
 ## Switching Between Tabs
 
-Users can switch between Swap and Deposit from CEX flows directly in the widget UI, regardless of which tab is set as default. The `defaultTab` parameter only controls which flow is displayed when the widget first loads.
+Users can switch between Swap, Deposit from CEX, and Easy Deposit flows directly in the widget UI, regardless of which tab is set as default. The `defaultTab` parameter only controls which flow is displayed when the widget first loads.
 
 ### Hiding the Tab Switcher
 
@@ -57,7 +65,7 @@ If you want to lock users into a specific flow and prevent them from switching t
 ```
 
 <ResponseField name="header.hideTabs" type="boolean">
-  Set to `true` to hide the tab switcher UI. Users will only see the flow specified in `defaultTab` and won't be able to switch between the Swap and Deposit from CEX flows.
+  Set to `true` to hide the tab switcher UI. Users will only see the flow specified in `defaultTab` and won't be able to switch between the Swap, Deposit from CEX, and Easy Deposit flows.
 </ResponseField>
 
 <Note>
@@ -169,23 +177,8 @@ export default function App() {
   Destination wallet address where funds will be received
 </ResponseField>
 
-```typescript
-<LayerswapProvider
-  config={{
-    apiKey: 'YOUR_API_KEY',
-    version: 'mainnet',
-    initialValues: {
-      defaultTab: 'swap'
-    },
-    theme: {
-      ...theme,
-      header: {
-        hideTabs: true
-      }
-    }
-  }}
-  walletProviders={[createEVMProvider()]}
->
-  <Swap />
-</LayerswapProvider>
-```
+## Easy Deposit Flow
+
+The Easy Deposit flow gives the user a deposit address they can send to from any wallet — no WalletConnect, no extension popup, no source-side wallet integration. Enable it with `defaultTab: 'deposit'` (or `'easy'`).
+
+See the dedicated [Easy Deposit](/integration/UI/Widget/EasyDeposit) page for the full description, screenshot, and configuration reference.

@@ -3,8 +3,11 @@ title: "Configurations"
 ---
 
 
-<ResponseField name="defaultTab" type="swap | cex">
-  Set to swap or cex to switch between "Swap" and "Deposit from CEX" flows.
+<ResponseField name="defaultTab" type="swap | cex | deposit">
+  Set the initial flow shown by the widget. Accepted values:
+  - `swap` — Cross-chain Swap flow (default)
+  - `cex` — Deposit from CEX flow
+  - `deposit` — Easy Deposit flow (`easy` is accepted as an alias). See the dedicated [Easy Deposit](/integration/UI/Widget/EasyDeposit) page.
 </ResponseField>
 
 <ResponseField name="from" type="string">

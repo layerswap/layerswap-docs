@@ -43,7 +43,7 @@ export default function App() {
         apiKey: 'YOUR_API_KEY',
         version: 'mainnet', // or 'testnet'
         initialValues: {
-		  // Set the default tab (swap or cex)
+		  // Set the default tab (swap, cex, or deposit)
           defaultTab: 'swap',
           to: 'IMMUTABLEZK_MAINNET',
 		  // Lock destination asset
@@ -313,7 +313,7 @@ export default function ImmutableDepositWidget() {
             version: 'mainnet',
             theme: immutableTheme,
             initialValues: {
-              defaultTab: 'swap', //or 'cex'
+              defaultTab: 'swap', // 'swap' | 'cex' | 'deposit'
               to: 'IMMUTABLEZK_MAINNET',
               lockTo: true,
               toAsset: 'USDC',
