@@ -19,12 +19,12 @@ The user picks what they're sending, what they want to receive and where, and th
 ## How it works
 
 1. The user picks a **Send** network/token (what they'll be paying with).
-2. The user picks a **Receive** network/token and recipient address. The destination wallet is connected via your existing wallet providers, and the recipient is autofilled from the connected account.
+2. The user picks a **Receive** network/token. The recipient address is taken from the connected destination wallet — it can't be supplied via config or query parameters in this flow.
 3. The widget displays the deposit address (with QR code), min/max, and fee preview.
 4. The user sends from any wallet of their choice. Once the deposit lands, the swap is processed and funds arrive at the destination.
 
 <Note>
-  A wallet is still required on the destination side so the widget can autofill the recipient address. The connect modal is opened automatically when the user lands on this tab without any wallet connected.
+  A wallet is required on the destination side — the recipient address is read from the connected wallet, not from `destAddress` or any other parameter. The connect modal is opened automatically when the user lands on this tab without any wallet connected.
 </Note>
 
 ## Enabling the tab
@@ -46,8 +46,7 @@ export default function App() {
           from: 'BITCOIN_MAINNET',
           to: 'ARBITRUM_MAINNET',
           fromAsset: 'BTC',
-          toAsset: 'USDC',
-          destAddress: '0x1234567890abcdef1234567890abcdef12345678'
+          toAsset: 'USDC'
         }
       }}
       walletProviders={[createEVMProvider()]}
@@ -80,9 +79,9 @@ export default function App() {
   Token to be received on the destination network.
 </ResponseField>
 
-<ResponseField name="destAddress" type="string">
-  Destination wallet address. If omitted, the widget autofills it from the connected destination wallet.
-</ResponseField>
+<Note>
+  `destAddress` is **not** honored in the Easy Deposit flow — the recipient address is always sourced from the connected destination wallet. Use the Swap or Deposit from CEX flows if you need to pre-fill a destination address.
+</Note>
 
 ### Locking the widget to Easy Deposit only
 
