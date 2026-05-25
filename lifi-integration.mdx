@@ -291,7 +291,17 @@ These can be discussed if needed for the integration.
 For Bitcoin, the API returns a **deposit address** and a **numeric memo**.
 
 - `to_address` — the Bitcoin deposit address to send funds to
-- `call_data` — a numeric memo string (e.g. `"12345"`) that **must** be embedded as an `OP_RETURN` output in the transaction. This is how Layerswap identifies and matches the deposit. The memo should be hex-encoded: `Number(call_data).toString(16)`.
+- `call_data` — a numeric memo string (e.g. `"12345"`) that **must** be embedded as an `OP_RETURN` output in the transaction. This is how Layerswap identifies and matches the deposit. Convert `call_data` to a hex string with `Number(call_data).toString(16)`, then embed that string in `OP_RETURN` as ASCII/UTF‑8 bytes — not as the raw bytes the hex represents. In `bitcoinjs-lib`:
+
+```js
+const hexMemo = Number(call_data).toString(16);
+const data = Buffer.from(hexMemo, 'utf8');           // ← 'utf8', NOT 'hex'
+const opReturn = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, data]);
+```
+
+The `OP_RETURN` payload must be at most 80 bytes (standard relay limit).
+
+<Note>Layerswap matches the source transaction to the swap by reading the `OP_RETURN` output: it ASCII‑decodes the bytes, parses the resulting string as hex, and converts to a decimal that must equal `call_data`. If the `OP_RETURN` bytes are not valid ASCII hex characters, the deposit will not be matched and the swap will expire.</Note>
 - `amount` — the BTC amount to send (decimal)
 - `amount_in_base_units` — the amount in satoshis
 
@@ -314,6 +324,6 @@ Example deposit action response:
 }
 ```
 
-Example input transaction: [`0ecfb9b7...9e1532`](https://mempool.space/tx/0ecfb9b7117b34fb7c1881a3615bbe5208881293956892f5af11b13bb89e1532) — the `OP_RETURN` output contains `aa8d31`, which is the hex encoding of the memo (`Number("11177265").toString(16)`).
+Example input transaction: [`0ecfb9b7...9e1532`](https://mempool.space/tx/0ecfb9b7117b34fb7c1881a3615bbe5208881293956892f5af11b13bb89e1532). The `OP_RETURN` scriptpubkey is `6a06616138643331` — `6a` is `OP_RETURN`, `06` is the push length, and `616138643331` is the ASCII string `aa8d31`. That string is `Number("11177265").toString(16)` — i.e. `call_data = "11177265"`, hex string = `"aa8d31"`, embedded as the six ASCII bytes `61 61 38 64 33 31`.
 
 <Note>`gas_limit` and `encoded_args` are not applicable for Bitcoin.</Note>
