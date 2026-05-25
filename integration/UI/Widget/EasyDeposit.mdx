@@ -1,0 +1,111 @@
+---
+title: "Easy Deposit"
+description: "Give users a deposit address they can pay to from any wallet, app, or exchange — no WalletConnect or browser extension required on the source side."
+tag: "NEW"
+---
+
+<img src="/images/easy-deposit.png" alt="Layerswap Widget — Easy Deposit tab" />
+
+The **Easy Deposit** tab is a streamlined flow that lets a user fund a swap by sending to a generated deposit address — no WalletConnect, no browser-extension popup, and no source-side wallet integration required.
+
+The user picks what they're sending, what they want to receive and where, and the widget shows a QR code and a copyable deposit address. They can pay from any wallet app, a hardware wallet, or directly from an exchange account.
+
+## When to use it
+
+- You want a deposit-by-address UX that works on mobile and from any wallet, with no source-side WalletConnect dance.
+- Your users primarily send from exchange or wallet apps directly.
+- You want to support source networks where you don't ship a wallet adapter in your integration.
+
+## How it works
+
+1. The user picks a **Send** network/token (what they'll be paying with).
+2. The user picks a **Receive** network/token. The recipient address is taken from the connected destination wallet — it can't be supplied via config or query parameters in this flow.
+3. The widget displays the deposit address (with QR code), min/max, and fee preview.
+4. The user sends from any wallet of their choice. Once the deposit lands, the swap is processed and funds arrive at the destination.
+
+<Note>
+  A wallet is required on the destination side — the recipient address is read from the connected wallet, not from `destAddress` or any other parameter. The connect modal is opened automatically when the user lands on this tab without any wallet connected.
+</Note>
+
+## Enabling the tab
+
+Set `defaultTab: 'deposit'` (or `'easy'` — both are accepted) to open the widget on the Easy Deposit flow:
+
+```typescript
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+
+export default function App() {
+  return (
+    <LayerswapProvider
+      config={{
+        apiKey: 'YOUR_API_KEY',
+        version: 'mainnet',
+        initialValues: {
+          defaultTab: 'deposit',
+          from: 'BITCOIN_MAINNET',
+          to: 'ARBITRUM_MAINNET',
+          fromAsset: 'BTC',
+          toAsset: 'USDC'
+        }
+      }}
+      walletProviders={[createEVMProvider()]}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Configuration
+
+<ResponseField name="defaultTab" type="string">
+  Set to `'deposit'` (or `'easy'`) to open the Easy Deposit flow on first render.
+</ResponseField>
+
+<ResponseField name="from" type="string">
+  Source blockchain network the user will be sending from (e.g., `'BITCOIN_MAINNET'`, `'ETHEREUM_MAINNET'`, `'ZKSYNC_MAINNET'`).
+</ResponseField>
+
+<ResponseField name="to" type="string">
+  Destination blockchain network where funds will be received.
+</ResponseField>
+
+<ResponseField name="fromAsset" type="string">
+  Token the user will be sending from the source network.
+</ResponseField>
+
+<ResponseField name="toAsset" type="string">
+  Token to be received on the destination network.
+</ResponseField>
+
+<Note>
+  `destAddress` is **not** honored in the Easy Deposit flow — the recipient address is always sourced from the connected destination wallet. Use the Swap or Deposit from CEX flows if you need to pre-fill a destination address.
+</Note>
+
+### Locking the widget to Easy Deposit only
+
+To restrict the widget to the Easy Deposit flow and hide the tab switcher, combine `defaultTab` with `header.hideTabs: true`:
+
+```typescript
+<LayerswapProvider
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    initialValues: {
+      defaultTab: 'deposit'
+    },
+    theme: {
+      ...theme,
+      header: {
+        hideTabs: true
+      }
+    }
+  }}
+  walletProviders={[createEVMProvider()]}
+>
+  <Swap />
+</LayerswapProvider>
+```
+
+See [Tab Options](/integration/UI/Widget/TabOptions) for the full list of `defaultTab` values and the other available flows.
