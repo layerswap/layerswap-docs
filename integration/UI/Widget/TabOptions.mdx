@@ -19,7 +19,7 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
     apiKey: 'YOUR_API_KEY',
     version: 'mainnet',
     initialValues: {
-      defaultTab: 'swap' // 'swap' | 'cex' | 'deposit' (alias: 'easy')
+      defaultTab: 'swap' // 'swap' | 'cex' | 'deposit'
     }
   }}
   walletProviders={[createEVMProvider()]}
@@ -32,7 +32,7 @@ You can control which flow is displayed initially by setting the `defaultTab` pa
   Controls which flow is shown on first render. Accepted values:
   - `'swap'` — Cross-chain Swap flow (default)
   - `'cex'` — Deposit from CEX flow
-  - `'deposit'` — Easy Deposit flow (`'easy'` is accepted as an alias)
+  - `'deposit'` — Easy Deposit flow
 </ResponseField>
 
 ## Switching Between Tabs
@@ -179,6 +179,6 @@ export default function App() {
 
 ## Easy Deposit Flow
 
-The Easy Deposit flow gives the user a deposit address they can send to from any wallet — no WalletConnect, no extension popup, no source-side wallet integration. Enable it with `defaultTab: 'deposit'` (or `'easy'`).
+The Easy Deposit flow gives the user a deposit address they can send to from any wallet — no WalletConnect, no extension popup, no source-side wallet integration. Enable it with `defaultTab: 'deposit'`.
 
 See the dedicated [Easy Deposit](/integration/UI/Widget/EasyDeposit) page for the full description, screenshot, and configuration reference.
