@@ -21,7 +21,8 @@
               "api-keys",
               "fees",
               "networks-tokens",
-              "security"
+              "security",
+              "brand-assets"
             ]
           }
         ]
@@ -243,7 +244,7 @@
         "items": [
           {
             "label": "Brand Assets",
-            "href": "https://layerswap.notion.site/Layerswap-brand-guide-0822bc4f1a2d4af7bc2f1acbb05119e2?pvs=74"
+            "href": "/brand-assets"
           },
           {
             "label": "Public Roadmap",
