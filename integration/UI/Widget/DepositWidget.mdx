@@ -1,10 +1,10 @@
 ---
 title: "Deposit Widget"
-description: "A drop-in component that lets your users fund a fixed address you control — from a connected wallet or from any wallet or exchange via a deposit address."
+description: "A drop-in component that lets your users fund a fixed address — from a connected wallet or from any wallet or exchange via a deposit address."
 tag: "NEW"
 ---
 
-The **Deposit Widget** is a standalone, self-contained `<Deposit>` component for letting your users send funds to an address **you** control. You hard-code the recipient address, the destination network, and the tokens you accept; the end user only decides **how to fund** the deposit. It can render inline on your page, or as a button that opens the widget in a dialog.
+The **Deposit Widget** is a standalone, self-contained `<Deposit>` component for letting your users send funds to an address. You hard-code the recipient address, the destination network, and the tokens you accept; the end user only decides **how to fund** the deposit. It can render inline on your page, or as a button that opens the widget in a dialog.
 
 <Note>
   This is different from the [Easy Deposit](/integration/UI/Widget/EasyDeposit) tab inside `<Swap>`. In the Easy Deposit tab the recipient is read from the user's **connected destination wallet**, and the user picks both the send and receive sides. With the **Deposit Widget** the recipient (`destinationAddress`) and the accepted destination tokens are fixed by you — the user never enters a recipient.

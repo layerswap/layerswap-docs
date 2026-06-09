@@ -47,8 +47,6 @@
           {
             "group": "Widget Setup",
             "pages": [
-              "integration/UI/Widget/TabOptions",
-              "integration/UI/Widget/EasyDeposit",
               "integration/UI/Widget/DepositWidget",
               {
                 "group": "Wallets",
