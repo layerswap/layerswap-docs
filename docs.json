@@ -49,6 +49,7 @@
             "pages": [
               "integration/UI/Widget/TabOptions",
               "integration/UI/Widget/EasyDeposit",
+              "integration/UI/Widget/DepositWidget",
               {
                 "group": "Wallets",
                 "pages": [
@@ -244,7 +245,7 @@
         "items": [
           {
             "label": "Brand Assets",
-            "href": "/brand-assets"
+            "href": "https://docs.layerswap.io/brand-assets"
           },
           {
             "label": "Public Roadmap",

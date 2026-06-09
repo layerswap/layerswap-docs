@@ -8,6 +8,7 @@ export const QuickstartEmbed = () => {
     return html.classList.contains('dark') ? 'dark' : 'light';
   });
   const [packageManager, setPackageManager] = useState('npm');
+  const [widgetType, setWidgetType] = useState('swap');
   const [selectedWallets, setSelectedWallets] = useState([
     'EVM',
     'Starknet',
@@ -161,6 +162,10 @@ export const QuickstartEmbed = () => {
         };
 
   const PACKAGE_MANAGERS = ['npm', 'yarn', 'pnpm'];
+  const WIDGET_TYPES = [
+    { value: 'swap', label: 'Swap' },
+    { value: 'deposit', label: 'Deposit' },
+  ];
   const WALLET_OPTIONS = ['EVM', 'Starknet', 'Solana', 'Bitcoin', 'Fuel', 'Ton', 'Tron', 'Paradex'];
   const providerImportMap = {
     EVM: {
@@ -238,7 +243,10 @@ export const QuickstartEmbed = () => {
   const allProvidersSelected = WALLET_OPTIONS.every((wallet) => selectedWallets.includes(wallet));
 
   // --- Build starter snippet
-  const importLines = ["import { LayerswapProvider, Swap } from '@layerswap/widget';"];
+  const isDeposit = widgetType === 'deposit';
+  const importLines = isDeposit
+    ? ["import { Deposit } from '@layerswap/widget/deposit';"]
+    : ["import { LayerswapProvider, Swap } from '@layerswap/widget';"];
 
   // Determine imports based on selection
   if (allProvidersSelected) {
@@ -320,13 +328,7 @@ export const QuickstartEmbed = () => {
     walletProvidersCode += `  const walletProviders = [\n${providerCreations}\n  ]`;
   }
 
-  const snippetLines = [
-    "import '@layerswap/widget/index.css';",
-    ...importLines,
-    "",
-    "export default function App() {",
-    ...(walletProvidersCode ? walletProvidersCode.split('\n') : []),
-    ...(walletProvidersCode ? [''] : []),
+  const swapJsx = [
     "  return (",
     "    <LayerswapProvider",
     "      config={{",
@@ -343,6 +345,31 @@ export const QuickstartEmbed = () => {
     "      <Swap />",
     "    </LayerswapProvider>",
     "  );",
+  ];
+
+  const depositJsx = [
+    "  return (",
+    "    <Deposit",
+    "      mode=\"inline\" // or \"button\"",
+    "      config={{",
+    "        apiKey: {YOUR_API_KEY},",
+    "        version: 'mainnet', //'mainnet' or 'testnet'",
+    "      }}",
+    ...(selectedWallets.length > 0 ? ["      walletProviders={walletProviders}"] : []),
+    "      destination={{ network: 'BASE_MAINNET', tokens: ['USDC'] }}",
+    "      destinationAddress=\"YOUR_DESTINATION_ADDRESS\"",
+    "    />",
+    "  );",
+  ];
+
+  const snippetLines = [
+    "import '@layerswap/widget/index.css';",
+    ...importLines,
+    "",
+    "export default function App() {",
+    ...(walletProvidersCode ? walletProvidersCode.split('\n') : []),
+    ...(walletProvidersCode ? [''] : []),
+    ...(isDeposit ? depositJsx : swapJsx),
     "}"
   ];
   const starterSnippet = snippetLines.join('\n');
@@ -426,6 +453,27 @@ export const QuickstartEmbed = () => {
         color: palette.textColor,
       }}
     >
+      {/* Widget Type */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="font-semibold" style={{ color: palette.labelColor }}>
+          Widget type:
+        </span>
+        {WIDGET_TYPES.map(({ value, label }) => (
+          <button
+            key={value}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium transition-all border"
+            style={{
+              border: widgetType === value ? palette.chipBorderActive : palette.chipBorder,
+              background: widgetType === value ? palette.chipBgActive : palette.chipBg,
+              color: widgetType === value ? palette.chipColorActive : palette.chipColor,
+            }}
+            onClick={() => setWidgetType(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {/* Package Manager */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="font-semibold" style={{ color: palette.labelColor }}>

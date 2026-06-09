@@ -1,0 +1,190 @@
+---
+title: "Deposit Widget"
+description: "A drop-in component that lets your users fund a fixed address you control — from a connected wallet or from any wallet or exchange via a deposit address."
+tag: "NEW"
+---
+
+The **Deposit Widget** is a standalone, self-contained `<Deposit>` component for letting your users send funds to an address **you** control. You hard-code the recipient address, the destination network, and the tokens you accept; the end user only decides **how to fund** the deposit. It can render inline on your page, or as a button that opens the widget in a dialog.
+
+Unlike the Swap widget, `<Deposit>` doesn't need to be wrapped in `LayerswapProvider` — it sets up its own provider internally and shows a deposit-shaped loading skeleton while settings are fetched.
+
+<Note>
+  This is different from the [Easy Deposit](/integration/UI/Widget/EasyDeposit) tab inside `<Swap>`. In the Easy Deposit tab the recipient is read from the user's **connected destination wallet**, and the user picks both the send and receive sides. With the **Deposit Widget** the recipient (`destinationAddress`) and the accepted destination tokens are fixed by you — the user never enters a recipient.
+</Note>
+
+## When to use it
+
+- You want users to **fund an account or address you own** (treasury, exchange-style deposit, app balance top-up) where the recipient is always known.
+- You want to accept funding from **both** connected wallets and from any wallet or exchange (no source-side wallet integration required).
+- You want to restrict deposits to a single destination network and a specific allow-list of tokens.
+
+## How it works
+
+When wallet providers are configured, the user lands on a method picker offering two ways to fund the deposit:
+
+<img src="/images/deposit/method-picker.png" alt="Deposit Widget — method picker showing Wallet transfer and Deposit address options" />
+
+- **Wallet transfer** — the user connects a wallet, picks a source token (only routes the wallet supports and has a balance for are shown), enters an amount, reviews the quote, and executes the transfer.
+
+  <img src="/images/deposit/wallet-flow.png" alt="Deposit Widget — wallet transfer flow showing source token, amount, and quote summary" />
+
+- **Deposit address** — the widget generates a deposit address with a QR code. The user pays from any wallet app, hardware wallet, or exchange account. No source-side wallet integration is required.
+
+  <img src="/images/deposit/deposit-address.png" alt="Deposit Widget — deposit address screen with QR code and copyable address" />
+
+The destination network is fixed by the `destination` prop; the accepted tokens come from its `tokens` allow-list. When more than one token is accepted, the user gets a "You receive" picker to choose between them; with a single token the picker is hidden and that token is used automatically.
+
+<Note>
+  If you pass no `walletProviders`, the **Wallet transfer** method is unavailable, so the method picker is skipped entirely — the widget opens straight on the deposit address flow. This gives you a deposit-address-only integration with zero wallet dependencies.
+</Note>
+
+## Installation
+
+Import the component from the dedicated `@layerswap/widget/deposit` entry point along with the widget styles:
+
+```typescript
+import { Deposit } from '@layerswap/widget/deposit';
+import '@layerswap/widget/index.css';
+```
+
+See the [Quickstart](/integration/UI/Widget/Quickstart) for installing `@layerswap/widget` and the wallet provider packages.
+
+## Usage
+
+A complete example rendering the widget as a button that opens a dialog:
+
+```tsx
+import { Deposit } from '@layerswap/widget/deposit';
+import '@layerswap/widget/index.css';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+
+export default function Fund() {
+  return (
+    <Deposit
+      mode="button"
+      config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+      walletProviders={[createEVMProvider()]}
+      destination={{ network: 'STARKNET_MAINNET', tokens: ['ETH'] }}
+      destinationAddress="0x0183...FF11b"
+    />
+  );
+}
+```
+
+To embed the widget directly on the page instead of behind a button, use `mode="inline"` (the default). This example also accepts multiple tokens, so the user gets a token picker:
+
+```tsx
+<Deposit
+  mode="inline"
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  walletProviders={[createEVMProvider()]}
+  destination={{ network: 'BASE_MAINNET', tokens: ['USDC', 'USDT', 'ETH'] }}
+  destinationAddress="0x0183...FF11b"
+/>
+```
+
+### Deposit address only (no wallet providers)
+
+Omit `walletProviders` to skip the method picker and open straight on the deposit address flow:
+
+```tsx
+<Deposit
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  destination={{ network: 'BASE_MAINNET', tokens: ['USDC'] }}
+  destinationAddress="0x0183...FF11b"
+/>
+```
+
+### Inside an existing LayerswapProvider
+
+If your app already renders `LayerswapProvider` (for example alongside `<Swap>`), use `DepositComponent` instead — it's the same widget without the built-in provider. Pass `DepositLoading` as the provider's `loadingComponent` so the init state matches the deposit layout:
+
+```tsx
+import { LayerswapProvider } from '@layerswap/widget';
+import { DepositComponent, DepositLoading } from '@layerswap/widget/deposit';
+
+<LayerswapProvider
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    loadingComponent: <DepositLoading />
+  }}
+  walletProviders={[createEVMProvider()]}
+>
+  <DepositComponent
+    mode="button"
+    destination={{ network: 'STARKNET_MAINNET', tokens: ['ETH'] }}
+    destinationAddress="0x0183...FF11b"
+  />
+</LayerswapProvider>
+```
+
+## Props
+
+`<Deposit>` accepts the deposit props below plus the `LayerswapProvider` props (`config`, `callbacks`, `walletProviders`), since it renders the provider internally. `DepositComponent` accepts only the deposit props.
+
+<ResponseField name="destination" type="SupportedDestination" required>
+  The single destination network and its allowed tokens. The network is fixed; the user picks one of the tokens via the token dropdown (hidden when only one token is accepted). See [SupportedDestination](#supporteddestination) for the shape.
+</ResponseField>
+
+<ResponseField name="destinationAddress" type="string" required>
+  The recipient address on the destination network. Fixed by you — the deposit widget never asks the user for it.
+</ResponseField>
+
+<ResponseField name="mode" type='"inline" | "button"' default="inline">
+  `"inline"` renders the widget directly on the page. `"button"` renders a Deposit button that opens the widget inside a dialog.
+</ResponseField>
+
+<ResponseField name="title" type="string" default="Deposit">
+  Title shown in the widget header.
+</ResponseField>
+
+<ResponseField name="buttonLabel" type="string" default="Deposit">
+  Label for the trigger button. Only applies when `mode="button"`.
+</ResponseField>
+
+<ResponseField name="buttonClassName" type="string">
+  Extra `className` applied to the trigger button. Only applies when `mode="button"`.
+</ResponseField>
+
+<ResponseField name="showDestinationAddress" type="boolean" default="false">
+  When `true`, shows the "Send to" destination address row in the quote summary. Hidden by default because the recipient is your own fixed address and the row is usually redundant for the user — opt in only if you want to surface the destination address explicitly.
+</ResponseField>
+
+<ResponseField name="actionButtonText" type="string" default="Deposit">
+  Custom label for the action (submit) button inside the flow.
+</ResponseField>
+
+<ResponseField name="defaultAmountUsd" type="number" default="1">
+  Default amount (in USD) seeded into the wallet flow once the user picks a source token. Set to `0` to disable seeding.
+</ResponseField>
+
+<ResponseField name="config" type="LayerswapWidgetConfig">
+  Provider configuration — `apiKey`, `version`, `theme`, `settings`, etc. Only on `<Deposit>` (not `DepositComponent`). See the [Quickstart](/integration/UI/Widget/Quickstart) for details.
+</ResponseField>
+
+<ResponseField name="walletProviders" type="WalletProvider[]">
+  Wallet providers available for the **Wallet transfer** method. Only on `<Deposit>` (not `DepositComponent`). When omitted, the widget runs in deposit-address-only mode. See [Wallet Management](/integration/UI/Widget/WalletManagement/WalletManagement).
+</ResponseField>
+
+<ResponseField name="callbacks" type="CallbacksContextType">
+  Event callbacks. Only on `<Deposit>` (not `DepositComponent`). See [Event Callbacks](/integration/UI/Widget/EventCallbacks/EventsIntroduction).
+</ResponseField>
+
+### SupportedDestination
+
+```typescript
+type SupportedDestination = {
+  /** Network name — the canonical identifier, e.g. `BASE_MAINNET`. */
+  network: string;
+  /** Token symbols, case-insensitive, e.g. `["USDC", "USDT"]`. The user picks
+   * one of these via the token dropdown; the network is fixed. */
+  tokens: string[];
+};
+```
+
+Tokens that don't match an active token on the network are dropped. If only one valid token remains, the token picker is hidden.
+
+<Note>
+  While a transfer is in flight, the dialog's close button is hidden and clicking outside the dialog doesn't dismiss it, so the user can't accidentally abandon an in-progress deposit.
+</Note>
