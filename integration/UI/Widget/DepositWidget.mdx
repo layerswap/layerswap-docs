@@ -6,17 +6,9 @@ tag: "NEW"
 
 The **Deposit Widget** is a standalone, self-contained `<Deposit>` component for letting your users send funds to an address **you** control. You hard-code the recipient address, the destination network, and the tokens you accept; the end user only decides **how to fund** the deposit. It can render inline on your page, or as a button that opens the widget in a dialog.
 
-Unlike the Swap widget, `<Deposit>` doesn't need to be wrapped in `LayerswapProvider` — it sets up its own provider internally and shows a deposit-shaped loading skeleton while settings are fetched.
-
 <Note>
   This is different from the [Easy Deposit](/integration/UI/Widget/EasyDeposit) tab inside `<Swap>`. In the Easy Deposit tab the recipient is read from the user's **connected destination wallet**, and the user picks both the send and receive sides. With the **Deposit Widget** the recipient (`destinationAddress`) and the accepted destination tokens are fixed by you — the user never enters a recipient.
 </Note>
-
-## When to use it
-
-- You want users to **fund an account or address you own** (treasury, exchange-style deposit, app balance top-up) where the recipient is always known.
-- You want to accept funding from **both** connected wallets and from any wallet or exchange (no source-side wallet integration required).
-- You want to restrict deposits to a single destination network and a specific allow-list of tokens.
 
 ## How it works
 
