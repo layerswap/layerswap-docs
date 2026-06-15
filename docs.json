@@ -131,6 +131,7 @@
             "group": "Documentation",
             "pages": [
               "integration/API",
+              "api-reference/depository",
               {
                 "group": "Swap lifecycle",
                 "icon": "arrows-spin",

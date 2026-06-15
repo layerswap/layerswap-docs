@@ -1,0 +1,232 @@
+---
+title: "Depository"
+description: "Fund a Layerswap swap by calling an on-chain contract instead of sending to a generated deposit address — ideal for smart-contract, server, and programmable wallets."
+icon: building-columns
+---
+
+## Overview
+
+The **Depository** is a Layerswap-operated smart contract that acts as an on-chain entry point for
+funding a swap. Your wallet calls a single method on the Depository contract; it records the deposit,
+tags it with the identifier of your swap, and forwards the funds to the solver that fills it.
+Layerswap watches for the resulting `Deposited` event and progresses your swap automatically.
+
+This is the recommended funding path when you are **integrating Layerswap as an aggregator**, or when
+funding from a **smart-contract wallet, server wallet, or any programmable wallet** (e.g.
+[Privy](/recipes/privy-wallets), Safe, account-abstraction wallets).
+
+<Note>
+Layerswap encodes the call for you. When you create a swap with `use_depository: true`, the deposit
+action includes the contract address (`to_address`) and the fully encoded `call_data` — so the
+simplest path is to submit `call_data` as-is (plus a token approval for ERC20). The individual
+arguments, including the swap `id` and `receiver` that Layerswap assigns, are also returned in
+`encoded_args` if you'd rather build or verify the call yourself.
+</Note>
+
+### Depository vs. deposit address vs. direct transfer
+
+| Funding method | How you fund | Best for |
+| --- | --- | --- |
+| **Depository** (`use_depository: true`) | Call a contract method with pre-encoded `call_data` | Aggregators; smart-contract wallets; deterministic target; batching approve + deposit |
+| **Deposit address** (`use_deposit_address: true`) | Send funds to a generated address | Exchanges, custodial flows, users sending from anywhere |
+| **Direct transfer** (default) | Transfer to the solver's address | Simple EOA wallet transfers |
+
+The Depository and deposit-address methods are **mutually exclusive** — setting both
+`use_depository: true` and `use_deposit_address: true` is rejected.
+
+## Supported networks
+
+- **EVM** chains where a Depository contract is deployed. Native and ERC20 deposits are both supported.
+- **Tron** — **TRC20 tokens only**. Native TRX deposits via the Depository are not supported.
+
+If you request `use_depository: true` on a network that does not have a Depository deployed, swap
+creation fails with an "unsupported depository" error. The set of enabled networks grows over time —
+always rely on the `to_address` returned by the API rather than hard-coding addresses (see
+[Contract addresses](#contract-addresses)).
+
+## How it works
+
+1. **Create the swap** with `use_depository: true`.
+2. **Fetch the deposit actions** (returned inline on swap creation, or via
+   [`GET /swaps/{swapId}/deposit_actions`](/api-reference/swaps/get-deposit-actions)). The action's
+   `to_address` is the Depository contract and `call_data` is the encoded deposit call.
+3. **For ERC20 only:** approve the Depository contract (`to_address`) to spend the token amount.
+4. **Submit the transaction** to `to_address` with the returned `call_data` (and `value` for native
+   deposits — see below).
+5. Layerswap detects the on-chain `Deposited` event, correlates it to your swap via the embedded
+   `id`, and completes delivery on the destination chain.
+
+## The contract
+
+The Depository exposes two deposit methods:
+
+```solidity
+// Native asset (ETH, etc.) — send the deposit amount as msg.value
+function depositNative(bytes32 id, address receiver) external payable;
+
+// ERC20 / TRC20 — requires prior approval of `amount` to this contract
+function depositERC20(bytes32 id, address token, address receiver, uint256 amount) external;
+```
+
+On a successful deposit the contract emits:
+
+```solidity
+event Deposited(
+    bytes32 indexed id,        // identifies your swap; pre-encoded by Layerswap
+    address indexed token,     // the deposited token (address(0) for native deposits)
+    address indexed receiver,  // the solver that fills your swap
+    uint256 amount
+);
+```
+
+## Using the Depository via the API
+
+### 1. Create the swap
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.layerswap.io/api/v2/swaps \
+  -H "X-LS-APIKEY: $LAYERSWAP_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_network": "ETHEREUM_MAINNET",
+    "source_token": "USDC",
+    "destination_network": "ARBITRUM_MAINNET",
+    "destination_token": "USDC",
+    "destination_address": "0xYourRecipient",
+    "amount": 100,
+    "use_depository": true
+  }'
+```
+</CodeGroup>
+
+See the [Create Swap](/api-reference/swaps/create-swap) endpoint for the full request schema.
+
+### 2. Read the deposit action
+
+The response includes a `deposit_actions` array. For a Depository swap the relevant fields are:
+
+| Field | Meaning |
+| --- | --- |
+| `to_address` | The Depository contract address on the source chain — your transaction target **and** the ERC20 approval target |
+| `call_data` | The fully encoded `depositNative` / `depositERC20` call — submit as-is |
+| `amount` / `amount_in_base_units` | For **native** deposits: the value to send (`msg.value`), in decimal and base units. For **ERC20** deposits both are `0` |
+| `token` | The token being deposited (`symbol`, `contract`, `decimals`) |
+| `fee_token` | The gas asset on the network |
+| `encoded_args` | The individual decoded arguments, in order, for inspection |
+| `gas_limit` | Suggested gas limit |
+| `order` | Execution order when an action has multiple steps |
+
+<Tabs>
+<Tab title="ERC20 deposit">
+```json
+{
+  "order": 0,
+  "type": "transfer",
+  "to_address": "0x<DepositoryContract>",
+  "call_data": "0x<encoded depositERC20(id, token, receiver, amount)>",
+  "amount": 0,
+  "amount_in_base_units": "0",
+  "token": { "symbol": "USDC", "contract": "0x<tokenContract>", "decimals": 6 },
+  "fee_token": { "symbol": "ETH", "contract": null, "decimals": 18 },
+  "encoded_args": [
+    "0x0000…<id>",
+    "0x<tokenContract>",
+    "0x<receiver>",
+    "0x<amountHex>"
+  ],
+  "gas_limit": "120000"
+}
+```
+For ERC20 the top-level `amount` is `0` (no native value is sent). The token and amount live inside
+`call_data` / `encoded_args`, so you **must approve first** — see below.
+</Tab>
+<Tab title="Native deposit">
+```json
+{
+  "order": 0,
+  "type": "transfer",
+  "to_address": "0x<DepositoryContract>",
+  "call_data": "0x<encoded depositNative(id, receiver)>",
+  "amount": 0.05,
+  "amount_in_base_units": "50000000000000000",
+  "token": { "symbol": "ETH", "contract": null, "decimals": 18 },
+  "fee_token": { "symbol": "ETH", "contract": null, "decimals": 18 },
+  "encoded_args": [
+    "0x0000…<id>",
+    "0x<receiver>"
+  ],
+  "gas_limit": "45000"
+}
+```
+For native deposits, send `amount_in_base_units` as the transaction `value`.
+</Tab>
+</Tabs>
+
+### 3. Approve (ERC20 only)
+
+Before calling `depositERC20`, approve the Depository contract (`to_address`) to spend the deposit
+amount. Native deposits skip this step.
+
+### 4. Submit the deposit transaction
+
+```ts
+import { createWalletClient, custom, parseAbi } from "viem";
+
+const action = swap.deposit_actions[0];
+const wallet = createWalletClient({ transport: custom(window.ethereum) });
+
+// ERC20 only: approve the Depository to spend the token
+await wallet.writeContract({
+  address: action.token.contract,        // source_token contract
+  abi: parseAbi(["function approve(address spender, uint256 amount) returns (bool)"]),
+  functionName: "approve",
+  args: [action.to_address, depositAmountInBaseUnits],
+});
+
+// Submit the prepared deposit call exactly as returned by the API
+await wallet.sendTransaction({
+  to: action.to_address,
+  data: action.call_data,
+  value: BigInt(action.amount_in_base_units), // 0 for ERC20, the deposit amount for native
+});
+```
+
+<Warning>
+The swap `id` and the `receiver` are assigned by Layerswap — use the exact values from the deposit
+action. Submitting `call_data` as-is is the safest option; if you instead rebuild the call from
+`encoded_args`, don't alter those two values, or Layerswap won't be able to match the on-chain
+deposit to your swap.
+</Warning>
+
+## Deposit detection
+
+The `id` argument encoded in `call_data` ties your on-chain deposit to your swap. Layerswap monitors
+the `Deposited` event and matches its `id` back to your swap, then fills the destination side. From
+this point the swap follows the normal [swap lifecycle](/api-reference/swap-lifecycle).
+
+## Contract addresses
+
+The **authoritative** Depository address for a given swap is always the `to_address` returned in the
+deposit action — read it per swap rather than caching a global value, since deployments are added
+over time and a few chains use a different address.
+
+Most EVM chains share a single deterministically-deployed Depository address. A small number of
+chains (e.g. those where deterministic deployment wasn't possible) use a chain-specific address. In
+all cases, trust the API response.
+
+## Common errors
+
+| Situation | What happens |
+| --- | --- |
+| `use_depository: true` on a network with no Depository deployed | Swap creation fails (unsupported depository) |
+| `use_depository: true` **and** `use_deposit_address: true` | Rejected — the two methods are mutually exclusive |
+| ERC20 deposit without sufficient approval to `to_address` | On-chain revert; approve the Depository first |
+| Deposit to a `receiver` that isn't the one Layerswap assigned | On-chain revert (`NotWhitelisted`); use the `receiver` from the deposit action |
+
+## Related
+
+- [Privy wallets recipe](/recipes/privy-wallets) — end-to-end Depository flow with a Privy server wallet
+- [Get deposit actions](/api-reference/swaps/get-deposit-actions) — full response schema
+- [Deposit Widget](/integration/UI/Widget/DepositWidget) — drop-in UI that handles this for you
+- [Security](/security) — Depository audit report
