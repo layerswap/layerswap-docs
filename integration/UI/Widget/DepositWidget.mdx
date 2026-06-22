@@ -8,7 +8,7 @@ The **Deposit Widget** is a standalone, self-contained `<Deposit>` component for
 
 ## How it works
 
-When wallet providers are configured, the user lands on a method picker offering two ways to fund the deposit:
+When wallet providers are configured, the user lands on a method picker offering a few ways to fund the deposit:
 
 <img src="/images/deposit/method-picker.png" alt="Deposit Widget — method picker showing Wallet transfer and Deposit address options" />
 
@@ -19,6 +19,10 @@ When wallet providers are configured, the user lands on a method picker offering
 - **Deposit address** — the widget generates a deposit address with a QR code. The user pays from any wallet app, hardware wallet, or exchange account. No source-side wallet integration is required.
 
   <img src="/images/deposit/deposit-address.png" alt="Deposit Widget — deposit address screen with QR code and copyable address" />
+
+- **Deposit from Hyperliquid** — when an EVM provider is configured and the destination is reachable from Hyperliquid, the user can fund the deposit straight from their Hyperliquid balance, without copying an address or leaving the widget. See [Deposit from Hyperliquid](#deposit-from-hyperliquid).
+
+<img src="/images/deposit/hyperliquid.png" alt="Deposit Widget — deposit address screen with QR code and copyable address" />
 
 The destination network is fixed by the `destination` prop; the accepted tokens come from its `tokens` allow-list. When more than one token is accepted, the user gets a "You receive" picker to choose between them; with a single token the picker is hidden and that token is used automatically.
 
@@ -83,6 +87,20 @@ Omit `walletProviders` to skip the method picker and open straight on the deposi
 />
 ```
 
+### Choosing which funding methods to show
+
+By default every available method is offered. Pass `methods` as an allow-list to narrow them — only the listed methods can appear, and each still needs its own runtime conditions (e.g. `wallet` needs `walletProviders`, `hyperliquid` needs a reachable destination). For example, to offer wallet and deposit-address funding but hide the Hyperliquid option:
+
+```tsx
+<Deposit
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  walletProviders={[createEVMProvider()]}
+  destination={{ network: 'BASE_MAINNET', tokens: ['USDC'] }}
+  destinationAddress="0x0183...FF11b"
+  methods={['wallet', 'deposit_address']}
+/>
+```
+
 ### Inside an existing LayerswapProvider
 
 If your app already renders `LayerswapProvider` (for example alongside `<Swap>`), use `DepositComponent` instead — it's the same widget without the built-in provider. Pass `DepositLoading` as the provider's `loadingComponent` so the init state matches the deposit layout:
@@ -106,6 +124,31 @@ import { DepositComponent, DepositLoading } from '@layerswap/widget/deposit';
   />
 </LayerswapProvider>
 ```
+
+## Deposit from Hyperliquid
+
+<Note>
+  Available in `@layerswap/widget` 1.5.0 and later.
+</Note>
+
+If the user has funds on **Hyperliquid**, the method picker can offer a **Deposit from Hyperliquid** option that funds the deposit straight from their Hyperliquid balance — no address to copy and no leaving the widget.
+
+It's enabled by including an EVM provider (`createEVMProvider()`) in `walletProviders`. There's no separate prop to turn it on — the widget shows the option automatically whenever the destination can be reached from Hyperliquid.
+
+```tsx
+import { Deposit } from '@layerswap/widget/deposit';
+import '@layerswap/widget/index.css';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+
+<Deposit
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  walletProviders={[createEVMProvider()]}
+  destination={{ network: 'BASE_MAINNET', tokens: ['USDC'] }}
+  destinationAddress="0x0183...FF11b"
+/>
+```
+
+To hide it, exclude `'hyperliquid'` from the [`methods`](#choosing-which-funding-methods-to-show) allow-list.
 
 ## Props
 
@@ -147,12 +190,16 @@ import { DepositComponent, DepositLoading } from '@layerswap/widget/deposit';
   Default amount (in USD) seeded into the wallet flow once the user picks a source token. Set to `0` to disable seeding.
 </ResponseField>
 
+<ResponseField name="methods" type="DepositMethodId[]" default="all methods">
+  Allow-list of funding methods the picker may show — `"wallet"`, `"deposit_address"`, and `"hyperliquid"`. Only listed methods can appear, and each still needs its own runtime conditions to be offered (for example, `"hyperliquid"` only shows when an EVM provider is configured and the destination is reachable). Defaults to every method. The `DepositMethodId` type and the full `DEPOSIT_METHODS` list are exported from `@layerswap/widget`.
+</ResponseField>
+
 <ResponseField name="config" type="LayerswapWidgetConfig">
   Provider configuration — `apiKey`, `version`, `theme`, `settings`, etc. Only on `<Deposit>` (not `DepositComponent`). See the [Quickstart](/integration/UI/Widget/Quickstart) for details.
 </ResponseField>
 
 <ResponseField name="walletProviders" type="WalletProvider[]">
-  Wallet providers available for the **Wallet transfer** method. Only on `<Deposit>` (not `DepositComponent`). When omitted, the widget runs in deposit-address-only mode. See [Wallet Management](/integration/UI/Widget/WalletManagement/WalletManagement).
+  Wallet providers available for the **Wallet transfer** method. Including an EVM provider (`createEVMProvider()`) also unlocks [Deposit from Hyperliquid](#deposit-from-hyperliquid). Only on `<Deposit>` (not `DepositComponent`). When omitted, the widget runs in deposit-address-only mode. See [Wallet Management](/integration/UI/Widget/WalletManagement/WalletManagement).
 </ResponseField>
 
 <ResponseField name="callbacks" type="CallbacksContextType">
