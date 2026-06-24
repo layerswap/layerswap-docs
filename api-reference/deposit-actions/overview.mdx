@@ -1,0 +1,160 @@
+---
+title: 'Deposit Actions'
+description: 'Execute the on-chain deposit that funds a swap — the deposit action object, the funding modes, and the per-chain execution guides.'
+---
+
+## Overview
+
+When you create a swap via [`POST /api/v2/swaps`](/api-reference/swaps/create-swap), the response includes
+a `deposit_actions` array. A **deposit action** is the exact on-chain transaction to submit on the
+**source** chain to fund the swap: a target `to_address`, an `amount`, and a blockchain-specific
+`call_data` payload. Submit it and Layerswap detects the deposit and delivers the funds on the
+destination chain.
+
+This page is the reference for the deposit action object and the funding modes. The per-chain guides
+below show how to build and submit the transaction on each blockchain. For the end-to-end flow
+(discover → quote → create → execute → track), see the [API Integration](/integration/API) guide.
+
+## Funding modes
+
+How you fund a swap — chosen when you create it — determines the deposit action you get back:
+
+| Funding method | Set on swap creation | Deposit action you receive |
+| --- | --- | --- |
+| **Direct transfer** (default) | neither flag | `type: "transfer"` to the solver address, with `call_data` |
+| **Deposit address** | `use_deposit_address: true` | `type: "manual_transfer"` — a generated address, `call_data: null` |
+| **Depository contract** | `use_depository: true` | `type: "transfer"` to the [Depository](/api-reference/depository) contract, with encoded `call_data`, `gas_limit`, and `encoded_args` |
+
+<Note>
+  `use_depository` and `use_deposit_address` are mutually exclusive. Some networks support only a subset
+  of modes (e.g. Starknet and TON support only the transfer flow) — see each chain guide.
+</Note>
+
+## Deposit action schema
+
+Each item in the `deposit_actions` array has the following structure:
+
+<ResponseField name="type" type="string">
+  Either `transfer` (submit a transaction built from `call_data`) or `manual_transfer` (send funds to a
+  generated deposit address; `call_data` is `null`).
+</ResponseField>
+
+<ResponseField name="to_address" type="string">
+  The transaction target — the solver address, a generated deposit address, or the Depository contract,
+  depending on the funding mode.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  The amount to send in human-readable units (e.g. `0.1` ETH, not wei). `0` for ERC20 depository deposits
+  (the amount is carried inside `call_data`).
+</ResponseField>
+
+<ResponseField name="amount_in_base_units" type="string">
+  The amount in the token's smallest unit (wei for ETH, satoshi for BTC, …). For native transfers, send
+  this as the transaction value.
+</ResponseField>
+
+<ResponseField name="call_data" type="string | null">
+  Blockchain-specific payload used to construct the transaction. `null` for `manual_transfer`. The format
+  varies by chain — see the guides below.
+</ResponseField>
+
+<ResponseField name="network" type="object">
+  The source network object, including `name`, `type`, `chain_id`, and `node_url`.
+</ResponseField>
+
+<ResponseField name="token" type="object">
+  The token being deposited, including `symbol`, `decimals`, and `contract` (null for native tokens).
+</ResponseField>
+
+<ResponseField name="fee_token" type="object">
+  The token used to pay transaction fees on this network.
+</ResponseField>
+
+<ResponseField name="order" type="number">
+  Execution order. There is normally a single action; if more than one is returned, execute them in
+  ascending `order`.
+</ResponseField>
+
+<ResponseField name="gas_limit" type="string">
+  Suggested gas limit for the contract call. Returned only for **Depository** deposits.
+</ResponseField>
+
+<ResponseField name="encoded_args" type="string[]">
+  The individual, decoded contract-call arguments, for integrators who prefer to build the call
+  themselves. Returned only for **Depository** deposits.
+</ResponseField>
+
+## Step-by-step flow
+
+<Steps>
+  <Step title="Create a swap">
+    Call [`POST /api/v2/swaps`](/api-reference/swaps/create-swap). The response contains the
+    `deposit_actions` array.
+
+    ```bash
+    curl -X POST https://api.layerswap.io/api/v2/swaps \
+      -H "X-LS-APIKEY: $LAYERSWAP_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "source_network": "ETHEREUM_MAINNET",
+        "source_token": "ETH",
+        "destination_network": "ARBITRUM_MAINNET",
+        "destination_token": "ETH",
+        "destination_address": "0xRecipient",
+        "source_address": "0xSender",
+        "amount": 0.1,
+        "use_deposit_address": false
+      }'
+    ```
+  </Step>
+  <Step title="Read the deposit action">
+    Take the first action (or iterate in `order`):
+
+    ```javascript
+    const action = swap.deposit_actions[0];
+    const { type, to_address, amount_in_base_units, call_data, network, token } = action;
+    ```
+  </Step>
+  <Step title="Submit the transaction">
+    Build and broadcast the transaction on the source chain using `call_data`, `to_address`, and the
+    amount. The mechanics differ per chain — follow the matching guide below (and
+    [Depository](/api-reference/depository) for depository deposits).
+
+    <Warning>
+      Submit the returned `call_data` **verbatim**. It encodes the swap `id` and the assigned receiver;
+      altering it means Layerswap can't match your deposit to the swap.
+    </Warning>
+  </Step>
+  <Step title="Speed up matching (optional)">
+    Report the transaction hash so Layerswap matches it without waiting for routine polling:
+
+    ```bash
+    curl -X POST https://api.layerswap.io/api/v2/swaps/{swap_id}/deposit_speedup \
+      -H "X-LS-APIKEY: $LAYERSWAP_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{ "transaction_id": "0xYourTransactionHash" }'
+    ```
+  </Step>
+  <Step title="Track the swap">
+    Poll [`GET /api/v2/swaps/{swapId}`](/api-reference/swaps/get-swap-details) and follow the
+    [swap lifecycle](/api-reference/swap-lifecycle) to completion.
+  </Step>
+</Steps>
+
+## call_data format by chain
+
+The `call_data` format depends on the source blockchain:
+
+| Blockchain | call_data format | Guide |
+| --- | --- | --- |
+| EVM (Ethereum, Arbitrum, Base, …) | Hex-encoded transaction data (`0x…`) | [EVM](/api-reference/deposit-actions/evm) |
+| Bitcoin | Numeric memo, embedded as `OP_RETURN` | [Bitcoin](/api-reference/deposit-actions/bitcoin) |
+| Solana | Base64-encoded serialized transaction | [Solana](/api-reference/deposit-actions/solana) |
+| Starknet | JSON array of Starknet calls | [Starknet](/api-reference/deposit-actions/starknet) |
+| TON | JSON object with `comment` (and `amount` for Jettons) | [TON](/api-reference/deposit-actions/ton) |
+| Tron | Memo, hex-encoded into the transaction data | [Tron](/api-reference/deposit-actions/tron) |
+| Fuel | JSON object with `script` and `quantities` | [Fuel](/api-reference/deposit-actions/fuel) |
+
+For funding via the on-chain contract (`use_depository: true`), see the
+[Depository](/api-reference/depository) guide.
