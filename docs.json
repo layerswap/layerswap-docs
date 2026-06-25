@@ -133,10 +133,12 @@
               "integration/API",
               {
                 "group": "Deposit Actions",
+                "icon": "paper-plane",
                 "pages": [
                   "api-reference/deposit-actions/overview",
                   {
                     "group": "Deposit methods",
+                    "icon": "money-bill-transfer",
                     "pages": [
                       "api-reference/deposit-actions/choosing-a-method",
                       "api-reference/depository"
@@ -144,6 +146,7 @@
                   },
                   {
                     "group": "Network support",
+                    "icon": "network-wired",
                     "pages": [
                       "api-reference/deposit-actions/evm",
                       "api-reference/deposit-actions/bitcoin",
