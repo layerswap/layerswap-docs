@@ -3,6 +3,8 @@ title: 'EVM Chains'
 description: 'Execute deposit transactions on Ethereum, Arbitrum, Optimism, Base, Polygon, and other EVM-compatible networks.'
 ---
 
+import DepositoryDepositEvm from "/snippets/depository-deposit-evm.mdx";
+
 ## Overview
 
 This guide covers all EVM-compatible networks supported by Layerswap, including Ethereum, Arbitrum, Optimism, Base, Polygon, Linea, zkSync Era, Scroll, and others.
@@ -159,6 +161,17 @@ async function executeEvmDeposit(depositAction, wagmiConfig) {
 <Note>
   When using a browser wallet ([wagmi](https://wagmi.sh/)), ensure the user is connected to the correct chain (`network.chain_id`). If not, prompt them to switch networks before sending the transaction.
 </Note>
+
+## Funding via the Depository
+
+The example above covers the **direct transfer** and **deposit address** methods. If you created the swap
+with `use_depository: true`, the deposit action targets the on-chain
+[Depository](/api-reference/depository) contract instead — submit its `call_data`, and for ERC-20 approve
+the contract first:
+
+<DepositoryDepositEvm />
+
+See [Choosing a method](/api-reference/deposit-actions/choosing-a-method) for when to use each.
 
 ## Next Step
 

@@ -131,13 +131,19 @@
             "group": "Documentation",
             "pages": [
               "integration/API",
-              "api-reference/depository",
               {
                 "group": "Deposit Actions",
                 "pages": [
                   "api-reference/deposit-actions/overview",
                   {
-                    "group": "Blockchains",
+                    "group": "Deposit methods",
+                    "pages": [
+                      "api-reference/deposit-actions/choosing-a-method",
+                      "api-reference/depository"
+                    ]
+                  },
+                  {
+                    "group": "Network support",
                     "pages": [
                       "api-reference/deposit-actions/evm",
                       "api-reference/deposit-actions/bitcoin",

@@ -3,6 +3,8 @@ title: 'Tron'
 description: 'Execute deposit transactions on Tron for TRC-20 token transfers.'
 ---
 
+import DepositoryDepositTron from "/snippets/depository-deposit-tron.mdx";
+
 ## Overview
 
 Tron deposits require building a TRC-20 token transfer transaction using TronWeb, then appending the `call_data` as hex-encoded data before signing and broadcasting.
@@ -132,6 +134,16 @@ async function executeTronDeposit(
 }
 ```
 </CodeGroup>
+
+## Funding via the Depository
+
+The example above covers the standard transfer flow. If you created the swap with `use_depository: true`,
+the deposit action targets Layerswap's on-chain [Depository](/api-reference/depository) contract. On Tron
+the Depository supports **TRC-20 tokens only** — approve the contract, then call `depositERC20`:
+
+<DepositoryDepositTron />
+
+See [Choosing a method](/api-reference/deposit-actions/choosing-a-method) for when to use each.
 
 ## Next Step
 

@@ -1,0 +1,40 @@
+---
+title: 'Choosing a deposit method'
+sidebarTitle: 'Choosing a method'
+description: 'The three ways to fund a swap — direct transfer, deposit address, and depository — and when to use each.'
+---
+
+When you create a swap, you choose how it will be funded. The method you pick (set on
+[`POST /api/v2/swaps`](/api-reference/swaps/create-swap)) determines the
+[deposit action](/api-reference/deposit-actions/overview) you get back and how you submit it.
+
+## The three methods
+
+| Method | Set on swap creation | How you fund the swap | Best for |
+| --- | --- | --- | --- |
+| **Direct transfer** | *(default — neither flag)* | Submit the returned `call_data` to the solver's address with your wallet | Simple EOA wallets sending their own funds |
+| **Deposit address** | `use_deposit_address: true` | Send funds to a generated address — from any wallet or exchange (a `manual_transfer` action, no `call_data`) | Custodial flows, exchanges, or letting a user pay from anywhere |
+| **Depository** | `use_depository: true` | Call Layerswap's on-chain [Depository](/api-reference/depository) contract with the prepared `call_data` | Aggregators; smart-contract, server, and programmable wallets; deterministic, batchable funding |
+
+<Note>
+  `use_depository` and `use_deposit_address` are mutually exclusive — setting both is rejected.
+</Note>
+
+## When to use each
+
+- **Direct transfer** — the simplest path when the end user signs with a normal wallet and is sending
+  their own funds. You get a ready-to-send transaction (`to_address` + `call_data`).
+- **Deposit address** — when funds arrive from somewhere you don't build the transaction for: a
+  centralized exchange, a custodian, or a user "sending from anywhere." You just display the address and
+  amount; there is no `call_data`.
+- **Depository** — the most robust path for programmatic integrations: a single contract call (with the
+  swap `id` baked into `call_data`) that works cleanly for smart-contract and server wallets, and lets you
+  batch the ERC-20 approval with the deposit. Supported on **EVM and Tron**. See
+  [Depository](/api-reference/depository).
+
+## Next
+
+- **Execute on your source chain** — per-chain guides under Network support, e.g.
+  [EVM](/api-reference/deposit-actions/evm).
+- **Fund via the contract** — [Depository](/api-reference/depository).
+- **The deposit action object & fields** — [Overview](/api-reference/deposit-actions/overview).

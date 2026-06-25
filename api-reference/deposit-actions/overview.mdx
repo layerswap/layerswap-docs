@@ -1,5 +1,6 @@
 ---
 title: 'Deposit Actions'
+sidebarTitle: 'Overview'
 description: 'Execute the on-chain deposit that funds a swap — the deposit action object, the funding modes, and the per-chain execution guides.'
 ---
 
@@ -17,13 +18,15 @@ below show how to build and submit the transaction on each blockchain. For the e
 
 ## Funding modes
 
-How you fund a swap — chosen when you create it — determines the deposit action you get back:
+The method you choose when creating the swap determines the deposit action you receive:
 
-| Funding method | Set on swap creation | Deposit action you receive |
-| --- | --- | --- |
-| **Direct transfer** (default) | neither flag | `type: "transfer"` to the solver address, with `call_data` |
-| **Deposit address** | `use_deposit_address: true` | `type: "manual_transfer"` — a generated address, `call_data: null` |
-| **Depository contract** | `use_depository: true` | `type: "transfer"` to the [Depository](/api-reference/depository) contract, with encoded `call_data`, `gas_limit`, and `encoded_args` |
+- **Direct transfer** (default) and **Depository** (`use_depository: true`) return a `type: "transfer"`
+  action with `call_data` to submit (Depository also adds `gas_limit` and `encoded_args`).
+- **Deposit address** (`use_deposit_address: true`) returns a `type: "manual_transfer"` action — a
+  generated address with `call_data: null`.
+
+See [Choosing a method](/api-reference/deposit-actions/choosing-a-method) for the full comparison and when
+to use each.
 
 <Note>
   `use_depository` and `use_deposit_address` are mutually exclusive. Some networks support only a subset

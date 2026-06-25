@@ -1,0 +1,25 @@
+```ts viem
+import { createWalletClient, custom, parseAbi } from "viem";
+
+// `swap` is the POST /api/v2/swaps response
+const action = swap.deposit_actions[0];
+const wallet = createWalletClient({ transport: custom(window.ethereum) });
+
+// ERC-20 only: approve the Depository (to_address) to pull the tokens.
+// The amount is the 4th depositERC20 argument, returned in encoded_args.
+if (action.token.contract) {
+  await wallet.writeContract({
+    address: action.token.contract,
+    abi: parseAbi(["function approve(address spender, uint256 amount) returns (bool)"]),
+    functionName: "approve",
+    args: [action.to_address, BigInt(action.encoded_args[3])],
+  });
+}
+
+// Submit the prepared depositNative / depositERC20 call exactly as returned
+await wallet.sendTransaction({
+  to: action.to_address, // the Depository contract
+  data: action.call_data,
+  value: BigInt(action.amount_in_base_units), // 0 for ERC-20, the deposit amount for native
+});
+```
