@@ -4061,9 +4061,6 @@ export const DepositWidget = () => {
                                             <a href="https://x.com/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
                                                 X
                                             </a>
-                                            <a href="https://discord.com/invite/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
-                                                Discord
-                                            </a>
                                             <a href="https://github.com/layerswap" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 transition hover:text-brand! border-none">
                                                 GitHub
                                             </a>
