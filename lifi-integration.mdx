@@ -327,3 +327,71 @@ Example deposit action response:
 Example input transaction: [`0ecfb9b7...9e1532`](https://mempool.space/tx/0ecfb9b7117b34fb7c1881a3615bbe5208881293956892f5af11b13bb89e1532). The `OP_RETURN` scriptpubkey is `6a06616138643331` — `6a` is `OP_RETURN`, `06` is the push length, and `616138643331` is the ASCII string `aa8d31`. That string is `Number("11177265").toString(16)` — i.e. `call_data = "11177265"`, hex string = `"aa8d31"`, embedded as the six ASCII bytes `61 61 38 64 33 31`.
 
 <Note>`gas_limit` and `encoded_args` are not applicable for Bitcoin.</Note>
+
+## 7. Deposit Actions — Solana
+
+For Solana, the API returns a **fully constructed, serialized transaction** in `call_data`. It already contains the transfer (native SOL or SPL token) to the Layerswap deposit target **plus a Memo instruction** carrying the value Layerswap uses to identify and match the deposit. The recommended path is to decode it, refresh the blockhash, sign, and send — do not rebuild it.
+
+- `to_address` — the Solana address to send funds to (a Layerswap managed account, or a generated deposit address)
+- `call_data` — a **base64‑encoded Solana `Transaction`** containing the transfer instruction **plus a top‑level Memo instruction**. Decode it, set a fresh blockhash, sign, and send.
+- `amount` — the SOL/SPL amount to send (decimal)
+- `amount_in_base_units` — the amount in the token's smallest unit (lamports for SOL) as a string
+
+```javascript
+const buffer = Buffer.from(call_data, "base64");
+const transaction = Transaction.from(buffer);
+
+const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+transaction.recentBlockhash = blockhash;
+transaction.lastValidBlockHeight = lastValidBlockHeight;
+// sign with the sender's keypair / wallet adapter, then send
+```
+
+<Note>Layerswap matches the source transaction to the swap by reading a **top‑level Memo instruction** (via the [SPL Memo program](https://spl.solana.com/memo)) whose UTF‑8 content equals the swap's numeric memo — the swap `sequence_number` returned by `POST /api/v2/swaps`. This is the Solana equivalent of Bitcoin's `OP_RETURN`, and it works identically for native SOL and SPL‑token deposits. The memo **must** be a top‑level instruction — a memo emitted from inside another program (via CPI / inner instruction) is not read. A deposit that reaches the correct address but omits the memo will not be matched and the swap will expire. Submitting the `call_data` transaction as‑is guarantees the memo is present and correct.</Note>
+
+Example deposit action response:
+```json
+{
+  "deposit_actions": [
+    {
+      "order": 0,
+      "type": "transfer",
+      "to_address": "6H7GCfCx8JMUACbmSYZjConeJGzViPHhMvvYak5SDDBe",
+      "amount": 0.1,
+      "amount_in_base_units": "100000000",
+      "network": { "name": "SOLANA_MAINNET", "type": "solana", "..." : "..." },
+      "token": { "symbol": "SOL", "decimals": 9, "..." : "..." },
+      "fee_token": { "symbol": "SOL", "decimals": 9, "..." : "..." },
+      "call_data": "<base64-encoded Solana Transaction: transfer + Memo>"
+    }
+  ]
+}
+```
+
+### Building the transaction yourself
+
+If you construct the deposit transaction instead of submitting `call_data`, you must satisfy **both** conditions:
+
+1. Send the funds to `to_address` (native SOL via the System program, or SPL tokens to the recipient's associated token account).
+2. Add the swap's `sequence_number` as a **top‑level** instruction through the **SPL Memo program**.
+
+```typescript
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+
+// SPL Memo program (the same program id Layerswap uses in its own deposit transactions)
+const MEMO_PROGRAM_ID = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
+
+// swap.sequence_number from the POST /api/v2/swaps response
+const memoInstruction = new TransactionInstruction({
+  keys: [{ pubkey: sender, isSigner: true, isWritable: true }],
+  programId: MEMO_PROGRAM_ID,
+  data: Buffer.from(String(swap.sequence_number), "utf8"),
+});
+
+transaction.add(transferInstruction);
+transaction.add(memoInstruction); // top-level, alongside the transfer
+```
+
+Example input transaction: [`4vcSWa…9PMcrF8`](https://solscan.io/tx/4vcSWaBVGHksBH355w8JVZA3YE8jbjnZKBtYyNP1eUBpsU7RJAGoGXJJVgD1B7kgoP8BdbsNfJM4QGSLU9PMcrF8). It has two top‑level instructions: a transfer to the Layerswap deposit address, and a **Memo** instruction whose data is the string `12640051` — the swap's `sequence_number`. That memo is what links the deposit to the swap.
+
+<Note>`gas_limit` and `encoded_args` are not applicable for Solana.</Note>
