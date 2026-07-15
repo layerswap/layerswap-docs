@@ -15,7 +15,7 @@ graph TD
     D --> l4([Success]) --> E([completed])
     D --> l5([Below minimum]) --> F([failed])
     D --> l6([Execution failed]) --> R{refund_address?}
-    R --> |Yes| G([refund_pending])
+    R --> |Yes| G([pending_refund])
     R -.-> |No| M([Retries])
     G --> l7([Confirmed]) --> H([refunded])
 
@@ -52,7 +52,7 @@ Layerswap is processing the swap. If something goes wrong during execution:
 
 - If deposited amount is **below the minimum** → `failed`
 - If the swap cannot be completed for any other reason (e.g. price moved beyond slippage tolerance) → Layerswap **retries automatically**.
-  - **With `refund_address`** → if retries are exhausted, moves to `refund_pending`
+  - **With `refund_address`** → if retries are exhausted, moves to `pending_refund`
   - **Without `refund_address`** → Layerswap keeps retrying. The swap remains in `ls_transfer_pending` until resolved.
 - If execution succeeds → `completed`
 
@@ -60,7 +60,7 @@ Layerswap is processing the swap. If something goes wrong during execution:
 
 Funds are delivered to the destination address.
 
-### 4. `refund_pending` → `refunded`
+### 4. `pending_refund` → `refunded`
 
 Refund is sent to `refund_address` on the source chain in the source token, **minus gas fees**. If the refund amount is less than the gas fee, no refund is issued. See the [Refunds](/api-reference/refunds) page for details.
 
