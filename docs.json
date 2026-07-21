@@ -132,6 +132,7 @@
             "pages": [
               "integration/API",
               "api-reference/depository",
+              "api-reference/gasless-swaps",
               {
                 "group": "Swap lifecycle",
                 "icon": "arrows-spin",

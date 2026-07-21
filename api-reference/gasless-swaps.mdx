@@ -1,0 +1,262 @@
+---
+title: "Gasless Swaps"
+description: "Let users fund a swap by signing an off-chain message instead of sending an on-chain transaction — Layerswap's paymaster broadcasts the deposit and pays the gas."
+icon: signature
+---
+
+## Overview
+
+With a **gasless swap**, the user never broadcasts a deposit transaction and never needs the network's
+native token for gas. Instead they **sign a single off-chain message** (an [EIP-712](https://eips.ethereum.org/EIPS/eip-712)
+typed-data payload), and Layerswap's **paymaster** broadcasts the on-chain deposit on their behalf and
+pays the gas. From the deposit onward the swap follows the normal [swap lifecycle](/api-reference/swap-lifecycle).
+
+This is ideal when the user holds only the token they want to swap (e.g. USDC) and no native gas token,
+or when you want to remove the "top up for gas first" step from your flow entirely.
+
+<Info>
+Gasless is a **funding method**, alongside the [Depository](/api-reference/depository), a generated
+deposit address, and a direct transfer. You opt into it per swap with `use_gasless: true` — and, so the
+quote reflects it, on the quote and limit endpoints as well (see [Request a gasless quote](#request-a-gasless-quote)).
+</Info>
+
+| Funding method | How the user funds | Native gas needed? |
+| --- | --- | --- |
+| **Gasless** (`use_gasless: true`) | Signs an off-chain EIP-712 message; the paymaster deposits | **No** — paymaster pays |
+| **Depository** (`use_depository: true`) | Calls a contract with pre-encoded `call_data` | Yes |
+| **Deposit address** (`use_deposit_address: true`) | Sends funds to a generated address | Yes |
+| **Direct transfer** (default) | Transfers to the solver's address | Yes |
+
+## Supported gasless route types
+
+Whether a token can be deposited gaslessly depends on the **signature standard** its contract
+implements. Layerswap auto-detects this per token and picks one:
+
+| Standard | How it works | Notes |
+| --- | --- | --- |
+| **EIP-3009** (`receiveWithAuthorization`) | One signature authorizes a pull from the signer to the paymaster — no prior approval. | Preferred when available (e.g. USDC-style tokens). |
+| **ERC-2612** (`permit`) | The signature grants an allowance; the paymaster then pulls the funds. | EOA signers only (standard `permit` is `v,r,s` ecrecover). |
+| **Permit2** | — | **Not supported.** It requires a one-time on-chain approval, so it can't be fully gasless; these tokens report as non-gasless. |
+
+<Note>
+**You do not need to know which standard a token uses.** The gasless deposit action returns a ready-to-sign
+`typed_data` payload with the correct EIP-712 domain, types, and message for that token — you sign it as-is.
+Nonces and expiries are handled by Layerswap.
+</Note>
+
+### Which tokens are gasless
+
+A token is gasless-capable when its `supports_gasless_deposit` flag is `true` in the quote /
+[networks](/networks-tokens) responses, and the network has a paymaster + [Depository](/api-reference/depository)
+deployed. Gasless is **EVM-only** today. Always read `supports_gasless_deposit` at runtime rather than
+hard-coding a token list — the set grows over time.
+
+## Request a gasless quote
+
+Gasless isn't free to the sender: Layerswap fronts the source-chain gas and recovers it as a fee folded
+into the quote's `blockchain_fee` / `total_fee` (and therefore deducted from `receive_amount`). Because of
+that, **you must pass `use_gasless=true` on the quote and limit endpoints** — otherwise you'll get a
+non-gasless quote whose `receive_amount` is too high for a swap you intend to complete gaslessly.
+
+`use_gasless` is supported on:
+
+- `GET /api/v2/quote`
+- `GET /api/v2/detailed_quote`
+- `GET /api/v2/limits`
+
+<CodeGroup>
+```bash Gasless quote
+curl "https://api.layerswap.io/api/v2/quote?\
+source_network=ETHEREUM_MAINNET&source_token=USDC&\
+destination_network=ARBITRUM_MAINNET&destination_token=ETH&\
+amount=100&use_gasless=true" \
+  -H "X-LS-APIKEY: $LAYERSWAP_API_KEY"
+```
+```bash Regular quote (for comparison)
+curl "https://api.layerswap.io/api/v2/quote?\
+source_network=ETHEREUM_MAINNET&source_token=USDC&\
+destination_network=ARBITRUM_MAINNET&destination_token=ETH&\
+amount=100&use_gasless=false" \
+  -H "X-LS-APIKEY: $LAYERSWAP_API_KEY"
+```
+</CodeGroup>
+
+The gasless request returns a larger `blockchain_fee` (and correspondingly smaller `receive_amount`) — the
+difference is the paymaster's deposit gas. See [Fees](/fees) for how fees are composed.
+
+<Warning>
+Quote and create must agree. A swap created **without** `use_gasless: true` cannot be completed gaslessly
+(there's no signature action to authorize). Conversely, if you create with `use_gasless: true` the swap is
+priced with the gasless fee regardless of what you passed to the quote — so quote it gasless too, or the
+`receive_amount` you showed the user won't match.
+</Warning>
+
+## Integration flow
+
+<Steps>
+  <Step title="Create the swap with use_gasless">
+    Pass `use_gasless: true` in the create request. The swap is priced with the gasless fee and marked as
+    a gasless deposit.
+  </Step>
+  <Step title="Fetch the deposit actions with the signer address">
+    Call `GET /api/v2/swaps/{swapId}/deposit_actions?source_address=<signer>`. For a gasless swap this
+    returns a **`sign`** action containing the `typed_data` to sign. The `source_address` is required — it's
+    the wallet that holds the funds and will sign (it is not stored at create time).
+  </Step>
+  <Step title="Sign the typed data">
+    Have the wallet sign the returned `typed_data` with `eth_signTypedData_v4`.
+  </Step>
+  <Step title="Submit the signature">
+    `POST /api/v2/swaps/{swapId}/authorize` with the `signature` and `signer_address`. Layerswap verifies
+    the signature, then the paymaster broadcasts the deposit and pays the gas.
+  </Step>
+  <Step title="Track status (optional)">
+    Poll `GET /api/v2/swaps/{swapId}/authorize` for the authorization status and, once published, the
+    on-chain transaction. The swap itself then progresses through the normal lifecycle.
+  </Step>
+</Steps>
+
+### 1. Create the swap
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps \
+  -H "X-LS-APIKEY: $LAYERSWAP_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_network": "ETHEREUM_MAINNET",
+    "source_token": "USDC",
+    "destination_network": "ARBITRUM_MAINNET",
+    "destination_token": "ETH",
+    "destination_address": "0xYourRecipient",
+    "amount": 100,
+    "use_gasless": true
+  }'
+```
+
+See [Create Swap](/api-reference/swaps/create-swap) for the full schema. You don't need to set
+`use_depository` — gasless settles through the Depository automatically. Do **not** combine `use_gasless`
+with `use_deposit_address`.
+
+### 2. Fetch the deposit actions
+
+```bash
+curl "https://api.layerswap.io/api/v2/swaps/$SWAP_ID/deposit_actions?source_address=$SIGNER_ADDRESS" \
+  -H "X-LS-APIKEY: $LAYERSWAP_API_KEY"
+```
+
+For a gasless swap the action's `type` is **`sign`**:
+
+| Field | Meaning |
+| --- | --- |
+| `type` | `"sign"` — the user signs `typed_data`; no transaction to submit |
+| `typed_data` | The full EIP-712 payload to sign with `eth_signTypedData_v4` |
+| `to_address` | The paymaster (the `to` / `spender` inside the signed message) |
+| `amount` / `amount_in_base_units` | The deposit amount being authorized |
+| `token` | The token being deposited (`symbol`, `contract`, `decimals`) |
+| `fee_token` | The network's gas asset (paid by the paymaster) |
+| `valid_after` / `valid_before` | The signed authorization's validity window (Unix seconds) |
+| `nonce` | The authorization nonce (managed by Layerswap) |
+
+```json
+{
+  "order": 0,
+  "type": "sign",
+  "to_address": "0x<Paymaster>",
+  "amount": 100,
+  "amount_in_base_units": "100000000",
+  "token": { "symbol": "USDC", "contract": "0x<tokenContract>", "decimals": 6 },
+  "fee_token": { "symbol": "ETH", "contract": null, "decimals": 18 },
+  "valid_after": 0,
+  "valid_before": 1893456000,
+  "nonce": "0x<nonce>",
+  "typed_data": {
+    "types": { "EIP712Domain": [ /* ... */ ], "ReceiveWithAuthorization": [ /* ... */ ] },
+    "primaryType": "ReceiveWithAuthorization",
+    "domain": { "name": "USD Coin", "version": "2", "chainId": "1", "verifyingContract": "0x<tokenContract>" },
+    "message": { "from": "0x<signer>", "to": "0x<Paymaster>", "value": "100000000", "validAfter": "0", "validBefore": "1893456000", "nonce": "0x<nonce>" }
+  }
+}
+```
+
+<Note>
+For an ERC-2612 token the `typed_data` `primaryType` is `Permit` with a `Permit` type block instead of
+`ReceiveWithAuthorization` — but you handle both the same way: pass `typed_data` straight to
+`eth_signTypedData_v4`.
+</Note>
+
+### 3. Sign and submit
+
+```ts
+import { createWalletClient, custom } from "viem";
+
+const action = swap.deposit_actions.find(a => a.type === "sign");
+const wallet = createWalletClient({ transport: custom(window.ethereum) });
+
+// Sign the EIP-712 payload exactly as returned
+const signature = await window.ethereum.request({
+  method: "eth_signTypedData_v4",
+  params: [signerAddress, JSON.stringify(action.typed_data)],
+});
+
+// Submit — the paymaster broadcasts the deposit and pays gas
+await fetch(`https://api.layerswap.io/api/v2/swaps/${swapId}/authorize`, {
+  method: "POST",
+  headers: { "X-LS-APIKEY": apiKey, "Content-Type": "application/json" },
+  body: JSON.stringify({ signature, signer_address: signerAddress }),
+});
+```
+
+### 4. Track the authorization
+
+`GET /api/v2/swaps/{swapId}/authorize` returns:
+
+```json
+{ "status": "Published", "transaction": { "transaction_id": "0x...", "status": "Completed" } }
+```
+
+| `status` | Meaning |
+| --- | --- |
+| `Initiated` | The sign action was issued; awaiting / holding the signature |
+| `Published` | The paymaster's deposit transaction has been broadcast on-chain |
+| `Completed` | The deposit transaction confirmed — the swap proceeds normally |
+| `Expired` | The signed window lapsed before broadcast — fetch fresh deposit actions and re-sign |
+| `Insufficient` | The signer's balance no longer covers the deposit amount |
+| `Rejected` | Signature verification failed |
+
+## Important nuances
+
+- **Indicate gasless on the quote *and* limit endpoints.** `use_gasless=true` on `/quote`,
+  `/detailed_quote`, and `/limits` makes them include the gasless fee. Omitting it yields a non-gasless
+  quote with an inflated `receive_amount`.
+- **`source_address` is required** when fetching deposit actions for a gasless swap — it's the signer, and
+  it isn't persisted at create time.
+- **The signature standard is transparent.** Sign the returned `typed_data`; you never choose or construct
+  EIP-3009 vs ERC-2612 yourself, and you don't manage nonces.
+- **Authorizations expire** (a fixed validity window, ~30 minutes). If a swap sits unsigned past the window,
+  re-fetch the deposit actions to get a fresh payload and sign again.
+- **One authorization per swap.** A submitted signature is single-use per swap; it can be refreshed only
+  after it expires.
+- **Balance is checked** at authorize time and again before broadcast. If the signer can no longer cover
+  the amount the authorization is marked `Insufficient` and nothing is broadcast.
+- **Wallet support.** EOA (ECDSA) signers are supported everywhere. Smart-contract / account-abstraction
+  wallets are verified via [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and work on EIP-3009 tokens
+  whose contract supports contract-signature validation; ERC-2612 is EOA-only. If a wallet can't sign
+  gaslessly for a given token, fall back to a normal (non-gasless) deposit.
+
+## Common errors
+
+| Situation | What happens |
+| --- | --- |
+| `POST .../authorize` on a swap not created with `use_gasless: true` | Rejected — "no authorization request found; fetch the deposit actions first" |
+| Fetching gasless deposit actions without `source_address` | The sign action can't be built |
+| Signature that doesn't recover to `signer_address` | Rejected (`400`) at authorize |
+| Signer balance below the deposit amount | `400` at authorize; status `Insufficient` if it drops later |
+| Authorization submitted after `valid_before` | Expired — re-fetch deposit actions and re-sign |
+| `use_gasless` on a token/network without gasless support | `supports_gasless_deposit` is `false`; use another funding method |
+
+## Related
+
+- [Depository](/api-reference/depository) — the settlement contract gasless deposits flow through
+- [Fees](/fees) — how the gasless fee fits into the quote
+- [Get deposit actions](/api-reference/swaps/get-deposit-actions) — full response schema
+- [Swap lifecycle](/api-reference/swap-lifecycle) — what happens after the deposit
