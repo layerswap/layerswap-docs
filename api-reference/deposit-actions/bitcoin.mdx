@@ -14,13 +14,21 @@ Bitcoin deposits use a UTXO-based model. The `call_data` from the deposit action
 
 ## call_data Format
 
-For Bitcoin, `call_data` is a **numeric string** representing a memo identifier. Before embedding it into the transaction, convert it to a hex string:
+For Bitcoin, `call_data` is the swap's **numeric memo followed by a `;` terminator** — e.g. `"11177265;"`.
+Convert the numeric part to hex (use `BigInt` — `Number` can lose precision and chokes on the `;`) and
+keep the terminator and anything after it unchanged:
 
 ```javascript
-const hexMemo = Number(callData).toString(16);
+const raw = String(callData);          // e.g. "11177265;"
+const semi = raw.indexOf(";");
+const seq = semi === -1 ? raw : raw.slice(0, semi);  // "11177265"
+const tail = semi === -1 ? "" : raw.slice(semi);     // ";" plus anything after it
+const hexMemo = BigInt(seq).toString(16) + tail;     // "aa8d31;"
 ```
 
-This hex memo is embedded as an `OP_RETURN` output in the transaction.
+This memo string is embedded as an `OP_RETURN` output in the transaction. Layerswap reads only the part
+**before** the `;` to match the deposit, so you can append your own data after the terminator — as long
+as the whole `OP_RETURN` payload stays within the 80-byte limit.
 
 ## Transaction Construction
 
@@ -140,21 +148,30 @@ async function executeBitcoinDeposit(
   senderWIF: string,
   isTestnet = false
 ) {
-  const { call_data, to_address, amount } = depositAction;
+  const { call_data, to_address, amount, network } = depositAction;
   const version = isTestnet ? "testnet" : "mainnet";
   const network = isTestnet ? networks.testnet : networks.bitcoin;
   const amountSats = Math.floor(amount * 1e8);
 
-  // Convert numeric memo to hex for OP_RETURN
-  const hexMemo = Number(call_data).toString(16);
+  // Convert the numeric memo to hex for OP_RETURN, keeping the ";" terminator
+  const raw = String(call_data);
+  const semi = raw.indexOf(";");
+  const seq = semi === -1 ? raw : raw.slice(0, semi);
+  const tail = semi === -1 ? "" : raw.slice(semi);
+  const hexMemo = BigInt(seq).toString(16) + tail;
   const memoBuffer = Buffer.from(hexMemo, "utf8");
 
   if (memoBuffer.length > 80) {
     throw new Error("Memo too long; max 80 bytes for OP_RETURN");
   }
 
-  // Fetch UTXOs and fee rate
+  // Fetch UTXOs, their raw transactions (in parallel), and the fee rate
   const utxos = await fetchUtxos(senderAddress, version);
+  const rawTxMap = Object.fromEntries(
+    await Promise.all(
+      utxos.map(async (u) => [u.txid, await fetchRawTx(u.txid, version)] as const)
+    )
+  );
   const feeRate = await fetchFeeRate(version);
 
   // Iteratively build PSBT to account for fees
@@ -171,8 +188,7 @@ async function executeBitcoinDeposit(
 
     // Add inputs
     for (const utxo of selected) {
-      const rawTx = await fetchRawTx(utxo.txid, version);
-      const out = rawTx.outs[utxo.vout];
+      const out = rawTxMap[utxo.txid].outs[utxo.vout];
       psbt.addInput({
         hash: utxo.txid,
         index: utxo.vout,
@@ -222,14 +238,15 @@ async function executeBitcoinDeposit(
   psbt.finalizeAllInputs();
   const rawTxHex = psbt.extractTransaction().toHex();
 
-  // Broadcast via Mempool.space
-  const { data: txHash } = await axios.post(
-    `${MEMPOOL_BASE[version]}/api/tx`,
-    rawTxHex,
-    { headers: { "Content-Type": "text/plain" } }
-  );
+  // Broadcast through the network's node — node_url comes with the deposit action
+  const { data } = await axios.post(network.node_url, {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "sendrawtransaction",
+    params: [rawTxHex],
+  });
 
-  return txHash;
+  return data.result; // the transaction hash
 }
 ```
 
@@ -269,11 +286,20 @@ const signedPsbtHex = await walletProvider.request({
       },
     ],
     finalize: false,
+    sighashTypes: isTaproot ? [0] : [1],
   },
 });
 
 const signedPsbt = Psbt.fromHex(signedPsbtHex);
-signedPsbt.finalizeAllInputs();
+
+// Some wallets (e.g. MetaMask) return an already-finalized PSBT —
+// only finalize the inputs that still need it
+signedPsbt.data.inputs.forEach((input, i) => {
+  if (!input.finalScriptSig && !input.finalScriptWitness) {
+    signedPsbt.finalizeInput(i);
+  }
+});
+
 const rawTxHex = signedPsbt.extractTransaction().toHex();
 ```
 
