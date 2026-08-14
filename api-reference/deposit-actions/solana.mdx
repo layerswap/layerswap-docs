@@ -24,6 +24,15 @@ const buffer = Uint8Array.from(atob(callData), (c) => c.charCodeAt(0));
 const transaction = Transaction.from(buffer);
 ```
 
+<Note>
+  The pre-built transaction includes a **top-level [SPL Memo](https://spl.solana.com/memo) instruction**
+  whose UTF-8 content is the swap's `metadata.sequence_number` — this is how Layerswap matches your
+  deposit to the swap (the Solana equivalent of Bitcoin's `OP_RETURN`), and it works identically for
+  native SOL and SPL-token deposits. Refreshing the blockhash and signing is expected, but **don't drop
+  or alter the instructions** — a deposit that reaches `to_address` without the memo won't be matched and
+  the swap will expire. Submitting `call_data` as-is guarantees the memo is present and correct.
+</Note>
+
 ## Transaction Construction
 
 <Steps>
@@ -181,6 +190,34 @@ async function sendWithRetry(
 
   return txid;
 }
+```
+
+## Building the transaction yourself
+
+If you construct the deposit transaction yourself instead of submitting `call_data`, you must satisfy
+**both** conditions, or the deposit won't be matched:
+
+1. Send the funds to `to_address` — native SOL via the System program, or SPL tokens to the recipient's
+   associated token account.
+2. Add the swap's `metadata.sequence_number` as a **top-level** instruction through the
+   [SPL Memo program](https://spl.solana.com/memo). A memo emitted from inside another program (via
+   CPI / inner instruction) is **not** read.
+
+```typescript
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+
+// SPL Memo program (the same program id Layerswap uses in its own deposit transactions)
+const MEMO_PROGRAM_ID = new PublicKey("Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo");
+
+// swap.metadata.sequence_number from the POST /api/v2/swaps response
+const memoInstruction = new TransactionInstruction({
+  keys: [{ pubkey: sender, isSigner: true, isWritable: true }],
+  programId: MEMO_PROGRAM_ID,
+  data: Buffer.from(String(swap.metadata.sequence_number), "utf8"),
+});
+
+transaction.add(transferInstruction);
+transaction.add(memoInstruction); // top-level, alongside the transfer
 ```
 
 ## Next Step

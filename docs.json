@@ -132,21 +132,18 @@
             "pages": [
               "integration/API",
               {
-                "group": "Deposit Actions",
-                "icon": "paper-plane",
+                "group": "Sending the deposit",
                 "pages": [
                   "api-reference/deposit-actions/overview",
                   {
                     "group": "Deposit methods",
-                    "icon": "money-bill-transfer",
                     "pages": [
                       "api-reference/deposit-actions/choosing-a-method",
                       "api-reference/depository"
                     ]
                   },
                   {
-                    "group": "Network support",
-                    "icon": "network-wired",
+                    "group": "By network",
                     "pages": [
                       "api-reference/deposit-actions/evm",
                       "api-reference/deposit-actions/bitcoin",
@@ -161,7 +158,6 @@
               },
               {
                 "group": "Swap lifecycle",
-                "icon": "arrows-spin",
                 "pages": [
                   "api-reference/swap-lifecycle",
                   "api-reference/refunds"

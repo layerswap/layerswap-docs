@@ -1,77 +1,25 @@
 ---
 title: 'API Integration'
-description: 'Move tokens across chains with the Layerswap API: discover routes, quote, create a swap, execute the deposit, and track it to completion.'
-icon: server
+description: 'Bridge tokens across networks with the Layerswap API — quote a route, create a swap, send the deposit, and track it to completion.'
 ---
 
 ## Overview
 
-The Layerswap API moves tokens across chains programmatically. The flow is the same for every route:
-**discover** a route, request a **quote**, **create** a swap, submit one on-chain **deposit** on the
-source chain, and Layerswap **delivers** the funds on the destination chain — then you **track** the swap
-to completion.
+Layerswap bridges tokens across networks through a REST API: you **quote** a route, **create** a swap,
+submit one **deposit** transaction on the source network, and **track** it while Layerswap delivers on the
+destination.
 
 - **Base URL:** `https://api.layerswap.io`
-- **API key (optional):** include your key in the `X-LS-APIKEY` header to attribute swaps to your
-  account (for analytics and reporting). Create one on the [API Keys](/api-keys) page.
-- **Endpoints:** every endpoint, with request/response schemas, is in the **Endpoints** section of this
-  tab — and is linked inline throughout this guide.
+- **API key (optional):** send it in the `X-LS-APIKEY` header to attribute swaps to your account and get
+  higher rate limits. Create one on the [API Keys](/api-keys) page.
 
-## Core concepts
+## 1. Get a quote
 
-| Term | Meaning |
-| --- | --- |
-| **Network** | A blockchain, identified by name (`ETHEREUM_MAINNET`, `ARBITRUM_MAINNET`, …). EVM networks also accept their numeric `chain_id`. |
-| **Token** | An asset on a network, identified by **symbol** or **contract address**. Prefer the contract address — see the warning in step 1. |
-| **Route** | A supported `(source network, source token) → (destination network, destination token)` pair. |
-| **Quote** | The expected output amount, fees, and duration for a given input amount. |
-| **Swap** | A single cross-chain transfer you create. It moves through a [lifecycle](/api-reference/swap-lifecycle) from creation to completion. |
-| **Deposit action** | The exact on-chain transaction to submit on the source chain to fund a swap. Returned with the swap — see [Deposit Actions](/api-reference/deposit-actions/overview). |
-| **Depository** | An optional Layerswap contract you can fund through instead of a plain transfer — ideal for smart-contract, server, and programmable wallets. See [Depository](/api-reference/depository). |
+Start with a quote for the exact route and amount you want. It returns the amount you'll receive, the
+fees, and the estimated time — and tells you whether the route is supported.
 
-## 1. Discover routes & tokens
-
-Find which networks and tokens you can bridge between, and the amount limits for a route.
-
-| Endpoint | Returns |
-| --- | --- |
-| [`GET /api/v2/sources`](/api-reference/swaps/get-sources) | Source networks and their tokens (optionally filtered by `destination_network` / `destination_token`) |
-| [`GET /api/v2/destinations`](/api-reference/swaps/get-destinations) | Destination networks and their tokens (optionally filtered by `source_network` / `source_token`) |
-| [`GET /api/v2/limits`](/api-reference/swaps/get-swap-route-limits) | `min_amount` / `max_amount` (and their USD values) for a specific route |
-
-Each token in the `/sources` and `/destinations` response includes `symbol`, `contract`, `decimals`,
-`price_in_usd`, `status`, and `group` — the **token family** (e.g. `ETH`, `USDC`, `USDT`) that ties a
-token's variants together across networks.
-
-<Warning>
-  **Identify tokens by contract address, not by a hard-coded symbol.** A token's `symbol` is a display
-  label and can change — Arbitrum's USDT was renamed to **USDT0**, so a hard-coded
-  `"source_token": "USDT"` silently stops matching. The contract address is stable. Either pass the
-  **contract address** as `source_token` / `destination_token`, or fetch the live token list from
-  `/sources` and resolve by the `group` field. **Don't hard-code symbols, contract addresses, or
-  decimals — discover them.**
-</Warning>
-
-```js
-const sources = await fetch("https://api.layerswap.io/api/v2/sources", {
-  headers: { "X-LS-APIKEY": process.env.LAYERSWAP_API_KEY },
-}).then((r) => r.json());
-
-// Resolve the USDT-family token on Arbitrum by its `group`, not its symbol —
-// this stays correct even though Arbitrum's USDT is now displayed as USDT0.
-const arbitrum = sources.data.find((n) => n.name === "ARBITRUM_MAINNET");
-const usdt = arbitrum.tokens.find((t) => t.group === "USDT");
-
-usdt.symbol;   // "USDT0"  → display label, may change
-usdt.contract; // "0x..."  → stable identifier, use this as source_token
-```
-
-The full catalog is also browsable at [Networks & Tokens](/networks-tokens).
-
-## 2. Get a quote
-
-[`GET /api/v2/quote`](/api-reference/swaps/get-quote) returns the expected output, fees, and duration for
-a given `amount`, without creating a swap — provide the route plus an `amount`. Example response:
+[`GET /api/v2/quote`](/api-reference/swaps/get-quote) — pass the source and destination network and token,
+plus an `amount`:
 
 ```json
 {
@@ -91,18 +39,25 @@ a given `amount`, without creating a swap — provide the route plus an `amount`
 }
 ```
 
-See [Fees](/fees) for how fees are composed.
+<Warning>
+  **Identify tokens by contract address, not a hard-coded symbol.** A symbol is a display label and can
+  change — Arbitrum's USDT is now `USDT0`, so a hard-coded `"source_token": "USDT"` silently stops
+  matching. Pass the **contract address**, or look the token up from `/sources`
+  ([see below](#discovering-routes--tokens)). Don't hard-code symbols or decimals — read them from the API.
+</Warning>
 
-## 3. Create the swap
+See [Fees](/fees) for how the fee fields are composed.
 
-[`POST /api/v2/swaps`](/api-reference/swaps/create-swap) creates the swap and returns it together with the
-`deposit_actions` you'll execute next. Choose **one** funding method:
+## 2. Create the swap
+
+[`POST /api/v2/swaps`](/api-reference/swaps/create-swap) creates the swap and returns the `deposit_actions`
+you'll send next. Choose **one** funding method:
 
 | Funding method | Set | Best for |
 | --- | --- | --- |
-| **Direct transfer** (default) | neither flag | Simple EOA wallets transferring to the solver |
-| **Deposit address** | `use_deposit_address: true` | Exchanges, custodial flows, users sending from anywhere |
-| **Depository contract** | `use_depository: true` | Aggregators; smart-contract, server, and programmable wallets — see [Depository](/api-reference/depository) |
+| **Direct transfer** (default) | neither flag | A user's own wallet (EOA) |
+| **Deposit address** | `use_deposit_address: true` | Exchanges, custodial flows, or paying from anywhere |
+| **Depository contract** | `use_depository: true` | Aggregators, and apps that fund from a smart contract — see [Depository](/api-reference/depository) |
 
 `use_depository` and `use_deposit_address` are mutually exclusive.
 
@@ -121,13 +76,12 @@ curl -X POST https://api.layerswap.io/api/v2/swaps \
   }'
 ```
 
-The response contains the created `swap` (with its `id` and `status`), the `quote`, and the
-`deposit_actions` array.
+The response includes the created `swap` (its `id` and `status`), the `quote`, and the `deposit_actions`.
 
-## 4. Execute the deposit action
+## 3. Send the deposit
 
-A **deposit action** is the exact on-chain transaction to submit on the source chain. Read it from the
-swap response (or re-fetch via
+Each **deposit action** in the response is a ready-to-send transaction for the source network. Read it
+from the swap response (or re-fetch via
 [`GET /api/v2/swaps/{swapId}/deposit_actions`](/api-reference/swaps/get-deposit-actions)):
 
 ```js
@@ -135,22 +89,22 @@ const action = swap.deposit_actions[0];
 // action.to_address, action.amount_in_base_units, action.call_data, action.network, action.token
 ```
 
-How you submit it depends on the source chain — the `call_data` format differs per network (EVM calldata,
-a Bitcoin `OP_RETURN` memo, a Solana transaction, etc.). Follow the chain-specific guide:
+How you submit it depends on the source network — the `call_data` is EVM calldata on one network, a
+Bitcoin `OP_RETURN` memo on another, a full Solana transaction on another. Follow the matching guide:
 
-- **[Deposit Actions](/api-reference/deposit-actions/overview)** — per-chain execution (EVM, Bitcoin,
+- **[Sending the deposit](/api-reference/deposit-actions/overview)** — per-network execution (EVM, Bitcoin,
   Solana, Starknet, TON, Tron, Fuel).
 - **[Depository](/api-reference/depository)** — when you created the swap with `use_depository: true`.
 
 <Warning>
   Submit the returned `call_data` **verbatim**. It encodes the swap `id` and the assigned receiver;
-  altering it means Layerswap can't match your on-chain deposit to the swap.
+  altering it means Layerswap can't match your deposit to the swap.
 </Warning>
 
 After broadcasting, you can optionally speed up matching by reporting the transaction hash to
 [`POST /api/v2/swaps/{swapId}/deposit_speedup`](/api-reference/swaps/speed-up-deposit).
 
-## 5. Track the transfer
+## 4. Track the transfer
 
 Poll the swap to follow it to completion:
 
@@ -163,11 +117,41 @@ A typical swap moves `user_transfer_pending` → `ls_transfer_pending` → `comp
 are `failed`, `expired`, `pending_refund`, and `refunded`. See the [Swap Lifecycle](/api-reference/swap-lifecycle)
 for every state and transition, and [Refunds](/api-reference/refunds) for failure handling.
 
+## Discovering routes & tokens
+
+Most integrations already know the route they want and can go straight to a quote. When you need to
+enumerate what's available — to build a token picker, or to check support up front — three endpoints list
+it:
+
+| Endpoint | Returns |
+| --- | --- |
+| [`GET /api/v2/sources`](/api-reference/swaps/get-sources) | Source networks and their tokens (optionally filtered by destination) |
+| [`GET /api/v2/destinations`](/api-reference/swaps/get-destinations) | Destination networks and their tokens (optionally filtered by source) |
+| [`GET /api/v2/limits`](/api-reference/swaps/get-swap-route-limits) | Min / max amount for a specific route |
+
+Each token carries a stable `contract` and a `group` — its **token family** (e.g. `ETH`, `USDC`, `USDT`) —
+so you can resolve a token reliably even when its symbol changes:
+
+```js
+const sources = await fetch("https://api.layerswap.io/api/v2/sources", {
+  headers: { "X-LS-APIKEY": process.env.LAYERSWAP_API_KEY },
+}).then((r) => r.json());
+
+// Resolve the USDT-family token on Arbitrum by its `group`, not its symbol.
+const arbitrum = sources.data.find((n) => n.name === "ARBITRUM_MAINNET");
+const usdt = arbitrum.tokens.find((t) => t.group === "USDT");
+
+usdt.symbol;   // "USDT0"  → display label, may change
+usdt.contract; // "0x..."  → stable identifier, use this as source_token
+```
+
+Or browse everything at [Networks & Tokens](/networks-tokens).
+
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Deposit Actions" icon="paper-plane" href="/api-reference/deposit-actions/overview">
-    Execute the deposit on each supported chain.
+  <Card title="Sending the deposit" icon="paper-plane" href="/api-reference/deposit-actions/overview">
+    Execute the deposit on each supported network.
   </Card>
   <Card title="Depository" icon="building-columns" href="/api-reference/depository">
     Fund a swap by calling our on-chain contract.
