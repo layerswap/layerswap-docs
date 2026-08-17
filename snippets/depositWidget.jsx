@@ -1345,7 +1345,7 @@ export const DepositWidget = () => {
             }
         };
 
-        const baseClasses = "inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light";
+        const baseClasses = "inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 text-xs font-medium text-gray-600 dark:text-gray-400 transition hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light";
         const sizeClasses = size === "sm" ? "px-3 py-1.5" : "px-3 py-2";
         const finalClasses = `${baseClasses} ${sizeClasses} ${className}`;
 
@@ -1544,7 +1544,7 @@ export const DepositWidget = () => {
             }, [data, theme, stepKey]);
 
             return (
-                <div className="flex-1 overflow-y-auto bg-white dark:bg-background-dark px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
+                <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 px-5 py-4 text-xs leading-relaxed text-gray-900 dark:text-gray-200">
                     <div id={`${stepKey}-json-data`} className="json-content" />
                 </div>
             );
@@ -1562,7 +1562,7 @@ export const DepositWidget = () => {
                 ? ''
                 : result.variant === 'error'
                     ? 'border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20'
-                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark'
+                    : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900'
                 }`}>
                 {isErrorWithDescription ? (
                     <div className="flex items-start gap-3 px-4 py-3">
@@ -1667,7 +1667,7 @@ export const DepositWidget = () => {
         const responseDisplay = useMemo(() => {
             if (!activity.response) return null;
             return (
-                <div className="flex flex-1 min-h-[200px] flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                <div className="flex flex-1 min-h-[200px] flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm">
                     <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
                         <span>API Response</span>
                         <CopyButton
@@ -1683,7 +1683,7 @@ export const DepositWidget = () => {
             <div className={`flex flex-col gap-3 flex-1 min-h-0 ${className}`}>
                 {activity.request && (
                     <>
-                        <div className="flex min-h-[200px] max-h-[40%] flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-sm">
+                        <div className="flex min-h-[200px] max-h-[40%] flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm">
                             <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/50 px-5 py-4 text-sm font-semibold text-gray-900 dark:text-gray-200">
                                 <span>API Request</span>
                                 <div className="flex items-center gap-2">
@@ -2042,7 +2042,7 @@ export const DepositWidget = () => {
                     )}
                     <div
                         onClick={() => onToggle(!isOpen)}
-                        className="flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light"
+                        className="flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200 transition-colors hover:border-primary dark:hover:border-primary-light"
                     >
                         <span className="block overflow-hidden text-ellipsis whitespace-nowrap pr-3">
                             {selectedDisplay || placeholder || 'Select...'}
@@ -2058,16 +2058,16 @@ export const DepositWidget = () => {
                         </svg>
                     </div>
                     {isOpen && (
-                        <div className="absolute left-0 right-0 top-full z-40 mt-2 flex max-h-[400px] w-full max-w-[448px] flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark shadow-lg">
+                        <div className="absolute left-0 right-0 top-full z-40 mt-2 flex max-h-[400px] w-full max-w-[448px] flex-col overflow-hidden rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-lg">
                             {onSearchChange && (
-                                <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3">
+                                <div className="sticky top-0 z-10 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-3 py-3">
                                     <input
                                         ref={searchInputRef}
                                         type="text"
                                         value={searchTerm || ''}
                                         onChange={(e) => onSearchChange(e.target.value)}
                                         placeholder={searchPlaceholder || 'Search...'}
-                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
                                         onBlur={(e) => {
                                             e.target.style.boxShadow = 'none';
                                         }}
@@ -2244,7 +2244,7 @@ export const DepositWidget = () => {
                                     <aside className="left-[calc(50vw+240px)] top-[140px] z-10 flex w-[416px] flex-shrink-0 flex-col gap-6 border-l border-gray-200 dark:border-white/10 pl-6 h-full" style={{ background: 'unset' }}>
                                         <div className="flex flex-col gap-4 flex-1 min-h-0">
                                             {!hasApiActivity() ? (
-                                                <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-8 text-center text-sm text-gray-600 dark:text-gray-400 shadow-sm">
+                                                <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-5 py-8 text-center text-sm text-gray-600 dark:text-gray-400 shadow-sm">
                                                     <span className="mb-3 text-lg text-primary dark:text-primary-light">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch-icon lucide-git-branch"><line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" /></svg>
                                                     </span>
@@ -2294,7 +2294,7 @@ export const DepositWidget = () => {
                                         className="mt-6 grid gap-4"
                                         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}
                                     >
-                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-6 py-5 text-center">
                                             <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
                                                 70+
                                             </span>
@@ -2302,7 +2302,7 @@ export const DepositWidget = () => {
                                                 Networks
                                             </span>
                                         </div>
-                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-6 py-5 text-center">
                                             <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
                                                 &lt;10s
                                             </span>
@@ -2310,7 +2310,7 @@ export const DepositWidget = () => {
                                                 Processing
                                             </span>
                                         </div>
-                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-5 text-center">
+                                        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-6 py-5 text-center">
                                             <span className="text-3xl font-semibold text-gray-900 dark:text-gray-200">
                                                 $1B+
                                             </span>
@@ -2330,7 +2330,7 @@ export const DepositWidget = () => {
                                             {integrationFlowSteps.map(step => (
                                                 <div key={step.id} className="flex items-start gap-4 pb-5">
                                                     <div className="flex flex-col items-center pt-1">
-                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">
+                                                        <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">
                                                             {step.id}
                                                         </div>
                                                         <div className="mt-2 h-full w-px bg-gray-200 dark:bg-white/10"></div>
@@ -2347,7 +2347,7 @@ export const DepositWidget = () => {
                                     </div>
 
                                     {/* Mobile-Friendly Note */}
-                                    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-5 py-4 text-sm">
+                                    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-5 py-4 text-sm">
                                         <div className="mt-1 text-lg text-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
                                         </div>
@@ -2405,7 +2405,7 @@ export const DepositWidget = () => {
                                                 onChange={handleApiKeyChange}
                                                 placeholder="Optional - for higher rate limits & analytics"
                                                 aria-label="API Key"
-                                                className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${apiKeyError ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30' : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
+                                                className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-gray-900 ${apiKeyError ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30' : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
                                                     }`}
                                                 onBlur={(e) => {
                                                     if (!apiKeyError) {
@@ -2452,7 +2452,7 @@ export const DepositWidget = () => {
                                         <div className="flex flex-col gap-5">
                                             <div className="flex flex-col gap-2" style={{ gap: '8px' }}>
                                                 <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">1</span>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">1</span>
                                                     Setup Destination
                                                 </h2>
                                                 <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
@@ -2652,7 +2652,7 @@ export const DepositWidget = () => {
                                                                     value={networkSearchTerm}
                                                                     onChange={(e) => setNetworkSearchTerm(e.target.value)}
                                                                     placeholder="Search networks..."
-                                                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
                                                                 />
                                                             </div>
                                                             <div
@@ -2743,7 +2743,7 @@ export const DepositWidget = () => {
                                                                             data-network-name={network.name}
                                                                             className={`relative flex flex-col gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${isNetworkSelected
                                                                                 ? 'border-primary dark:border-primary-light'
-                                                                                : 'border-gray-200 bg-white dark:bg-background-dark hover:border-primary/50 dark:hover:border-primary-light/50'
+                                                                                : 'border-gray-200 bg-white dark:bg-gray-900 hover:border-primary/50 dark:hover:border-primary-light/50'
                                                                                 }`}
                                                                             style={!isNetworkSelected ? { borderColor: theme === 'dark' ? 'rgba(20, 26, 39, 1)' : undefined } : undefined}
                                                                             onClick={handleCardClick}
@@ -2843,7 +2843,7 @@ export const DepositWidget = () => {
                                                                                                 value={destinationTokenDropdownSearchTerm}
                                                                                                 onChange={(e) => setDestinationTokenDropdownSearchTerm(e.target.value)}
                                                                                                 placeholder="Search tokens..."
-                                                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-2 py-1.5 text-xs text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-1 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-2 py-1.5 text-xs text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-1 focus:ring-primary/30 dark:focus:ring-primary-light/30"
                                                                                                 onClick={(e) => e.stopPropagation()}
                                                                                                 onKeyDown={(e) => e.stopPropagation()}
                                                                                             />
@@ -2967,7 +2967,7 @@ export const DepositWidget = () => {
                                                             value={walletAddress}
                                                             onChange={handleWalletAddressChange}
                                                             placeholder={getAddressConfigForDestination(destinationNetwork, networks).placeholder}
-                                                            className={`flex-1 min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-background-dark ${walletAddressError
+                                                            className={`flex-1 min-h-[44px] rounded-lg border px-4 py-3 text-sm outline-none transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-gray-900 ${walletAddressError
                                                                 ? 'border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/30'
                                                                 : 'border-gray-200 dark:border-white/10 focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30'
                                                                 }`}
@@ -2982,7 +2982,7 @@ export const DepositWidget = () => {
                                                             onClick={handleAutofillPlaceholder}
                                                             className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition whitespace-nowrap ${!walletAddress
                                                                 ? 'border-none bg-primary dark:bg-primary-light text-white hover:bg-primary-dark dark:hover:bg-primary-light'
-                                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark text-gray-600 dark:text-gray-400 hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light'
+                                                                : 'border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:border-primary dark:hover:border-primary-light hover:text-primary dark:hover:text-primary-light'
                                                                 }`}
                                                             title={`Fill with example ${getAddressConfigForDestination(destinationNetwork, networks).label} address`}
                                                         >
@@ -3017,7 +3017,7 @@ export const DepositWidget = () => {
                                         <div className="flex flex-col gap-4">
                                             <div className="flex flex-col gap-2">
                                                 <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">2</span>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">2</span>
                                                     Select Source
                                                 </h2>
                                                 {tokenMode === 'single' ? (
@@ -3178,7 +3178,7 @@ export const DepositWidget = () => {
                                                                 value={sourceSearchTerm}
                                                                 onChange={(e) => setSourceSearchTerm(e.target.value)}
                                                                 placeholder="Search networks..."
-                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
+                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-200 outline-none transition-colors focus:border-primary dark:focus:border-primary-light focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-light/30"
                                                             />
                                                         </div>
                                                         <div
@@ -3268,7 +3268,7 @@ export const DepositWidget = () => {
                                                                         data-source-card
                                                                         className={`relative flex flex-col gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${isNetworkSelected
                                                                             ? 'border-primary dark:border-primary-light'
-                                                                            : 'border-gray-200 bg-white dark:bg-background-dark hover:border-primary/50 dark:hover:border-primary-light/50'
+                                                                            : 'border-gray-200 bg-white dark:bg-gray-900 hover:border-primary/50 dark:hover:border-primary-light/50'
                                                                             }`}
                                                                         style={!isNetworkSelected ? { borderColor: theme === 'dark' ? 'rgba(20, 26, 39, 1)' : undefined } : undefined}
                                                                         onClick={handleCardClick}
@@ -3448,7 +3448,7 @@ export const DepositWidget = () => {
                                         <div className="flex flex-col gap-4">
                                             <div className="flex flex-col gap-2">
                                                 <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">3</span>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">3</span>
                                                     Get Quote (Optional)
                                                 </h2>
                                                 <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
@@ -3743,7 +3743,7 @@ export const DepositWidget = () => {
                                         <div className="flex flex-col gap-4">
                                             <div className="flex flex-col gap-2">
                                                 <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 5 : 4}</span>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">{tokenMode === 'multiple' ? 5 : 4}</span>
                                                     Create Swap
                                                 </h2>
                                                 <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
@@ -3841,7 +3841,7 @@ export const DepositWidget = () => {
                                         <div className="flex flex-col gap-4">
                                             <div className="flex flex-col gap-2">
                                                 <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-200" style={{ marginTop: '0px', marginBottom: '0px' }}>
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-background-dark dark:text-gray-100">{tokenMode === 'multiple' ? 6 : 5}</span>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-900 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">{tokenMode === 'multiple' ? 6 : 5}</span>
                                                     Check Status
                                                 </h2>
                                                 <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
@@ -3990,7 +3990,7 @@ export const DepositWidget = () => {
                                                             {swapTransactions.map((tx, index) => (
                                                                 <div
                                                                     key={index}
-                                                                    className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 transition-all"
+                                                                    className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-3 py-3 transition-all"
                                                                 >
                                                                     <div className="flex flex-1 flex-col gap-1">
                                                                         <div className="flex items-center gap-2">
@@ -4009,7 +4009,7 @@ export const DepositWidget = () => {
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <div className="rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-3 py-3 text-sm italic text-gray-600 dark:text-gray-400">
+                                                        <div className="rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-3 py-3 text-sm italic text-gray-600 dark:text-gray-400">
                                                             No transactions available yet. Waiting for deposit...
                                                         </div>
                                                     )}
@@ -4023,7 +4023,7 @@ export const DepositWidget = () => {
                                 </div>
 
                                 {/* Contact Section */}
-                                <div className="mt-12 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-background-dark px-6 py-6 text-center shadow-sm">
+                                <div className="mt-12 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 px-6 py-6 text-center shadow-sm">
                                     <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-200">
                                         Need Help with Integration?
                                     </h3>
