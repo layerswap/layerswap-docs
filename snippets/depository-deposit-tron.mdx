@@ -1,0 +1,51 @@
+```ts TronWeb
+import { TronWeb } from "tronweb";
+
+// `swap` is the POST /api/v2/swaps response; PRIVATE_KEY signs the deposit
+const action = swap.deposit_actions[0];
+const [id, , receiverHex, amountHex] = action.encoded_args; // [id, token, receiver, amount]
+const amount = BigInt(amountHex).toString();
+
+const tronWeb = new TronWeb({
+  fullNode: action.network.node_url,
+  solidityNode: action.network.node_url,
+  privateKey: PRIVATE_KEY,
+});
+const sender = tronWeb.defaultAddress.base58;
+
+// encoded_args carry EVM-style hex addresses — convert the receiver to a Tron address
+const receiver = tronWeb.address.fromHex("41" + receiverHex.replace(/^0x/, ""));
+
+// 1) Approve the Depository (to_address) to spend the TRC-20 amount
+const approveTx = (
+  await tronWeb.transactionBuilder.triggerSmartContract(
+    action.token.contract, // TRC-20 token (base58)
+    "approve(address,uint256)",
+    { feeLimit: 100_000_000 },
+    [
+      { type: "address", value: action.to_address },
+      { type: "uint256", value: amount },
+    ],
+    sender,
+  )
+).transaction;
+await tronWeb.trx.sendRawTransaction(await tronWeb.trx.sign(approveTx));
+
+// 2) Call depositERC20(bytes32 id, address token, address receiver, uint256 amount)
+//    on the Depository (wait for the approval to confirm first)
+const depositTx = (
+  await tronWeb.transactionBuilder.triggerSmartContract(
+    action.to_address, // Depository contract (base58)
+    "depositERC20(bytes32,address,address,uint256)",
+    { feeLimit: 100_000_000 },
+    [
+      { type: "bytes32", value: id },
+      { type: "address", value: action.token.contract },
+      { type: "address", value: receiver },
+      { type: "uint256", value: amount },
+    ],
+    sender,
+  )
+).transaction;
+await tronWeb.trx.sendRawTransaction(await tronWeb.trx.sign(depositTx));
+```

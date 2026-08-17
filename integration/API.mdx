@@ -1,34 +1,165 @@
 ---
 title: 'API Integration'
-description: ''
-icon: server
+description: 'Bridge tokens across networks with the Layerswap API — quote a route, create a swap, send the deposit, and track it to completion.'
 ---
 
 ## Overview
 
-Layerswap API is set to enable fast and reliable crypto token swaps across networks
+Layerswap bridges tokens across networks through a REST API: you **quote** a route, **create** a swap,
+submit one **deposit** transaction on the source network, and **track** it while Layerswap delivers on the
+destination.
 
-Layerswap handles millions of dollars in transactions every day across multiple networks. We ensure quick and reliable crypto transfers, giving the freedom to move crypto anywhere.
+- **Base URL:** `https://api.layerswap.io`
+- **API key (optional):** send it in the `X-LS-APIKEY` header to attribute swaps to your account and get
+  higher rate limits. Create one on the [API Keys](/api-keys) page.
 
-## Quickstart
+## 1. Get a quote
 
-<Steps>
-  <Step title="Get Routes">
-    Get supported sources/networks, available routes and swap fees.
-  </Step>
-  <Step title="Create Swap">
-    Create Swap using the Layerswap API.
-  </Step>
-  <Step title="Transaction">
-    Layerswap will monitor the source network for a transaction and will try to match it with the corresponding swap
-  </Step>
-  <Step title="Match">
-    Once the transaction is matched and added to the swap, Layerswap will initiate a counterparty transaction to the destination_address
-  </Step>
-  <Step title="Status (Optional)">
-    Poll via Get Swap endpoint to see if the matching transaction Input was added to the swap
-  </Step>
-  <Step title="Webhook (Optional)">
-    If the webhook is configured, Layerswap will deliver a swap status update notification to the partner-specified URL
-  </Step>
-</Steps>
+Start with a quote for the exact route and amount you want. It returns the amount you'll receive, the
+fees, and the estimated time — and tells you whether the route is supported.
+
+[`GET /api/v2/quote`](/api-reference/swaps/get-quote) — pass the source and destination network and token,
+plus an `amount`:
+
+```json
+{
+  "data": {
+    "quote": {
+      "receive_amount": 99.5,
+      "min_receive_amount": 98.5,
+      "total_fee": 0.5,
+      "total_fee_in_usd": 0.5,
+      "blockchain_fee": 0.15,
+      "service_fee": 0.35,
+      "avg_completion_time": "00:02:00",
+      "rate": 0.995,
+      "slippage": 0.5
+    }
+  }
+}
+```
+
+<Warning>
+  **Identify tokens by contract address, not a hard-coded symbol.** A symbol is a display label and can
+  change — Arbitrum's USDT is now `USDT0`, so a hard-coded `"source_token": "USDT"` silently stops
+  matching. Pass the **contract address**, or look the token up from `/sources`
+  ([see below](#discovering-routes--tokens)). Don't hard-code symbols or decimals — read them from the API.
+</Warning>
+
+See [Fees](/fees) for how the fee fields are composed.
+
+## 2. Create the swap
+
+[`POST /api/v2/swaps`](/api-reference/swaps/create-swap) creates the swap and returns the `deposit_actions`
+you'll send next. Choose **one** funding method:
+
+| Funding method | Set | Best for |
+| --- | --- | --- |
+| **Direct transfer** (default) | neither flag | A user's own wallet (EOA) |
+| **Deposit address** | `use_deposit_address: true` | Exchanges, custodial flows, or paying from anywhere |
+| **Depository contract** | `use_depository: true` | Aggregators, and apps that fund from a smart contract — see [Depository](/api-reference/depository) |
+
+`use_depository` and `use_deposit_address` are mutually exclusive.
+
+```bash
+curl -X POST https://api.layerswap.io/api/v2/swaps \
+  -H "X-LS-APIKEY: $LAYERSWAP_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_network": "ARBITRUM_MAINNET",
+    "source_token": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    "destination_network": "BASE_MAINNET",
+    "destination_token": "USDC",
+    "destination_address": "0xRecipient",
+    "amount": 100,
+    "use_depository": true
+  }'
+```
+
+The response includes the created `swap` (its `id` and `status`), the `quote`, and the `deposit_actions`.
+
+## 3. Send the deposit
+
+Each **deposit action** in the response is a ready-to-send transaction for the source network. Read it
+from the swap response (or re-fetch via
+[`GET /api/v2/swaps/{swapId}/deposit_actions`](/api-reference/swaps/get-deposit-actions)):
+
+```js
+const action = swap.deposit_actions[0];
+// action.to_address, action.amount_in_base_units, action.call_data, action.network, action.token
+```
+
+How you submit it depends on the source network — the `call_data` is EVM calldata on one network, a
+Bitcoin `OP_RETURN` memo on another, a full Solana transaction on another. Follow the matching guide:
+
+- **[Sending the deposit](/api-reference/deposit-actions/overview)** — per-network execution (EVM, Bitcoin,
+  Solana, Starknet, TON, Tron, Fuel).
+- **[Depository](/api-reference/depository)** — when you created the swap with `use_depository: true`.
+
+<Warning>
+  Submit the returned `call_data` **verbatim**. It encodes the swap `id` and the assigned receiver;
+  altering it means Layerswap can't match your deposit to the swap.
+</Warning>
+
+After broadcasting, you can optionally speed up matching by reporting the transaction hash to
+[`POST /api/v2/swaps/{swapId}/deposit_speedup`](/api-reference/swaps/speed-up-deposit).
+
+## 4. Track the transfer
+
+Poll the swap to follow it to completion:
+
+- [`GET /api/v2/swaps/{swapId}`](/api-reference/swaps/get-swap-details) — the swap and its `transactions`
+  (`input` = your source deposit, `output` = the destination delivery).
+- [`GET /api/v2/swaps/by_transaction_hash/{transactionHash}`](/api-reference/swaps/get-swap-by-transaction-hash)
+  — look up a swap by its source transaction hash.
+
+A typical swap moves `user_transfer_pending` → `ls_transfer_pending` → `completed`. Other terminal states
+are `failed`, `expired`, `pending_refund`, and `refunded`. See the [Swap Lifecycle](/api-reference/swap-lifecycle)
+for every state and transition, and [Refunds](/api-reference/refunds) for failure handling.
+
+## Discovering routes & tokens
+
+Most integrations already know the route they want and can go straight to a quote. When you need to
+enumerate what's available — to build a token picker, or to check support up front — three endpoints list
+it:
+
+| Endpoint | Returns |
+| --- | --- |
+| [`GET /api/v2/sources`](/api-reference/swaps/get-sources) | Source networks and their tokens (optionally filtered by destination) |
+| [`GET /api/v2/destinations`](/api-reference/swaps/get-destinations) | Destination networks and their tokens (optionally filtered by source) |
+| [`GET /api/v2/limits`](/api-reference/swaps/get-swap-route-limits) | Min / max amount for a specific route |
+
+Each token carries a stable `contract` and a `group` — its **token family** (e.g. `ETH`, `USDC`, `USDT`) —
+so you can resolve a token reliably even when its symbol changes:
+
+```js
+const sources = await fetch("https://api.layerswap.io/api/v2/sources", {
+  headers: { "X-LS-APIKEY": process.env.LAYERSWAP_API_KEY },
+}).then((r) => r.json());
+
+// Resolve the USDT-family token on Arbitrum by its `group`, not its symbol.
+const arbitrum = sources.data.find((n) => n.name === "ARBITRUM_MAINNET");
+const usdt = arbitrum.tokens.find((t) => t.group === "USDT");
+
+usdt.symbol;   // "USDT0"  → display label, may change
+usdt.contract; // "0x..."  → stable identifier, use this as source_token
+```
+
+Or browse everything at [Networks & Tokens](/networks-tokens).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Sending the deposit" icon="paper-plane" href="/api-reference/deposit-actions/overview">
+    Execute the deposit on each supported network.
+  </Card>
+  <Card title="Depository" icon="building-columns" href="/api-reference/depository">
+    Fund a swap by calling our on-chain contract.
+  </Card>
+  <Card title="Swap Lifecycle" icon="arrows-spin" href="/api-reference/swap-lifecycle">
+    Every swap state and how to react to it.
+  </Card>
+  <Card title="Fees" icon="receipt" href="/fees">
+    How quotes and fees are calculated.
+  </Card>
+</CardGroup>

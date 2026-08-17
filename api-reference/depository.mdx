@@ -1,8 +1,10 @@
 ---
 title: "Depository"
 description: "Fund a Layerswap swap by calling an on-chain contract instead of sending to a generated deposit address — ideal for smart-contract, server, and programmable wallets."
-icon: building-columns
 ---
+
+import DepositoryDepositEvm from "/snippets/depository-deposit-evm.mdx";
+import DepositoryDepositTron from "/snippets/depository-deposit-tron.mdx";
 
 ## Overview
 
@@ -23,16 +25,10 @@ arguments, including the swap `id` and `receiver` that Layerswap assigns, are al
 `encoded_args` if you'd rather build or verify the call yourself.
 </Note>
 
-### Depository vs. deposit address vs. direct transfer
-
-| Funding method | How you fund | Best for |
-| --- | --- | --- |
-| **Depository** (`use_depository: true`) | Call a contract method with pre-encoded `call_data` | Aggregators; smart-contract wallets; deterministic target; batching approve + deposit |
-| **Deposit address** (`use_deposit_address: true`) | Send funds to a generated address | Exchanges, custodial flows, users sending from anywhere |
-| **Direct transfer** (default) | Transfer to the solver's address | Simple EOA wallet transfers |
-
-The Depository and deposit-address methods are **mutually exclusive** — setting both
-`use_depository: true` and `use_deposit_address: true` is rejected.
+The Depository is one of three ways to fund a swap — see
+[Choosing a method](/api-reference/deposit-actions/choosing-a-method) for how it compares to a deposit
+address or a direct transfer, and when to use each. The Depository and deposit-address methods are
+**mutually exclusive** — setting both `use_depository: true` and `use_deposit_address: true` is rejected.
 
 ## Supported networks
 
@@ -170,27 +166,14 @@ amount. Native deposits skip this step.
 
 ### 4. Submit the deposit transaction
 
-```ts
-import { createWalletClient, custom, parseAbi } from "viem";
-
-const action = swap.deposit_actions[0];
-const wallet = createWalletClient({ transport: custom(window.ethereum) });
-
-// ERC20 only: approve the Depository to spend the token
-await wallet.writeContract({
-  address: action.token.contract,        // source_token contract
-  abi: parseAbi(["function approve(address spender, uint256 amount) returns (bool)"]),
-  functionName: "approve",
-  args: [action.to_address, depositAmountInBaseUnits],
-});
-
-// Submit the prepared deposit call exactly as returned by the API
-await wallet.sendTransaction({
-  to: action.to_address,
-  data: action.call_data,
-  value: BigInt(action.amount_in_base_units), // 0 for ERC20, the deposit amount for native
-});
-```
+<Tabs>
+<Tab title="EVM (viem)">
+<DepositoryDepositEvm />
+</Tab>
+<Tab title="Tron (TronWeb)">
+<DepositoryDepositTron />
+</Tab>
+</Tabs>
 
 <Warning>
 The swap `id` and the `receiver` are assigned by Layerswap — use the exact values from the deposit
