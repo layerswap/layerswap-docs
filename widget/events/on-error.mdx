@@ -6,7 +6,7 @@ description: Triggered when a runtime error occurs inside the widget.
 The `callbacks.onError` event fires when the widget encounters an error at runtime — a failed API call, a failed transaction, a wallet error, and so on.
 
 <Note>
-  This callback reports errors **inside a loaded, running widget**. Failures to load the widget itself (network, manifest, signature issues) surface through the top-level `onError` prop instead — see [How It Works & Security](/widget/how-it-works#two-error-channels).
+  This callback reports errors **inside a loaded, running widget**. Failures to load the widget itself (network, manifest, signature issues) surface through the top-level `onError` prop instead — see [Widget delivery and security](/widget/delivery-and-security#two-error-channels).
 </Note>
 
 ```tsx

@@ -3,10 +3,10 @@ title: "Wallets"
 description: "How wallet support works in the widget — filtering chains and supplying credentials."
 ---
 
-With `@layerswap/widget-react`, **you don't construct wallet providers**. The widget builds them internally for every supported chain, and each chain's wallet SDK is downloaded lazily as part of the CDN remote — none of it enters your bundle. Your integration controls two things:
+The Widget supports wallets for its available networks by default. Configure wallet props only when you need to:
 
-1. **Which chains are enabled** — via `walletProvidersConfig`
-2. **Credentials for certain wallet services** — via `walletDefaults`
+1. **Limit which chain wallets are available** — via `walletProvidersConfig`
+2. **Provide credentials for WalletConnect, TON, or Immutable Passport** — via `walletDefaults`
 
 If your app already runs wagmi, you can additionally [share your wagmi config](/widget/wagmi-config) so the widget reuses your users' EVM wallet connection.
 
@@ -16,7 +16,7 @@ If your app already runs wagmi, you can additionally [share your wagmi config](/
 
 ## Filtering chains
 
-`walletProvidersConfig` filters the wallet provider set the widget builds:
+Use `walletProvidersConfig` to limit which chain wallets users can connect:
 
 ```tsx
 // Only EVM and Solana wallets
@@ -32,9 +32,7 @@ If your app already runs wagmi, you can additionally [share your wagmi config](/
 />
 ```
 
-- `include` is an **allowlist** and is applied first; `exclude` subtracts from the result, so the two can be combined.
-- Chains that are filtered out **never download their wallet SDK**.
-- EVM loads eagerly. Immutable Passport also loads eagerly when configured; the other chain providers load when the connect modal first needs them.
+- `include` keeps only the listed wallet types; `exclude` removes the listed wallet types.
 
 The available provider ids (`WalletProviderId`):
 

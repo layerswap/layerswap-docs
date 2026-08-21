@@ -47,8 +47,7 @@
           {
             "group": "Start here",
             "pages": [
-              "widget/quickstart",
-              "widget/how-it-works"
+              "widget/quickstart"
             ]
           },
           {
@@ -60,6 +59,14 @@
               "widget/wagmi-config",
               "widget/theming",
               "widget/theme-reference"
+            ]
+          },
+          {
+            "group": "Production",
+            "pages": [
+              "widget/compatibility",
+              "widget/delivery-and-security",
+              "widget/troubleshooting"
             ]
           },
           {
@@ -87,8 +94,6 @@
             "group": "Guides & tools",
             "pages": [
               "widget/vanilla-js",
-              "widget/compatibility",
-              "widget/troubleshooting",
               "widget/playground"
             ]
           },
@@ -354,7 +359,11 @@
     },
     {
       "source": "/integration/UI/Widget/HowItWorks",
-      "destination": "/widget/how-it-works"
+      "destination": "/widget/delivery-and-security"
+    },
+    {
+      "source": "/widget/how-it-works",
+      "destination": "/widget/delivery-and-security"
     },
     {
       "source": "/integration/UI/Widget/Configuration",

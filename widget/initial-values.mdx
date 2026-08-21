@@ -15,7 +15,6 @@ Pass these optional fields through [`config.initialValues`](/widget/configuratio
       toAsset: 'USDC',
       lockTo: true,
       destination_address: '0x1234…5678',
-      hideAddress: true,
     },
   }}
 />
@@ -52,33 +51,29 @@ Hosted Page URL parameters use many of the same names, plus legacy aliases and n
 ## Locking fields
 
 <ResponseField name="lockFrom" type="boolean">
-  Lock the source field for editing.
+  Lock the source network to the value set in `from`. Only takes effect when `from` is also set; the picker remains clickable but offers no other networks.
 </ResponseField>
 
 <ResponseField name="lockTo" type="boolean">
-  Lock the destination field for editing.
+  Lock the destination network to the value set in `to`. Only takes effect when `to` is also set; the picker remains clickable but offers no other networks.
 </ResponseField>
 
 <ResponseField name="lockFromAsset" type="boolean">
-  Lock the source token for editing.
+  Lock the source token to the value set in `fromAsset`. Requires both `from` and `fromAsset`; also enable `lockFrom` to restrict the token picker.
 </ResponseField>
 
 <ResponseField name="lockToAsset" type="boolean">
-  Lock the destination token for editing.
+  Lock the destination token to the value set in `toAsset`. Requires both `to` and `toAsset`; also enable `lockTo` to restrict the token picker.
 </ResponseField>
 
 ## Hiding UI elements
 
 <ResponseField name="hideFrom" type="boolean">
-  Hide the source field in the UI.
+  Hide the source network picker. Only takes effect when `from` is also set. When partner branding is configured, it also replaces the source network with your app's name and logo in swap summaries and history.
 </ResponseField>
 
 <ResponseField name="hideTo" type="boolean">
-  Hide the destination field in the UI.
-</ResponseField>
-
-<ResponseField name="hideAddress" type="boolean">
-  Hide the destination address in the UI.
+  Hide the destination network picker. Only takes effect when `to` is also set. When partner branding is configured, it also replaces the destination network with your app's name and logo in swap summaries and history.
 </ResponseField>
 
 <ResponseField name="hideRefuel" type="boolean">
@@ -86,11 +81,7 @@ Hosted Page URL parameters use many of the same names, plus legacy aliases and n
 </ResponseField>
 
 <ResponseField name="hideLogo" type="boolean">
-  Hide the partner logo.
-</ResponseField>
-
-<ResponseField name="hideDepositMethod" type="boolean">
-  Hide the deposit method selector.
+  Hide the Layerswap logo in the widget header. Only takes effect in the wide layout.
 </ResponseField>
 
 ## Flow selection
@@ -113,27 +104,23 @@ Hosted Page URL parameters use many of the same names, plus legacy aliases and n
 ## Attribution & display
 
 <ResponseField name="externalId" type="string">
-  A unique ID representing the user's swap session in your system. It becomes the swap's `reference_id` and can be used to correlate API and webhook data.
-</ResponseField>
-
-<ResponseField name="clientId" type="string">
-  Client ID from your partner setup. When `destination_address` is provided, your logo is shown next to the address.
+  An ID from your system identifying the user's swap session. It is sent as the swap's `reference_id` on creation and returned on swap objects as `metadata.reference_id`, so you can correlate swaps across API responses and webhooks. Uniqueness is your responsibility — the widget does not enforce it.
 </ResponseField>
 
 <ResponseField name="account" type="string">
-  User account name or address shown as the source. Use together with `hideFrom: true`.
+  User account name or address shown as the swap's source address. Only takes effect together with `hideFrom: true`. When `appName` resolves to a valid partner, the source network is additionally replaced by your app's name and logo in the swap summary.
 </ResponseField>
 
 <ResponseField name="appName" type="string">
-  Your app's name, used for address attribution.
+  Your partner identifier from your partner setup (the `client_id` value). Used for address attribution: when `destination_address` is provided, an `Autofilled by {your app name}` label — and, if your partner profile is registered as a wallet, your logo — is shown next to the address. The value must exactly match your `client_id`; otherwise attribution is silently disabled. Also required for source branding when using `account` with `hideFrom: true`.
 </ResponseField>
 
 <ResponseField name="sameAccountNetwork" type="string">
-  Restrict the swap to the same account on the given network.
+  Set this to the name of a network that requires same-account transfers. If the specified network is selected as the source or destination, the connected source address must match the destination address; otherwise, the widget blocks the swap. The widget also disables manual transfers (`deposit_address`) for that route.
 </ResponseField>
 
 <ResponseField name="actionButtonText" type="string" default="Next">
-  Replaces the main action button text — e.g. "Deposit", "Withdraw", "Transfer", or anything relevant to your app.
+  Replaces the text of the main swap-form action button — e.g. "Deposit", "Withdraw", "Transfer". Applies to the form's submit button only; buttons on later steps (e.g. "Swap now" during withdrawal) are not affected.
 </ResponseField>
 
 ## Flow behavior

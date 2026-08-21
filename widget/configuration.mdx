@@ -1,6 +1,6 @@
 ---
 title: "Configuration"
-description: "All LayerswapWidget props — the config object, callbacks, wallet options, and loader-level props."
+description: "Configure the Layerswap Widget with its config object, callbacks, wallet options, and loader-level props."
 ---
 
 `LayerswapWidget` takes a small set of top-level props. The `config` object configures the widget itself (API key, network set, theme, initial form values); the sibling props wire up callbacks, wallets, and loading behavior.
@@ -34,7 +34,7 @@ description: "All LayerswapWidget props — the config object, callbacks, wallet
 </ResponseField>
 
 <ResponseField name="walletProvidersConfig" type="{ include?: WalletProviderId[]; exclude?: WalletProviderId[] }">
-  Filter which chains' wallet providers the widget builds. `include` is an allowlist (applied first); `exclude` subtracts from it. Excluded chains never download their SDK. See [Wallets](/widget/wallets).
+  Limit which chain wallets are available. Use `include` to keep only listed wallet types or `exclude` to remove listed wallet types. See [Wallets](/widget/wallets).
 </ResponseField>
 
 <ResponseField name="walletDefaults" type="WalletDefaults">
@@ -54,13 +54,13 @@ description: "All LayerswapWidget props — the config object, callbacks, wallet
 </ResponseField>
 
 <ResponseField name="onError" type="(error: unknown) => void">
-  Fires when the widget fails to **load** (receives a `ManifestError` for manifest issues) or throws during render. This is distinct from `callbacks.onError`, which reports runtime errors inside a working widget — see [How It Works & Security](/widget/how-it-works#two-error-channels).
+  Fires when the widget fails to **load** (receives a `ManifestError` for manifest issues) or throws during render. This is distinct from `callbacks.onError`, which reports runtime errors inside a working widget — see [Widget delivery and security](/widget/delivery-and-security#two-error-channels).
 </ResponseField>
 
 ## The `config` object
 
 <ResponseField name="apiKey" type="string">
-  Your Layerswap API key from the [Partner Dashboard](/get-started/api-keys). The type marks it optional, but in practice every integration should pass one — requests without it are not attributed to your app.
+  Your Layerswap API key from the [Partner Dashboard](/get-started/api-keys).
 </ResponseField>
 
 <ResponseField name="version" type='"mainnet" | "testnet"'>
@@ -79,16 +79,8 @@ description: "All LayerswapWidget props — the config object, callbacks, wallet
   Custom skeleton rendered inside the widget while its settings load (this is a later stage than the loader-level `fallback`).
 </ResponseField>
 
-<ResponseField name="apiUri" type="string">
-  Override the Layerswap API base URL. Advanced — only needed for custom API routing setups agreed with the Layerswap team.
-</ResponseField>
-
-<ResponseField name="settings" type="LayerSwapSettings">
-  Pre-fetched settings blob. Normally the widget fetches this itself; pass it to skip the initial fetch. Advanced.
-</ResponseField>
-
 <Note>
-  `initialValues` and `settings` are typed as `unknown` in the public package, so your editor won't autocomplete their fields — use the [Initial Values reference](/widget/initial-values) as the source of truth.
+  `initialValues` is typed as `unknown` in the public package, so your editor won't autocomplete its fields — use the [Initial Values reference](/widget/initial-values) as the source of truth.
 </Note>
 
 <Warning>

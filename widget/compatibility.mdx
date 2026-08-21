@@ -28,8 +28,8 @@ Vue, Angular, Svelte, and plain-DOM hosts use [`@layerswap/widget-js`](/widget/v
 ## Troubleshooting
 
 - A transient CDN failure is recoverable by **remounting the component** — failed loads aren't cached for the lifetime of the page.
-- If the widget never mounts, check the top-level `onError` payload against the [manifest failure modes](/widget/how-it-works#manifest-failure-modes).
-- If you serve a Content Security Policy, make sure the CDN origin is allowlisted — see the [recommended CSP](/widget/how-it-works#recommended-content-security-policy).
+- If the widget never mounts, check the top-level `onError` payload against the [manifest failure modes](/widget/delivery-and-security#manifest-failure-modes).
+- If you serve a Content Security Policy, make sure the CDN origin is allowlisted — see the [recommended CSP](/widget/delivery-and-security#recommended-content-security-policy).
 
 <Note>
   Polyfill and `transpilePackages` guidance applies only to the [self-bundled Widget](/widget/advanced/self-bundled).

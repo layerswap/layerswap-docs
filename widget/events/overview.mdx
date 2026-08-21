@@ -41,5 +41,5 @@ export function App() {
 - **Keep the `callbacks` object referentially stable** — hoist it to module scope or memoize it, otherwise the widget re-initializes its callback wiring on every render.
 - **A throwing callback can't break the widget** — every callback invocation is wrapped in try/catch inside the widget.
 - **Payloads are typed as `unknown`** in the public package (`WidgetCallbacks`), so cast to the payload shapes documented on each event page.
-- `callbacks.onError` reports errors inside a running widget. Failures to *load* the widget surface through the top-level `onError` prop instead — see [How It Works & Security](/widget/how-it-works#two-error-channels).
+- `callbacks.onError` reports errors inside a running widget. Failures to *load* the widget surface through the top-level `onError` prop instead — see [Widget delivery and security](/widget/delivery-and-security#two-error-channels).
 - The same eight callback names are available in the current self-bundled Widget; the loader packages change how you pass them, not their purpose.

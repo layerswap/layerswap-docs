@@ -1,6 +1,6 @@
 ---
-title: "How the Widget works"
-description: "How the CDN-delivered Widget is loaded and verified, including manifest signing, integrity checks, CSP, and failure modes."
+title: "Widget delivery and security"
+description: "How the Widget loader fetches, verifies, and runs the CDN-delivered Widget."
 ---
 
 `@layerswap/widget-react` and `@layerswap/widget-js` are small loaders. They fetch the Widget at runtime from a signed Layerswap CDN channel instead of adding its implementation and wallet SDKs to your application bundle.
@@ -8,12 +8,13 @@ description: "How the CDN-delivered Widget is loaded and verified, including man
 ## Loading and verification
 
 ```mermaid
-flowchart LR
-  A[Loader mounts] --> B[Fetch signed manifest]
-  B --> D[Verify P-256 signature and freshness]
-  D --> E[Register SHA-384 integrity map]
-  E --> F[Load Module Federation remote]
-  F --> G[Render Widget]
+flowchart TD
+  A[Fetch the channel manifest]
+  B[Verify its signature<br/>and freshness]
+  C[Register and enforce<br/>chunk integrity]
+  D[Load and render<br/>the Widget]
+
+  A --> B --> C --> D
 ```
 
 On mount, the loader:

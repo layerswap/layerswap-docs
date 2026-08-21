@@ -110,8 +110,8 @@ The deposit-specific props (`destination`, `destinationAddress`, `mode`, `method
 
 ## 6. Review the behavioral differences
 
-- **Widget updates roll forward automatically** on the CDN channel—you no longer pin the remote implementation through npm. Verify the final 2.x release-channel policy on release day. See [How the Widget works](/widget/how-it-works).
+- **Widget updates roll forward automatically** on the CDN channel—you no longer pin the remote implementation through npm. Verify the final 2.x release-channel policy on release day. See [Widget delivery and security](/widget/delivery-and-security).
 - **One widget per page** (of either kind) — the widget keeps process-global state.
 - **Object props are compared by reference**—hoist `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` to module scope or memoize them to avoid provider rebuilds and extra renders.
 - **Loader-level props are new**: `fallback` (loading state), `onReady`, and `onError` for load failures — distinct from `callbacks.onError`.
-- **If you serve a CSP**, allowlist the widget CDN origin — see the [recommended CSP](/widget/how-it-works#recommended-content-security-policy).
+- **If you serve a CSP**, allowlist the widget CDN origin — see the [recommended CSP](/widget/delivery-and-security#recommended-content-security-policy).
