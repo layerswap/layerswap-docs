@@ -16,7 +16,7 @@
           {
             "group": "Get Started",
             "pages": [
-              "index",
+              "home",
               "get-started/what-is-layerswap",
               "get-started/choose-your-integration",
               "get-started/api-keys",
@@ -279,7 +279,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/index"
+      "destination": "/home"
     },
     {
       "source": "/introduction",
