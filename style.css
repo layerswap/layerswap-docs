@@ -1,3 +1,17 @@
+/* Keep documentation page titles consistent between local and hosted Mintlify clients. */
+#page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 2rem;
+}
+
+@media (min-width: 640px) {
+  #page-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
 /* Use a Wagmi-style opacity treatment for focused code samples. */
 .has-focused pre.shiki > code .line {
   filter: none;
