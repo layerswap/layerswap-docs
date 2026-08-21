@@ -1,0 +1,76 @@
+---
+title: "Theming"
+description: "Apply brand colors and layout settings to the Layerswap Widget."
+---
+
+Pass a `ThemeData` object through `config.theme`. Colors are RGB triple strings such as `'255, 50, 114'`—not hex values and not `rgb(...)` wrappers.
+
+```tsx
+import { LayerswapWidget } from '@layerswap/widget-react';
+
+const widgetConfig = {
+  apiKey: 'YOUR_API_KEY',
+  version: 'mainnet',
+  theme: {
+    primary: {
+      DEFAULT: '255, 50, 114',
+      '500': '255, 50, 114',
+      text: '255, 255, 255',
+    },
+    secondary: {
+      DEFAULT: '23, 31, 49',
+      '500': '23, 31, 49',
+      text: '225, 227, 230',
+    },
+    borderRadius: 'medium',
+    header: { hideMenu: true },
+  },
+};
+
+export function App() {
+  return <LayerswapWidget config={widgetConfig} />;
+}
+```
+
+Keep the config object stable across renders. See [Theme reference](/widget/theme-reference) for every field and the exact border-radius scales.
+
+## Build a color palette
+
+`primary` and `secondary` accept `DEFAULT`, shades `100` through `900`, and `text`. Status colors use `Foreground` and `Background`.
+
+1. Start from your brand color and generate a 100–900 palette with a tool such as [Tailwind Shades](https://tailwindshades.app/).
+2. Convert `rgb(99, 102, 241)` to the Widget format: `'99, 102, 241'`.
+3. Choose a readable `text` value for content shown over the palette.
+4. Test the complete flow, including warnings, errors, disabled states, dialogs, and wallet screens.
+
+```ts
+const primary = {
+  DEFAULT: '99, 102, 241',
+  '100': '224, 231, 255',
+  '200': '199, 210, 254',
+  '500': '99, 102, 241',
+  '900': '49, 46, 129',
+  text: '255, 255, 255',
+};
+```
+
+You can provide only the fields you need; the Widget fills remaining color values from its default theme.
+
+## Layout and visibility
+
+- `borderRadius` selects a consistent six-step radius scale.
+- `header.hideMenu`, `header.hideTabs`, and `header.hideWallets` remove individual header controls.
+- `enableWideVersion` renders the wide layout.
+- `enablePortal` moves dialogs and dropdowns outside clipping containers.
+- `cardBackgroundStyle` applies React CSS properties to the main card.
+- `hidePoweredBy` removes the footer attribution and is available to every integrator.
+
+## Named presets
+
+Named values such as `light`, `default`, `ton`, `immutable`, and `immutablePlay` are Hosted Page URL presets. They do not work through Widget `initialValues.theme`. For the Widget packages, use `config.theme` as shown above.
+
+## Preview
+
+<Card title="Open the Widget playground" icon="palette" href="https://playground.layerswap.io">
+  Test a theme against the current Widget before adding it to your application.
+</Card>

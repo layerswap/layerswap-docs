@@ -1,0 +1,13 @@
+/* Use a Wagmi-style opacity treatment for focused code samples. */
+.has-focused pre.shiki > code .line {
+  filter: none;
+  opacity: 0.3;
+  transition: opacity 0.35s;
+}
+
+.has-focused pre.shiki > code .line-focus,
+.has-focused pre.shiki > code .line:hover,
+.has-focused pre.shiki:hover > code .line {
+  filter: none;
+  opacity: 1;
+}

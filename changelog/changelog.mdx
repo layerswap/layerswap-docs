@@ -1,0 +1,93 @@
+---
+title: 'Changelog'
+description: 'New features, improvements, and fixes across the Layerswap app, widget, and API'
+mode: wide
+---
+
+{/*
+  DRAFT — generated from merged PRs in layerswap/layerswapapp and layerswap/monorepo
+  between 2026-06-11 and 2026-08-11. PR numbers are referenced in comments next to
+  each entry for verification. Internal-only work (admin portal, TV ops board,
+  rebalancer, drift audit, infra) is intentionally omitted or summarized.
+*/}
+
+<Update label="August 2026" description="v2 execution, connections API, delegated-address safety">
+
+## API
+
+- **Connections endpoints.** New endpoints for listing connections and active token connections, now including token contract addresses in v2 responses. {/* monorepo #3714, #3713, #3725 */}
+- **Delegated address validation.** Swaps to delegated (EIP-7702) destination addresses that can't receive native ETH are now rejected at creation time instead of failing on-chain. {/* monorepo #3775, #3820, #3803 */}
+
+## App & Widget
+
+- **Correct refund transaction details.** Refund transactions in swap details now show the correct data. {/* layerswapapp #2111 */}
+- **More resilient swap page.** The swap page tolerates transient API fetch failures during server-side rendering instead of erroring. {/* layerswapapp #2109 */}
+- **Wallet connection fixes.** Gracefully handle the user rejecting a QR wallet-connection attempt. {/* layerswapapp #2110 */}
+- **Amount display.** Destination token amounts are properly truncated in USD mode. {/* layerswapapp #2106 */}
+
+## Under the hood
+
+- **Faster same-chain swap execution.** Swaps that include a token conversion can now be funded and executed in a single authorized batch transaction, cutting a settlement round-trip. {/* monorepo #3748, #3750, #3723, #3703 */}
+- **Smarter gas management.** Bridge gas thresholds are now derived from recent network fees instead of static values. {/* monorepo #3801 */}
+
+</Update>
+
+<Update label="July 2026" description="Solana Token-2022, Polymarket, faster swaps, new error codes">
+
+## New routes & assets
+
+- **Polymarket.** Deposit to and withdraw from Polymarket directly through Layerswap. {/* layerswapapp #2059, #2063, #2047, #2065, #2074 */}
+- **Solana Token-2022.** Full support for the Token-2022 standard on Solana — deposits, withdrawals, balances, and gas estimation. {/* layerswapapp #2098; monorepo #3467, #3468 */}
+- **Starknet → LayerZero.** Outbound LayerZero transfers from Starknet. {/* monorepo #3241 */}
+- **Hyperliquid quote accuracy.** The new-account activation fee is now priced into the quote up front. {/* monorepo #3311, #3317 */}
+
+## API
+
+- **`PRICE_IMPACT_TOO_HIGH` error code.** Quotes rejected due to high price impact now return a dedicated error code instead of a generic "rate not available", and the app surfaces the two cases differently. {/* monorepo #3202; layerswapapp #2076, #2077 */}
+- **Documented status enums.** Swap and transaction status/type enums are now documented in the OpenAPI spec. {/* monorepo #3203 */}
+- **Source address on swap responses.** Swap responses now include the user's source address. {/* monorepo #2989 */}
+- **Explorer API improvements.** Public swaps feed supports compact responses and keyset (cursor) paging, and each transaction now carries `amount_in_usd`. {/* monorepo #3031, #3285, #3230 */}
+- **Gasless quotes.** Quote and limit requests accept a gasless route parameter, and gasless swap pricing was fixed to reflect the gasless fee structure. {/* layerswapapp #2078; monorepo #3328 */}
+
+## App & Widget
+
+- **Widget packages restructure.** The app moved to a monorepo with separately published widget packages, plus CDN delivery with subresource integrity (SRI) for script embeds. {/* layerswapapp #2091, #2082, #2045, #2044 */}
+- **Live swap status updates.** Adaptive burst-and-decay polling makes swap status refresh quickly right after actions and back off when idle. {/* layerswapapp #2090 */}
+- **Multi-account wallets.** Improved UI for wallets with multiple connected accounts, and transaction history fetching across many connected wallets. {/* layerswapapp #2067, #2080 */}
+- **Immutable Passport upgrade.** Migrated to the new `@imtbl/auth` + `@imtbl/wallet` SDKs. {/* layerswapapp #2069, #2072 */}
+- **Tron wallet fixes.** More reliable Tron wallet detection, connection, and reconnection. {/* layerswapapp #2081, #2085 */}
+
+## Performance & reliability
+
+- **Faster swap execution.** All new swaps run on the rebuilt v2 execution lane; the legacy lane was removed. Independent verification steps now run in parallel with early completion. {/* monorepo #3521, #3583, #3424, #3339 */}
+- **Faster deposit detection.** Deposit detection and verification were accelerated across chains, with dedicated latency work for Solana and fast EVM chains. {/* monorepo #3154, #3123, #3481, #3488, #3494, #3164 */}
+- **Faster Bitcoin withdrawals.** 1-block fee estimates and correct replace-by-fee (RBF) handling. {/* monorepo #3584 */}
+- **TON fixes.** Corrected deposit tracking, receipt parsing, and masterchain address formatting. {/* monorepo #2987, #2988, #3428 */}
+
+</Update>
+
+<Update label="June 2026" description="Gasless deposits, Hyperliquid, Jupiter, new brand">
+
+## Gasless deposits (sign-to-deposit)
+
+- Deposit without holding gas on the source chain: sign an authorization (EIP-3009, ERC-2612 permit, or EIP-1271 for contract wallets) and Layerswap's paymaster publishes the transaction and covers gas. {/* monorepo #2913, #2914, #2919, #3004; layerswapapp #2046, #2052 */}
+- Authorization lifecycle is tracked end to end, with a dedicated status endpoint. {/* monorepo #2951, #2946 */}
+
+## New routes & assets
+
+- **Hyperliquid.** Deposit to and withdraw from Hyperliquid. {/* layerswapapp #2026, #2034, #2035, #2041 */}
+- **Jupiter on Solana.** Added Jupiter as a swap provider for better Solana routing and pricing. {/* monorepo #2763, #2894 */}
+
+## App & Widget
+
+- **New Layerswap logo** and refreshed branding. {/* layerswapapp #2006 */}
+- **Address improvements.** Address type detection, contract checks for source addresses, unified address-picker styling, and recently-used addresses in history. {/* layerswapapp #2014, #2022, #2027, #2049, #2058 */}
+- **Faster perceived load.** Deposit flow data is prefetched, and unnecessary limit fetches are skipped in the deposit-address flow. {/* layerswapapp #2025, #2024, #2037 */}
+- **Refreshed QR codes** with a styled QR component. {/* layerswapapp #2048 */}
+- **Fixes.** Exchange source-asset selection, stale USD values on tab switch, duplicate wallet search results, Solana mobile deeplinks, and Safari drawer flashes. {/* layerswapapp #2021, #2040, #2039, #2019 */}
+
+## Security
+
+- **Hardware-backed signing.** EVM transaction signing moved to Azure Key Vault HSM-backed keys. {/* monorepo #2343 */}
+
+</Update>

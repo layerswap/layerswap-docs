@@ -1,0 +1,84 @@
+---
+title: "Swap lifecycle & statuses"
+description: "The documented swap statuses, how to handle each, and how response statuses map to API status filters."
+icon: arrows-rotate
+---
+
+A swap progresses through a fixed set of statuses.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'background': 'transparent', 'lineColor': '#94a3b8', 'fontSize': '14px', 'edgeLabelBackground': 'transparent', 'tertiaryTextColor': '#ffffff'}}}%%
+flowchart TB
+    created([Swap created]) --> userPending([user_transfer_pending])
+    userPending --> depositConfirmed([Deposit confirmed]) --> layerswapPending([ls_transfer_pending])
+    userPending --> noDeposit([No deposit in 6h]) --> expired([expired])
+    layerswapPending --> success([Success]) --> completed([completed])
+    layerswapPending --> terminalFailure([Cannot continue]) --> failed([failed])
+    layerswapPending --> executionFailed([Execution failed]) --> hasRefundAddress{refund_address?}
+    hasRefundAddress -->|Yes| pendingRefund([pending_refund])
+    hasRefundAddress -.->|No| retries([Retries])
+    retries -.-> layerswapPending
+    pendingRefund --> confirmed([Confirmed on-chain]) --> refunded([refunded])
+
+    classDef event fill:transparent,color:#cbd5e1,stroke:#334155,stroke-width:1px
+    classDef active fill:#0891b2,color:#ffffff,stroke:#0891b2
+    classDef processing fill:#ca8a04,color:#ffffff,stroke:#ca8a04
+    classDef successState fill:#16a34a,color:#ffffff,stroke:#16a34a
+    classDef failureState fill:#dc2626,color:#ffffff,stroke:#dc2626
+    classDef refundState fill:#9333ea,color:#ffffff,stroke:#9333ea
+    classDef neutralState fill:#6b7280,color:#ffffff,stroke:#6b7280
+    classDef decision fill:#475569,color:#ffffff,stroke:#475569
+
+    class created,depositConfirmed,noDeposit,success,terminalFailure,executionFailed,confirmed event
+    class userPending active
+    class layerswapPending processing
+    class completed successState
+    class failed failureState
+    class pendingRefund,refunded refundState
+    class expired,retries neutralState
+    class hasRefundAddress decision
+```
+
+<Warning title="🚧 Needs review — awaiting API answer (Q2.3)">The widget's internal enum knows three more states (`created`, `user_transfer_delayed`, `cancelled`). Whether the API can return them to integrators is unconfirmed — this diagram shows the seven statuses in the API contract today.</Warning>
+
+## Status reference
+
+| `status` | Meaning |
+|---|---|
+| `user_transfer_pending` | Waiting for the deposit |
+| `ls_transfer_pending` | Deposit detected; payout in progress |
+| `completed` | Funds delivered to the destination |
+| `failed` | Swap cannot continue; inspect `fail_reason` |
+| `expired` | No deposit received within six hours |
+| `pending_refund` | Refund in progress |
+| `refunded` | Refund confirmed on the source network |
+
+## Refund states
+
+After a funded swap cannot be completed, it may move from `ls_transfer_pending` to `pending_refund`. Once the refund transaction is confirmed on the source network, its status becomes `refunded`.
+
+See [Refunds](/api/refunds) for refund eligibility, retry behavior, `refund_address` requirements, returned amounts, fees, and how to identify the refund transaction.
+
+## Transaction-level detail
+
+A swap can include multiple transactions, such as the deposit, payout, refuel, or refund. Each transaction has its own `type` and `status`. Use the transaction status to track that specific on-chain operation, use the swap-level `status` to track the overall swap lifecycle.
+
+## Filtering swaps by status
+
+Status names used in API responses are different from those accepted by the `GET /swaps` filter. For example, a swap response uses `pending_refund`, while the corresponding filter value is `PendingRefund`.
+
+See [Track swaps](/api/track-swaps) for the complete list of filter values.
+
+{/* TODO(API): Validate that GET /swaps status filters use different values from swap response statuses. If confirmed, update the backend so filters accept the same status values returned in responses, then update this section and the Track swaps mapping table. */}
+
+## Observing status changes
+
+- **API**: poll [`GET /swaps/{id}`](/api-reference/swaps/get-swap-details), or look up by funding transaction with [`GET /swaps/by_transaction_hash/{hash}`](/api-reference/swaps/get-swap-by-transaction-hash).
+- **Webhooks**: receive dashboard-configured status updates — [Webhooks](/api/webhooks).
+- **Widget**: use [`onSwapStatusChange`](/widget/events/on-swap-status-change) to receive `{type, swapId, path?}`.
+
+{/* TODO(API): Confirm and document the recommended polling interval and rate limits for GET /swaps/{id}. */}
+
+## Next
+
+[Build your first API swap](/api/quickstart) applies this lifecycle end to end. [Refunds](/api/refunds) explains refund handling, addresses, fees, and transaction data. [Track swaps](/api/track-swaps) covers polling, filters, and transaction-hash lookup.

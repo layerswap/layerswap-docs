@@ -11,147 +11,154 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Overview",
+        "tab": "Get Started",
         "groups": [
           {
-            "group": "About Layerswap",
+            "group": "Get Started",
             "pages": [
-              "introduction",
-              "Integrate",
-              "api-keys",
-              "fees",
-              "networks-tokens",
-              "security",
-              "brand-assets"
+              "index",
+              "get-started/what-is-layerswap",
+              "get-started/choose-your-integration",
+              "get-started/api-keys",
+              "get-started/networks-and-tokens"
             ]
           }
         ]
       },
       {
-        "tab": "UI Integration",
+        "tab": "Concepts",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Concepts",
             "pages": [
-              "integration/UI/IntegrationOverview",
-              "integration/UI/Widget/Quickstart",
-              "integration/UI/Configurations"
-            ]
-          },
-          {
-            "group": "Playground",
-            "pages": [
-              "Playground"
-            ]
-          },
-          {
-            "group": "Widget Setup",
-            "pages": [
-              "integration/UI/Widget/DepositWidget",
-              {
-                "group": "Wallets",
-                "pages": [
-                  "integration/UI/Widget/WalletManagement/WalletManagement",
-                  "integration/UI/Widget/WalletManagement/NativeWalletPackages",
-                  "integration/UI/Widget/WalletManagement/PartialIntegration",
-                  "integration/UI/Widget/WalletManagement/CustomWalletManagement",
-                  {
-                    "group": "Providers",
-                    "pages": [
-                      "integration/UI/Widget/WalletManagement/EVMProvider",
-                      "integration/UI/Widget/WalletManagement/BitcoinProvider",
-                      "integration/UI/Widget/WalletManagement/SolanaProvider",
-                      "integration/UI/Widget/WalletManagement/StarknetProvider",
-                      "integration/UI/Widget/WalletManagement/FuelProvider",
-                      "integration/UI/Widget/WalletManagement/TonProvider",
-                      "integration/UI/Widget/WalletManagement/TronProvider",
-                      "integration/UI/Widget/WalletManagement/ParadexProvider",
-                      "integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
-                      "integration/UI/Widget/WalletManagement/ImmutableXProvider"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Customization",
-                "pages": [
-                  "integration/UI/Widget/Customization/CustomizationIntroduction",
-                  "integration/UI/Widget/Customization/Colors",
-                  "integration/UI/Widget/Customization/ThemeConfiguration",
-                  "integration/UI/Widget/Customization/ThemeExamples"
-                ]
-              },
-              {
-                "group": "Event Callbacks",
-                "pages": [
-                  "integration/UI/Widget/EventCallbacks/EventsIntroduction",
-                  "integration/UI/Widget/EventCallbacks/onFormChange",
-                  "integration/UI/Widget/EventCallbacks/onSwapCreate",
-                  "integration/UI/Widget/EventCallbacks/onSwapComplete",
-                  "integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
-                  "integration/UI/Widget/EventCallbacks/onBackClick"
-                ]
-              },
-              {
-                "group": "Starknet",
-                "pages": [
-                  "integration/UI/Widget/Starknet/Starknet",
-                  "integration/UI/Widget/Starknet/StarknetWithDynamics"
-                ]
-              },
-              {
-                "group": "Troubleshooting",
-                "pages": [
-                  "integration/UI/Widget/Troubleshooting/VitePolyfills",
-                  "integration/UI/Widget/Troubleshooting/NextPolyfills",
-                  "integration/UI/Widget/Troubleshooting/NextTranspilePackages"
-                ]
-              },
-              "integration/UI/Widget/Compatability"
-            ]
-          },
-          {
-            "group": "IFrame Setup",
-            "pages": [
-              "integration/UI/iFrame"
-            ]
-          },
-          {
-            "group": "Hosted Page Setup",
-            "pages": [
-              "integration/UI/HostedPage"
+              "concepts/swap-lifecycle",
+              "concepts/routes-quotes-limits",
+              "concepts/funding-methods",
+              "concepts/fees",
+              "concepts/security",
+              "concepts/glossary"
             ]
           }
         ]
       },
       {
-        "tab": "API Integration",
+        "tab": "Widget",
         "groups": [
           {
-            "group": "Documentation",
+            "group": "Start here",
             "pages": [
-              "integration/API",
-              "api-reference/depository",
-              "api-reference/gasless-swaps",
-              {
-                "group": "Swap lifecycle",
-                "icon": "arrows-spin",
-                "pages": [
-                  "api-reference/swap-lifecycle",
-                  "api-reference/refunds"
-                ]
-              },
-              "api-reference/webhook"
+              "widget/quickstart",
+              "widget/how-it-works"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "widget/configuration",
+              "widget/initial-values",
+              "widget/wallets",
+              "widget/wagmi-config",
+              "widget/theming",
+              "widget/theme-reference"
+            ]
+          },
+          {
+            "group": "Events",
+            "pages": [
+              "widget/events/overview",
+              "widget/events/on-form-change",
+              "widget/events/on-swap-create",
+              "widget/events/on-swap-complete",
+              "widget/events/on-swap-status-change",
+              "widget/events/on-swap-modal-state-change",
+              "widget/events/on-back-click",
+              "widget/events/on-menu-navigation-change",
+              "widget/events/on-error"
+            ]
+          },
+          {
+            "group": "Deposit Widget",
+            "pages": [
+              "widget/deposit-widget",
+              "widget/add-deposits-to-your-wallet"
+            ]
+          },
+          {
+            "group": "Guides & tools",
+            "pages": [
+              "widget/vanilla-js",
+              "widget/compatibility",
+              "widget/troubleshooting",
+              "widget/playground"
+            ]
+          },
+          {
+            "group": "Self-bundled Widget",
+            "pages": [
+              "widget/advanced/self-bundled",
+              "widget/advanced/migrate-to-widget-react",
+              "widget/advanced/wallet-management",
+              "widget/advanced/native-wallet-packages",
+              "widget/advanced/partial-integration",
+              "widget/advanced/custom-wallet-management",
+              "widget/advanced/wallet-providers",
+              "widget/advanced/build-troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Hosted Page",
+        "groups": [
+          {
+            "group": "Hosted Page",
+            "pages": [
+              "hosted-page/setup",
+              "hosted-page/track-completion"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API",
+        "groups": [
+          {
+            "group": "Start here",
+            "icon": "play",
+            "pages": [
+              "api/overview",
+              "api/quickstart"
+            ]
+          },
+          {
+            "group": "Funding",
+            "icon": "wallet",
+            "pages": [
+              "api/funding/transfer",
+              "api/funding/depository",
+              "api/funding/gasless"
+            ]
+          },
+          {
+            "group": "Operations",
+            "icon": "gear",
+            "pages": [
+              "api/track-swaps",
+              "api/refunds",
+              "api/webhooks",
+              "api/errors"
             ]
           },
           {
             "group": "Recipes",
+            "icon": "book-open",
             "pages": [
-              "recipes/privy-wallets"
+              "api/recipes/privy-wallets"
             ]
           },
           {
             "group": "Endpoints",
+            "icon": "code",
             "openapi": {
               "source": "https://api.layerswap.io/swagger/v2/swagger.json",
               "directory": "api-reference"
@@ -160,27 +167,15 @@
         ]
       },
       {
-        "tab": "Deposit Address",
-        "hidden": false,
-        "pages": [
-          "DepositAddress"
-        ]
-      },
-      {
-        "tab": "LI.FI Integration",
-        "hidden": true,
-        "pages": [
-          "lifi-integration"
-        ]
-      },
-      {
-        "tab": "Changelog",
-        "hidden": true,
+        "tab": "Resources",
         "groups": [
           {
-            "group": "Changelog",
+            "group": "Resources",
             "pages": [
-              "changelog/api"
+              "resources/production-checklist",
+              "resources/partner-dashboard",
+              "resources/support",
+              "resources/brand-assets"
             ]
           }
         ]
@@ -244,7 +239,7 @@
         "items": [
           {
             "label": "Brand Assets",
-            "href": "https://docs.layerswap.io/brand-assets"
+            "href": "https://docs.layerswap.io/resources/brand-assets"
           },
           {
             "label": "Public Roadmap",
@@ -275,5 +270,303 @@
       "claude",
       "perplexity"
     ]
-  }
+  },
+  "redirects": [
+    {
+      "source": "/introduction",
+      "destination": "/get-started/what-is-layerswap"
+    },
+    {
+      "source": "/Integrate",
+      "destination": "/get-started/choose-your-integration"
+    },
+    {
+      "source": "/integration/UI/IntegrationOverview",
+      "destination": "/get-started/choose-your-integration"
+    },
+    {
+      "source": "/api-keys",
+      "destination": "/get-started/api-keys"
+    },
+    {
+      "source": "/networks-tokens",
+      "destination": "/get-started/networks-and-tokens"
+    },
+    {
+      "source": "/fees",
+      "destination": "/concepts/fees"
+    },
+    {
+      "source": "/security",
+      "destination": "/concepts/security"
+    },
+    {
+      "source": "/brand-assets",
+      "destination": "/resources/brand-assets"
+    },
+    {
+      "source": "/api-reference/swap-lifecycle",
+      "destination": "/concepts/swap-lifecycle"
+    },
+    {
+      "source": "/api-reference/refunds",
+      "destination": "/api/refunds"
+    },
+    {
+      "source": "/api-reference/depository",
+      "destination": "/api/funding/depository"
+    },
+    {
+      "source": "/api-reference/gasless-swaps",
+      "destination": "/api/funding/gasless"
+    },
+    {
+      "source": "/api-reference/webhook",
+      "destination": "/api/webhooks"
+    },
+    {
+      "source": "/integration/API",
+      "destination": "/api/overview"
+    },
+    {
+      "source": "/recipes/privy-wallets",
+      "destination": "/api/recipes/privy-wallets"
+    },
+    {
+      "source": "/Playground",
+      "destination": "/widget/playground"
+    },
+    {
+      "source": "/integration/UI/HostedPage",
+      "destination": "/hosted-page/setup"
+    },
+    {
+      "source": "/integration/UI/iFrame",
+      "destination": "/hosted-page/setup"
+    },
+    {
+      "source": "/integration/UI/Configurations",
+      "destination": "/widget/initial-values"
+    },
+    {
+      "source": "/integration/UI/Widget/Quickstart",
+      "destination": "/widget/quickstart"
+    },
+    {
+      "source": "/integration/UI/Widget/HowItWorks",
+      "destination": "/widget/how-it-works"
+    },
+    {
+      "source": "/integration/UI/Widget/Configuration",
+      "destination": "/widget/configuration"
+    },
+    {
+      "source": "/integration/UI/Widget/Wallets",
+      "destination": "/widget/wallets"
+    },
+    {
+      "source": "/integration/UI/Widget/WagmiConfig",
+      "destination": "/widget/wagmi-config"
+    },
+    {
+      "source": "/integration/UI/Widget/DepositWidget",
+      "destination": "/widget/deposit-widget"
+    },
+    {
+      "source": "/integration/UI/Widget/VanillaJS",
+      "destination": "/widget/vanilla-js"
+    },
+    {
+      "source": "/integration/UI/Widget/Compatability",
+      "destination": "/widget/compatibility"
+    },
+    {
+      "source": "/integration/UI/Widget/Widget",
+      "destination": "/widget/quickstart"
+    },
+    {
+      "source": "/integration/UI/Widget/EasyDeposit",
+      "destination": "/widget/initial-values"
+    },
+    {
+      "source": "/integration/UI/Widget/TabOptions",
+      "destination": "/widget/initial-values"
+    },
+    {
+      "source": "/integration/UI/Widget/ImmutablePartnerDocs",
+      "destination": "/widget/advanced/self-bundled"
+    },
+    {
+      "source": "/integration/UI/Widget/StarknetPartnerDocs",
+      "destination": "/widget/advanced/custom-wallet-management"
+    },
+    {
+      "source": "/integration/UI/Widget/Customization/CustomizationIntroduction",
+      "destination": "/widget/theming"
+    },
+    {
+      "source": "/integration/UI/Widget/Customization/Colors",
+      "destination": "/widget/theming"
+    },
+    {
+      "source": "/integration/UI/Widget/Customization/ThemeExamples",
+      "destination": "/widget/theming"
+    },
+    {
+      "source": "/integration/UI/Widget/Customization/ThemeConfiguration",
+      "destination": "/widget/theme-reference"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/EventsIntroduction",
+      "destination": "/widget/events/overview"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onFormChange",
+      "destination": "/widget/events/on-form-change"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onSwapCreate",
+      "destination": "/widget/events/on-swap-create"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onSwapComplete",
+      "destination": "/widget/events/on-swap-complete"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onSwapStatusChange",
+      "destination": "/widget/events/on-swap-status-change"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onSwapModalStateChange",
+      "destination": "/widget/events/on-swap-modal-state-change"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onBackClick",
+      "destination": "/widget/events/on-back-click"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onMenuNavigationChange",
+      "destination": "/widget/events/on-menu-navigation-change"
+    },
+    {
+      "source": "/integration/UI/Widget/EventCallbacks/onError",
+      "destination": "/widget/events/on-error"
+    },
+    {
+      "source": "/integration/UI/Widget/Legacy/SelfBundled",
+      "destination": "/widget/advanced/self-bundled"
+    },
+    {
+      "source": "/integration/UI/Widget/Legacy/Migration",
+      "destination": "/widget/advanced/migrate-to-widget-react"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/WalletManagement",
+      "destination": "/widget/advanced/wallet-management"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/NativeWalletPackages",
+      "destination": "/widget/advanced/native-wallet-packages"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/PartialIntegration",
+      "destination": "/widget/advanced/partial-integration"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/CustomWalletManagement",
+      "destination": "/widget/advanced/custom-wallet-management"
+    },
+    {
+      "source": "/integration/UI/Widget/Starknet/Starknet",
+      "destination": "/widget/advanced/custom-wallet-management"
+    },
+    {
+      "source": "/integration/UI/Widget/Starknet/StarknetWithDynamics",
+      "destination": "/widget/advanced/custom-wallet-management"
+    },
+    {
+      "source": "/integration/UI/Widget/Troubleshooting/VitePolyfills",
+      "destination": "/widget/advanced/build-troubleshooting"
+    },
+    {
+      "source": "/integration/UI/Widget/Troubleshooting/NextPolyfills",
+      "destination": "/widget/advanced/build-troubleshooting"
+    },
+    {
+      "source": "/integration/UI/Widget/Troubleshooting/NextTranspilePackages",
+      "destination": "/widget/advanced/build-troubleshooting"
+    },
+    {
+      "source": "/prototypes/get-started/what-is-layerswap",
+      "destination": "/get-started/what-is-layerswap"
+    },
+    {
+      "source": "/prototypes/get-started/choose-your-integration",
+      "destination": "/get-started/choose-your-integration"
+    },
+    {
+      "source": "/prototypes/concepts/routes-quotes-limits",
+      "destination": "/concepts/routes-quotes-limits"
+    },
+    {
+      "source": "/prototypes/concepts/swap-lifecycle",
+      "destination": "/concepts/swap-lifecycle"
+    },
+    {
+      "source": "/prototypes/widget/add-deposits-to-your-wallet",
+      "destination": "/widget/add-deposits-to-your-wallet"
+    },
+    {
+      "source": "/prototypes/widget/widget-wont-load",
+      "destination": "/widget/troubleshooting"
+    },
+    {
+      "source": "/prototypes/api/build-your-first-api-swap",
+      "destination": "/api/quickstart"
+    },
+    {
+      "source": "/prototypes/api/reference-example-get-swaps",
+      "destination": "/api/track-swaps"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/EVMProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/BitcoinProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/SolanaProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/StarknetProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/FuelProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/TonProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/TronProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/ParadexProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/ImmutablePassportProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/integration/UI/Widget/WalletManagement/ImmutableXProvider",
+      "destination": "/widget/advanced/wallet-providers"
+    }
+  ]
 }

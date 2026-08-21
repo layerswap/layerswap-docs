@@ -1,0 +1,96 @@
+---
+title: "Configuration"
+description: "All LayerswapWidget props — the config object, callbacks, wallet options, and loader-level props."
+---
+
+`LayerswapWidget` takes a small set of top-level props. The `config` object configures the widget itself (API key, network set, theme, initial form values); the sibling props wire up callbacks, wallets, and loading behavior.
+
+```tsx
+<LayerswapWidget
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    theme: customTheme,
+    initialValues: { to: 'BASE_MAINNET', toAsset: 'USDC' },
+  }}
+  callbacks={{ onSwapCreate: (swap) => console.log(swap) }}
+  walletProvidersConfig={{ exclude: ['tron', 'fuel'] }}
+  fallback={<div>Loading widget…</div>}
+/>
+```
+
+<Note>
+  `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` are compared by reference — hoist them to module scope or memoize them so the widget isn't re-initialized on every render.
+</Note>
+
+## Top-level props
+
+<ResponseField name="config" type="WidgetConfig">
+  Widget configuration — see [the `config` object](#the-config-object) below.
+</ResponseField>
+
+<ResponseField name="callbacks" type="WidgetCallbacks">
+  Event callbacks for the swap lifecycle (`onSwapCreate`, `onSwapComplete`, `onError`, …). See [Event Callbacks](/widget/events/overview).
+</ResponseField>
+
+<ResponseField name="walletProvidersConfig" type="{ include?: WalletProviderId[]; exclude?: WalletProviderId[] }">
+  Filter which chains' wallet providers the widget builds. `include` is an allowlist (applied first); `exclude` subtracts from it. Excluded chains never download their SDK. See [Wallets](/widget/wallets).
+</ResponseField>
+
+<ResponseField name="walletDefaults" type="WalletDefaults">
+  Credentials for the widget's built-in wallet providers — your WalletConnect `projectId` and metadata, TON configuration, Immutable Passport configuration. See [Wallets](/widget/wallets).
+</ResponseField>
+
+<ResponseField name="wagmiConfig" type="Config (from wagmi)">
+  Your app's wagmi `Config`. When supplied, the widget's EVM provider adopts it — shared account, chain, and signer with your app. See [Sharing your wagmi config](/widget/wagmi-config).
+</ResponseField>
+
+<ResponseField name="fallback" type="ReactNode">
+  Rendered while the widget bundle is being fetched and initialized, and during server-side rendering. Also rendered if loading fails.
+</ResponseField>
+
+<ResponseField name="onReady" type="() => void">
+  Fires once, when the widget has loaded and mounted.
+</ResponseField>
+
+<ResponseField name="onError" type="(error: unknown) => void">
+  Fires when the widget fails to **load** (receives a `ManifestError` for manifest issues) or throws during render. This is distinct from `callbacks.onError`, which reports runtime errors inside a working widget — see [How It Works & Security](/widget/how-it-works#two-error-channels).
+</ResponseField>
+
+## The `config` object
+
+<ResponseField name="apiKey" type="string">
+  Your Layerswap API key from the [Partner Dashboard](/get-started/api-keys). The type marks it optional, but in practice every integration should pass one — requests without it are not attributed to your app.
+</ResponseField>
+
+<ResponseField name="version" type='"mainnet" | "testnet"'>
+  The environment the Widget should use. Your API key selects mainnet or testnet; this value must match the key's environment.
+</ResponseField>
+
+<ResponseField name="theme" type="ThemeData | null">
+  Visual theme overrides — colors, border radius, header visibility, and more. See [Customization](/widget/theming).
+</ResponseField>
+
+<ResponseField name="initialValues" type="InitialSettings">
+  Prefill, lock, or hide swap form fields — source/destination network, tokens, amount, destination address, default tab, and more. See the [Initial Values reference](/widget/initial-values).
+</ResponseField>
+
+<ResponseField name="loadingComponent" type="ReactNode">
+  Custom skeleton rendered inside the widget while its settings load (this is a later stage than the loader-level `fallback`).
+</ResponseField>
+
+<ResponseField name="apiUri" type="string">
+  Override the Layerswap API base URL. Advanced — only needed for custom API routing setups agreed with the Layerswap team.
+</ResponseField>
+
+<ResponseField name="settings" type="LayerSwapSettings">
+  Pre-fetched settings blob. Normally the widget fetches this itself; pass it to skip the initial fetch. Advanced.
+</ResponseField>
+
+<Note>
+  `initialValues` and `settings` are typed as `unknown` in the public package, so your editor won't autocomplete their fields — use the [Initial Values reference](/widget/initial-values) as the source of truth.
+</Note>
+
+<Warning>
+  The `config` fields `walletConnect`, `imtblPassport`, and `tonConfigs` are **deprecated**. Pass these credentials through the top-level [`walletDefaults`](/widget/wallets#supplying-credentials) prop instead.
+</Warning>

@@ -1,0 +1,21 @@
+---
+title: onSwapCreate
+description: Triggered when a new swap is created.
+---
+
+`onSwapCreate` fires after the user submits the form and the API creates the swap.
+
+```tsx
+<LayerswapWidget
+  config={widgetConfig}
+  callbacks={{
+    onSwapCreate: (response) => {
+      console.log("Swap created:", response as SwapResponse)
+    },
+  }}
+/>
+```
+
+## Callback payload
+
+<Snippet file="snippets/swap-response-types.mdx" />

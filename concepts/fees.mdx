@@ -1,0 +1,59 @@
+---
+title: "Fees"
+description: "Understand how Layerswap fees are structured and how to retrieve fee data from API quotes."
+icon: coins
+---
+
+A quote describes the complete priced result of a swap, including the received amount, execution path, estimated duration, and costs. This page focuses specifically on the fee fields within that quote and how they differ from rate, slippage, and optional Refuel.
+
+## Quote fee fields
+
+| Field | Meaning |
+|---|---|
+| `blockchain_fee` | Network and provider execution costs for the selected route and configuration |
+| `service_fee` | Layerswap's service fee for executing the swap |
+| `total_fee` | Combined quote fees in source-token units; does not include `refuel_in_source` |
+| `total_fee_in_usd` | USD value of `total_fee` |
+| `fee_discount` | Discount applied when calculating the quote, when present |
+| `refuel_in_source` | Refuel amount expressed in source-token units when Refuel is enabled |
+
+These fields are returned in `data.quote`. See [`GET /quote`](/api-reference/swaps/get-quote) for the complete response schema.
+
+See [Refuel](/concepts/routes-quotes-limits#refuel) for details on how Refuel affects the quote and what is delivered to the recipient.
+
+## Market impact
+
+Market impact is the change in execution price caused by a swap interacting with available market liquidity. It is most relevant when a route converts assets, and can increase for larger amounts or routes with less liquidity.
+
+The Widget estimates market impact by comparing the USD value sent with the USD value received, then excluding service fees, blockchain fees, and Refuel from the difference:
+
+```text
+requested value = requested_amount × source_token.price_in_usd
+
+received value = receive_amount × destination_token.price_in_usd
+
+market impact =
+  received value
+  − requested value
+  + (service_fee × source_token.price_in_usd)
+  + (blockchain_fee × source_token.price_in_usd)
+  + refuel.amount_in_usd
+```
+
+## Fee structure by amount range
+
+[`GET /detailed_quote`](/api-reference/swaps/get-detailed-quote) returns an array of consecutive amount ranges for a route. It does not require an `amount`.
+
+Each item describes the fee structure, provider path, and estimated completion time for one range. When an amount moves into the next range, the applicable fees and providers may change.
+
+| Field | Meaning |
+|---|---|
+| `min_amount` / `max_amount` | Lower and upper bounds of the range in source-token units |
+| `min_amount_in_usd` / `max_amount_in_usd` | USD values of the lower and upper bounds |
+| `total_percentage_fee` | Percentage fee applied within the range |
+| `total_fixed_fee_in_source` | Fixed fee for the range in source-token units |
+| `total_fixed_fee_in_usd` | USD value of the fixed fee |
+| `avg_completion_milliseconds` | Estimated completion time for the range |
+| `path` | Ordered providers used for the range |
+
+Use `/detailed_quote` to inspect how pricing and execution change across amount ranges. Use `/quote` to calculate the expected outcome for a specific transfer amount.

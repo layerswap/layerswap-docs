@@ -1,0 +1,75 @@
+---
+title: "Fund by transfer"
+description: "Execute the ordered deposit actions returned for a Layerswap swap."
+---
+
+After creating a swap, execute its ordered `deposit_actions`. Treat the API response as the transaction source of truth; do not hardcode recipient addresses, memos, calldata, decimals, or fee assets.
+
+## Read the action
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID/deposit_actions?source_address=SOURCE_ADDRESS' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Common fields:
+
+| Field | Use |
+|---|---|
+| `order` | Execute multiple actions in ascending order |
+| `type` | Whether to submit a transfer or sign data |
+| `to_address` | Transaction recipient or contract |
+| `amount` | Human-readable source amount |
+| `amount_in_base_units` | Integer amount for transaction construction |
+| `call_data` | Chain-specific calldata, memo, or serialized transaction |
+| `network`, `token`, `fee_token` | Network, asset, decimals, and gas asset |
+
+Validate the action against the swap the user approved, then submit it on `action.network`. Store the transaction hash and [track the swap](/api/track-swaps).
+
+## EVM and calldata networks
+
+For a plain native transfer, send `amount_in_base_units` to `to_address`. When `call_data` is present, submit it exactly as returned:
+
+```ts
+await walletClient.sendTransaction({
+  to: action.to_address,
+  data: action.call_data || undefined,
+  value: BigInt(action.amount_in_base_units),
+});
+```
+
+For ERC-20 actions, follow the returned contract target and calldata. A Depository action can require an approval first; see [Fund via the Depository contract](/api/funding/depository).
+
+## Bitcoin
+
+Bitcoin actions can include a numeric memo in `call_data`. Send the BTC amount to `to_address` and include the memo as an `OP_RETURN` payload:
+
+```js
+const memoHexText = Number(action.call_data).toString(16);
+const data = Buffer.from(memoHexText, 'utf8');
+const opReturn = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, data]);
+```
+
+The bytes contain the ASCII hex text, not the bytes represented by that hex string. Omitting or transforming the memo prevents Layerswap from matching the deposit. Keep the payload within Bitcoin's standard relay limits.
+
+## Solana
+
+For Solana, `call_data` is a base64-encoded serialized transaction that already contains the transfer and matching memo. Deserialize it, refresh its blockhash, sign, and send:
+
+```ts
+const transaction = Transaction.from(Buffer.from(action.call_data, 'base64'));
+const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+transaction.recentBlockhash = blockhash;
+transaction.lastValidBlockHeight = lastValidBlockHeight;
+```
+
+Do not rebuild the transaction unless you have verified every instruction. The frontend intentionally uses the backend-provided serialized transaction.
+
+<Warning title="🚧 Needs review — Solana memo program (S-10)">
+  The memo program identifier cannot be verified from the frontend because it does not construct the instruction. Confirm it against backend code or a live `deposit_actions` sample before documenting a manual-build path.
+</Warning>
+
+## Wrong amount or missing memo
+
+An unmatched transfer can leave the swap waiting until expiry; an invalid amount can lead to failure and potentially a refund. Do not promise automatic recovery. Show the user the exact network, token, amount, destination, and memo before signing, and follow the [swap lifecycle](/concepts/swap-lifecycle) and [refund flow](/api/refunds) when something goes wrong.

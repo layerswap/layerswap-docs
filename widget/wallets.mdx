@@ -1,0 +1,108 @@
+---
+title: "Wallets"
+description: "How wallet support works in the widget — filtering chains and supplying credentials."
+---
+
+With `@layerswap/widget-react`, **you don't construct wallet providers**. The widget builds them internally for every supported chain, and each chain's wallet SDK is downloaded lazily as part of the CDN remote — none of it enters your bundle. Your integration controls two things:
+
+1. **Which chains are enabled** — via `walletProvidersConfig`
+2. **Credentials for certain wallet services** — via `walletDefaults`
+
+If your app already runs wagmi, you can additionally [share your wagmi config](/widget/wagmi-config) so the widget reuses your users' EVM wallet connection.
+
+<Note>
+  Coming from the self-bundled Widget? The `walletProviders` prop and `createEVMProvider()`-style factories do not exist in `@layerswap/widget-react`. See [Self-bundled Widget](/widget/advanced/self-bundled) or the [migration guide](/widget/advanced/migrate-to-widget-react).
+</Note>
+
+## Filtering chains
+
+`walletProvidersConfig` filters the wallet provider set the widget builds:
+
+```tsx
+// Only EVM and Solana wallets
+<LayerswapWidget
+  config={widgetConfig}
+  walletProvidersConfig={{ include: ['evm', 'solana'] }}
+/>
+
+// Everything except Tron and Fuel
+<LayerswapWidget
+  config={widgetConfig}
+  walletProvidersConfig={{ exclude: ['tron', 'fuel'] }}
+/>
+```
+
+- `include` is an **allowlist** and is applied first; `exclude` subtracts from the result, so the two can be combined.
+- Chains that are filtered out **never download their wallet SDK**.
+- EVM loads eagerly. Immutable Passport also loads eagerly when configured; the other chain providers load when the connect modal first needs them.
+
+The available provider ids (`WalletProviderId`):
+
+| Id | Chain family |
+|---|---|
+| `evm` | EVM chains (Ethereum, Base, Arbitrum, …) |
+| `starknet` | Starknet |
+| `solana` | Solana |
+| `bitcoin` | Bitcoin |
+| `ton` | TON |
+| `tron` | Tron |
+| `fuel` | Fuel |
+| `paradex` | Paradex |
+| `imtblPassport` | Immutable Passport |
+
+<Warning>
+  The Solana id is `'solana'`, not `'svm'`.
+</Warning>
+
+## Supplying credentials
+
+Some wallet services need your own credentials or metadata. Pass them via `walletDefaults`:
+
+```tsx
+// Module scope, so the object stays referentially stable
+const walletDefaults = {
+  walletConnect: {
+    projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // required for WalletConnect
+    name: 'Your App',
+    description: 'Your app description',
+    url: 'https://yourapp.com',
+    icons: ['https://yourapp.com/icon.png'],
+  },
+  ton: {
+    tonApiKey: 'YOUR_TON_API_KEY',
+    manifestUrl: 'https://yourapp.com/tonconnect-manifest.json',
+  },
+  immutablePassport: {
+    publishableKey: 'YOUR_PUBLISHABLE_KEY',
+    clientId: 'YOUR_CLIENT_ID',
+    redirectUri: 'https://yourapp.com/passport/callback',
+    logoutRedirectUri: 'https://yourapp.com/',
+  },
+};
+
+<LayerswapWidget config={widgetConfig} walletDefaults={walletDefaults} />
+```
+
+<ResponseField name="walletConnect" type="object">
+  Your [WalletConnect Cloud](https://cloud.walletconnect.com/) `projectId` (required for WalletConnect connections) plus optional app metadata (`name`, `description`, `url`, `icons`) shown in the wallet's connection prompt.
+</ResponseField>
+
+<ResponseField name="ton" type="object">
+  TON wallet support configuration. Both `tonApiKey` and the `manifestUrl` of your [TON Connect manifest](https://docs.ton.org/develop/dapps/ton-connect/manifest) are required. TON wallets appear only when this object is supplied.
+</ResponseField>
+
+<ResponseField name="immutablePassport" type="object">
+  Immutable Passport client configuration. `publishableKey`, `clientId`, `redirectUri`, and `logoutRedirectUri` are all required. Immutable Passport appears only when this object is supplied.
+</ResponseField>
+
+<Note>
+  The provider id is `imtblPassport`, while the `walletDefaults` key is `immutablePassport`. This asymmetry is intentional in the current public types.
+</Note>
+
+## Sharing your wagmi config
+
+If your app already uses wagmi for EVM wallets, pass your `Config` as the `wagmiConfig` prop and the widget adopts it — same connected account, same chain, no second connect flow. This replaces the old "Partial Integration (EVM)" setup and has its own page:
+
+<Card title="Sharing your wagmi config" icon="plug" href="/widget/wagmi-config">
+  Reuse your app's EVM wallet connection inside the widget
+</Card>

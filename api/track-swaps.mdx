@@ -1,0 +1,66 @@
+---
+title: "Track swaps"
+description: "Poll swap status, list by status filter, look up a funding transaction, or receive webhooks."
+---
+
+Store `data.swap.id` after creation. It is the primary identifier for tracking a swap through funding, execution, completion, failure, or refund.
+
+## Read one swap
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Use `data.swap.status` for control flow and `data.swap.transactions` for input, output, refuel, and refund transaction details. See [Swap lifecycle & statuses](/concepts/swap-lifecycle).
+
+<Warning title="🚧 Needs review — polling and rate limits (Q2.4)">
+  Layerswap has not published a polling interval or rate-limit policy, and responses do not expose standard rate-limit headers. Poll conservatively, stop at a terminal status, use exponential backoff on network/server errors, and prefer webhooks when possible.
+</Warning>
+
+## List swaps by address
+
+`GET /swaps` requires `address` and accepts repeatable `statuses` filters:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps?address=0xUserAddress&statuses=PendingDeposit&statuses=PendingWithdrawal' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Status filters are case-sensitive PascalCase values and are **not** the snake_case values returned on swap objects:
+
+| Query filter | Response `status` |
+|---|---|
+| `PendingDeposit` | `user_transfer_pending` |
+| `PendingWithdrawal` | `ls_transfer_pending` |
+| `PendingRefund` | `pending_refund` |
+| `Completed` | `completed` |
+| `Failed` | `failed` |
+| `Expired` | `expired` |
+| `Refunded` | `refunded` |
+
+Sending a response value such as `completed` or `user_transfer_pending` can return an empty-body `400`. Preserve the exact casing above.
+
+Other filters include `page`, repeatable `networks`, and `include_expired`. The page size is not documented.
+
+## Find by transaction hash
+
+When you know the source transaction hash:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps/by_transaction_hash/0xTRANSACTION_HASH' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+This is useful after a wallet or server-wallet transaction has been submitted but your application lost the swap ID. The API also exposes `GET /transaction_status` for transaction-level inspection; see its generated reference for the required query shape.
+
+## Choose an observation mechanism
+
+| Mechanism | Use it when | Caveat |
+|---|---|---|
+| Widget events | Your embedded UI needs immediate client-side updates | Client events are not sufficient proof for crediting funds |
+| Poll `GET /swaps/{id}` | Your backend needs an authoritative status on demand | Cadence and rate limits are unpublished |
+| Webhooks | Your backend can receive pushes | Event, retry, ordering, and payload guarantees remain marked gaps |
+| Explorer | Users or support need visibility | Treat it as a visibility tool, not backend settlement logic |
+
+For server-side fulfillment, confirm the API status even if the browser already emitted `onSwapComplete`.

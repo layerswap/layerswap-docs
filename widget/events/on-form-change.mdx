@@ -1,0 +1,33 @@
+---
+title: onFormChange
+description: Triggered whenever the swap form values change.
+---
+
+The `onFormChange` event fires whenever the user modifies the swap form — for example, when changing the asset, amount, or destination network.
+
+```tsx
+<LayerswapWidget
+  config={widgetConfig}
+  callbacks={{
+    onFormChange: (formData) => {
+      console.log("Form updated:", formData)
+    },
+  }}
+/>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+formData: {
+  from?: string;
+  to?: string;
+  fromAsset?: string;
+  toAsset?: string;
+  amount?: string;
+  destination_address?: string;
+  refuel?: boolean;
+}
+```
+
+Every field is optional because the callback can fire before the user has completed the form.

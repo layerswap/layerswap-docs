@@ -1,0 +1,76 @@
+---
+title: "Self-bundled Widget"
+description: "For teams that need complete control over the Widget bundle and its dependencies."
+---
+
+<Warning>
+  The React and JavaScript loader packages are recommended for most new integrations because they deliver verified Widget updates without a host-app deployment. The self-bundled package remains supported and is useful when your architecture requires control over the complete bundle.
+</Warning>
+
+With this path, your app installs `@layerswap/widget` and the wallet packages it needs. You construct wallet providers and pass them to `LayerswapProvider`.
+
+## Install
+
+```bash
+npm install @layerswap/widget @layerswap/wallet-evm zustand@^4.5.7
+```
+
+All Widget packages are expected to release on the 2.0.0 line together.
+
+<Warning title="Verify at release">
+  Confirm the published package versions, peer ranges, and release notes before shipping this setup.
+</Warning>
+
+## Render the Widget
+
+```tsx
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import '@layerswap/widget/index.css';
+
+const walletProviders = [
+  createEVMProvider({
+    walletConnectConfigs: {
+      projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
+      appName: 'Your app',
+    },
+  }),
+];
+
+export function Layerswap() {
+  return (
+    <LayerswapProvider
+      config={{ apiKey: 'YOUR_API_KEY' }}
+      walletProviders={walletProviders}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+Build `walletProviders` with the packages for the networks your app supports. Paradex depends on both the EVM and Starknet provider packages.
+
+## Configure credentials
+
+- Create `YOUR_API_KEY` in the [Partner Dashboard](/get-started/api-keys).
+- EVM, Starknet, and Solana WalletConnect providers need a WalletConnect project ID.
+- TON needs a TON API key and manifest URL.
+- Use [Initial values & flows](/widget/initial-values) for route and form defaults.
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Wallet management" icon="wallet" href="/widget/advanced/wallet-management">
+    Provider loading and self-bundled wallet architecture
+  </Card>
+  <Card title="Wallet providers" icon="plug" href="/widget/advanced/wallet-providers">
+    Package and factory setup by chain family
+  </Card>
+  <Card title="Build troubleshooting" icon="wrench" href="/widget/advanced/build-troubleshooting">
+    Polyfills and transpilation for self-bundled dependencies
+  </Card>
+  <Card title="Migration guide" icon="arrow-right" href="/widget/advanced/migrate-to-widget-react">
+    Move to the recommended React loader
+  </Card>
+</CardGroup>

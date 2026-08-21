@@ -1,0 +1,74 @@
+---
+title: "API overview"
+description: "Authenticate with the Layerswap v2 API and find the endpoint for each integration task."
+---
+
+Use the Layerswap API when you want to own the user interface, wallet or signing flow, and backend orchestration. The API exposes live routes and quotes, creates swaps, returns funding instructions, and reports lifecycle state.
+
+## Base URL and authentication
+
+```text
+https://api.layerswap.io/api/v2
+```
+
+Send your app key in the `X-LS-APIKEY` header:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/networks' \
+  --header 'accept: application/json' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Mainnet and testnet use the same base URL; the key selects the environment. See [API keys & environments](/get-started/api-keys).
+
+Discovery reads such as `/networks`, `/sources`, `/destinations`, and `/quote` currently work without a key. Swap creation and app-scoped operations use your key. An invalid key returns `403 API_KEY_FORBIDDEN`.
+
+## Endpoints by task
+
+| Task | Endpoint |
+|---|---|
+| List supported networks and tokens | `GET /networks` |
+| Discover routable sources/destinations | `GET /sources`, `GET /destinations` |
+| Check cross-token connectivity | `GET /connections` |
+| Check min/max | `GET /limits` |
+| Price an amount | `GET /quote`, `GET /detailed_quote` |
+| Create a swap | `POST /swaps` |
+| Get funding instructions | `GET /swaps/{id}/deposit_actions` |
+| Read one swap | `GET /swaps/{id}` |
+| Find by funding transaction | `GET /swaps/by_transaction_hash/{hash}` |
+| Inspect transaction status | `GET /transaction_status` |
+| Submit or inspect gasless authorization | `POST` / `GET /swaps/{id}/authorize` |
+
+The [generated endpoint reference](/api-reference) is sourced from the live v2 OpenAPI document.
+
+## Response envelopes
+
+Successful JSON responses use a `data` envelope:
+
+```json
+{
+  "data": {
+    "swap": {},
+    "deposit_actions": [],
+    "quote": {}
+  }
+}
+```
+
+API errors normally use:
+
+```json
+{
+  "error": {
+    "code": "ROUTE_NOT_FOUND_ERROR",
+    "message": "Route not found",
+    "metadata": {}
+  }
+}
+```
+
+Binding and enum validation can return `400` with an empty body. Your client must handle both JSON errors and bodyless failures; see [Errors](/api/errors).
+
+## First integration path
+
+Start with [Build your first API swap](/api/quickstart), then choose a [funding method](/concepts/funding-methods) and implement [tracking](/api/track-swaps).

@@ -1,0 +1,80 @@
+---
+title: "Glossary"
+description: "Canonical Layerswap integration terms and their corresponding API or Widget names."
+icon: book
+---
+
+<Warning title="🚧 Needs review — terminology (Q3.7)">These terms are internally consistent with the current API and Widget contracts, but the product-language choices still need final validation.</Warning>
+
+## Core objects
+
+**Swap**  
+The API object and end-to-end operation that moves an asset from a source to a destination. A swap contains one or more on-chain transactions.
+
+**Route**  
+A source network or exchange and token → destination network and token pair that Layerswap can execute.
+
+**Route provider**  
+An execution provider in a quote's `path` array. One route can use multiple providers.
+
+**Quote**  
+Pricing for a specific amount on a route, including the receive amount, fee fields, rate, slippage, and execution path.
+
+**Limits**  
+The current minimum and maximum source amount accepted for a route.
+
+## Funding
+
+**Funding method**  
+How a created swap receives the source asset: wallet transfer, deposit address, Depository, or gasless deposit. The Widget can expose additional product-specific methods.
+
+**Deposit address**  
+An address assigned for funding a swap. The user or an exchange sends the specified source token to it.
+
+**Deposit actions**  
+The ordered `deposit_actions` instructions returned by the API after swap creation. An action can describe a transfer or contract call.
+
+**Depository**  
+The audited Layerswap contract used by the `use_depository` funding method.
+
+**Gasless deposit**  
+A funding method in which the user signs typed authorization data and a relayer submits the transaction.
+
+**Refuel**  
+An optional top-up of the destination network's native gas token.
+
+**Refund address**  
+A valid address on the source network to which Layerswap can return source funds if a funded swap cannot complete.
+
+## Direction and state
+
+**Source / destination**  
+The conceptual start and end of a route. Widget and Hosted Page parameters may use names such as `from`, `to`, `fromAsset`, and `toAsset`.
+
+**Swap status**  
+A snake_case state returned on a swap, such as `user_transfer_pending` or `completed`.
+
+**Status filter**  
+A separate, case-sensitive PascalCase value accepted by the `statuses` query parameter on `GET /swaps`.
+
+**Environment**  
+Mainnet or testnet. The API key selects the environment; the Widget's `config.version` field must match it.
+
+## Integration surfaces
+
+**Layerswap Widget**  
+The embeddable UI product. Use `@layerswap/widget-react` in React, `@layerswap/widget-js` in other browser frameworks, or the self-bundled `@layerswap/widget` for advanced requirements.
+
+**Hosted Page**  
+The Layerswap application configured through URL parameters. You can link to it, redirect to it, or embed it in an iframe.
+
+**Partner Dashboard**  
+The application for managing organizations, apps, environment-specific API keys, webhooks, logos, and wallet-integration branding.
+
+**Explorer**  
+The public [Layerswap Explorer](https://layerswap.io/explorer) for inspecting swap and transaction progress.
+
+## Identifiers
+
+**`externalId` / `reference_id`**  
+`externalId` is the Widget or Hosted Page input name. The resulting swap stores it as `reference_id`, which your integration can use to correlate its own records with Layerswap swaps.

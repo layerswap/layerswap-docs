@@ -1,0 +1,48 @@
+---
+title: "Funding methods"
+description: "Compare Layerswap funding methods and choose the right one for your integration."
+icon: wallet
+---
+
+A **funding method** determines how the source asset is provided to Layerswap.
+
+<Warning title="🚧 Needs review — terminology (D2)">“Funding method” is the proposed umbrella term for wallet transfers, deposit addresses, Depository calls, and gasless deposits. API and Widget field names still use `deposit` where noted.</Warning>
+
+## Compare methods
+
+| Method | Best fit | Required funding action |
+|---|---|---|
+| Wallet transfer | Users or integrations that can submit source-network transactions | Submit a source-network transfer or contract call |
+| Deposit address | CEX withdrawals or wallets that cannot connect to your app | Send funds from a wallet or exchange |
+| Depository | Smart contracts, server wallets, and batched EVM funding | Call the Depository contract |
+| Gasless deposit | Users who do not have the source network's gas token | Sign EIP-3009 typed data; a relayer submits the transaction |
+
+<Warning title="🚧 Needs review — awaiting API answers (Q2.8/Q2.9)">The table is limited to structures verified in the API specification. Gasless validity rules and additional Depository operational guarantees remain unconfirmed.</Warning>
+
+## Wallet transfer
+
+Use the [Widget](/widget/quickstart) for a ready-made wallet flow. With the API, create a swap using the standard funding flow, then complete its ordered `deposit_actions`. An action may require signing data or submitting a transaction using a `to_address`, `call_data`, or both. When an on-chain transaction is required, the transaction sender normally pays the source-network fee.
+
+See [Fund by transfer](/api/funding/transfer) for network-specific transaction instructions.
+
+## Deposit address
+
+Layerswap assigns a deposit address to the swap. The sender simply transfers funds to that address from any supported source.
+
+You can implement deposit-address funding directly with the API or use the Deposit Widget for a ready-made UI. See [Fund by transfer](/api/funding/transfer) and [Add deposits to your wallet](/widget/add-deposits-to-your-wallet).
+
+## Depository
+
+The Depository funds a swap through a contract call instead of a direct transfer. It is intended for smart contracts, server wallets, batched operations, and sponsored transaction flows.
+
+You can implement Depository funding with the API. Create a supported swap with `use_depository`, then submit the returned contract action. See [Fund via the Depository contract](/api/funding/depository) for transaction instructions.
+
+## Gasless deposit
+
+Gasless funding lets users fund a swap without having the source network's gas token. The user signs an authorization, and a relayer submits the transaction and pays the network fee. The relayer cost is included in the gasless quote.
+
+The Widget offers gasless funding automatically for supported routes and tokens. You can also implement it with the API: request a gasless quote and create the swap with `use_gasless`, then send the user's signature to `POST /authorize`. See [Gasless deposits](/api/funding/gasless) for the complete authorization flow.
+
+## Widget-specific choices
+
+The Deposit Widget also supports `hyperliquid` and `polymarket` funding options. See [Deposit Widget](/widget/deposit-widget) for the current allow-list.

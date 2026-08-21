@@ -1,0 +1,163 @@
+---
+title: "Initial values & flows"
+description: "Prefill, lock, or hide Widget fields and select the Swap, CEX, or Deposit flow."
+---
+
+Pass these optional fields through [`config.initialValues`](/widget/configuration) to control what the form starts with and what users can change:
+
+```tsx
+<LayerswapWidget
+  config={{
+    apiKey: 'YOUR_API_KEY',
+    version: 'mainnet',
+    initialValues: {
+      to: 'BASE_MAINNET',
+      toAsset: 'USDC',
+      lockTo: true,
+      destination_address: '0x1234…5678',
+      hideAddress: true,
+    },
+  }}
+/>
+```
+
+Hosted Page URL parameters use many of the same names, plus legacy aliases and named theme presets. Their canonical reference is [Hosted Page setup](/hosted-page/setup).
+
+## Routing
+
+<ResponseField name="from" type="string">
+  Source network or exchange the user transfers from — for example, `ETHEREUM_MAINNET`, `IMMUTABLEX_MAINNET`, or an exchange identifier. Network and token names are listed on [Supported networks & tokens](/get-started/networks-and-tokens).
+</ResponseField>
+
+<ResponseField name="to" type="string">
+  Destination network or exchange the user transfers to — e.g. `BASE_MAINNET`.
+</ResponseField>
+
+<ResponseField name="fromAsset" type="string">
+  Token preselected in the "From" field. Available tokens depend on the selected source network.
+</ResponseField>
+
+<ResponseField name="toAsset" type="string">
+  Token preselected in the "To" field. Available tokens depend on the selected destination network.
+</ResponseField>
+
+<ResponseField name="amount" type="string">
+  Pre-fills the amount field. The user can still change it. Skipped if no asset is selected.
+</ResponseField>
+
+<ResponseField name="destination_address" type="string">
+  The destination address the funds should reach at the end of the swap.
+</ResponseField>
+
+## Locking fields
+
+<ResponseField name="lockFrom" type="boolean">
+  Lock the source field for editing.
+</ResponseField>
+
+<ResponseField name="lockTo" type="boolean">
+  Lock the destination field for editing.
+</ResponseField>
+
+<ResponseField name="lockFromAsset" type="boolean">
+  Lock the source token for editing.
+</ResponseField>
+
+<ResponseField name="lockToAsset" type="boolean">
+  Lock the destination token for editing.
+</ResponseField>
+
+## Hiding UI elements
+
+<ResponseField name="hideFrom" type="boolean">
+  Hide the source field in the UI.
+</ResponseField>
+
+<ResponseField name="hideTo" type="boolean">
+  Hide the destination field in the UI.
+</ResponseField>
+
+<ResponseField name="hideAddress" type="boolean">
+  Hide the destination address in the UI.
+</ResponseField>
+
+<ResponseField name="hideRefuel" type="boolean">
+  Disable the refuel feature and hide it in the UI.
+</ResponseField>
+
+<ResponseField name="hideLogo" type="boolean">
+  Hide the partner logo.
+</ResponseField>
+
+<ResponseField name="hideDepositMethod" type="boolean">
+  Hide the deposit method selector.
+</ResponseField>
+
+## Flow selection
+
+<ResponseField name="defaultTab" type='"swap" | "cex" | "deposit"'>
+  The initial flow shown by the widget:
+  - `swap` — cross-chain swap flow (default)
+  - `cex` — deposit from CEX flow
+  - `deposit` — Deposit tab
+</ResponseField>
+
+<ResponseField name="depositMethod" type='"wallet" | "deposit_address"'>
+  Preselect wallet funding or deposit-address funding. Other values are ignored by the standard Widget.
+</ResponseField>
+
+<ResponseField name="swapId" type="string">
+  Open the widget directly on an existing swap.
+</ResponseField>
+
+## Attribution & display
+
+<ResponseField name="externalId" type="string">
+  A unique ID representing the user's swap session in your system. It becomes the swap's `reference_id` and can be used to correlate API and webhook data.
+</ResponseField>
+
+<ResponseField name="clientId" type="string">
+  Client ID from your partner setup. When `destination_address` is provided, your logo is shown next to the address.
+</ResponseField>
+
+<ResponseField name="account" type="string">
+  User account name or address shown as the source. Use together with `hideFrom: true`.
+</ResponseField>
+
+<ResponseField name="appName" type="string">
+  Your app's name, used for address attribution.
+</ResponseField>
+
+<ResponseField name="sameAccountNetwork" type="string">
+  Restrict the swap to the same account on the given network.
+</ResponseField>
+
+<ResponseField name="actionButtonText" type="string" default="Next">
+  Replaces the main action button text — e.g. "Deposit", "Withdraw", "Transfer", or anything relevant to your app.
+</ResponseField>
+
+## Flow behavior
+
+### Swap
+
+The default `swap` flow moves assets between blockchain networks. You can prefill or lock both sides and provide `destination_address`.
+
+### Deposit from CEX
+
+The `cex` flow lets a user withdraw from a centralized exchange into a destination wallet. The user selects an exchange and intermediary network, follows the withdrawal instructions, and Layerswap continues after detecting the deposit. Prefill the exchange with `from` and the destination with `to`, `toAsset`, and `destination_address`.
+
+### Deposit tab
+
+The `deposit` flow gives the user a generated address or QR code they can fund from a wallet, hardware wallet, or exchange without a source-side wallet connection.
+
+In this flow, the connected destination wallet takes precedence: its address overwrites `destination_address`. Use [`LayerswapDepositWidget`](/widget/deposit-widget) when your application must lock the destination address.
+
+To keep users in one flow, combine `defaultTab` with `config.theme.header.hideTabs: true`.
+
+<Warning title="🚧 Needs review — terminology (D2)">
+  “Deposit tab” replaces the old “Easy Deposit” name. Existing integrations may still recognize the former label.
+</Warning>
+
+## Older aliases
+
+Older URL and Widget parameter names are still normalized, but new integrations should use only the canonical fields above. The complete alias and precedence table lives in [Hosted Page setup](/hosted-page/setup).

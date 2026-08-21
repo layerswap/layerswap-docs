@@ -1,0 +1,29 @@
+---
+title: "Security"
+description: "Review the verified security properties of the Layerswap Depository and Widget delivery model."
+icon: shield
+---
+
+This page summarizes product-level security facts. Review the implementation-specific pages and perform your own assessment before moving production funds.
+
+## Depository contract
+
+The Layerswap Depository smart contract has been audited by Hexens. For additional security context, see the [full audit report](https://hexens.io/audit-reports/layerswap-depository-mar-2026) before integrating the [Depository funding method](/api/funding/depository).
+
+An audit is evidence about the reviewed code and scope; it is not a guarantee against every implementation, operational, or integration risk.
+
+## Widget delivery
+
+The React and JavaScript packages securely load the Widget from Layerswap’s CDN. The loader verifies an ECDSA P-256 manifest signature and SHA-384 integrity metadata before executing remote chunks.
+
+[How the Widget works](/widget/how-it-works) is the canonical reference for the trust root, validation sequence, Content Security Policy, failure behavior, and release channel.
+
+## Operational visibility
+
+The [Layerswap Explorer](https://layerswap.io/explorer) provides a public view of swap progress and related transactions. API integrations should also store the swap ID and inspect the lifecycle and transaction hashes returned by the API.
+
+<Warning title="🚧 Needs review — product security scope">Custody, in-flight asset handling, and recovery guarantees still need a reviewed product statement. This page intentionally makes no broader claim.</Warning>
+
+## TRAIN protocol
+
+The upcoming [TRAIN protocol](https://docs.train.tech) will enable cross-chain transfers using atomic swaps. TRAIN is not yet part of the current Layerswap integrations.

@@ -1,0 +1,71 @@
+---
+title: "Errors"
+description: "Handle Layerswap API JSON errors, empty-body validation responses, and per-step failures."
+---
+
+Layerswap clients must support two failure shapes: structured JSON errors and binding-level `400` responses with no body.
+
+## Structured errors
+
+```json
+{
+  "error": {
+    "code": "ROUTE_NOT_FOUND_ERROR",
+    "message": "Route not found",
+    "metadata": {
+      "StatusCode": "NotFound"
+    }
+  }
+}
+```
+
+Do not assume a stable type for every metadata value; live responses have used both numeric and string `StatusCode` values.
+
+## Empty-body 400s
+
+Invalid enum values, incorrect casing, missing required enum parameters, and other model-binding failures can return HTTP `400` with an empty body. Check the status and `Content-Type` before calling `.json()`:
+
+```ts
+const response = await fetch(url, options);
+const text = await response.text();
+
+if (!response.ok) {
+  const error = text ? JSON.parse(text) : null;
+  throw new Error(error?.error?.message ?? `Layerswap API ${response.status}`);
+}
+
+const payload = JSON.parse(text);
+```
+
+Log the endpoint, parameter names, and correlation ID on an empty-body error, but never log an API key, signature, or sensitive address metadata unnecessarily.
+
+## Codes you should recognize
+
+| Code | Meaning or next action |
+|---|---|
+| `API_KEY_FORBIDDEN` | The supplied key is invalid or forbidden; verify app and environment |
+| `ROUTE_NOT_FOUND_ERROR` | The pair or rate is unavailable; refresh sources/destinations and let the user choose another route |
+| `GREATER_THAN_MAX_ERROR` | Amount is above the current route maximum; refresh `/limits` |
+| `LESS_THAN_MIN_ERROR` | Amount is below the current route minimum; refresh `/limits` |
+| `INVALID_ADDRESS_ERROR` | Destination or source address is invalid for the selected network |
+| `UNACTIVATED_ADDRESS_ERROR` | The destination account needs activation or a different route |
+| `PRICE_IMPACT_TOO_HIGH` | The current route and amount cannot be quoted within the accepted pricing constraint |
+| `UNEXPECTED_ERROR` | Generic server or validation error; use the message and status without relying on one recovery path |
+
+The public error-code catalog is not formally versioned. Always retain an unknown-code fallback.
+
+## Failures by integration step
+
+| Step | Typical signal | Response |
+|---|---|---|
+| Route discovery / quote | `ROUTE_NOT_FOUND_ERROR`, min/max code, or empty-body `400` | Refresh route data and validate identifiers/casing |
+| Authentication | `403 API_KEY_FORBIDDEN` | Stop; verify the key's app and environment |
+| Swap creation | JSON error or empty-body `400` | Do not blindly retry; prevent duplicate creation locally |
+| Deposit action | Wallet rejection, chain error, or unmatched transaction | Preserve swap ID/hash; do not invent new calldata or memo |
+| Tracking | `failed`, `expired`, or refund status | Read `fail_reason` and follow the lifecycle |
+
+<Warning title="🚧 Needs review — refund rules (Q2.7)">
+  The conditions for automatic refunds, `refund_address` requirements, over-maximum deposits, and refunds smaller than gas remain unconfirmed. Surface the observable status and transaction data without promising recovery timing.
+</Warning>
+
+For a complete request sequence, see [Build your first API swap](/api/quickstart).

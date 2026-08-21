@@ -1,0 +1,36 @@
+---
+title: "What is Layerswap?"
+description: "Layerswap is infrastructure for moving assets across supported blockchains and exchanges."
+---
+
+
+## What you can build
+
+- **Let users fund your app** — accept assets from supported wallets, exchanges, networks, and app balances.
+- **Enable cross-chain swaps** — let users move and exchange assets across supported networks.
+- **Automate transfer workflows** — quote, create, fund, and track swaps programmatically.
+
+For the current list of supported networks and tokens, see [Supported networks & tokens](/get-started/networks-and-tokens) or retrieve it using [`GET /networks`](/api-reference/swaps/get-networks).
+
+## How you can integrate
+
+Choose an option below to start building. Not sure which one fits? [Compare integration effort and ownership](/get-started/choose-your-integration#compare-the-options).
+
+<CardGroup cols={2}>
+  <Card title="Full Swap Widget" icon="arrow-right-arrow-left" href="/widget/quickstart">
+    Integrate complete bridging and swapping capabilities directly into your UI in minutes.
+  </Card>
+  <Card title="Deposit Widget" icon="wallet" href="/widget/add-deposits-to-your-wallet">
+    Fix the destination and let users choose how to fund it from the sources available to them.
+  </Card>
+  <Card title="Hosted Page" icon="arrow-up-right-from-square" href="/hosted-page/setup">
+    Link, redirect, or embed layerswap.io with your route preconfigured.
+  </Card>
+  <Card title="API" icon="server" href="/api/quickstart">
+    Control the full swap lifecycle from your backend, from quoting and funding to execution and tracking.
+  </Card>
+</CardGroup>
+
+## Security and transparency
+
+Deposits routed through the Depository contract are covered by a [Hexens audit](https://hexens.io/audit-reports/layerswap-depository-mar-2026). The Widget is delivered through a signed, integrity-checked CDN channel; [How the Widget works](/widget/how-it-works) explains the trust model. You can also inspect swaps in the [Explorer](https://layerswap.io/explorer).

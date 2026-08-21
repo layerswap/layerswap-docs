@@ -1,0 +1,35 @@
+---
+title: onSwapStatusChange
+description: Triggered whenever a swap's status changes.
+---
+
+The `onSwapStatusChange` callback fires from the Widget's Processing screen for `ls_transfer_pending`, `completed`, `failed`, and `expired`. Use it to mirror progress in your own UI or analytics.
+
+```tsx
+<LayerswapWidget
+  config={widgetConfig}
+  callbacks={{
+    onSwapStatusChange: (event) => {
+      console.log("Swap status:", event)
+    },
+  }}
+/>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+type SwapStatusEvent = {
+  type: SwapStatus;
+  swapId: string;
+  path?: 'Processing';
+};
+
+type EmittedSwapStatus =
+  | 'ls_transfer_pending'
+  | 'completed'
+  | 'failed'
+  | 'expired';
+```
+
+`path` identifies the Widget screen that emitted the event; today the only value is `Processing`. See [Swap lifecycle & statuses](/concepts/swap-lifecycle) for the meaning of each status.

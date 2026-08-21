@@ -1,0 +1,23 @@
+---
+title: onSwapModalStateChange
+description: Triggered when the swap modal opens or closes.
+---
+
+The `onSwapModalStateChange` event fires whenever the in-flow swap details modal opens or closes. This is the modal shown over the active swap flow, not the Widget's main card or wallet-connect dialog.
+
+```tsx
+<LayerswapWidget
+  config={widgetConfig}
+  callbacks={{
+    onSwapModalStateChange: (open) => {
+      console.log("Modal state:", open ? "open" : "closed")
+    },
+  }}
+/>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+open: boolean
+```

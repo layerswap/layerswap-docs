@@ -1,0 +1,71 @@
+---
+title: "Build troubleshooting"
+description: "Fix Vite and Next.js build issues in the self-bundled Widget."
+---
+
+<Warning>
+  These fixes apply only to the self-bundled `@layerswap/widget`. The recommended React and JavaScript loaders do not put these dependencies in your bundle.
+</Warning>
+
+## Vite: `process is not defined`
+
+Install the Node polyfill plugin:
+
+```bash
+npm install --save-dev vite-plugin-node-polyfills @vitejs/plugin-react
+```
+
+```ts title="vite.config.ts"
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
+export default defineConfig({
+  plugins: [react(), nodePolyfills()],
+  esbuild: { target: 'esnext' },
+});
+```
+
+## Next.js: Node-only module errors
+
+For webpack builds, disable browser resolution for Node-only modules and externalize optional server packages:
+
+```ts title="next.config.ts"
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
+    return config;
+  },
+};
+
+export default nextConfig;
+```
+
+<Warning title="Turbopack gap">
+  The audited configuration covers webpack. Equivalent Turbopack behavior has not been verified; use webpack or test the required aliases before enabling Turbopack in production.
+</Warning>
+
+## Next.js: ESM package resolution
+
+Add only the self-bundled packages you install to `transpilePackages`:
+
+```ts title="next.config.ts"
+const nextConfig = {
+  transpilePackages: [
+    '@layerswap/widget',
+    '@layerswap/wallets',
+    '@layerswap/wallet-evm',
+    '@layerswap/wallet-imtbl-passport',
+    '@layerswap/wallet-imtbl-x',
+    '@layerswap/wallet-module-zksync',
+    '@layerswap/wallet-module-loopring',
+  ],
+};
+
+export default nextConfig;
+```
+
+The package names above use the published `wallet-imtbl-*` and `wallet-module-*` forms. Re-check the module packages against the 2.0.0 release.

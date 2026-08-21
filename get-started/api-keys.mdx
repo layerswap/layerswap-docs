@@ -1,0 +1,50 @@
+---
+title: "API keys & environments"
+description: "Create a Layerswap API key, select an environment, and authenticate API and Widget requests."
+---
+
+## Create a key
+
+1. Register in the [Partner Dashboard](https://layerswap.io/dashboard).
+2. Create an organization, then create an app inside it.
+3. Open the app and copy its mainnet or testnet API key.
+
+## Select an environment
+
+Layerswap uses the same API base URL for both environments:
+
+```text
+https://api.layerswap.io/api/v2
+```
+
+The API key selects the environment. A testnet key returns testnet networks and routes; a mainnet key returns mainnet data. In the Widget, the `config.version` value must match the key's environment.
+
+## Authenticate an API request
+
+Send the key in the `X-LS-APIKEY` header:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/limits?source_network=ETHEREUM_MAINNET&source_token=USDC&destination_network=ARBITRUM_MAINNET&destination_token=USDC' \
+  --header 'accept: application/json' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Route-discovery reads such as `GET /networks`, `GET /sources`, `GET /destinations`, and `GET /quote` currently work without a key. Creating and managing swaps requires an app key. Supplying an invalid key returns `403 API_KEY_FORBIDDEN`.
+
+## Use a key with the Widget
+
+```tsx
+const config = {
+  apiKey: "YOUR_API_KEY",
+  version: "mainnet",
+}
+```
+
+Pass the object to `LayerswapWidget` or `LayerswapDepositWidget`. See the [Widget quickstart](/widget/quickstart) for a complete example.
+
+## Related resources
+
+- [Choose your integration](/get-started/choose-your-integration) — compare the Widget, Hosted Page, and API.
+- [Widget quickstart](/widget/quickstart) — add the swap flow to your app.
+- [Build your first API swap](/api/quickstart) — quote, create, fund, and track a swap.
+- [Partner Dashboard reference](/resources/partner-dashboard) — manage apps, API keys, and webhooks.

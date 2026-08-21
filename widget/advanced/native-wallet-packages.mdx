@@ -1,0 +1,42 @@
+---
+title: "Native wallet packages"
+description: "Self-bundled Widget wallet packages by chain family."
+---
+
+<Warning>
+  These packages apply only to the self-bundled Widget. `@layerswap/widget-react` and `@layerswap/widget-js` load their wallet implementations from the remote.
+</Warning>
+
+Install only the chain families your application exposes:
+
+| Chain family | Package | Factory |
+|---|---|---|
+| EVM | `@layerswap/wallet-evm` | `createEVMProvider` |
+| Bitcoin | `@layerswap/wallet-bitcoin` | `createBitcoinProvider` |
+| Solana | `@layerswap/wallet-svm` | `createSVMProvider` |
+| Starknet | `@layerswap/wallet-starknet` | `createStarknetProvider` |
+| Fuel | `@layerswap/wallet-fuel` | `createFuelProvider` |
+| TON | `@layerswap/wallet-ton` | `createTONProvider` |
+| Tron | `@layerswap/wallet-tron` | `createTronProvider` |
+| Paradex | `@layerswap/wallet-paradex` | `createParadexProvider` |
+| Immutable Passport | `@layerswap/wallet-imtbl-passport` | `createImmutablePassportProvider` |
+| Immutable X | `@layerswap/wallet-imtbl-x` | `createImmutableXProvider` |
+
+Use the published `wallet-imtbl-*` names shown in the table.
+
+## Optional EVM modules
+
+The self-bundled EVM provider can be extended with:
+
+- `@layerswap/wallet-module-zksync`
+- `@layerswap/wallet-module-loopring`
+
+Confirm their versions and peer dependencies with the 2.0.0 release before upgrading.
+
+## Install example
+
+```bash
+npm install @layerswap/widget @layerswap/wallet-evm @layerswap/wallet-starknet @layerswap/wallets zustand@^4.5.7
+```
+
+See [Wallet providers](/widget/advanced/wallet-providers) for factory and credential examples.

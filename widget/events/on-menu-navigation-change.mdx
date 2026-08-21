@@ -1,0 +1,27 @@
+---
+title: onMenuNavigationChange
+description: Triggered when the user navigates inside the widget menu.
+---
+
+The `onMenuNavigationChange` event fires when the user navigates to a different section inside the widget's menu — for example, opening the transaction history.
+
+```tsx
+<LayerswapWidget
+  config={widgetConfig}
+  callbacks={{
+    onMenuNavigationChange: (path) => {
+      console.log("Widget navigated to:", path)
+    },
+  }}
+/>
+```
+
+### Callback Argument Value
+
+```TypeScript  theme={"system"}
+type MenuPath = '/' | '/transactions' | '/campaigns'
+```
+
+- `/` — menu home
+- `/transactions` — transaction history
+- `/campaigns` — campaigns

@@ -1,0 +1,49 @@
+---
+title: "Choose your integration"
+description: "Choose the Widget, Hosted Page, or API based on how much of the experience your product needs to control."
+---
+
+Start with the job your user needs to complete. Every option uses the same [routes](/concepts/routes-quotes-limits), [fees](/concepts/fees), and [swap lifecycle](/concepts/swap-lifecycle) underneath.
+
+## Compare the options
+
+| | Best for | Integration | You control |
+|---|---|---|---|
+| [**Widget**](/widget/quickstart) | Full swaps or fixed-destination funding inside your app | React or JS package | Placement, theme, routes, tokens, and wallets |
+| [**Hosted Page**](/hosted-page/setup) | Integrating without a package | Link, redirect, or embed a URL | Route defaults via URL params |
+| [**API**](/api/quickstart) | Building your own UX | REST API | Everything |
+
+## Full Swap Widget or Deposit Widget?
+
+Both follow the Widget integration model, share theming and callbacks, and use the same verified CDN delivery path in the React loader. They start from different user intent:
+
+| | **Full Swap Widget** | **Deposit Widget** |
+|---|---|---|
+| Component | `LayerswapWidget` | `LayerswapDepositWidget` |
+| Destination | The user can choose it unless you lock it | Your integration always supplies and fixes it |
+| First choice presented to the user | Swap route: source, destination, and assets | Funding method: wallet transfer, deposit address, or another available balance source |
+| Recipient address | Optional initial value | Required `destinationAddress` prop |
+| Use it for | Cross-chain swaps and user-directed transfers | Wallet funding, account top-ups, checkout-like deposits, and other fixed-recipient flows |
+
+The **Deposit Widget** is not the **Deposit tab** inside the full Widget. The component is a dedicated fixed-destination experience. The tab—formerly called “Easy Deposit”—generates an address or QR code inside the full Widget and can take its destination from the user's connected wallet. See [Initial values & flows](/widget/initial-values#deposit-tab) for the behavioral distinction.
+
+## Widget package choices
+
+- **`@layerswap/widget-react`** — React hosts. Recommended for both Widget experiences.
+- **`@layerswap/widget-js`** — Vue, Angular, Svelte, and plain DOM hosts. The full Widget mount is documented; verify the Deposit Widget mount at release.
+- **Self-bundled Widget** (`@layerswap/widget`) — for teams that need complete control over the Widget bundle and its dependencies. You manage wallet packages, dependencies, and updates yourself. See [Self-bundled Widget](/widget/advanced/self-bundled).
+
+## Decide by scenario
+
+- **"Users should fund an address in my app"** → [Add deposits to your wallet](/widget/add-deposits-to-your-wallet).
+- **"Users should choose both sides of a cross-chain transfer"** → [Full Swap Widget quickstart](/widget/quickstart).
+- **"I need a branded swap flow that adopts my existing wallet connection"** → [Full Swap Widget](/widget/quickstart), then [Wallets](/widget/wallets) and [Theming](/widget/theming).
+- **"Ship without installing a package"** → [Hosted Page setup](/hosted-page/setup).
+- **"I'm an aggregator or own the entire UX"** → [Build your first API swap](/api/quickstart).
+- **"My users cannot connect a wallet"** → Use the Deposit Widget with the `deposit_address` method.
+
+## Requirements
+
+Create an API key in the [Partner Dashboard](/get-started/api-keys) before starting a Widget or API integration. Mainnet and testnet keys select their respective environments.
+
+<Warning title="🚧 Needs review — awaiting confirmation">Whether unkeyed Hosted Page URLs will remain supported for partner integrations, and which branding features require an app key, still needs a product answer.</Warning>

@@ -1,0 +1,28 @@
+---
+title: "Partner Dashboard"
+description: "Manage Layerswap apps, environment keys, webhooks, logos, and wallet-integration branding."
+---
+
+Use the [Partner Dashboard](https://layerswap.io/dashboard) to create an organization and manage one or more integration apps.
+
+## API keys
+
+Each app exposes mainnet and testnet keys. The key selects the API environment from the shared `https://api.layerswap.io/api/v2` base URL. See [API keys & environments](/get-started/api-keys) for request examples and key-handling guidance.
+
+## Webhooks
+
+The **Webhooks** section lets you add and manage endpoint URLs. Deliveries are sent as POST requests, and the Dashboard exposes the secret needed for Svix verification. See [Webhooks](/api/webhooks).
+
+## App logo
+
+App settings accept a PNG or JPG logo up to 10 MB. Test the logo in both light and dark contexts and use the official [brand assets](/resources/brand-assets) when referencing Layerswap.
+
+## Wallet Integration branding
+
+The branding toggle adds your app identity when a user arrives with a prefilled destination address. The current Dashboard example still displays the older `destAddress` parameter name; new Hosted Page URLs should use `destination_address`.
+
+Related URL fields include `appName`, `clientId`, and the older `addressSource` alias. See the canonical [Hosted Page parameter and alias table](/hosted-page/setup#older-aliases).
+
+<Warning title="🚧 Needs review — branding requirements (M3)">
+  Confirm which key or client identifier is required for attribution and whether unkeyed partner URLs remain supported before launch.
+</Warning>

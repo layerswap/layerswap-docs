@@ -1,0 +1,70 @@
+---
+title: "Fund via the Depository contract"
+description: "Create a Depository-funded swap and submit the API-provided contract call."
+---
+
+The **Depository** funding method returns a contract target and encoded call for supported routes. It fits contract, server-wallet, and batching integrations. The contract has been [audited by Hexens](https://hexens.io/audit-reports/layerswap-depository-mar-2026).
+
+<Warning title="🚧 Needs review — Depository behavior (Q2.9)">
+  Supported networks, exclusivity rules, failure behavior, and broader operational guarantees still need a reviewed API statement. Rely on each swap's returned action instead of hardcoding those claims.
+</Warning>
+
+## Create the swap
+
+```bash
+curl --request POST 'https://api.layerswap.io/api/v2/swaps' \
+  --header 'Content-Type: application/json' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY' \
+  --data '{
+    "source_network": "ETHEREUM_MAINNET",
+    "source_token": "USDC",
+    "destination_network": "ARBITRUM_MAINNET",
+    "destination_token": "USDC",
+    "destination_address": "0xRecipient",
+    "refund_address": "0xSourceNetworkRefundAddress",
+    "amount": 100,
+    "use_depository": true
+  }'
+```
+
+The response includes `deposit_actions`. For the contract action:
+
+| Field | Meaning |
+|---|---|
+| `to_address` | Contract target and ERC-20 approval spender |
+| `call_data` | Encoded deposit call to submit unchanged |
+| `encoded_args` | Decoded arguments for inspection |
+| `amount_in_base_units` | Native transaction value; commonly `0` for an ERC-20 call |
+| `gas_limit` | API-provided gas estimate, when present |
+
+The API response is authoritative for the target and arguments.
+
+## Approve and submit an ERC-20 action
+
+```ts
+import { parseAbi } from 'viem';
+
+const action = response.data.deposit_actions[0];
+const depositAmountInBaseUnits = BigInt(action.encoded_args[3]);
+
+await walletClient.writeContract({
+  address: action.token.contract,
+  abi: parseAbi(['function approve(address spender, uint256 amount) returns (bool)']),
+  functionName: 'approve',
+  args: [action.to_address, depositAmountInBaseUnits],
+});
+
+await walletClient.sendTransaction({
+  to: action.to_address,
+  data: action.call_data,
+  value: BigInt(action.amount_in_base_units),
+});
+```
+
+For native deposits, skip the token approval and send the returned `amount_in_base_units` as `value`. Never replace the swap ID, receiver, or target embedded in `call_data`.
+
+## Detect the deposit
+
+Store the submitted transaction hash, then use [`GET /swaps/by_transaction_hash/{hash}`](/api-reference/swaps/get-swap-by-transaction-hash) or [`GET /swaps/{id}`](/api-reference/swaps/get-swap-details). The swap then follows the normal [lifecycle](/concepts/swap-lifecycle).
+
+See the [Privy server wallets recipe](/api/recipes/privy-wallets) for batching approval and deposit in a sponsored server-wallet flow.
