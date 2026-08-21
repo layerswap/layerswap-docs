@@ -278,6 +278,10 @@
   },
   "redirects": [
     {
+      "source": "/",
+      "destination": "/index"
+    },
+    {
       "source": "/introduction",
       "destination": "/get-started/what-is-layerswap"
     },
