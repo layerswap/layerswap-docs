@@ -1,0 +1,54 @@
+```ts TronWeb
+import { TronWeb } from 'tronweb';
+
+async function executeTronDepository(action, privateKey, waitForConfirmation) {
+  const [id, , receiverHex, amountHex] = action.encoded_args; // [id, token, receiver, amount]
+  const amount = BigInt(amountHex).toString();
+  const tronWeb = new TronWeb({
+    fullNode: action.network.node_url,
+    solidityNode: action.network.node_url,
+    privateKey,
+  });
+  const sender = tronWeb.defaultAddress.base58;
+
+  // encoded_args carry EVM-style hex addresses — convert the receiver to a Tron address
+  const receiver = tronWeb.address.fromHex(
+    `41${receiverHex.replace(/^0x/, '')}`,
+  );
+
+  // 1) Approve the Depository (to_address) to spend the TRC-20 amount
+  const approve = (await tronWeb.transactionBuilder.triggerSmartContract(
+    action.token.contract,
+    'approve(address,uint256)',
+    { feeLimit: 100_000_000 },
+    [
+      { type: 'address', value: action.to_address },
+      { type: 'uint256', value: amount },
+    ],
+    sender,
+  )).transaction;
+  const signedApprove = await tronWeb.trx.sign(approve);
+  const approvalResult = await tronWeb.trx.sendRawTransaction(signedApprove);
+  if (!approvalResult.result) throw new Error('TRC-20 approval failed');
+  await waitForConfirmation(signedApprove.txID);
+
+  // 2) Call depositERC20(bytes32 id, address token, address receiver, uint256 amount)
+  //    on the Depository, after the approval confirms
+  const deposit = (await tronWeb.transactionBuilder.triggerSmartContract(
+    action.to_address,
+    'depositERC20(bytes32,address,address,uint256)',
+    { feeLimit: 100_000_000 },
+    [
+      { type: 'bytes32', value: id },
+      { type: 'address', value: action.token.contract },
+      { type: 'address', value: receiver },
+      { type: 'uint256', value: amount },
+    ],
+    sender,
+  )).transaction;
+  const signedDeposit = await tronWeb.trx.sign(deposit);
+  const depositResult = await tronWeb.trx.sendRawTransaction(signedDeposit);
+  if (!depositResult.result) throw new Error('Depository transaction failed');
+  return signedDeposit.txID;
+}
+```

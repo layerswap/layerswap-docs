@@ -14,10 +14,6 @@ curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID' \
 
 Use `data.swap.status` for control flow and `data.swap.transactions` for input, output, refuel, and refund transaction details. See [Swap lifecycle & statuses](/concepts/swap-lifecycle).
 
-<Warning>
-  Layerswap has not published a polling interval or rate-limit policy, and responses do not expose standard rate-limit headers. Poll conservatively, stop at a terminal status, use exponential backoff on network/server errors, and prefer webhooks when possible.
-</Warning>
-
 ## List swaps by address
 
 `GET /swaps` requires `address` and accepts repeatable `statuses` filters:

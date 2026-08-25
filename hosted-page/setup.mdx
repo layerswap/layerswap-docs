@@ -31,10 +31,6 @@ const params = new URLSearchParams({
 const layerswapUrl = `https://layerswap.io/app?${params.toString()}`;
 ```
 
-<Warning>
-  The long-term policy for unkeyed partner URLs and the exact key or client identifier required for Partner Dashboard branding is not confirmed. Test branding and attribution with your app configuration before launch.
-</Warning>
-
 ## URL parameters
 
 All values are strings in the URL.
@@ -134,9 +130,6 @@ Build the URL with the same parameters, then use it as `src`:
 
 Wallet connections can open a popup or external wallet application. Test the complete flow in your browser, mobile webview, and popup-blocking configuration; a normal link or redirect is often more reliable on mobile.
 
-<Warning>
-  Layerswap-side `frame-ancestors` and the complete host/iframe CSP requirements have not been confirmed. Verify that the production page permits your origin before committing to iframe delivery.
-</Warning>
 
 ## Track the result
 

@@ -5,12 +5,6 @@ description: "Fund a supported swap by signing EIP-712 typed data for a relayed 
 
 A gasless deposit asks the user to sign typed authorization data instead of broadcasting the source transaction. A relayer submits the deposit and pays source-network gas; its cost is reflected in the gasless quote.
 
-The current API specification describes EIP-3009-style authorization. Do not advertise ERC-2612 support unless the released specification adds it.
-
-<Warning title="🚧 Needs review — gasless specifics (Q2.8)">
-  Authorization status values, validity-window policy, supported wallet types, and retry rules need confirmation. Sign and submit the API-provided payload without inventing timing guarantees.
-</Warning>
-
 ## Check support and pricing
 
 Read `supports_gasless_deposit` on the relevant network/token data. Pass `use_gasless=true` to `/limits`, `/quote`, or `/detailed_quote` so the displayed fees and receive amount match the intended funding method.

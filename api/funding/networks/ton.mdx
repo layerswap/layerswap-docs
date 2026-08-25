@@ -1,0 +1,174 @@
+---
+title: "TON"
+description: "Build native TON and Jetton deposit messages from the returned action."
+---
+
+TON `call_data` is a JSON string containing the transfer amount, asset, and matching comment:
+
+```json
+{
+  "amount": "1000000000",
+  "asset": "TON",
+  "comment": "layerswap_memo_identifier"
+}
+```
+
+The `comment` is the matching memo for both native and Jetton transfers. The payload's `amount` is used as the Jetton amount in base units; for native TON, take the transfer value from the action's `amount_in_base_units` instead.
+
+## Native TON
+
+When `action.token.contract` is `null`, the transaction is a simple message to the deposit address with a comment payload.
+
+<Steps>
+  <Step title="Parse call_data">
+    Extract the `comment` field from the JSON.
+  </Step>
+  <Step title="Build the comment cell">
+    Create a TON cell with a 32-bit zero prefix (indicates a text comment) followed by the comment string.
+  </Step>
+  <Step title="Construct the message">
+    Send a message to `action.to_address` for `amount_in_base_units` nanotons with the comment cell as payload.
+  </Step>
+</Steps>
+
+```ts
+import { beginCell } from '@ton/ton';
+
+function buildNativeTonTransaction(action) {
+  const { comment } = JSON.parse(action.call_data);
+  const body = beginCell()
+    .storeUint(0, 32)
+    .storeStringTail(comment)
+    .endCell();
+
+  return {
+    validUntil: Math.floor(Date.now() / 1000) + 360,
+    messages: [{
+      address: action.to_address,
+      amount: String(action.amount_in_base_units),
+      payload: body.toBoc().toString('base64'),
+    }],
+  };
+}
+```
+
+The 32-bit zero prefix marks the body as a text comment.
+
+## Jettons
+
+When `action.token.contract` is present, build a Jetton transfer and send it to the sender's Jetton wallet — resolved through the Jetton master contract — not to the master contract itself.
+
+<Steps>
+  <Step title="Parse call_data">
+    Extract both `comment` and `amount` from the JSON.
+  </Step>
+  <Step title="Resolve the sender's Jetton wallet">
+    Use the Jetton master contract's `get_wallet_address` method to look up the sender's Jetton wallet address.
+  </Step>
+  <Step title="Build the Jetton transfer cell">
+    Construct a cell with the Jetton transfer opcode (`0x0f8a7ea5`), the Jetton amount, the destination address, and a forward payload containing the comment.
+  </Step>
+  <Step title="Send the message">
+    Send the message to the sender's Jetton wallet address with enough TON attached to cover fees.
+  </Step>
+</Steps>
+
+```ts
+import { Address, JettonMaster, TonClient, beginCell, toNano } from '@ton/ton';
+
+async function buildJettonTransaction(action, senderAddress, tonClient) {
+  const { comment, amount: jettonAmount } = JSON.parse(action.call_data);
+
+  const destinationAddress = Address.parse(action.to_address);
+  const userAddress = Address.parse(senderAddress);
+
+  const forwardPayload = beginCell()
+    .storeUint(0, 32)
+    .storeStringTail(comment)
+    .endCell();
+
+  const body = beginCell()
+    .storeUint(0x0f8a7ea5, 32)        // Jetton transfer opcode
+    .storeUint(0, 64)                 // query id
+    .storeCoins(BigInt(jettonAmount)) // Jetton amount from call_data, in base units
+    .storeAddress(destinationAddress)
+    .storeAddress(destinationAddress) // response excess destination
+    .storeBit(0)                      // no custom payload
+    .storeCoins(toNano('0.00002'))    // forward amount; >0 sends a notification message
+    .storeBit(1)                      // forward payload stored as a reference
+    .storeRef(forwardPayload)
+    .endCell();
+
+  const jettonMaster = tonClient.open(
+    JettonMaster.create(Address.parse(action.token.contract)),
+  );
+  const jettonWalletAddress = await jettonMaster.getWalletAddress(userAddress);
+
+  return {
+    validUntil: Math.floor(Date.now() / 1000) + 360,
+    messages: [{
+      address: jettonWalletAddress.toString(),
+      amount: toNano('0.045').toString(), // TON attached for fees; the excess is returned
+      payload: body.toBoc().toString('base64'),
+    }],
+  };
+}
+```
+
+The attached TON and forward amounts match the values Layerswap's own app uses; unspent excess is returned to the sender.
+
+## Send the transaction
+
+The TON Connect tab is for browser wallets like Tonkeeper or MyTonWallet — it picks between the two builders above based on `token.contract`. The Server-side tab signs and sends directly with a wallet key.
+
+<CodeGroup>
+```ts TON Connect
+async function executeTonDeposit(action, senderAddress, tonConnectUI, tonClient) {
+  const transaction = action.token.contract
+    ? await buildJettonTransaction(action, senderAddress, tonClient)
+    : buildNativeTonTransaction(action);
+
+  const result = await tonConnectUI.sendTransaction(transaction);
+  return result.boc; // the sent message BOC, usable for on-chain tracking
+}
+```
+
+```ts Server-side
+import { WalletContractV4, internal, TonClient, beginCell } from '@ton/ton';
+import { mnemonicToPrivateKey } from '@ton/crypto';
+
+async function executeTonDepositServerSide(action, mnemonic) {
+  const { comment } = JSON.parse(action.call_data);
+
+  const tonClient = new TonClient({ endpoint: action.network.node_url });
+  const keyPair = await mnemonicToPrivateKey(mnemonic);
+  const wallet = WalletContractV4.create({
+    publicKey: keyPair.publicKey,
+    workchain: 0,
+  });
+  const contract = tonClient.open(wallet);
+
+  const body = beginCell()
+    .storeUint(0, 32)
+    .storeStringTail(comment)
+    .endCell();
+
+  await contract.sendTransfer({
+    seqno: await contract.getSeqno(),
+    secretKey: keyPair.secretKey,
+    messages: [
+      internal({
+        to: action.to_address,
+        value: BigInt(action.amount_in_base_units),
+        body,
+        bounce: false,
+      }),
+    ],
+  });
+}
+```
+</CodeGroup>
+
+<Note>The server-side example shows a native TON transfer. For Jettons, build the body as in the Jetton section and send it to the sender's Jetton wallet address.</Note>
+
+Store the transaction reference and [track the swap](/api/track-swaps).

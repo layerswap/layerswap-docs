@@ -22,9 +22,10 @@
 | M22 | Product terminology validation | `concepts/funding-methods`, `concepts/glossary`, `widget/initial-values` | SHIP-MARKED (S-12) | “Funding method” and “Deposit tab” are applied consistently and visibly marked. |
 | M23 | Gasless and Depository specifics | `concepts/funding-methods`, `api/funding/gasless`, `api/funding/depository` | SHIP-MARKED (S-6) | Only spec/source-verified structure is stated. |
 | M24 | Webhook contract | `api/webhooks`, `api/quickstart`, `resources/production-checklist` | SHIP-MARKED (S-4) | Svix verification and defensive receiver behavior documented; delivery guarantees marked. |
-| M25 | Solana memo program | `api/funding/transfer` | SHIP-MARKED (S-10) | Docs use serialized backend `call_data`; no unverified manual program id. |
+| M25 | Solana memo program | `api/funding/networks/solana` | Resolved | **RESOLVED 2026-08-24** — PR #32 verified the top-level SPL Memo program and `metadata.sequence_number` behavior against the app and current API. |
 | M26 | Hosted Page completion/redirect | `hosted-page/track-completion` | SHIP-MARKED (S-11) | Verified backend correlation options documented; browser redirect contract not claimed. |
 | M27 | iframe CSP / `frame-ancestors` | `hosted-page/setup` | SHIP-MARKED (S-15) | Basic embed is shown; production-origin permission must be tested. |
 | M28 | Product security scope | `concepts/security` | SHIP-MARKED (S-17) | Audit and loader facts only; custody/recovery claims intentionally omitted. |
+| M29 | Per-network funding-method support | `concepts/funding-methods` | SHIP-MARKED | Starknet/TON transfer-only claim added 2026-08-25 on team authority (PR #32); marked pending API/product confirmation. |
 
 Related non-content decision: docs theme `#E05B8A` vs brand `#FF3272` remains S-16 and is not rendered as a page marker.

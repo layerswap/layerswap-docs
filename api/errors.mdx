@@ -64,8 +64,5 @@ The public error-code catalog is not formally versioned. Always retain an unknow
 | Deposit action | Wallet rejection, chain error, or unmatched transaction | Preserve swap ID/hash; do not invent new calldata or memo |
 | Tracking | `failed`, `expired`, or refund status | Read `fail_reason` and follow the lifecycle |
 
-<Warning title="🚧 Needs review — refund rules (Q2.7)">
-  The conditions for automatic refunds, `refund_address` requirements, over-maximum deposits, and refunds smaller than gas remain unconfirmed. Surface the observable status and transaction data without promising recovery timing.
-</Warning>
 
 For a complete request sequence, see [Build your first API swap](/api/quickstart).

@@ -38,12 +38,6 @@ Layerswap can temporarily disable new Widget loads for a release channel. Existi
 
 Trust is rooted in the signing public key inside the npm package, not in the CDN. The CDN hosts bytes but cannot create a manifest that passes signature verification. Rotating the signing key requires publishing a new loader package.
 
-The manifest channel is release policy rather than a runtime compatibility check. Widget packages are expected to ship on the 2.0.0 line together; verify the final channel path on release day.
-
-<Warning title="Verify at release">
-  Confirm that the released loader resolves the expected 2.x manifest channel and that `https://cdn.layerswap.io` serves it successfully.
-</Warning>
-
 ## Recommended Content Security Policy
 
 Allow the production Widget origin in both `script-src` and `connect-src`:
@@ -66,10 +60,6 @@ Content-Security-Policy:
 - Runtime style injection requires `'unsafe-inline'` in `style-src`.
 - WalletConnect v2 needs its relay origins.
 - Add the RPC origins used by any host-provided wagmi transports and enabled networks.
-
-<Warning title="Release blocker — ENG-1">
-  Engineering must change the loader's `DEFAULT_MANIFEST_URL` to `cdn.layerswap.io` before publication. The documentation and CSP are intentionally written against the production origin.
-</Warning>
 
 ## Two error channels
 

@@ -1,6 +1,6 @@
 ---
 title: "Widget Quickstart"
-description: "Embed the Layerswap Widget with @layerswap/widget-react — one package, no CSS imports, no bundler config."
+description: "Add the Layerswap Widget to your React app with @layerswap/widget-react — one package, no CSS imports, no bundler config."
 ---
 
 The Layerswap Widget is delivered through **`@layerswap/widget-react`** — a thin React loader that fetches the widget at runtime from Layerswap's signed CDN. The widget code and its heavy dependencies (wallet SDKs, animation and form libraries) **never enter your bundle**: your app installs only the loader, and widget updates roll out automatically without you redeploying.
@@ -87,12 +87,6 @@ export function App() {
 ```
 
 ## Versioning
-
-The Widget packages are expected to ship together on the 2.0.0 line. Minor and patch remote builds roll forward on the channel automatically, so compatible Widget updates do not require a host-app deployment.
-
-<Warning title="Verify at release">
-  Confirm the published package version and the final 2.x manifest channel. The channel is derived from the remote Widget major and is not enforced by a runtime protocol check.
-</Warning>
 
 Pinning an exact CDN build is not a public API. See [Widget delivery and security](/widget/delivery-and-security) for the delivery and verification pipeline.
 

@@ -28,8 +28,6 @@ If your app ships a CSP, the widget needs the CDN origin in `script-src` and `co
 
 The production origin is `https://cdn.layerswap.io`. Copy the complete policy from [Widget delivery and security](/widget/delivery-and-security#recommended-content-security-policy).
 
-<Warning title="Verify at release — M18">Confirm that the released loader actually fetches its manifest from `cdn.layerswap.io` and test the documented CSP in a production-like host.</Warning>
-
 ## Widget renders an alert instead of the UI
 
 "Only one Layerswap widget can be live per page" — you mounted two (any combination of swap and deposit widgets). Render one at a time. In the JavaScript package the second `mountWidget` call throws instead.
@@ -49,5 +47,3 @@ Keep `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` stable
 ## Still stuck
 
 Grab the console provenance line (or its absence), the `ManifestError.reason`, and your CSP header, and ask in the [developer community](https://t.me/layerswap_dev).
-
-<Warning title="🚧 Needs review — support link placeholder (Q3.8)">Official support channel link pending.</Warning>

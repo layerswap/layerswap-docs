@@ -3,11 +3,7 @@ title: "Track completion"
 description: "Correlate a Hosted Page session with a Layerswap swap and confirm its final status."
 ---
 
-There is no documented Hosted Page redirect or JavaScript callback that proves a swap completed. Treat returning to your application as navigation only, not settlement confirmation.
-
-<Warning title="🚧 Needs review — Hosted Page completion (S-11)">
-  Product needs to define whether a redirect URI, universal link, or callback will become part of the Hosted Page contract.
-</Warning>
+To confirm the outcome of a swap started from the Hosted Page, check its status through the Layerswap API.
 
 ## Correlate with `externalId`
 

@@ -72,10 +72,6 @@ To render it as a button that opens a dialog instead of inline:
 />
 ```
 
-<Warning>
-  **One Layerswap widget per page** — of either kind. Don't render `LayerswapDepositWidget` and `LayerswapWidget` on the same page at the same time; swap between them instead.
-</Warning>
-
 ### Choosing which funding methods to show
 
 By default every available method is offered. Pass `methods` as an allow-list to narrow them — only the listed methods can appear, and each still needs its own runtime conditions (e.g. `hyperliquid` needs a destination reachable from Hyperliquid). For a deposit-address-only integration with no wallet connection at all:
@@ -139,10 +135,6 @@ Since the deposit widget takes all `LayerswapWidget` props, the same pages apply
 <ResponseField name="methods" type="DepositMethodId[]" default="all methods">
   Allow-list of funding methods the picker may show — `"wallet"`, `"deposit_address"`, `"hyperliquid"`, and `"polymarket"`. Only listed methods can appear, and each still needs its own runtime conditions to be offered. Defaults to every method.
 </ResponseField>
-
-<Warning title="🚧 Needs review — method descriptions (M16)">
-  Product still needs to supply the user-facing one-line description for the `polymarket` flow. Its identifier is public and supported, but this reference does not guess at the UX.
-</Warning>
 
 ### SupportedDestination
 

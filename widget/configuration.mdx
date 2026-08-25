@@ -78,11 +78,3 @@ description: "Configure the Layerswap Widget with its config object, callbacks, 
 <ResponseField name="loadingComponent" type="ReactNode">
   Custom skeleton rendered inside the widget while its settings load (this is a later stage than the loader-level `fallback`).
 </ResponseField>
-
-<Note>
-  `initialValues` is typed as `unknown` in the public package, so your editor won't autocomplete its fields — use the [Initial Values reference](/widget/initial-values) as the source of truth.
-</Note>
-
-<Warning>
-  The `config` fields `walletConnect`, `imtblPassport`, and `tonConfigs` are **deprecated**. Pass these credentials through the top-level [`walletDefaults`](/widget/wallets#supplying-credentials) prop instead.
-</Warning>

@@ -1,75 +1,60 @@
 ---
-title: "Fund by transfer"
-description: "Execute the ordered deposit actions returned for a Layerswap swap."
+title: "Execute deposit actions"
+description: "Fund a swap by completing its deposit actions — submit the source-network transfer, or share the deposit address and amount with the sender."
 ---
 
 After creating a swap, execute its ordered `deposit_actions`. Treat the API response as the transaction source of truth; do not hardcode recipient addresses, memos, calldata, decimals, or fee assets.
 
-## Read the action
+## Read the actions
+
+The create-swap response includes the actions. You can also fetch them again:
 
 ```bash
 curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID/deposit_actions?source_address=SOURCE_ADDRESS' \
   --header 'X-LS-APIKEY: YOUR_API_KEY'
 ```
 
-Common fields:
+Each action describes work on the **source network**:
 
 | Field | Use |
 | --- | --- |
 | `order` | Execute multiple actions in ascending order |
-| `type` | Whether to submit a transfer or sign data |
-| `to_address` | Transaction recipient or contract |
-| `amount` | Human-readable source amount |
-| `amount_in_base_units` | Integer amount for transaction construction |
+| `type` | `transfer`, `manual_transfer`, or a signing action for another funding method |
+| `to_address` | Transaction recipient, token contract, or Depository contract |
+| `amount` | Human-readable source amount for display |
+| `amount_in_base_units` | Exact integer amount for transaction construction |
 | `call_data` | Chain-specific calldata, memo, or serialized transaction |
-| `network`, `token`, `fee_token` | Network, asset, decimals, and gas asset |
+| `network` | Source-network id, type, chain id, and RPC URL |
+| `token`, `fee_token` | Source asset and network-fee asset |
+| `gas_limit`, `encoded_args` | Depository-only execution data, when returned |
 
-Validate the action against the swap the user approved, then submit it on `action.network`. Store the transaction hash and [track the swap](/api/track-swaps).
+Use `amount_in_base_units` for transaction construction. Decimal `amount` values are for display and can lose precision when converted through JavaScript numbers.
 
-## EVM and calldata networks
+## Understand the action type
 
-For a plain native transfer, send `amount_in_base_units` to `to_address`. When `call_data` is present, submit it exactly as returned:
+- `transfer` means your integration constructs or submits a source-network transaction using `to_address`, `amount_in_base_units`, and `call_data`.
+- `manual_transfer` means you show the generated address and exact amount to the sender. Its `call_data` is `null`, so the transfer can come from a wallet, custodian, or exchange.
+- A Depository-funded swap also returns a transfer action, but it targets the Depository contract. Follow [Fund via the Depository contract](/api/funding/depository).
+- Gasless funding returns typed data to sign instead of a transaction to broadcast. Follow [Gasless deposits](/api/funding/gasless).
 
-```ts
-await walletClient.sendTransaction({
-  to: action.to_address,
-  data: action.call_data || undefined,
-  value: BigInt(action.amount_in_base_units),
-});
-```
+The available action depends on the funding method selected during swap creation. See [Funding methods](/concepts/funding-methods).
 
-For ERC-20 actions, follow the returned contract target and calldata. A Depository action can require an approval first; see [Fund via the Depository contract](/api/funding/depository).
+## Execute by network
 
-## Bitcoin
+`call_data` has a different format on each network. Follow the matching guide instead of applying EVM assumptions to every chain.
 
-Bitcoin actions can include a numeric memo in `call_data`. Send the BTC amount to `to_address` and include the memo as an `OP_RETURN` payload:
+| Network family | `call_data` format | Guide |
+|---|---|---|
+| EVM | Hex transaction data | [EVM chains](/api/funding/networks/evm) |
+| Bitcoin | Numeric memo and `;` terminator for an `OP_RETURN` output | [Bitcoin](/api/funding/networks/bitcoin) |
+| Solana | Base64-encoded serialized transaction | [Solana](/api/funding/networks/solana) |
+| Starknet | JSON-encoded array of calls | [Starknet](/api/funding/networks/starknet) |
+| TON | JSON object describing the amount, asset, and comment | [TON](/api/funding/networks/ton) |
+| Tron | Memo added to a TRC-20 transaction | [Tron](/api/funding/networks/tron) |
+| Fuel | JSON-encoded script transaction and coin quantities | [Fuel](/api/funding/networks/fuel) |
 
-```js
-const memoHexText = Number(action.call_data).toString(16);
-const data = Buffer.from(memoHexText, 'utf8');
-const opReturn = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, data]);
-```
+## Validate and track
 
-The bytes contain the ASCII hex text, not the bytes represented by that hex string. Omitting or transforming the memo prevents Layerswap from matching the deposit. Keep the payload within Bitcoin's standard relay limits.
+Before requesting a signature, verify that the action matches the network, token, amount, and funding method the user approved. Submit `call_data` without changing its memo, instructions, or encoded swap identifiers.
 
-## Solana
-
-For Solana, `call_data` is a base64-encoded serialized transaction that already contains the transfer and matching memo. Deserialize it, refresh its blockhash, sign, and send:
-
-```ts
-const transaction = Transaction.from(Buffer.from(action.call_data, 'base64'));
-const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-transaction.recentBlockhash = blockhash;
-transaction.lastValidBlockHeight = lastValidBlockHeight;
-```
-
-Do not rebuild the transaction unless you have verified every instruction. The frontend intentionally uses the backend-provided serialized transaction.
-
-<Warning>
-  The memo program identifier cannot be verified from the frontend because it does not construct the instruction. Confirm it against backend code or a live `deposit_actions` sample before documenting a manual-build path.
-</Warning>
-
-## Wrong amount or missing memo
-
-An unmatched transfer can leave the swap waiting until expiry; an invalid amount can lead to failure and potentially a refund. Do not promise automatic recovery. Show the user the exact network, token, amount, destination, and memo before signing, and follow the [swap lifecycle](/concepts/swap-lifecycle) and [refund flow](/api/refunds) when something goes wrong.
+Store every submitted transaction hash, then [track the swap](/api/track-swaps). You can also report the hash with [`POST /swaps/{id}/deposit_speedup`](/api-reference/swaps/speed-up-deposit) so Layerswap matches the deposit without waiting for its routine detection. An unmatched transfer can leave the swap waiting until expiry; an invalid amount can lead to failure and potentially a refund. Follow the [swap lifecycle](/concepts/swap-lifecycle) and [refund flow](/concepts/refunds) instead of promising automatic recovery.

@@ -22,8 +22,6 @@ If users should choose the destination, start with the [Full Swap Widget](/widge
 npm install @layerswap/widget-react
 ```
 
-<Warning title="🚧 Needs review — verify at release (Q1.1/U-01)">Written as-published per the release plan (docs and packages ship together). Confirm the package version and that `2.x` versioning prose matches the actual publish before this page goes live.</Warning>
-
 ```tsx
 import { LayerswapDepositWidget } from '@layerswap/widget-react';
 
@@ -56,7 +54,7 @@ export function DepositPage({ userAddress }: { userAddress: string }) {
 />
 ```
 
-Omit `methods` to offer everything: `wallet` (user connects and sends), `deposit_address` (user transfers from anywhere—exchanges included—without a source wallet connection), `hyperliquid`, and `polymarket`. <Warning title="🚧 Needs review — content gap">`polymarket` is public, but its user-facing behavior still needs a product-provided one-line description.</Warning>
+Omit `methods` to offer everything: `wallet` (user connects and sends), `deposit_address` (user transfers from anywhere—exchanges included—without a source wallet connection), `hyperliquid`, and `polymarket`.
 
 `deposit_address` is the method to keep if your users can't connect a wallet at all.
 
@@ -83,6 +81,6 @@ Use your **testnet key** with `version: 'testnet'`; the key selects testnet rout
 - Amount seeding: `defaultAmountUsd` (default `$1`, `0` disables).
 - Button mode instead of inline: `mode="button"` with `buttonLabel`.
 - Show the fixed address to the user: `showDestinationAddress`.
-- Not React? The JavaScript package mounts the same deposit flow. <Warning title="🚧 Needs review — verify at release (U-05)">Deposit mount for `@layerswap/widget-js` is confirmed as planned but not yet present in the loader source (checked 2026-08-06).</Warning>
+- Not React? The JavaScript package mounts the same deposit flow.
 
 Before launch, complete the [Production checklist](/resources/production-checklist).

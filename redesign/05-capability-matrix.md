@@ -100,7 +100,7 @@
 - Gasless: `use_gasless` on quote/limits; `typed_data` sign action; `POST/GET /swaps/{id}/authorize`; `supports_gasless_deposit` per token [SPEC].
 - Webhooks: dashboard-configured, Svix-signed; zero API surface in spec [DOCS].
 
-**Open questions** — U-11 (rate limits/idempotency/versioning), U-12 (webhook semantics), U-13 (testnet story), U-14 (depository claims), U-17 (refund rules), U-18 (gasless specifics), U-42/U-47 (filter names), U-43 (which spec features are public), U-48 (quote validity), 2.11 (Solana memo id).
+**Open questions** — U-11 (rate limits/idempotency/versioning), U-12 (webhook semantics), U-13 (testnet story), U-14 (broader depository guarantees), U-17 (refund rules), U-18 (gasless specifics), U-42/U-47 (filter names), U-43 (which spec features are public), U-48 (quote validity). Solana memo id (2.11) was resolved by the PR #32 verification integrated on 2026-08-24.
 
 **Risks** — entry page currently teaches none of this (CMP-1); parameter descriptions absent from swagger so prose carries everything.
 

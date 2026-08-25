@@ -57,7 +57,6 @@
 | S-7 (M2, M19 / Q3.8) | Official support link | resources/support, migrate-to-widget-react, troubleshooting | Babken | Telegram dev community is real; placeholder marked |
 | S-8 (M3) | Unkeyed hosted-page usage / branding key requirements | get-started/choose-your-integration, hosted-page/setup | Product | Documented paths all use a key; open question marked |
 | S-9 (M16) | hyperliquid/polymarket one-line descriptions | widget/deposit-widget | Product | Methods listed as supported (Q1.5); description marked |
-| S-10 (U-15b) | Solana memo program id | api/funding/transfer | Backend check / live sample | Construction documented from `call_data`; id claim marked |
 | S-11 | Hosted-page completion/redirect story | hosted-page/track-completion | Team (product) | Verified workarounds documented; absence stated plainly |
 | S-12 (Q3.7, ⚠️ D1–D9) | Terminology decisions await Babken's validation | glossary + first-use sites | Babken review pass | Decisions internally consistent; marked for review |
 | S-13 (Q3.5) | Replaced marketing claims | what-is-layerswap, concepts/security | Babken review pass | Concrete statements shipped; replacements marked |
@@ -91,4 +90,4 @@
 
 ## Marker cross-check
 
-M1 ✅resolved · M2→S-7 · M3→S-8 · M4→**B-16** · M5→S-1 · M6→S-2 · M7/M8/M9→S-3 · M10→S-1 · M11→S-2 · M12→S-5 · M13→S-2 · M14→S-3 · M15→V-1 · M16→S-9 · M17→V-3 · M18→V-2 · M19→S-7 · M20→P-1 · M21→S-3/P-1. All 21 accounted for; `14-open-markers.md` should adopt these classifications (add a "Class" column) during Batch 0.
+M1 ✅resolved · M2→S-7 · M3→S-8 · M4→**B-16** · M5→S-1 · M6→S-2 · M7/M8/M9→S-3 · M10→S-1 · M11→S-2 · M12→S-5 · M13→S-2 · M14→S-3 · M15→V-1 · M16→S-9 · M17→V-3 · M18→V-2 · M19→S-7 · M20→P-1 · M21→S-3/P-1 · M25 ✅resolved by PR #32 integration. All markers are accounted for in `14-open-markers.md`.

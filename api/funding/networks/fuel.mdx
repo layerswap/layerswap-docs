@@ -1,0 +1,129 @@
+---
+title: "Fuel"
+description: "Reconstruct, fund, and submit the Fuel script transaction returned in call_data."
+---
+
+Fuel `call_data` is a JSON string containing a serialized script transaction and the coin quantities required to fund it:
+
+```json
+{
+  "script": {},
+  "quantities": [
+    { "amount": "1000000", "assetId": "0x..." }
+  ]
+}
+```
+
+**Supported networks:** Fuel Mainnet, Fuel Testnet
+
+Reconstruct the request with the Fuel TypeScript SDK, estimate and fund it through the source wallet, simulate it, and then submit it.
+
+## Transaction construction
+
+<Steps>
+  <Step title="Parse call_data">
+    Deserialize the JSON string and extract the `script` and `quantities` fields.
+  </Step>
+  <Step title="Reconstruct the ScriptTransactionRequest">
+    Use `ScriptTransactionRequest.from()` to create a proper transaction request object from the serialized data.
+  </Step>
+  <Step title="Estimate and fund">
+    Call `estimateAndFund()` on the transaction with the wallet and required quantities. This estimates gas costs and adds the necessary coin inputs.
+  </Step>
+  <Step title="Simulate (optional)">
+    Simulate the transaction against the Fuel provider to verify it will succeed before sending.
+  </Step>
+  <Step title="Send the transaction">
+    Submit the transaction through the Fuel wallet and get the transaction id.
+  </Step>
+</Steps>
+
+## Full example
+
+The Server-side tab signs with a raw private key. The Browser tab uses the Fuel Wallet extension via the Fuel connector. The @fuels/react tab wraps it as a hook for React apps.
+
+<CodeGroup>
+```ts Server-side
+import { Provider, Wallet, ScriptTransactionRequest, coinQuantityfy } from 'fuels';
+
+async function executeFuelDeposit(action, privateKey) {
+  const provider = new Provider(action.network.node_url);
+  const wallet = Wallet.fromPrivateKey(privateKey, provider);
+
+  const prepared = JSON.parse(action.call_data);
+  const request = ScriptTransactionRequest.from(prepared.script);
+  const quantities = prepared.quantities.map((quantity) =>
+    coinQuantityfy(quantity),
+  );
+
+  await request.estimateAndFund(wallet, { quantities });
+  await provider.simulate(request); // optional but recommended
+
+  const response = await wallet.sendTransaction(request);
+  return response.id;
+}
+```
+
+```ts Browser
+import { Provider, ScriptTransactionRequest, coinQuantityfy } from 'fuels';
+
+async function executeFuelDeposit(action, fuel, senderAddress) {
+  const provider = new Provider(action.network.node_url);
+  const wallet = await fuel.getWallet(senderAddress, provider);
+  if (!wallet) {
+    throw new Error('Fuel wallet not found');
+  }
+
+  const prepared = JSON.parse(action.call_data);
+  const request = ScriptTransactionRequest.from(prepared.script);
+  const quantities = prepared.quantities.map((quantity) =>
+    coinQuantityfy(quantity),
+  );
+
+  await request.estimateAndFund(wallet, { quantities });
+  await provider.simulate(request);
+
+  const response = await wallet.sendTransaction(request);
+  return response.id;
+}
+```
+
+```ts @fuels/react
+import { useFuel } from '@fuels/react';
+import { Provider, ScriptTransactionRequest, coinQuantityfy } from 'fuels';
+
+function useFuelDeposit() {
+  const { fuel } = useFuel();
+
+  async function executeDeposit(action, senderAddress) {
+    if (!fuel) {
+      throw new Error('Fuel not initialized');
+    }
+
+    const provider = new Provider(action.network.node_url);
+    const wallet = await fuel.getWallet(senderAddress, provider);
+    if (!wallet) {
+      throw new Error('Fuel wallet not found');
+    }
+
+    const prepared = JSON.parse(action.call_data);
+    const request = ScriptTransactionRequest.from(prepared.script);
+    const quantities = prepared.quantities.map((quantity) =>
+      coinQuantityfy(quantity),
+    );
+
+    await request.estimateAndFund(wallet, { quantities });
+    await provider.simulate(request);
+
+    const response = await wallet.sendTransaction(request);
+    return response.id;
+  }
+
+  return { executeDeposit };
+}
+```
+</CodeGroup>
+
+The wallet must be connected to `action.network.node_url` and hold the required assets and fee token. Do not edit the returned script, outputs, asset ids, or quantities before funding it.
+
+Store the transaction id and [track the swap](/api/track-swaps).

@@ -29,8 +29,6 @@ curl 'https://api.layerswap.io/api/v2/limits?source_network=ETHEREUM_MAINNET&sou
   --header 'X-LS-APIKEY: YOUR_API_KEY'
 ```
 
-Route-discovery reads such as `GET /networks`, `GET /sources`, `GET /destinations`, and `GET /quote` currently work without a key. Creating and managing swaps requires an app key. Supplying an invalid key returns `403 API_KEY_FORBIDDEN`.
-
 ## Use a key with the Widget
 
 ```tsx

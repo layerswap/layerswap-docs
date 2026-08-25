@@ -64,7 +64,7 @@ Validation extra: every code fence in moved pages compiles conceptually against 
 |---|---|
 | REWRITE | `integration/API.mdx` → `api/overview` (auth, base URL, endpoint map — CMP-1) |
 | CREATE | `api/quickstart` (promote `build-your-first-api-swap`; V2 diagram; failures inline; markers M5–M9) |
-| CREATE | `api/funding/transfer` (deposit_actions reading + EVM/BTC/Solana construction promoted from `lifi-integration.mdx`; 🚧 memo id) |
+| CREATE | `api/funding/transfer` plus `api/funding/networks/{evm,bitcoin,solana,starknet,ton,tron,fuel}` (adapted from PR #32; exact base-unit handling; Bitcoin terminator fix; verified Solana memo path) |
 | MOVE | `api-reference/depository.mdx` → `api/funding/depository` (fix `depositAmountInBaseUnits`) |
 | MOVE | `api-reference/gasless-swaps.mdx` → `api/funding/gasless` (ACC-5: spec wins — EIP-3009; ACC-16 fix; 🚧 Q2.8) |
 | CREATE | `api/track-swaps` (polling + **V6 filter↔status mapping table** + by_transaction_hash + webhooks-vs-polling guidance) |

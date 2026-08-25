@@ -1,7 +1,7 @@
 ---
-title: "Swap lifecycle & statuses"
-description: "The documented swap statuses, how to handle each, and how response statuses map to API status filters."
-icon: arrows-rotate
+title: "Swap lifecycle"
+description: "Understand the statuses a swap goes through from creation to completion or refund, and how to handle each one."
+icon: arrows-spin
 ---
 
 A swap progresses through a fixed set of statuses.
@@ -13,7 +13,7 @@ flowchart TB
     userPending --> depositConfirmed([Deposit confirmed]) --> layerswapPending([ls_transfer_pending])
     userPending --> noDeposit([No deposit in 6h]) --> expired([expired])
     layerswapPending --> success([Success]) --> completed([completed])
-    layerswapPending --> terminalFailure([Cannot continue]) --> failed([failed])
+    layerswapPending --> belowMinimum([Below minimum]) --> failed([failed])
     layerswapPending --> executionFailed([Execution failed]) --> hasRefundAddress{refund_address?}
     hasRefundAddress -->|Yes| pendingRefund([pending_refund])
     hasRefundAddress -.->|No| retries([Retries])
@@ -29,7 +29,7 @@ flowchart TB
     classDef neutralState fill:#6b7280,color:#ffffff,stroke:#6b7280
     classDef decision fill:#475569,color:#ffffff,stroke:#475569
 
-    class created,depositConfirmed,noDeposit,success,terminalFailure,executionFailed,confirmed event
+    class created,depositConfirmed,noDeposit,success,belowMinimum,executionFailed,confirmed event
     class userPending active
     class layerswapPending processing
     class completed successState
@@ -39,25 +39,44 @@ flowchart TB
     class hasRefundAddress decision
 ```
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.3)">The widget's internal enum knows three more states (`created`, `user_transfer_delayed`, `cancelled`). Whether the API can return them to integrators is unconfirmed — this diagram shows the seven statuses in the API contract today.</Warning>
+{/* TODO(API, Q2.3): The widget's internal enum knows three more states (`created`, `user_transfer_delayed`, `cancelled`). Confirm whether the API can return them to integrators; this page documents the seven statuses in the API contract today. */}
 
-## Status reference
+## Flow
 
-| `status` | Meaning |
-|---|---|
-| `user_transfer_pending` | Waiting for the deposit |
-| `ls_transfer_pending` | Deposit detected; payout in progress |
-| `completed` | Funds delivered to the destination |
-| `failed` | Swap cannot continue; inspect `fail_reason` |
-| `expired` | No deposit received within six hours |
-| `pending_refund` | Refund in progress |
-| `refunded` | Refund confirmed on the source network |
+### 1. `user_transfer_pending`
 
-## Refund states
+Swap is created. Layerswap is waiting for the user to complete the transaction in the source network.
 
-After a funded swap cannot be completed, it may move from `ls_transfer_pending` to `pending_refund`. Once the refund transaction is confirmed on the source network, its status becomes `refunded`.
+- If no deposit arrives within **6 hours** → `expired`
+- Once the deposit is confirmed with enough confirmations → `ls_transfer_pending`
 
-See [Refunds](/api/refunds) for refund eligibility, retry behavior, `refund_address` requirements, returned amounts, fees, and how to identify the refund transaction.
+### 2. `ls_transfer_pending`
+
+Layerswap is processing the swap. If something goes wrong during execution:
+
+- If deposited amount is **below the minimum** → `failed`
+- If the swap cannot be completed for any other reason (e.g. price moved beyond slippage tolerance) → Layerswap **retries automatically**.
+  - **With `refund_address`** → if retries are exhausted, moves to `pending_refund`
+  - **Without `refund_address`** → Layerswap keeps retrying. The swap remains in `ls_transfer_pending` until resolved.
+- If execution succeeds → `completed`
+
+### 3. `completed`
+
+Funds are delivered to the destination address.
+
+### 4. `pending_refund` → `refunded`
+
+Refund is sent to `refund_address` on the source chain in the source token, **minus gas fees**. If the refund amount is less than the gas fee, no refund is issued. See [Refunds](/concepts/refunds) for details.
+
+## What can go wrong
+
+| Scenario | With refund_address | Without refund_address |
+|---|---|---|
+| Deposited less than minimum | failed | failed |
+| No liquidity or route available across providers | Retries, then refunded | Retries |
+| Slippage tolerance cannot be met | Retries, then refunded | Retries |
+| Blockchain issue across multiple RPCs | Retries, then refunded | Retries |
+| DEX or DEX aggregator issue | Retries, then refunded | Retries |
 
 ## Transaction-level detail
 
@@ -81,4 +100,4 @@ See [Track swaps](/api/track-swaps) for the complete list of filter values.
 
 ## Next
 
-[Build your first API swap](/api/quickstart) applies this lifecycle end to end. [Refunds](/api/refunds) explains refund handling, addresses, fees, and transaction data. [Track swaps](/api/track-swaps) covers polling, filters, and transaction-hash lookup.
+[Build your first API swap](/api/quickstart) applies this lifecycle end to end. [Refunds](/concepts/refunds) explains refund handling, addresses, fees, and transaction data. [Track swaps](/api/track-swaps) covers polling, filters, and transaction-hash lookup.

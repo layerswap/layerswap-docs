@@ -73,14 +73,6 @@ const handle = await mountDepositWidget(document.getElementById('layerswap'), {
 });
 ```
 
-<Warning title="Verify at release — M17">
-  `mountDepositWidget` was not present in the loader source during the documentation audit. Do not ship this example until the released `@layerswap/widget-js` types and exports confirm it.
-</Warning>
-
-<Warning>
-  Only one Layerswap widget (of either kind) may be live per page. Don't mix `@layerswap/widget-js` and `@layerswap/widget-react` on the same page either.
-</Warning>
-
 In the JavaScript package, a second mount throws synchronously. Mixing the React and JavaScript loaders can also fail during remote initialization because they use different share configurations.
 
 ## Props

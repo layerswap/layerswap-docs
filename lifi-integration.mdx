@@ -291,17 +291,21 @@ These can be discussed if needed for the integration.
 For Bitcoin, the API returns a **deposit address** and a **numeric memo**.
 
 - `to_address` — the Bitcoin deposit address to send funds to
-- `call_data` — a numeric memo string (e.g. `"12345"`) that **must** be embedded as an `OP_RETURN` output in the transaction. This is how Layerswap identifies and matches the deposit. Convert `call_data` to a hex string with `Number(call_data).toString(16)`, then embed that string in `OP_RETURN` as ASCII/UTF‑8 bytes — not as the raw bytes the hex represents. In `bitcoinjs-lib`:
+- `call_data` — the swap's numeric memo **followed by a `;` terminator** (e.g. `"12345;"`) that **must** be embedded as an `OP_RETURN` output in the transaction. This is how Layerswap identifies and matches the deposit. Convert the numeric part to hex (use `BigInt`—`Number` loses precision and fails on the `;`), keep the terminator as-is, and embed the resulting string in `OP_RETURN` as ASCII/UTF-8 bytes—not as the raw bytes the hex represents. In `bitcoinjs-lib`:
 
 ```js
-const hexMemo = Number(call_data).toString(16);
-const data = Buffer.from(hexMemo, 'utf8');           // ← 'utf8', NOT 'hex'
+const raw = String(call_data);                        // e.g. "12345;"
+const semi = raw.indexOf(';');
+const seq = semi === -1 ? raw : raw.slice(0, semi);   // "12345"
+const tail = semi === -1 ? '' : raw.slice(semi);      // ";" plus anything after it
+const hexMemo = BigInt(seq).toString(16) + tail;      // "3039;"
+const data = Buffer.from(hexMemo, 'utf8');            // ← 'utf8', NOT 'hex'
 const opReturn = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, data]);
 ```
 
 The `OP_RETURN` payload must be at most 80 bytes (standard relay limit).
 
-<Note>Layerswap matches the source transaction to the swap by reading the `OP_RETURN` output: it ASCII‑decodes the bytes, parses the resulting string as hex, and converts to a decimal that must equal `call_data`. If the `OP_RETURN` bytes are not valid ASCII hex characters, the deposit will not be matched and the swap will expire.</Note>
+<Note>Layerswap matches the source transaction to the swap by reading the `OP_RETURN` output: it ASCII-decodes the bytes, takes the part **before** the `;` terminator, and parses it as hex—the result must equal the numeric memo. Anything after the `;` is ignored for matching, so you can append your own data there within the 80-byte limit. If the part before the `;` is not valid ASCII hex, the deposit will not be matched and the swap will expire.</Note>
 - `amount` — the BTC amount to send (decimal)
 - `amount_in_base_units` — the amount in satoshis
 
@@ -318,13 +322,13 @@ Example deposit action response:
       "network": { "name": "BITCOIN_MAINNET", "type": "bitcoin", "..." : "..." },
       "token": { "symbol": "BTC", "decimals": 8, "..." : "..." },
       "fee_token": { "symbol": "BTC", "decimals": 8, "..." : "..." },
-      "call_data": "11177265"
+      "call_data": "11177265;"
     }
   ]
 }
 ```
 
-Example input transaction: [`0ecfb9b7...9e1532`](https://mempool.space/tx/0ecfb9b7117b34fb7c1881a3615bbe5208881293956892f5af11b13bb89e1532). The `OP_RETURN` scriptpubkey is `6a06616138643331` — `6a` is `OP_RETURN`, `06` is the push length, and `616138643331` is the ASCII string `aa8d31`. That string is `Number("11177265").toString(16)` — i.e. `call_data = "11177265"`, hex string = `"aa8d31"`, embedded as the six ASCII bytes `61 61 38 64 33 31`.
+Example input transaction: [`0ecfb9b7...9e1532`](https://mempool.space/tx/0ecfb9b7117b34fb7c1881a3615bbe5208881293956892f5af11b13bb89e1532). The `OP_RETURN` scriptpubkey is `6a06616138643331`—`6a` is `OP_RETURN`, `06` is the push length, and `616138643331` is the ASCII string `aa8d31`: `BigInt("11177265").toString(16)` embedded as six ASCII bytes. This transaction predates the `;` terminator; with today's `call_data = "11177265;"`, the payload would be the ASCII bytes of `aa8d31;`. Both forms are matched.
 
 <Note>`gas_limit` and `encoded_args` are not applicable for Bitcoin.</Note>
 

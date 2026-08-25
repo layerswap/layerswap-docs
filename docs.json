@@ -31,7 +31,14 @@
           {
             "group": "Concepts",
             "pages": [
-              "concepts/swap-lifecycle",
+              {
+                "group": "Swap lifecycle",
+                "icon": "arrows-spin",
+                "pages": [
+                  "concepts/swap-lifecycle",
+                  "concepts/refunds"
+                ]
+              },
               "concepts/routes-quotes-limits",
               "concepts/funding-methods",
               "concepts/fees",
@@ -140,6 +147,18 @@
             "icon": "wallet",
             "pages": [
               "api/funding/transfer",
+              {
+                "group": "Execute by network",
+                "pages": [
+                  "api/funding/networks/evm",
+                  "api/funding/networks/bitcoin",
+                  "api/funding/networks/solana",
+                  "api/funding/networks/starknet",
+                  "api/funding/networks/ton",
+                  "api/funding/networks/tron",
+                  "api/funding/networks/fuel"
+                ]
+              },
               "api/funding/depository",
               "api/funding/gasless"
             ]
@@ -149,7 +168,6 @@
             "icon": "gear",
             "pages": [
               "api/track-swaps",
-              "api/refunds",
               "api/webhooks",
               "api/errors"
             ]
@@ -319,7 +337,11 @@
     },
     {
       "source": "/api-reference/refunds",
-      "destination": "/api/refunds"
+      "destination": "/concepts/refunds"
+    },
+    {
+      "source": "/api/refunds",
+      "destination": "/concepts/refunds"
     },
     {
       "source": "/api-reference/depository",

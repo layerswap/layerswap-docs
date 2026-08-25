@@ -1,9 +1,9 @@
 ---
 title: "API overview"
-description: "Authenticate with the Layerswap v2 API and find the endpoint for each integration task."
+description: "What the Layerswap v2 API does and which endpoint to use for each integration task."
 ---
 
-Use the Layerswap API when you want to own the user interface, wallet or signing flow, and backend orchestration. The API exposes live routes and quotes, creates swaps, returns funding instructions, and reports lifecycle state.
+Use the Layerswap API to integrate swaps directly into your own system. You can look up available routes and prices, create swaps, get the instructions for funding them, and track each swap until it completes.
 
 ## Base URL and authentication
 
@@ -21,7 +21,7 @@ curl 'https://api.layerswap.io/api/v2/networks' \
 
 Mainnet and testnet use the same base URL; the key selects the environment. See [API keys & environments](/get-started/api-keys).
 
-Discovery reads such as `/networks`, `/sources`, `/destinations`, and `/quote` currently work without a key. Swap creation and app-scoped operations use your key. An invalid key returns `403 API_KEY_FORBIDDEN`.
+An invalid key returns `403 API_KEY_FORBIDDEN`.
 
 ## Endpoints by task
 
@@ -39,7 +39,7 @@ Discovery reads such as `/networks`, `/sources`, `/destinations`, and `/quote` c
 | Inspect transaction status | `GET /transaction_status` |
 | Submit or inspect gasless authorization | `POST` / `GET /swaps/{id}/authorize` |
 
-The [generated endpoint reference](/api-reference) is sourced from the live v2 OpenAPI document.
+For full request and response details for every endpoint, see the [API reference](/api-reference).
 
 ## Response envelopes
 

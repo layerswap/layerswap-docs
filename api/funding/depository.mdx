@@ -1,13 +1,12 @@
 ---
 title: "Fund via the Depository contract"
-description: "Create a Depository-funded swap and submit the API-provided contract call."
+description: "Create and fund a swap through the Depository using the contract call returned by the API."
 ---
 
-The **Depository** funding method returns a contract target and encoded call for supported routes. It fits contract, server-wallet, and batching integrations. The contract has been [audited by Hexens](https://hexens.io/audit-reports/layerswap-depository-mar-2026).
+import DepositoryDepositEvm from "/snippets/depository-deposit-evm.mdx";
+import DepositoryDepositTron from "/snippets/depository-deposit-tron.mdx";
 
-<Warning title="🚧 Needs review — Depository behavior (Q2.9)">
-  Supported networks, exclusivity rules, failure behavior, and broader operational guarantees still need a reviewed API statement. Rely on each swap's returned action instead of hardcoding those claims.
-</Warning>
+For supported routes, the API returns a Depository contract address and encoded call that a wallet or smart contract can use to fund the swap. This method works well for server wallets, batched calls, and sponsored transactions. The EVM contract has been [audited by Hexens](https://hexens.io/audit-reports/layerswap-depository-mar-2026).
 
 ## Create the swap
 
@@ -27,41 +26,48 @@ curl --request POST 'https://api.layerswap.io/api/v2/swaps' \
   }'
 ```
 
+## Depository action fields
+
 The response includes `deposit_actions`. For the contract action:
 
-| Field | Meaning |
-|---|---|
-| `to_address` | Contract target and ERC-20 approval spender |
-| `call_data` | Encoded deposit call to submit unchanged |
-| `encoded_args` | Decoded arguments for inspection |
-| `amount_in_base_units` | Native transaction value; commonly `0` for an ERC-20 call |
-| `gas_limit` | API-provided gas estimate, when present |
+<ResponseField name="to_address" type="string">
+  Depository contract address and, for ERC-20 deposits, the approval spender.
+</ResponseField>
+
+<ResponseField name="call_data" type="string">
+  Encoded deposit call to submit unchanged.
+</ResponseField>
+
+<ResponseField name="encoded_args" type="string[] | null">
+  Function argument values in call order. Use them to reconstruct the contract call when needed.
+</ResponseField>
+
+<ResponseField name="amount_in_base_units" type="string">
+  Native transaction value in base units. This is normally `0` for an ERC-20 call.
+</ResponseField>
+
+<ResponseField name="gas_limit" type="string | null">
+  Gas estimate returned by the API, when available.
+</ResponseField>
 
 The API response is authoritative for the target and arguments.
 
-## Approve and submit an ERC-20 action
+## Approve and submit the deposit action
 
-```ts
-import { parseAbi } from 'viem';
+<Tabs>
+<Tab title="EVM (viem)">
+<DepositoryDepositEvm />
 
-const action = response.data.deposit_actions[0];
-const depositAmountInBaseUnits = BigInt(action.encoded_args[3]);
+For native deposits, the approval is skipped and the returned `amount_in_base_units` is sent as `value`. Never replace the swap ID, receiver, or target embedded in `call_data`.
+</Tab>
+<Tab title="Tron (TronWeb)">
+On Tron, the Depository supports TRC-20 actions. Approve `action.to_address`, wait for the approval to confirm, then call `depositERC20` with the returned `encoded_args`:
 
-await walletClient.writeContract({
-  address: action.token.contract,
-  abi: parseAbi(['function approve(address spender, uint256 amount) returns (bool)']),
-  functionName: 'approve',
-  args: [action.to_address, depositAmountInBaseUnits],
-});
+<DepositoryDepositTron />
+</Tab>
+</Tabs>
 
-await walletClient.sendTransaction({
-  to: action.to_address,
-  data: action.call_data,
-  value: BigInt(action.amount_in_base_units),
-});
-```
-
-For native deposits, skip the token approval and send the returned `amount_in_base_units` as `value`. Never replace the swap ID, receiver, or target embedded in `call_data`.
+The examples' `feeLimit` and gas values are caps, not estimates — set them according to your execution policy. Do not reorder or replace the returned arguments.
 
 ## Detect the deposit
 

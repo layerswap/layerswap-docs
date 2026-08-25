@@ -123,37 +123,6 @@ const customProvider = createStarknetProvider({
 3. Your wallet management library handles cleanup
 4. Widget updates to show "Connect Wallet" button
 
----
-
-## Critical Implementation Details
-
-<Note>
-  **Important: These details are critical for correct implementation**
-
-  1. **Icon Resolution**: The `icon` property in the `Wallet` type must return a React component, NOT a URL string. Always use the utility function:
-     ```typescript
-     import { resolveWalletConnectorIcon } from "@layerswap/widget"
-
-     icon: resolveWalletConnectorIcon({ iconUrl: "https://..." })
-     ```
-
-  2. **Ready State**: Always return `ready: true` in your `WalletConnectionProvider` when your provider is initialized and ready to handle connections. This is a **required field** - the widget will not function without it.
-
-  3. **WalletConnect Configs**: Only needed for native EVM/SVM/Starknet providers when NOT using a custom hook. If you provide `customHook`, the WalletConnect configuration is ignored since you control the connection flow.
-
-  4. **Type Imports**: Import types from `@layerswap/widget/types`:
-     ```typescript
-     import {
-       WalletConnectionProvider,
-       Wallet,
-       WalletConnectionProviderProps
-     } from "@layerswap/widget/types"
-     ```
-
-  5. **Disconnect Callback**: The `disconnectWallets` function in `WalletConnectionProvider` is optional but recommended for proper cleanup. Each individual `Wallet` must have its own `disconnect` callback.
-</Note>
-
----
 
 ## Creating a Custom Provider
 

@@ -13,10 +13,6 @@ Use this checklist for Widget, Hosted Page, and API integrations. Complete the s
 - [ ] Validate canonical network IDs, token decimals, and destination-address formats.
 - [ ] Re-check limits and refresh the quote after user edits or a long delay.
 
-<Warning title="🚧 Needs review — quote policy (Q2.1)">
-  Quotes have no expiry field and the rate-guarantee window is not defined. Treat pricing as indicative and refresh immediately before swap creation.
-</Warning>
-
 ## Creation and funding
 
 - [ ] Prevent duplicate submissions in your UI and backend.
@@ -25,10 +21,6 @@ Use this checklist for Widget, Hosted Page, and API integrations. Complete the s
 - [ ] Execute `deposit_actions` in order and use returned targets, calldata, memos, amounts, and decimals unchanged.
 - [ ] Show the user the selected network, token, amount, destination, and any required memo before signing.
 - [ ] Test rejected signatures, insufficient balances, wrong networks, wrong amounts, and abandoned funding.
-
-<Warning title="🚧 Needs review — idempotency and refunds (Q2.4/Q2.7)">
-  `reference_id` idempotency and the complete refund rules are not confirmed. Enforce one creation attempt locally and do not promise automatic refund timing.
-</Warning>
 
 ## Tracking and errors
 
@@ -39,20 +31,13 @@ Use this checklist for Widget, Hosted Page, and API integrations. Complete the s
 - [ ] Make webhook side effects idempotent and re-fetch the swap before irreversible fulfillment.
 - [ ] Provide the swap ID and transaction hash in support tooling.
 
-<Warning title="🚧 Needs review — API policy (Q2.4/Q2.5)">
-  Rate limits, recommended polling cadence, API deprecation/versioning, and webhook delivery guarantees are unpublished. Monitor errors and latency, and keep retry behavior configurable.
-</Warning>
-
 ## Widget and Hosted Page
 
-- [ ] Confirm `@layerswap/widget-react`, `@layerswap/widget-js`, and related 2.0.0 packages are published and installable.
-- [ ] Confirm `https://cdn.layerswap.io` serves the released manifest and the loader's default points there.
 - [ ] Test the documented CSP in a production-like host.
 - [ ] Render only one Layerswap Widget per page and keep object props referentially stable.
 - [ ] Verify configured WalletConnect, TON, and Immutable Passport credentials and callback URLs.
 - [ ] Test mobile wallets, popup blocking, refresh/reconnect, and narrow layouts.
 - [ ] For Hosted Page flows, verify attribution, address confirmation, and the server-side completion-correlation path.
-- [ ] Do not rely on `mountDepositWidget` until the released JavaScript package exports it.
 
 ## Security and operations
 

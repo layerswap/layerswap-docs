@@ -3,10 +3,6 @@ title: "Self-bundled Widget"
 description: "For teams that need complete control over the Widget bundle and its dependencies."
 ---
 
-<Warning>
-  The React and JavaScript loader packages are recommended for most new integrations because they deliver verified Widget updates without a host-app deployment. The self-bundled package remains supported and is useful when your architecture requires control over the complete bundle.
-</Warning>
-
 With this path, your app installs `@layerswap/widget` and the wallet packages it needs. You construct wallet providers and pass them to `LayerswapProvider`.
 
 ## Install
@@ -14,12 +10,6 @@ With this path, your app installs `@layerswap/widget` and the wallet packages it
 ```bash
 npm install @layerswap/widget @layerswap/wallet-evm zustand@^4.5.7
 ```
-
-All Widget packages are expected to release on the 2.0.0 line together.
-
-<Warning title="Verify at release">
-  Confirm the published package versions, peer ranges, and release notes before shipping this setup.
-</Warning>
 
 ## Render the Widget
 

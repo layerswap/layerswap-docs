@@ -10,9 +10,9 @@ Before creating a swap, confirm that the route is available, check the amount ag
 
 A **route** is a source→destination pair Layerswap can execute: source network (or exchange) \+ token → destination network \+ token. Route availability is live data and can change as network support, providers, and liquidity change. Discover routes dynamically instead of hardcoding supported pairs:
 
-- [`GET /networks`](/api-reference/swaps/get-networks) — every supported network and its tokens (public, no key). Support alone does not guarantee that a particular source-to-destination route is currently available.
+- [`GET /networks`](/api-reference/swaps/get-networks) — every supported network and its tokens. Support alone does not guarantee that a particular source-to-destination route is currently available.
 - [`GET /sources`](/api-reference/swaps/get-sources) / [`GET /destinations`](/api-reference/swaps/get-destinations) — what's currently routable, with per-route token `status` and Refuel availability. Narrow the results using the `destination_network` and `destination_token` query parameters.
-- [`GET /connections`](/api-reference/swaps/get-connections) — token-group connectivity for a network pair. This is where cross-token routes are visible (for example USDT → USDT0, ETH ⇄ WETH).
+- [`GET /connections`](/api-reference/swaps/get-connections) — all routable token pairs between two networks in one call.
 
 ## Quotes
 
@@ -32,11 +32,7 @@ Use [`GET /quote`](/api-reference/swaps/get-quote) to request a quote for a sele
 
 See [Fees](/concepts/fees) for a breakdown of the fees and optional Refuel cost returned with the quote.
 
-[`GET /detailed_quote`](/api-reference/swaps/get-detailed-quote) describes the fee structure and supported amount range for a route rather than pricing one specific amount. It returns an array containing fixed and percentage fee components, minimum and maximum amounts, provider-level details, and estimated completion time. See [Detailed fee data](/concepts/fees#detailed-fee-data) for the field breakdown.
-
-<Warning>
-  Quotes carry no expiry field, and the rate guarantee between quoting and depositing is undefined. Until answered, treat quotes as indicative pricing, not locked rates.
-</Warning>
+[`GET /detailed_quote`](/api-reference/swaps/get-detailed-quote) describes the fee structure and supported amount range for a route rather than pricing one specific amount. It returns an array containing fixed and percentage fee components, minimum and maximum amounts, provider-level details, and estimated completion time. See [Detailed fee data](/concepts/fees#fee-structure-by-amount-range) for the field breakdown.
 
 ## Refuel
 
@@ -58,10 +54,6 @@ The Widget shows Refuel when it is available for the selected route and uses the
 [`GET /limits`](/api-reference/swaps/get-swap-route-limits) returns the minimum and maximum source amounts accepted for the selected route configuration. Limits can depend on options such as the funding method, Refuel, and destination address, so pass the same relevant options to `/limits`, `/quote`, and swap creation.
 
 Refresh limits whenever the route or its configuration changes. If the amount is below or above the returned range, quote creation fails with `LESS_THAN_MIN_ERROR` or `GREATER_THAN_MAX_ERROR`.
-
-<Warning>
-  Whether an over-maximum deposit is refunded automatically or requires intervention is unconfirmed.
-</Warning>
 
 ## Where this is used
 

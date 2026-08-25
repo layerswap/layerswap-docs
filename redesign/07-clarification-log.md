@@ -27,7 +27,7 @@
 | 2.8 Gasless specifics | Later. | No | MARK (EIP-3009 vs 2612, status enum, window). |
 | 2.9 Depository claims | Later. | No | MARK. |
 | 2.10 Spec-only features | **"If they are not in swagger, do not document them."** Inverse rule adopted: swagger presence = documentable. | Yes | `/connections`, `/transaction_status`, `deposit_speedup`, `refuel`, `slippage`, exchange models etc. ARE in swagger → documentable. `exclude_deposit_actions` is NOT in swagger → remove from refunds page. Webhook prose exempt per 2.5. |
-| 2.11 Solana memo id | "Whichever the frontend puts is what the backend uses." | Pending code check | Follow-up verification launched (memo program id in layerswapapp frontend). |
+| 2.11 Solana memo id | "Whichever the frontend puts is what the backend uses." | Resolved 2026-08-24 via PR #32 | Top-level SPL Memo instruction uses `metadata.sequence_number`; manual-build path documented alongside the safer serialized-transaction path. |
 
 ## 3. Product & positioning
 
