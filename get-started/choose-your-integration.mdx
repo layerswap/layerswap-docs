@@ -7,8 +7,8 @@ Start with the job your user needs to complete. Every option uses the same [rout
 
 ## Compare the options
 
-| | Best for | Integration | You control |
-|---|---|---|---|
+|  | Best for | Integration | You control |
+| --- | --- | --- | --- |
 | [**Widget**](/widget/quickstart) | Full swaps or fixed-destination funding inside your app | React or JS package | Placement, theme, routes, tokens, and wallets |
 | [**Hosted Page**](/hosted-page/setup) | Integrating without a package | Link, redirect, or embed a URL | Route defaults via URL params |
 | [**API**](/api/quickstart) | Building your own UX | REST API | Everything |
@@ -17,8 +17,8 @@ Start with the job your user needs to complete. Every option uses the same [rout
 
 Both follow the Widget integration model, share theming and callbacks, and use the same verified CDN delivery path in the React loader. They start from different user intent:
 
-| | **Full Swap Widget** | **Deposit Widget** |
-|---|---|---|
+|  | **Full Swap Widget** | **Deposit Widget** |
+| --- | --- | --- |
 | Component | `LayerswapWidget` | `LayerswapDepositWidget` |
 | Destination | The user can choose it unless you lock it | Your integration always supplies and fixes it |
 | First choice presented to the user | Swap route: source, destination, and assets | Funding method: wallet transfer, deposit address, or another available balance source |
@@ -46,4 +46,6 @@ The **Deposit Widget** is not the **Deposit tab** inside the full Widget. The co
 
 Create an API key in the [Partner Dashboard](/get-started/api-keys) before starting a Widget or API integration. Mainnet and testnet keys select their respective environments.
 
-<Warning title="🚧 Needs review — awaiting confirmation">Whether unkeyed Hosted Page URLs will remain supported for partner integrations, and which branding features require an app key, still needs a product answer.</Warning>
+<Warning>
+  Whether unkeyed Hosted Page URLs will remain supported for partner integrations, and which branding features require an app key, still needs a product answer.
+</Warning>
