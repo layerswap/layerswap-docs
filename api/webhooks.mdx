@@ -47,7 +47,7 @@ Webhook data describes the swap at the status available when the event is sent. 
 
 Use the swap ID as the durable key, and fetch `GET /swaps/{id}` before executing irreversible business logic.
 
-<Warning title="🚧 Needs review — webhook contract (Q2.5)">
+<Warning>
   The complete event list, exact envelope and field guarantees, retry schedule, timeout behavior, duplicate-delivery policy, and ordering guarantees are not documented. Build an idempotent receiver, tolerate partial fields, and re-fetch the swap until the contract is published.
 </Warning>
 
