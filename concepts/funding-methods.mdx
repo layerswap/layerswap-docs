@@ -1,23 +1,27 @@
 ---
 title: "Funding methods"
 description: "Compare Layerswap funding methods and choose the right one for your integration."
-icon: wallet
+icon: "wallet"
 ---
 
 A **funding method** determines how the source asset is provided to Layerswap.
 
-<Warning title="🚧 Needs review — terminology (D2)">“Funding method” is the proposed umbrella term for wallet transfers, deposit addresses, Depository calls, and gasless deposits. API and Widget field names still use `deposit` where noted.</Warning>
+<Warning title="🚧 Needs review — terminology (D2)">
+  “Funding method” is the proposed umbrella term for wallet transfers, deposit addresses, Depository calls, and gasless deposits. API and Widget field names still use `deposit` where noted.
+</Warning>
 
 ## Compare methods
 
 | Method | Best fit | Required funding action |
-|---|---|---|
+| --- | --- | --- |
 | Wallet transfer | Users or integrations that can submit source-network transactions | Submit a source-network transfer or contract call |
 | Deposit address | CEX withdrawals or wallets that cannot connect to your app | Send funds from a wallet or exchange |
 | Depository | Smart contracts, server wallets, and batched EVM funding | Call the Depository contract |
 | Gasless deposit | Users who do not have the source network's gas token | Sign EIP-3009 typed data; a relayer submits the transaction |
 
-<Warning title="🚧 Needs review — awaiting API answers (Q2.8/Q2.9)">The table is limited to structures verified in the API specification. Gasless validity rules and additional Depository operational guarantees remain unconfirmed.</Warning>
+<Warning>
+  The table is limited to structures verified in the API specification. Gasless validity rules and additional Depository operational guarantees remain unconfirmed.
+</Warning>
 
 ## Wallet transfer
 

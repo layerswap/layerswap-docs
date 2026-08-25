@@ -31,7 +31,7 @@ const params = new URLSearchParams({
 const layerswapUrl = `https://layerswap.io/app?${params.toString()}`;
 ```
 
-<Warning title="🚧 Needs review — hosted-page key requirements (M3)">
+<Warning>
   The long-term policy for unkeyed partner URLs and the exact key or client identifier required for Partner Dashboard branding is not confirmed. Test branding and attribution with your app configuration before launch.
 </Warning>
 
@@ -42,7 +42,7 @@ All values are strings in the URL.
 ### Route and amount
 
 | Parameter | Purpose |
-|---|---|
+| --- | --- |
 | `from` | Source network or exchange identifier |
 | `to` | Destination network identifier |
 | `fromAsset` | Source token symbol |
@@ -53,7 +53,7 @@ All values are strings in the URL.
 ### Lock or hide fields
 
 | Parameter | Purpose |
-|---|---|
+| --- | --- |
 | `lockFrom`, `lockTo` | Prevent changing the source or destination |
 | `lockFromAsset`, `lockToAsset` | Prevent changing the selected tokens |
 | `hideFrom`, `hideTo` | Hide the source or destination control |
@@ -65,7 +65,7 @@ All values are strings in the URL.
 ### Flow and display
 
 | Parameter | Purpose |
-|---|---|
+| --- | --- |
 | `defaultTab` | `swap`, `cex`, or `deposit` |
 | `depositMethod` | `wallet` or `deposit_address` |
 | `actionButtonText` | Main action label |
@@ -78,7 +78,7 @@ All values are strings in the URL.
 ### Correlation
 
 | Parameter | Purpose |
-|---|---|
+| --- | --- |
 | `externalId` | Your correlation ID; stored on the created swap as `reference_id` |
 
 Use a unique, non-secret `externalId` for each user flow. It is correlation metadata, not an idempotency guarantee.
@@ -100,7 +100,7 @@ These string presets are specific to the Hosted Page path. Widget package integr
 Older URLs are normalized, but use the canonical parameters above in new links:
 
 | Older parameter | Canonical parameter |
-|---|---|
+| --- | --- |
 | `destAddress` | `destination_address` |
 | `fromExchange` | `from` |
 | `sourceExchangeName` | `from` |
@@ -134,7 +134,7 @@ Build the URL with the same parameters, then use it as `src`:
 
 Wallet connections can open a popup or external wallet application. Test the complete flow in your browser, mobile webview, and popup-blocking configuration; a normal link or redirect is often more reliable on mobile.
 
-<Warning title="🚧 Needs review — iframe CSP (S-15)">
+<Warning>
   Layerswap-side `frame-ancestors` and the complete host/iframe CSP requirements have not been confirmed. Verify that the production page permits your origin before committing to iframe delivery.
 </Warning>
 
