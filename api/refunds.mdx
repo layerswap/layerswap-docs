@@ -10,11 +10,11 @@ A funded swap that cannot be completed may enter the refund flow. Refunds are re
 If execution fails after funding, Layerswap retries execution. If execution still cannot complete and a `refund_address` was provided, Layerswap may initiate a refund and change the swap status to `pending_refund`. Without a refund address, the swap remains `ls_transfer_pending` while Layerswap continues retrying. After the refund transaction is confirmed on the source network, the swap status changes to `refunded`.
 
 | `status` | Meaning |
-|---|---|
+| --- | --- |
 | `pending_refund` | Refund in progress |
 | `refunded` | Refund confirmed on the source network |
 
-<Warning title="🚧 Needs review — retry policy">
+<Warning>
   The retry cadence, number of attempts, and conditions that cause Layerswap to initiate a refund are not yet confirmed.
 </Warning>
 
@@ -24,7 +24,7 @@ See [Swap lifecycle & statuses](/concepts/swap-lifecycle) for the complete statu
 
 You can provide a `refund_address` when creating a swap. The refund address identifies where Layerswap should return funds on the source network.
 
-<Warning title="🚧 Needs review — refund address requirements (Q2.7)">
+<Warning>
   Address validation and the routes for which `refund_address` is required still need confirmation.
 </Warning>
 
@@ -32,7 +32,7 @@ You can provide a `refund_address` when creating a swap. The refund address iden
 
 Layerswap deducts the source-network gas fee from the returned amount.
 
-<Warning title="🚧 Needs review — refunds below gas cost (Q2.7)">
+<Warning>
   The behavior when the refund amount is smaller than the gas cost still needs confirmation.
 </Warning>
 

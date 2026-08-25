@@ -15,7 +15,7 @@ curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID/deposit_actions?source_addre
 Common fields:
 
 | Field | Use |
-|---|---|
+| --- | --- |
 | `order` | Execute multiple actions in ascending order |
 | `type` | Whether to submit a transfer or sign data |
 | `to_address` | Transaction recipient or contract |
@@ -66,7 +66,7 @@ transaction.lastValidBlockHeight = lastValidBlockHeight;
 
 Do not rebuild the transaction unless you have verified every instruction. The frontend intentionally uses the backend-provided serialized transaction.
 
-<Warning title="🚧 Needs review — Solana memo program (S-10)">
+<Warning>
   The memo program identifier cannot be verified from the frontend because it does not construct the instruction. Confirm it against backend code or a live `deposit_actions` sample before documenting a manual-build path.
 </Warning>
 

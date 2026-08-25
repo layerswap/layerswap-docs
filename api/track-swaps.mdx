@@ -14,7 +14,7 @@ curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID' \
 
 Use `data.swap.status` for control flow and `data.swap.transactions` for input, output, refuel, and refund transaction details. See [Swap lifecycle & statuses](/concepts/swap-lifecycle).
 
-<Warning title="🚧 Needs review — polling and rate limits (Q2.4)">
+<Warning>
   Layerswap has not published a polling interval or rate-limit policy, and responses do not expose standard rate-limit headers. Poll conservatively, stop at a terminal status, use exponential backoff on network/server errors, and prefer webhooks when possible.
 </Warning>
 
@@ -27,10 +27,10 @@ curl 'https://api.layerswap.io/api/v2/swaps?address=0xUserAddress&statuses=Pendi
   --header 'X-LS-APIKEY: YOUR_API_KEY'
 ```
 
-Status filters are case-sensitive PascalCase values and are **not** the snake_case values returned on swap objects:
+Status filters are case-sensitive PascalCase values and are **not** the snake\_case values returned on swap objects:
 
 | Query filter | Response `status` |
-|---|---|
+| --- | --- |
 | `PendingDeposit` | `user_transfer_pending` |
 | `PendingWithdrawal` | `ls_transfer_pending` |
 | `PendingRefund` | `pending_refund` |
@@ -57,7 +57,7 @@ This is useful after a wallet or server-wallet transaction has been submitted bu
 ## Choose an observation mechanism
 
 | Mechanism | Use it when | Caveat |
-|---|---|---|
+| --- | --- | --- |
 | Widget events | Your embedded UI needs immediate client-side updates | Client events are not sufficient proof for crediting funds |
 | Poll `GET /swaps/{id}` | Your backend needs an authoritative status on demand | Cadence and rate limits are unpublished |
 | Webhooks | Your backend can receive pushes | Event, retry, ordering, and payload guarantees remain marked gaps |
