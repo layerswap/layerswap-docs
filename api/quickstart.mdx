@@ -73,7 +73,7 @@ Read endpoints (`/networks`, `/quote`, `/sources`, `/destinations`) are public �
 
     Every successful response is wrapped in `data`. Fee semantics live in [Fees](/concepts/fees); `avg_completion_time` is a .NET-style duration string.
 
-    <Warning title="🚧 Needs review — awaiting API answer (Q2.1)">
+    <Warning>
       The quote response has no expiry field. What rate applies if the user deposits later, and how long a quote should be treated as indicative, is pending a product answer. Until then: do not present `receive_amount` as guaranteed.
     </Warning>
 
