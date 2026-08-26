@@ -190,6 +190,12 @@
         ]
       },
       {
+        "tab": "Deposit Address",
+        "pages": [
+          "DepositAddress"
+        ]
+      },
+      {
         "tab": "Resources",
         "groups": [
           {
