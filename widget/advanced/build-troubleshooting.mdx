@@ -46,22 +46,25 @@ export default nextConfig;
 
 ## Next.js: ESM package resolution
 
-Add only the self-bundled packages you install to `transpilePackages`:
+The published next builds contain extensionless ESM imports. Without transpilation, Node's SSR loader can reject an internal import with `ERR_MODULE_NOT_FOUND`, commonly for a path ending in `/knownIds`.
+
+Add the Widget's shared packages and every installed `@layerswap/wallet-*` package to `transpilePackages`:
 
 ```ts title="next.config.ts"
 const nextConfig = {
   transpilePackages: [
     '@layerswap/widget',
-    '@layerswap/wallets',
+    '@layerswap/widget-types',
+    '@layerswap/utils',
+    '@layerswap/ui-kit',
+    '@layerswap/wallet-core',
     '@layerswap/wallet-evm',
+    '@layerswap/wallet-starknet',
     '@layerswap/wallet-imtbl-passport',
-    '@layerswap/wallet-imtbl-x',
-    '@layerswap/wallet-module-zksync',
-    '@layerswap/wallet-module-loopring',
   ],
 };
 
 export default nextConfig;
 ```
 
-The package names above use the published `wallet-imtbl-*` and `wallet-module-*` forms. Re-check the module packages against the 2.0.0 release.
+Replace the wallet-package entries with every chain package your host installs; include `@layerswap/wallets` too if you use the lazy descriptor package. The package names use the published `wallet-imtbl-*` and `wallet-module-*` forms. Re-check the module packages against the 2.0.0 release.

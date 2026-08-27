@@ -47,7 +47,7 @@ A valid address on the source network to which Layerswap can return source funds
 ## Direction and state
 
 **Source / destination**  
-The conceptual start and end of a route. Widget and Hosted Page parameters may use names such as `from`, `to`, `fromAsset`, and `toAsset`.
+The start and end of a route. Widget and Hosted Page parameters may use names such as `from`, `to`, `fromAsset`, and `toAsset`.
 
 **Swap status**  
 A snake_case state returned on a swap, such as `user_transfer_pending` or `completed`.
@@ -76,4 +76,4 @@ The public [Layerswap Explorer](https://layerswap.io/explorer) for inspecting sw
 ## Identifiers
 
 **`externalId` / `reference_id`**  
-`externalId` is the Widget or Hosted Page input name. The resulting swap stores it as `reference_id`, which your integration can use to correlate its own records with Layerswap swaps.
+`externalId` is the Widget or Hosted Page input name. The swap stores it as `reference_id`,  so you can match your own records to Layerswap swaps.

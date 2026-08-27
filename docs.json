@@ -54,7 +54,8 @@
           {
             "group": "Start here",
             "pages": [
-              "widget/quickstart"
+              "widget/quickstart",
+              "widget/deposit-widget"
             ]
           },
           {
@@ -65,7 +66,21 @@
               "widget/wallets",
               "widget/wagmi-config",
               "widget/theming",
-              "widget/theme-reference"
+              "widget/theme-reference",
+              {
+                "group": "Events",
+                "pages": [
+                  "widget/events/overview",
+                  "widget/events/on-form-change",
+                  "widget/events/on-swap-create",
+                  "widget/events/on-swap-complete",
+                  "widget/events/on-swap-status-change",
+                  "widget/events/on-swap-modal-state-change",
+                  "widget/events/on-back-click",
+                  "widget/events/on-menu-navigation-change",
+                  "widget/events/on-error"
+                ]
+              }
             ]
           },
           {
@@ -74,27 +89,6 @@
               "widget/compatibility",
               "widget/delivery-and-security",
               "widget/troubleshooting"
-            ]
-          },
-          {
-            "group": "Events",
-            "pages": [
-              "widget/events/overview",
-              "widget/events/on-form-change",
-              "widget/events/on-swap-create",
-              "widget/events/on-swap-complete",
-              "widget/events/on-swap-status-change",
-              "widget/events/on-swap-modal-state-change",
-              "widget/events/on-back-click",
-              "widget/events/on-menu-navigation-change",
-              "widget/events/on-error"
-            ]
-          },
-          {
-            "group": "Deposit Widget",
-            "pages": [
-              "widget/deposit-widget",
-              "widget/add-deposits-to-your-wallet"
             ]
           },
           {
@@ -111,7 +105,6 @@
               "widget/advanced/migrate-to-widget-react",
               "widget/advanced/wallet-management",
               "widget/advanced/native-wallet-packages",
-              "widget/advanced/partial-integration",
               "widget/advanced/custom-wallet-management",
               "widget/advanced/wallet-providers",
               "widget/advanced/build-troubleshooting"
@@ -205,6 +198,25 @@
               "resources/partner-dashboard",
               "resources/support",
               "resources/brand-assets"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "LI.FI Integration",
+        "hidden": true,
+        "pages": [
+          "lifi-integration"
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "hidden": true,
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog/api"
             ]
           }
         ]
@@ -511,7 +523,7 @@
     },
     {
       "source": "/integration/UI/Widget/WalletManagement/PartialIntegration",
-      "destination": "/widget/advanced/partial-integration"
+      "destination": "/widget/advanced/wallet-management"
     },
     {
       "source": "/integration/UI/Widget/WalletManagement/CustomWalletManagement",
@@ -555,7 +567,11 @@
     },
     {
       "source": "/prototypes/widget/add-deposits-to-your-wallet",
-      "destination": "/widget/add-deposits-to-your-wallet"
+      "destination": "/widget/deposit-widget"
+    },
+    {
+      "source": "/widget/add-deposits-to-your-wallet",
+      "destination": "/widget/deposit-widget"
     },
     {
       "source": "/prototypes/widget/widget-wont-load",

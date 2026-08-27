@@ -20,7 +20,7 @@ Tokens can be identified by either:
 - **Contract address** — e.g. `"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"` (USDC on Ethereum)
 
 The full list of supported networks and tokens is available at:
-- [Networks & Tokens](/networks-tokens)
+- [Networks & Tokens](/get-started/networks-and-tokens)
 - Programmatically via `GET /api/v2/networks`
 
 ## 2. Route Discovery
@@ -271,7 +271,7 @@ The `transactions` array contains both the source (`type: "input"`) and destinat
 
 | LI.FI expects | Layerswap field | Notes |
 |---|---|---|
-| `status` | `swap.status` | See [Swap Lifecycle](/api-reference/swap-lifecycle) for full details. Values: `user_transfer_pending`, `user_transfer_delayed`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
+| `status` | `swap.status` | See [Swap Lifecycle](/concepts/swap-lifecycle) for full details. Values: `user_transfer_pending`, `user_transfer_delayed`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
 | `substatus` | `swap.fail_reason` | `null` on success; on failure: `received_less_than_valid_range`, `received_more_than_valid_range`, `swap_route_unavailable`, `degraded_quote` |
 | `receiving.txHash` | `transactions[type="output"].transaction_hash` | Destination chain tx hash |
 | `receiving.chainId` | `transactions[type="output"].network.chain_id` | Destination chain ID |

@@ -92,7 +92,7 @@ Each entry in `deposit_actions` tells you where and how to send the funds — `t
 
 Other funding methods use the same swap object with different flags: [Depository contract calls](/api/funding/depository) (`use_depository`) and [gasless signatures](/api/funding/gasless) (`use_gasless`).
 
-**If the user sends an invalid amount:** inspect `fail_reason`; the swap may enter the [refund flow](/api/refunds). **If the user never sends:** the swap moves to `expired` after six hours. See [Swap lifecycle & statuses](/concepts/swap-lifecycle) instead of inferring recovery behavior.
+**If the user sends an invalid amount:** inspect `fail_reason`; the swap may enter the [refund flow](/concepts/refunds). **If the user never sends:** the swap moves to `expired` after six hours. See [Swap lifecycle & statuses](/concepts/swap-lifecycle) instead of inferring recovery behavior.
 
 </Step>
 <Step title="Track to completion">
