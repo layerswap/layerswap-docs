@@ -1,0 +1,104 @@
+---
+title: "Wallet providers"
+description: "Configure self-bundled Widget provider factories by chain family."
+---
+
+<Warning>
+  Provider factories are part of the self-bundled integration. Loader-package users configure built-in providers through [Wallets](/widget/wallets).
+</Warning>
+
+## Provider matrix
+
+| Family | Install | Import and create |
+|---|---|---|
+| EVM | `@layerswap/wallet-evm` | `createEVMProvider` |
+| Bitcoin | `@layerswap/wallet-bitcoin` | `createBitcoinProvider()` |
+| Solana | `@layerswap/wallet-svm` | `createSVMProvider` |
+| Starknet | `@layerswap/wallet-starknet` | `createStarknetProvider` |
+| Fuel | `@layerswap/wallet-fuel` | `createFuelProvider()` |
+| TON | `@layerswap/wallet-ton` | `createTONProvider` |
+| Tron | `@layerswap/wallet-tron` | `createTronProvider()` |
+| Paradex | `@layerswap/wallet-paradex` | `createParadexProvider()` |
+| Immutable Passport | `@layerswap/wallet-imtbl-passport` | `createImmutablePassportProvider` |
+
+Pass created providers to `LayerswapProvider`:
+
+```tsx
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { createStarknetProvider } from '@layerswap/wallet-starknet';
+
+const walletConnectConfigs = {
+  projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
+  appName: 'Your app',
+};
+
+const walletProviders = [
+  createEVMProvider({ walletConnectConfigs }),
+  createStarknetProvider({ walletConnectConfigs }),
+];
+
+export function Widget() {
+  return (
+    <LayerswapProvider config={{ apiKey: 'YOUR_API_KEY' }} walletProviders={walletProviders}>
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+## Paradex
+
+Paradex peer-depends on the EVM and Starknet packages; it does not re-export their factories:
+
+```tsx
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { createStarknetProvider } from '@layerswap/wallet-starknet';
+import { createParadexProvider } from '@layerswap/wallet-paradex';
+
+const walletProviders = [
+  createEVMProvider({ walletConnectConfigs }),
+  createStarknetProvider({ walletConnectConfigs }),
+  createParadexProvider(),
+];
+```
+
+## TON
+
+TON requires an API key and a publicly accessible TON Connect manifest:
+
+```tsx
+import { createTONProvider } from '@layerswap/wallet-ton';
+
+const tonProvider = createTONProvider({
+  tonConfigs: {
+    tonApiKey: 'YOUR_TON_API_KEY',
+    manifestUrl: 'https://yourapp.com/tonconnect-manifest.json',
+  },
+});
+```
+
+The manifest describes your app to TON wallets and must be reachable over HTTPS in production.
+
+## Immutable Passport
+
+Create an application in Immutable Hub and register the exact authentication and logout redirect URLs. Install both the Passport and EVM packages, then import their factories from their owning packages:
+
+```tsx
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { createImmutablePassportProvider } from '@layerswap/wallet-imtbl-passport';
+
+const imtblPassportConfigs = {
+  publishableKey: 'YOUR_PUBLISHABLE_KEY',
+  clientId: 'YOUR_CLIENT_ID',
+  redirectUri: 'https://yourapp.com/imtbl-redirect',
+  logoutRedirectUri: 'https://yourapp.com/',
+};
+
+const walletProviders = [
+  createEVMProvider({ walletConnectConfigs }),
+  createImmutablePassportProvider({ imtblPassportConfigs }),
+];
+```
+
+Your redirect route must render the Passport redirect handler exported by the package. The configured Hub URL and deployed route must match exactly.

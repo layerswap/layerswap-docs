@@ -1,0 +1,21 @@
+---
+title: onSwapComplete
+description: Triggered when a swap completes.
+---
+
+`onSwapComplete` fires when the Widget observes the swap reaching `completed`.
+
+```tsx
+<LayerswapWidget
+  config={widgetConfig}
+  callbacks={{
+    onSwapComplete: (response) => {
+      console.log("Swap completed:", response as SwapResponse)
+    },
+  }}
+/>
+```
+
+## Callback payload
+
+<Snippet file="snippets/swap-response-types.mdx" />

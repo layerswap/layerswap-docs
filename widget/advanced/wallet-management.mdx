@@ -1,0 +1,52 @@
+---
+title: "Wallet management"
+description: "Understand and configure wallet providers in the self-bundled Widget."
+---
+
+<Warning>
+  This page applies only to the self-bundled `@layerswap/widget` integration. The recommended loader packages build providers internally; see [Wallets](/widget/wallets).
+</Warning>
+
+The self-bundled Widget receives a `walletProviders` array through `LayerswapProvider`. Each provider implements a chain-family connection, balance, signing, and transaction contract.
+
+## Choose an approach
+
+<CardGroup cols={2}>
+  <Card title="Native wallet packages" icon="box" href="/widget/advanced/native-wallet-packages">
+    Install Layerswap's packages for the chain families you support.
+  </Card>
+  <Card title="Custom wallet management" icon="code" href="/widget/advanced/custom-wallet-management">
+    Adapt a third-party wallet system to the provider contract.
+  </Card>
+  <Card title="Provider reference" icon="plug" href="/widget/advanced/wallet-providers">
+    Package, factory, and credential setup by chain family.
+  </Card>
+</CardGroup>
+
+## Load settings before deriving chains
+
+`useChainConfigs` needs loaded Layerswap settings. Put the hook in a child rendered only after the load guard, which also preserves React's hook ordering:
+
+```tsx
+import { LayerswapProvider, Swap, useSettings, WidgetLoading } from '@layerswap/widget';
+import { createEVMProvider, useChainConfigs } from '@layerswap/wallet-evm';
+
+function ReadyWidget({ settings }) {
+  const { chains, transports } = useChainConfigs(settings.networks);
+  const walletProviders = [createEVMProvider({ chains, transports })];
+
+  return (
+    <LayerswapProvider config={{ apiKey: 'YOUR_API_KEY' }} walletProviders={walletProviders}>
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+
+export function Widget() {
+  const { settings, loading } = useSettings({ apiKey: 'YOUR_API_KEY' });
+  if (loading || !settings) return <WidgetLoading />;
+  return <ReadyWidget settings={settings} />;
+}
+```
+
+Keep the provider array stable when its inputs have not changed. Provider order does not change route availability; it changes which wallet families the UI can connect.

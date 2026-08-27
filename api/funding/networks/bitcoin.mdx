@@ -1,0 +1,236 @@
+---
+title: "Bitcoin"
+description: "Build a Bitcoin deposit transaction with the exact payment amount and Layerswap OP_RETURN memo."
+---
+
+A Bitcoin deposit action provides a payment address, an amount in satoshis, and a memo in `call_data`. The transaction must contain both the payment output and the memo output so Layerswap can match it to the swap.
+
+## Encode the memo
+
+Current `call_data` contains a decimal sequence number followed by a `;` terminator, for example `"11177265;"`. Convert only the numeric part to hexadecimal with `BigInt`, then preserve the terminator and any appended data verbatim:
+
+```ts
+function encodeLayerswapMemo(callData: string) {
+  const separator = callData.indexOf(';');
+  const sequence = separator === -1 ? callData : callData.slice(0, separator);
+  const tail = separator === -1 ? '' : callData.slice(separator);
+
+  if (!/^\d+$/.test(sequence)) {
+    throw new Error('Invalid Layerswap Bitcoin memo');
+  }
+
+  const payload = Buffer.from(BigInt(sequence).toString(16) + tail, 'utf8');
+  if (payload.length > 80) {
+    throw new Error('OP_RETURN payload exceeds 80 bytes');
+  }
+  return payload;
+}
+```
+
+Layerswap parses the hexadecimal text before `;` for matching. Data after `;` is ignored by the matcher, but still counts toward the standard 80-byte `OP_RETURN` payload limit. Do not call `Number(call_data)`: the terminator produces `NaN`, and large sequence values can lose precision.
+
+## Transaction construction
+
+<Steps>
+  <Step title="Fetch UTXOs">
+    Retrieve unspent transaction outputs for the sender's address, from your own Bitcoin node or a provider such as the Mempool.space API.
+  </Step>
+  <Step title="Fetch raw transactions">
+    For each UTXO, fetch the full raw transaction hex. This is needed to populate the `witnessUtxo` field in the PSBT inputs.
+  </Step>
+  <Step title="Select UTXOs">
+    Select enough UTXOs to cover the deposit amount plus estimated fees.
+  </Step>
+  <Step title="Build the PSBT">
+    Create a PSBT with:
+    - **Inputs**: selected UTXOs with witness data
+    - **Output 1**: payment to `action.to_address` for `BigInt(action.amount_in_base_units)` satoshis
+    - **Output 2**: zero-value `OP_RETURN` carrying the encoded memo
+    - **Output 3** (if needed): change back to the sender's address
+  </Step>
+  <Step title="Estimate fees">
+    Fetch the recommended fee rate and calculate the transaction fee from the input/output count. Re-select UTXOs if the initial selection doesn't cover the fee.
+  </Step>
+  <Step title="Sign and broadcast">
+    Sign the PSBT with the sender's key or wallet and broadcast the raw transaction.
+  </Step>
+</Steps>
+
+Populate inputs according to their script type. SegWit inputs use `witnessUtxo`; legacy inputs require the full previous transaction as `nonWitnessUtxo`. Fetch UTXOs and recommended fee rates from your own node or a provider such as the [Mempool.space API](https://mempool.space/docs/api), estimate fees from the final input/output mix, and avoid creating dust change.
+
+## Full example
+
+A server-side flow that fetches UTXOs, iteratively selects inputs to cover the fee, embeds the memo, signs with a private key, and broadcasts:
+
+```ts
+import { Psbt, Transaction, networks, opcodes, script, initEccLib } from 'bitcoinjs-lib';
+import * as ecc from '@bitcoinerlab/secp256k1';
+import ECPairFactory from 'ecpair';
+import axios from 'axios';
+
+initEccLib(ecc);
+const ECPair = ECPairFactory(ecc);
+
+const MEMPOOL_BASE = {
+  mainnet: 'https://mempool.space',
+  testnet: 'https://mempool.space/testnet',
+};
+
+async function fetchUtxos(address, version) {
+  const { data } = await axios.get(`${MEMPOOL_BASE[version]}/api/address/${address}/utxo`);
+  return data;
+}
+
+async function fetchRawTx(txid, version) {
+  const { data } = await axios.get(`${MEMPOOL_BASE[version]}/api/tx/${txid}/hex`);
+  return Transaction.fromHex(data);
+}
+
+async function fetchFeeRate(version) {
+  const { data } = await axios.get(`${MEMPOOL_BASE[version]}/api/v1/fees/recommended`);
+  return data.economyFee; // sats/vByte
+}
+
+function selectUtxos(utxos, target) {
+  const sorted = utxos.slice().sort((a, b) => a.value - b.value);
+  let total = 0n;
+  const selected = [];
+  for (const utxo of sorted) {
+    selected.push(utxo);
+    total += BigInt(utxo.value);
+    if (total >= target) break;
+  }
+  if (total < target) {
+    throw new Error(`Insufficient funds: need ${target} sats, have ${total}`);
+  }
+  return { selected, total };
+}
+
+function estimateTxFee(numInputs, numOutputs, satsPerVbyte) {
+  return BigInt((numInputs * 148 + numOutputs * 34 + 10) * satsPerVbyte);
+}
+
+async function executeBitcoinDeposit(action, senderAddress, senderWIF, isTestnet = false) {
+  const version = isTestnet ? 'testnet' : 'mainnet';
+  const btcNetwork = isTestnet ? networks.testnet : networks.bitcoin;
+  const amountSats = BigInt(action.amount_in_base_units);
+  const memoBuffer = encodeLayerswapMemo(action.call_data);
+
+  const utxos = await fetchUtxos(senderAddress, version);
+  const rawTxMap = Object.fromEntries(
+    await Promise.all(utxos.map(async (utxo) => [utxo.txid, await fetchRawTx(utxo.txid, version)])),
+  );
+  const feeRate = await fetchFeeRate(version);
+
+  // Iteratively build the PSBT so the fee reflects the final input count.
+  let fee = 0n;
+  let psbt;
+  let totalSelected;
+
+  do {
+    const { selected, total } = selectUtxos(utxos, amountSats + fee);
+    totalSelected = total;
+
+    psbt = new Psbt({ network: btcNetwork });
+
+    for (const utxo of selected) {
+      const out = rawTxMap[utxo.txid].outs[utxo.vout];
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        witnessUtxo: { script: out.script, value: out.value },
+      });
+    }
+
+    psbt.addOutput({ address: action.to_address, value: amountSats });
+    psbt.addOutput({
+      script: script.compile([opcodes.OP_RETURN, memoBuffer]),
+      value: 0n,
+    });
+
+    fee = estimateTxFee(psbt.txInputs.length, psbt.txOutputs.length + 1, feeRate); // +1 for change
+  } while (totalSelected < amountSats + fee);
+
+  const change = totalSelected - amountSats - fee;
+  if (change > 0n) {
+    psbt.addOutput({ address: senderAddress, value: change });
+  }
+
+  const keyPair = ECPair.fromWIF(senderWIF, btcNetwork);
+  const isTaproot = senderAddress.startsWith('bc1p') || senderAddress.startsWith('tb1p');
+
+  for (let i = 0; i < psbt.inputCount; i++) {
+    if (isTaproot) {
+      psbt.signInput(i, keyPair, [Transaction.SIGHASH_DEFAULT]);
+    } else {
+      psbt.signInput(i, keyPair);
+    }
+  }
+
+  psbt.finalizeAllInputs();
+  const rawTxHex = psbt.extractTransaction().toHex();
+
+  // Broadcast through the node advertised with the action.
+  const { data } = await axios.post(action.network.node_url, {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'sendrawtransaction',
+    params: [rawTxHex],
+  });
+
+  return data.result; // the transaction hash
+}
+```
+
+The example populates every input as SegWit (`witnessUtxo`); add `nonWitnessUtxo` handling if the sending wallet holds legacy UTXOs.
+
+## Signing for different address types
+
+Use the signing rules required by the wallet's address type:
+
+| Address prefix | Type | Sighash |
+|---|---|---|
+| `1…` | Legacy (P2PKH) | `SIGHASH_ALL` (1) |
+| `3…` | Nested SegWit (P2SH-P2WPKH) | `SIGHASH_ALL` (1) |
+| `bc1q…` / `tb1q…` | Native SegWit (P2WPKH) | `SIGHASH_ALL` (1) |
+| `bc1p…` / `tb1p…` | Taproot (P2TR) | `SIGHASH_DEFAULT` (0) |
+
+Using `SIGHASH_ALL` on a Taproot input produces an invalid signature.
+
+## Hardware and browser wallets
+
+With a wallet provider (Xverse, Unisat, Leather, and similar) instead of a raw private key, the flow changes at the signing step: pass the unsigned PSBT hex to the wallet's `signPsbt` method with per-input signing indexes and the sighash for the address type:
+
+```ts
+const psbtHex = psbt.toHex();
+const isTaproot = senderAddress.startsWith('bc1p') || senderAddress.startsWith('tb1p');
+
+const signedPsbtHex = await walletProvider.request({
+  method: 'signPsbt',
+  params: {
+    psbt: psbtHex,
+    inputsToSign: [
+      {
+        address: senderAddress,
+        signingIndexes: Array.from({ length: psbt.inputCount }, (_, i) => i),
+        sigHash: isTaproot ? 0 : 1,
+      },
+    ],
+    finalize: false,
+    sighashTypes: isTaproot ? [0] : [1],
+  },
+});
+
+const signedPsbt = Psbt.fromHex(signedPsbtHex);
+
+// Some wallets return an already-finalized PSBT — finalize only inputs that still need it.
+signedPsbt.data.inputs.forEach((input, i) => {
+  if (!input.finalScriptSig && !input.finalScriptWitness) {
+    signedPsbt.finalizeInput(i);
+  }
+});
+
+const rawTxHex = signedPsbt.extractTransaction().toHex();
+```
+
+Broadcast the extracted raw transaction, then store the transaction id and [track the swap](/api/track-swaps).

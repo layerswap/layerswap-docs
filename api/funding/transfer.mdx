@@ -1,0 +1,60 @@
+---
+title: "Execute deposit actions"
+description: "Fund a swap by completing its deposit actions — submit the source-network transfer, or share the deposit address and amount with the sender."
+---
+
+After creating a swap, execute its ordered `deposit_actions`. Treat the API response as the transaction source of truth; do not hardcode recipient addresses, memos, calldata, decimals, or fee assets.
+
+## Read the actions
+
+The create-swap response includes the actions. You can also fetch them again:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID/deposit_actions?source_address=SOURCE_ADDRESS' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Each action describes work on the **source network**:
+
+| Field | Use |
+| --- | --- |
+| `order` | Execute multiple actions in ascending order |
+| `type` | `transfer`, `manual_transfer`, or a signing action for another funding method |
+| `to_address` | Transaction recipient, token contract, or Depository contract |
+| `amount` | Human-readable source amount for display |
+| `amount_in_base_units` | Exact integer amount for transaction construction |
+| `call_data` | Chain-specific calldata, memo, or serialized transaction |
+| `network` | Source-network id, type, chain id, and RPC URL |
+| `token`, `fee_token` | Source asset and network-fee asset |
+| `gas_limit`, `encoded_args` | Depository-only execution data, when returned |
+
+Use `amount_in_base_units` for transaction construction. Decimal `amount` values are for display and can lose precision when converted through JavaScript numbers.
+
+## Understand the action type
+
+- `transfer` means your integration constructs or submits a source-network transaction using `to_address`, `amount_in_base_units`, and `call_data`.
+- `manual_transfer` means you show the generated address and exact amount to the sender. Its `call_data` is `null`, so the transfer can come from a wallet, custodian, or exchange.
+- A Depository-funded swap also returns a transfer action, but it targets the Depository contract. Follow [Fund via the Depository contract](/api/funding/depository).
+- Gasless funding returns typed data to sign instead of a transaction to broadcast. Follow [Gasless deposits](/api/funding/gasless).
+
+The available action depends on the funding method selected during swap creation. See [Funding methods](/concepts/funding-methods).
+
+## Execute by network
+
+`call_data` has a different format on each network. Follow the matching guide instead of applying EVM assumptions to every chain.
+
+| Network family | `call_data` format | Guide |
+|---|---|---|
+| EVM | Hex transaction data | [EVM chains](/api/funding/networks/evm) |
+| Bitcoin | Numeric memo and `;` terminator for an `OP_RETURN` output | [Bitcoin](/api/funding/networks/bitcoin) |
+| Solana | Base64-encoded serialized transaction | [Solana](/api/funding/networks/solana) |
+| Starknet | JSON-encoded array of calls | [Starknet](/api/funding/networks/starknet) |
+| TON | JSON object describing the amount, asset, and comment | [TON](/api/funding/networks/ton) |
+| Tron | Memo added to a TRC-20 transaction | [Tron](/api/funding/networks/tron) |
+| Fuel | JSON-encoded script transaction and coin quantities | [Fuel](/api/funding/networks/fuel) |
+
+## Validate and track
+
+Before requesting a signature, verify that the action matches the network, token, amount, and funding method the user approved. Submit `call_data` without changing its memo, instructions, or encoded swap identifiers.
+
+Store every submitted transaction hash, then [track the swap](/api/track-swaps). You can also report the hash with [`POST /swaps/{id}/deposit_speedup`](/api-reference/swaps/speed-up-deposit) so Layerswap matches the deposit without waiting for its routine detection. An unmatched transfer can leave the swap waiting until expiry; an invalid amount can lead to failure and potentially a refund. Follow the [swap lifecycle](/concepts/swap-lifecycle) and [refund flow](/concepts/refunds) instead of promising automatic recovery.

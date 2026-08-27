@@ -1,0 +1,136 @@
+---
+title: "Hosted Page setup"
+description: "Link, redirect, or embed the Layerswap application with a prefilled route and flow."
+---
+
+The Hosted Page is the Layerswap application configured through URL query parameters. Use the same URL as a link, a redirect target, or an iframe source.
+
+## Build a URL
+
+Start with `https://layerswap.io/app` and add only the parameters you need:
+
+```text
+https://layerswap.io/app?from=ETHEREUM_MAINNET&fromAsset=USDC&to=BASE_MAINNET&toAsset=USDC&destination_address=0x0000000000000000000000000000000000000000&lockTo=true&lockToAsset=true&actionButtonText=Deposit
+```
+
+Use `URLSearchParams` so values are encoded and the URL stays copy-pasteable:
+
+```ts
+const params = new URLSearchParams({
+  from: 'ETHEREUM_MAINNET',
+  fromAsset: 'USDC',
+  to: 'BASE_MAINNET',
+  toAsset: 'USDC',
+  destination_address: userAddress,
+  lockTo: 'true',
+  lockToAsset: 'true',
+  actionButtonText: 'Deposit',
+  externalId: sessionId,
+});
+
+const layerswapUrl = `https://layerswap.io/app?${params.toString()}`;
+```
+
+## URL parameters
+
+All values are strings in the URL.
+
+### Route and amount
+
+| Parameter | Purpose |
+| --- | --- |
+| `from` | Source network or exchange identifier |
+| `to` | Destination network identifier |
+| `fromAsset` | Source token symbol |
+| `toAsset` | Destination token symbol |
+| `amount` | Source amount |
+| `destination_address` | Final recipient address |
+
+### Lock or hide fields
+
+| Parameter | Purpose |
+| --- | --- |
+| `lockFrom`, `lockTo` | Prevent changing the source or destination |
+| `lockFromAsset`, `lockToAsset` | Prevent changing the selected tokens |
+| `hideFrom`, `hideTo` | Hide the source or destination control |
+| `hideAddress` | Hide the destination-address field |
+| `hideRefuel` | Hide the optional destination gas top-up |
+| `hideLogo` | Hide the configured partner logo |
+| `hideDepositMethod` | Hide the funding-method selector |
+
+### Flow and display
+
+| Parameter | Purpose |
+| --- | --- |
+| `defaultTab` | `swap`, `cex`, or `deposit` |
+| `depositMethod` | `wallet` or `deposit_address` |
+| `actionButtonText` | Main action label |
+| `account` | Source account label, commonly paired with `hideFrom=true` |
+| `appName` | App name used for destination-address attribution |
+| `clientId` | Partner client identifier |
+| `sameAccountNetwork` | Restrict the flow to the same account on a network |
+| `swapId` | Open an existing swap |
+
+### Correlation
+
+| Parameter | Purpose |
+| --- | --- |
+| `externalId` | Your correlation ID; stored on the created swap as `reference_id` |
+
+Use a unique, non-secret `externalId` for each user flow. It is correlation metadata, not an idempotency guarantee.
+
+## Named themes
+
+The Hosted Page accepts five preset values through `theme`:
+
+- `light`
+- `default`
+- `ton`
+- `immutable`
+- `immutablePlay`
+
+These string presets are specific to the Hosted Page path. Widget package integrations use a [`ThemeData` object](/widget/theming) instead.
+
+## Older aliases
+
+Older URLs are normalized, but use the canonical parameters above in new links:
+
+| Older parameter | Canonical parameter |
+| --- | --- |
+| `destAddress` | `destination_address` |
+| `fromExchange` | `from` |
+| `sourceExchangeName` | `from` |
+| `destNetwork` | `to` |
+| `lockExchange` | `lockFrom` |
+| `lockNetwork` | `lockTo` |
+| `addressSource` | `appName` |
+| `asset` | `fromAsset` or `toAsset`, resolved from the route direction |
+| `lockAsset` | `lockFromAsset` or `lockToAsset`, resolved from the route direction |
+
+If both source-exchange aliases appear, `sourceExchangeName` takes precedence over `fromExchange`. Do not depend on that rule in new URLs.
+
+## Destination-address confirmation
+
+The Hosted Page can ask the user to confirm a prefilled destination address. If your product requires a destination that the user cannot change or confirm, use the [Deposit Widget](/widget/deposit-widget), which accepts a fixed `destinationAddress` prop.
+
+## Embed in an iframe
+
+Build the URL with the same parameters, then use it as `src`:
+
+```html
+<iframe
+  src="https://layerswap.io/app?to=BASE_MAINNET&toAsset=USDC&destination_address=0x0000000000000000000000000000000000000000&actionButtonText=Deposit"
+  title="Layerswap"
+  width="100%"
+  height="700"
+  style="border: 0"
+  allow="clipboard-write"
+></iframe>
+```
+
+Wallet connections can open a popup or external wallet application. Test the complete flow in your browser, mobile webview, and popup-blocking configuration; a normal link or redirect is often more reliable on mobile.
+
+
+## Track the result
+
+The Hosted Page does not currently have a documented redirect-back or browser callback contract. See [Track completion](/hosted-page/track-completion) for verified server-side correlation options.

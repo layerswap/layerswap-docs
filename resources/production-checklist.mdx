@@ -1,0 +1,49 @@
+---
+title: "Production checklist"
+description: "Validate keys, routes, error handling, tracking, security, and release dependencies before launch."
+---
+
+Use this checklist for Widget, Hosted Page, and API integrations. Complete the sections that apply to your surface.
+
+## Environments and data
+
+- [ ] Create separate mainnet and testnet app keys in the Partner Dashboard.
+- [ ] Confirm the Widget `config.version` matches the key's environment.
+- [ ] Discover networks, tokens, routes, and limits from the API instead of hardcoding coverage or counts.
+- [ ] Validate canonical network IDs, token decimals, and destination-address formats.
+- [ ] Re-check limits and refresh the quote after user edits or a long delay.
+
+## Creation and funding
+
+- [ ] Prevent duplicate submissions in your UI and backend.
+- [ ] Store the swap ID, your per-attempt correlation ID, and the source transaction hash.
+- [ ] Provide a valid source-network `refund_address` while its exact requirement remains under review.
+- [ ] Execute `deposit_actions` in order and use returned targets, calldata, memos, amounts, and decimals unchanged.
+- [ ] Show the user the selected network, token, amount, destination, and any required memo before signing.
+- [ ] Test rejected signatures, insufficient balances, wrong networks, wrong amounts, and abandoned funding.
+
+## Tracking and errors
+
+- [ ] Handle the full [swap lifecycle](/concepts/swap-lifecycle), including failure, expiry, and refund states.
+- [ ] Handle both JSON error envelopes and empty-body `400` responses.
+- [ ] Stop polling after a terminal state and back off on transient errors.
+- [ ] Verify webhooks with the Svix signature before parsing or acting.
+- [ ] Make webhook side effects idempotent and re-fetch the swap before irreversible fulfillment.
+- [ ] Provide the swap ID and transaction hash in support tooling.
+
+## Widget and Hosted Page
+
+- [ ] Test the documented CSP in a production-like host.
+- [ ] Render only one widget—either a Swap Widget or a Deposit Widget—per page, and keep object props referentially stable.
+- [ ] Verify configured WalletConnect, TON, and Immutable Passport credentials and callback URLs.
+- [ ] Test mobile wallets, popup blocking, refresh/reconnect, and narrow layouts.
+- [ ] For Hosted Page flows, verify attribution, address confirmation, and the server-side completion-correlation path.
+
+## Security and operations
+
+- [ ] Keep webhook secrets and authorization signatures out of client bundles and logs.
+- [ ] Validate destination and refund addresses for their selected networks.
+- [ ] Review the [security summary](/concepts/security) and Depository audit scope.
+- [ ] Add monitoring for API failures, stuck swaps, webhook verification failures, and CDN load failures.
+- [ ] Document an escalation path for support and incident response.
+- [ ] Run the main user journeys in testnet, then a controlled mainnet canary.

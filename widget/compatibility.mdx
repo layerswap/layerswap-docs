@@ -1,0 +1,36 @@
+---
+title: 'Compatibility'
+description: 'Framework requirements for @layerswap/widget-react — which are deliberately minimal.'
+---
+
+`@layerswap/widget-react` needs **no framework-specific configuration**. Because the widget and its heavy dependencies load from the CDN at runtime, none of the old polyfill, transpilation, or dynamic-import workarounds apply.
+
+## Requirements
+
+- **React 18 or 19** — enforced by the package peer and Module Federation share ranges. There is no separate runtime version check.
+- **ESM** — the package is ESM-only, which every modern bundler and framework handles out of the box.
+- **Node.js ≥ 18** for your build toolchain.
+
+## Framework notes
+
+### Next.js App Router
+
+Works directly in Server Component trees — the components declare `"use client"` internally, so you can import and render `LayerswapWidget` from a Server Component without a `next/dynamic` wrapper. During server prerender only your `fallback` is rendered; the loader starts after hydration. No `transpilePackages`, no webpack fallbacks.
+
+### Next.js Pages Router, Vite, React Router 7, and others
+
+No special configuration. Install, import, render.
+
+### Non-React frameworks
+
+Vue, Angular, Svelte, and plain-DOM hosts use [`@layerswap/widget-js`](/widget/vanilla-js).
+
+## Troubleshooting
+
+- A transient CDN failure is recoverable by **remounting the component** — failed loads aren't cached for the lifetime of the page.
+- If the widget never mounts, check the top-level `onError` payload against the [manifest failure modes](/widget/delivery-and-security#manifest-failure-modes).
+- If you serve a Content Security Policy, make sure the CDN origin is allowlisted — see the [recommended CSP](/widget/delivery-and-security#recommended-content-security-policy).
+
+<Note>
+  Polyfill and `transpilePackages` guidance applies only to the [self-bundled Widget](/widget/advanced/self-bundled).
+</Note>

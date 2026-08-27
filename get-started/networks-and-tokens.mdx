@@ -1,0 +1,20 @@
+---
+title: "Supported Networks & Tokens"
+description: "Browse live Layerswap route coverage and query supported networks and tokens programmatically."
+---
+
+import { NetworksTokensEmbed } from "/snippets/networksTokens.jsx"
+
+Supported routes change as networks, tokens, and liquidity evolve. The table below shows the latest available coverage.
+
+<NetworksTokensEmbed />
+
+## Query coverage programmatically
+
+- [`GET /networks`](/api-reference/swaps/get-networks) lists supported networks and their tokens.
+- [`GET /sources`](/api-reference/swaps/get-sources) and [`GET /destinations`](/api-reference/swaps/get-destinations) show what is currently routable. Filter either endpoint by the opposite side to narrow the results.
+- [`GET /connections`](/api-reference/swaps/get-connections) shows cross-token connectivity for a network pair.
+
+These discovery endpoints return live `{"data": ...}` responses. Network identifiers such as `ETHEREUM_MAINNET` are stable API values; display names are intended for user interfaces.
+
+To understand how coverage becomes a priced transfer, read [Routes, quotes & limits](/concepts/routes-quotes-limits).

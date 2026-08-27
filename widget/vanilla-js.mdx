@@ -1,0 +1,107 @@
+---
+title: "JavaScript package"
+description: "Embed the widget from Vue, Angular, Svelte, or plain DOM with @layerswap/widget-js."
+---
+
+`@layerswap/widget-js` is the framework-agnostic loader behind `@layerswap/widget-react`. Use it from Vue, Angular, Svelte, or any environment with a DOM.
+
+<Note>
+  `@layerswap/widget-js` is an **npm ESM package, not a `<script>` tag** — there is no UMD build. The *widget* is fetched from Layerswap's CDN at runtime, but the *loader* is installed from npm and imported by your bundler. The delivery and verification pipeline is identical to the React package — see [Widget delivery and security](/widget/delivery-and-security).
+</Note>
+
+## Install
+
+<CodeGroup>
+
+```bash npm
+npm install @layerswap/widget-js
+```
+
+```bash pnpm
+pnpm add @layerswap/widget-js
+```
+
+```bash yarn
+yarn add @layerswap/widget-js
+```
+
+</CodeGroup>
+
+The host app **does not need React** — the remote bundles its own React and owns its own React root.
+
+## Mount the widget
+
+```js
+import { mountWidget } from '@layerswap/widget-js';
+
+const handle = await mountWidget(document.getElementById('layerswap'), {
+  config: { apiKey: 'YOUR_API_KEY', version: 'mainnet' },
+});
+
+// Re-render with new props at any time
+handle.update({
+  config: { apiKey: 'YOUR_API_KEY', version: 'mainnet', theme: myTheme },
+});
+
+// Unmount and release the widget's React root
+handle.destroy();
+```
+
+`mountWidget(target, props)` fetches the widget from the CDN (with manifest signature verification) and mounts it into `target`. It returns a promise of a handle:
+
+<ResponseField name="update" type="(props) => void">
+  Re-render the mounted widget with new props.
+</ResponseField>
+
+<ResponseField name="destroy" type="() => void">
+  Unmount the widget and release its React root. Call it when the host view is torn down (e.g. in your framework's unmount hook).
+</ResponseField>
+
+`mountWidget` throws if called server-side (`window` is required) or with a falsy `target`.
+
+## Deposit Widget release check
+
+`mountDepositWidget` is planned to take the common props plus the [deposit-specific ones](/widget/deposit-widget#deposit-specific-props):
+
+```js
+import { mountDepositWidget } from '@layerswap/widget-js';
+
+const handle = await mountDepositWidget(document.getElementById('layerswap'), {
+  config: { apiKey: 'YOUR_API_KEY', version: 'mainnet' },
+  destination: { network: 'BASE_MAINNET', tokens: ['USDC'] },
+  destinationAddress: '0x…',
+});
+```
+
+In the JavaScript package, a second mount throws synchronously. Mixing the React and JavaScript loaders can also fail during remote initialization because they use different share configurations.
+
+## Props
+
+The props object is the same contract as the React package — `config`, `callbacks`, `walletDefaults`, `walletProvidersConfig` — so the [Configuration](/widget/configuration), [Wallets](/widget/wallets), [Customization](/widget/theming), and [Event Callbacks](/widget/events/overview) pages all apply, with two exceptions:
+
+- **No `wagmiConfig`** — sharing a host wagmi config is a React-host feature.
+- **No React nodes** — `config.loadingComponent` and the React `fallback` prop don't exist here (attempting to pass them is a compile-time error in TypeScript). Show your own loading state until the `mountWidget` promise resolves.
+
+## Framework example (Vue)
+
+```html
+<script setup>
+import { onMounted, onUnmounted, ref } from 'vue';
+import { mountWidget } from '@layerswap/widget-js';
+
+const container = ref(null);
+let handle;
+
+onMounted(async () => {
+  handle = await mountWidget(container.value, {
+    config: { apiKey: 'YOUR_API_KEY', version: 'mainnet' },
+  });
+});
+
+onUnmounted(() => handle?.destroy());
+</script>
+
+<template>
+  <div ref="container" style="max-width: 512px"></div>
+</template>
+```

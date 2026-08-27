@@ -1,0 +1,39 @@
+---
+title: "Track completion"
+description: "Correlate a Hosted Page session with a Layerswap swap and confirm its final status."
+---
+
+To confirm the outcome of a swap started from the Hosted Page, check its status through the Layerswap API.
+
+## Correlate with `externalId`
+
+Add a unique `externalId` when you construct the Hosted Page URL:
+
+```ts
+const sessionId = crypto.randomUUID();
+const params = new URLSearchParams({
+  to: 'BASE_MAINNET',
+  toAsset: 'USDC',
+  destination_address: userAddress,
+  externalId: sessionId,
+});
+```
+
+The created swap stores this value as `reference_id`. Store the session ID with the user action in your backend. When you list that user's swaps with `GET /swaps`, match `swap.metadata.reference_id` to your stored value and then track the matching swap by ID.
+
+`reference_id` idempotency is unconfirmed, so generate a new value for each attempt and do not treat it as a duplicate-creation guard.
+
+## Track by transaction hash
+
+If your application knows the user's funding transaction hash, call:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps/by_transaction_hash/0xTRANSACTION_HASH' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+Then poll `GET /swaps/{id}` until the swap reaches a terminal state. See [Track swaps](/api/track-swaps) and [Swap lifecycle & statuses](/concepts/swap-lifecycle).
+
+## Let users inspect progress
+
+Link users to the [Layerswap Explorer](https://layerswap.io/explorer) and let them search by swap or transaction identifier. This is useful for support and visibility, but your backend should still verify the API status before crediting a balance or fulfilling an order.

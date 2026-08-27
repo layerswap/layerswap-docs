@@ -1,0 +1,63 @@
+---
+title: "Sharing your wagmi config"
+description: "Let the Widget reuse your app's EVM wallet connection and chain configuration."
+---
+
+If your React app already runs wagmi, pass its `Config` to the Widget. The Widget adopts that config **verbatim**, so the account, connectors, chains, transports, signer, and connection lifecycle remain owned by your app.
+
+## Pass the same config
+
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { WagmiProvider } from 'wagmi';
+import { LayerswapWidget } from '@layerswap/widget-react';
+import { wagmiConfig } from './wagmi';
+
+const queryClient = new QueryClient();
+const widgetConfig = { apiKey: 'YOUR_API_KEY', version: 'mainnet' } as const;
+
+export function App() {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <LayerswapWidget
+          wagmiConfig={wagmiConfig}
+          config={widgetConfig}
+        />
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}
+```
+
+`wagmi` is an optional, types-only peer of `@layerswap/widget-react`. Your application still installs and initializes wagmi normally.
+
+## Include every chain the Widget needs
+
+The Widget does not append Layerswap chains or transports to a host config. Add every EVM chain that users should select or switch to:
+
+```ts title="wagmi.ts"
+import { createConfig, http } from 'wagmi';
+import { mainnet, arbitrum, base } from 'wagmi/chains';
+
+export const wagmiConfig = createConfig({
+  chains: [mainnet, arbitrum, base],
+  transports: {
+    [mainnet.id]: http(),
+    [arbitrum.id]: http(),
+    [base.id]: http(),
+  },
+});
+```
+
+Pass `wagmiConfig` on the first Widget render. A config supplied after initialization is ignored with a console warning. Because the host owns hydration and reconnect behavior, keep the Widget under the same `WagmiProvider` and query client as the rest of your app.
+
+## Avoid duplicate injected wallets
+
+wagmi v2 discovers EIP-6963 wallets by default. Declaring a generic `injected()` connector as well can show the same extension twice after reconnect. Either rely on discovery or set `multiInjectedProviderDiscovery: false` when you intentionally manage one generic connector. See [Troubleshooting](/widget/troubleshooting#the-same-browser-wallet-appears-twice).
+
+## Notes
+
+- If `walletProvidersConfig` excludes `evm`, the Widget ignores `wagmiConfig`.
+- Add custom transport RPC endpoints to the [CSP `connect-src`](/widget/delivery-and-security#recommended-content-security-policy).
+- The JavaScript loader does not accept `wagmiConfig`; this sharing path is React-only.

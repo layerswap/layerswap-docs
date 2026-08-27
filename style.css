@@ -1,0 +1,158 @@
+/* Keep documentation page titles consistent between local and hosted Mintlify clients. */
+#page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 2rem;
+}
+
+@media (min-width: 640px) {
+  #page-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+/* Use a Wagmi-style opacity treatment for focused code samples. */
+.has-focused pre.shiki > code .line {
+  filter: none;
+  opacity: 0.3;
+  transition: opacity 0.35s;
+}
+
+.has-focused pre.shiki > code .line-focus,
+.has-focused pre.shiki > code .line:hover,
+.has-focused pre.shiki:hover > code .line {
+  filter: none;
+  opacity: 1;
+}
+
+/* Deposit Address owns its palette instead of relying on Mintlify's internal
+   Tailwind color aliases. Keep these values aligned with docs.json branding. */
+.deposit-address-page {
+  --deposit-primary: #e05b8a;
+  --deposit-primary-dark: #c94776;
+  --deposit-surface-soft: #f8fafc;
+  --deposit-surface-dark: #141a27;
+  --deposit-ink-soft: #475569;
+  --deposit-ink-invert-soft: #99a0ac;
+  --deposit-destructive: #dc2626;
+  --deposit-warning: #d97706;
+}
+
+.deposit-address-page .bg-primary {
+  background-color: var(--deposit-primary) !important;
+}
+
+.deposit-address-page .bg-primary\/10 {
+  background-color: rgb(224 91 138 / 0.1) !important;
+}
+
+.deposit-address-page .bg-surface-soft {
+  background-color: var(--deposit-surface-soft) !important;
+}
+
+.deposit-address-page .text-primary,
+.deposit-address-page .hover\:text-primary:hover,
+.deposit-address-page .hover\:text-brand:hover {
+  color: var(--deposit-primary) !important;
+}
+
+.deposit-address-page .text-ink-soft {
+  color: var(--deposit-ink-soft) !important;
+}
+
+.deposit-address-page .text-ink-soft\/80 {
+  color: rgb(71 85 105 / 0.8) !important;
+}
+
+.deposit-address-page .text-destructive {
+  color: var(--deposit-destructive) !important;
+}
+
+.deposit-address-page .text-warning {
+  color: var(--deposit-warning) !important;
+}
+
+.deposit-address-page .bg-warning\/20 {
+  background-color: rgb(217 119 6 / 0.2) !important;
+}
+
+.deposit-address-page .border-primary,
+.deposit-address-page .hover\:border-primary:hover,
+.deposit-address-page .focus\:border-primary:focus {
+  border-color: var(--deposit-primary) !important;
+}
+
+.deposit-address-page .hover\:border-primary\/50:hover {
+  border-color: rgb(224 91 138 / 0.5) !important;
+}
+
+.deposit-address-page .border-destructive,
+.deposit-address-page .focus\:border-destructive:focus {
+  border-color: var(--deposit-destructive) !important;
+}
+
+.deposit-address-page .hover\:bg-primary-dark:hover {
+  background-color: var(--deposit-primary-dark) !important;
+}
+
+.deposit-address-page .hover\:bg-primary\/20:hover {
+  background-color: rgb(224 91 138 / 0.2) !important;
+}
+
+.deposit-address-page .focus\:ring-primary\/30:focus {
+  --tw-ring-color: rgb(224 91 138 / 0.3) !important;
+}
+
+.deposit-address-page .focus\:ring-destructive\/30:focus {
+  --tw-ring-color: rgb(220 38 38 / 0.3) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:bg-background-dark,
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:bg-surface-dark-soft {
+  background-color: var(--deposit-surface-dark) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:bg-primary-light,
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:hover\:bg-primary-light:hover {
+  background-color: var(--deposit-primary) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:bg-primary-light\/10 {
+  background-color: rgb(224 91 138 / 0.1) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:hover\:bg-primary-light\/20:hover {
+  background-color: rgb(224 91 138 / 0.2) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:text-primary-light,
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:hover\:text-primary-light:hover {
+  color: var(--deposit-primary) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:text-ink-invert-soft {
+  color: var(--deposit-ink-invert-soft) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:text-warning {
+  color: #f59e0b !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:bg-warning\/10 {
+  background-color: rgb(245 158 11 / 0.1) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:border-primary-light,
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:hover\:border-primary-light:hover,
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:focus\:border-primary-light:focus {
+  border-color: var(--deposit-primary) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:focus\:ring-primary-light\/30:focus {
+  --tw-ring-color: rgb(224 91 138 / 0.3) !important;
+}
+
+:where(html.dark, html[data-theme="dark"]) .deposit-address-page .dark\:hover\:border-primary-light\/50:hover {
+  border-color: rgb(224 91 138 / 0.5) !important;
+}

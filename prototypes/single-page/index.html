@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0c0a0e" />
+    <meta
+      name="description"
+      content="Layerswap developer docs prototype — understand the product, choose an integration, and start building from one page."
+    />
+    <title>Layerswap — Developer integration</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Layerswap home">
+        <span class="wordmark-mark" aria-hidden="true"></span>
+        <span>Layerswap</span>
+      </a>
+      <nav class="header-nav" aria-label="Primary navigation">
+        <a href="#integrate">Integrate</a>
+        <a href="#flow">How it works</a>
+        <a href="https://docs.layerswap.io/get-started/networks-and-tokens">Supported routes</a>
+      </nav>
+      <div class="header-actions">
+        <a class="reference-link" href="https://docs.layerswap.io/">Reference <span aria-hidden="true">↗</span></a>
+        <button class="theme-toggle" type="button" aria-label="Switch to light theme">
+          <span class="theme-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="opening page-shell" id="top" aria-labelledby="page-title">
+        <div class="opening-copy">
+          <p class="eyebrow">Developer infrastructure for moving assets</p>
+          <h1 id="page-title">Layerswap</h1>
+          <p class="lede">
+            Let users fund your app from the networks, assets, wallets, and exchanges where they already have funds.
+          </p>
+          <div class="opening-actions">
+            <a class="button button-primary" href="#integrate">Start integrating <span aria-hidden="true">↓</span></a>
+            <button class="button button-secondary" type="button" data-open-ai-context>
+              Give docs to my AI <span aria-hidden="true">⌘</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="product-map" aria-label="Layerswap moves funds from the sources users have to the destination an application needs">
+          <div class="map-heading">User has</div>
+          <div class="map-heading map-heading-center">Layerswap</div>
+          <div class="map-heading">Your app needs</div>
+
+          <div class="map-side map-sources">
+            <div class="map-item">
+              <span class="asset-dot asset-dot-blue" aria-hidden="true">$</span>
+              <span><strong>USDC</strong><small>on Arbitrum</small></span>
+            </div>
+            <div class="map-item">
+              <span class="asset-dot asset-dot-neutral" aria-hidden="true">Ξ</span>
+              <span><strong>ETH</strong><small>on Ethereum</small></span>
+            </div>
+            <div class="map-item">
+              <span class="asset-dot asset-dot-cex" aria-hidden="true">C</span>
+              <span><strong>Funds</strong><small>on an exchange</small></span>
+            </div>
+          </div>
+
+          <div class="map-router" aria-hidden="true">
+            <div class="route-line route-one"><span></span></div>
+            <div class="route-line route-two"><span></span></div>
+            <div class="route-line route-three"><span></span></div>
+            <div class="router-core"><span>LS</span></div>
+          </div>
+
+          <div class="map-side map-destinations">
+            <div class="map-item">
+              <span class="asset-dot asset-dot-pink" aria-hidden="true">$</span>
+              <span><strong>USDC</strong><small>on Base</small></span>
+            </div>
+            <div class="map-item">
+              <span class="asset-dot asset-dot-green" aria-hidden="true">↗</span>
+              <span><strong>Funds</strong><small>in an app account</small></span>
+            </div>
+            <div class="map-item">
+              <span class="asset-dot asset-dot-neutral" aria-hidden="true">0x</span>
+              <span><strong>A chosen asset</strong><small>at a destination address</small></span>
+            </div>
+          </div>
+        </div>
+        <p class="map-caption">
+          Availability is route-specific.
+          <a href="https://docs.layerswap.io/get-started/networks-and-tokens">Check current networks and tokens <span aria-hidden="true">↗</span></a>
+        </p>
+      </section>
+
+      <section class="build-section page-shell ruled-section" aria-labelledby="build-title">
+        <div class="section-intro">
+          <p class="section-index">01</p>
+          <div>
+            <p class="eyebrow">What you can build</p>
+            <h2 id="build-title">One funding layer,<br />several product jobs.</h2>
+          </div>
+        </div>
+        <div class="use-case-list">
+          <div class="use-case">
+            <span class="use-case-number">A</span>
+            <p><strong>Fund an account from another chain</strong><span>Keep the destination fixed; let users start where their funds are.</span></p>
+          </div>
+          <div class="use-case">
+            <span class="use-case-number">B</span>
+            <p><strong>Accept deposits from exchanges</strong><span>Give users a path that does not require a source-side wallet connection.</span></p>
+          </div>
+          <div class="use-case">
+            <span class="use-case-number">C</span>
+            <p><strong>Add cross-chain swaps</strong><span>Use Layerswap routing and execution instead of building them into your product.</span></p>
+          </div>
+          <div class="use-case">
+            <span class="use-case-number">D</span>
+            <p><strong>Own as much UI as you need</strong><span>Embed the complete flow, send users to a hosted page, or build on the API.</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="integration-section page-shell ruled-section" id="integrate" aria-labelledby="integrate-title">
+        <div class="integration-heading">
+          <div class="section-intro compact-intro">
+            <p class="section-index">02</p>
+            <div>
+              <p class="eyebrow">Choose how to integrate</p>
+              <h2 id="integrate-title">Pick the surface.<br />Keep the same platform.</h2>
+            </div>
+          </div>
+          <p class="recommendation"><span aria-hidden="true">●</span> Not sure? Start with the Widget.</p>
+        </div>
+
+        <div class="integration-chooser" aria-label="Integration options">
+          <a class="integration-option is-active" href="https://docs.layerswap.io/widget/quickstart">
+            <span class="option-number">01</span>
+            <span class="option-main"><strong>Widget</strong><small>Fastest in-app integration</small></span>
+            <span class="option-detail">Layerswap provides the transfer UI, wallet flow, quotes, and execution. Install the React or JavaScript loader.</span>
+            <span class="option-control">Configured UI</span>
+            <span class="option-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="integration-option" href="https://docs.layerswap.io/hosted-page/setup">
+            <span class="option-number">02</span>
+            <span class="option-main"><strong>Hosted Page</strong><small>No package required</small></span>
+            <span class="option-detail">Link or redirect to a Layerswap-hosted flow. Prefill and lock supported fields through URL parameters.</span>
+            <span class="option-control">Hosted UI</span>
+            <span class="option-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="integration-option" href="https://docs.layerswap.io/api/quickstart">
+            <span class="option-number">03</span>
+            <span class="option-main"><strong>API</strong><small>Complete UX control</small></span>
+            <span class="option-detail">Build the interface and funding flow. Layerswap provides routes, quotes, swap creation, instructions, and status.</span>
+            <span class="option-control">Your UI</span>
+            <span class="option-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+
+        <div class="code-workbench">
+          <div class="code-sidebar">
+            <p class="eyebrow">Make it real</p>
+            <div class="code-tabs" role="tablist" aria-label="Integration code examples">
+              <button class="code-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="code-react" data-code-tab="react">
+                <span>React</span><code>@layerswap/widget-react</code>
+              </button>
+              <button class="code-tab" type="button" role="tab" aria-selected="false" aria-controls="code-js" data-code-tab="js">
+                <span>JavaScript</span><code>@layerswap/widget-js</code>
+              </button>
+              <button class="code-tab" type="button" role="tab" aria-selected="false" aria-controls="code-api" data-code-tab="api">
+                <span>API</span><code>/api/v2</code>
+              </button>
+            </div>
+            <a class="text-link code-doc-link" data-code-doc-link href="https://docs.layerswap.io/widget/quickstart">Open Widget quickstart <span aria-hidden="true">↗</span></a>
+          </div>
+
+          <div class="code-stage">
+            <div class="code-panel is-active" id="code-react" role="tabpanel" data-code-panel="react">
+              <div class="code-panel-bar"><span>AccountFunding.tsx</span><button type="button" data-copy-code>Copy</button></div>
+              <pre><code><span class="syntax-keyword">import</span> { LayerswapWidget } <span class="syntax-keyword">from</span> <span class="syntax-string">'@layerswap/widget-react'</span>;
+
+<span class="syntax-keyword">const</span> config = {
+  apiKey: <span class="syntax-string">'YOUR_API_KEY'</span>,
+  version: <span class="syntax-string">'mainnet'</span>,
+  initialValues: {
+    to: <span class="syntax-string">'BASE_MAINNET'</span>,
+    toAsset: <span class="syntax-string">'USDC'</span>,
+    lockTo: <span class="syntax-boolean">true</span>,
+    lockToAsset: <span class="syntax-boolean">true</span>,
+  },
+} <span class="syntax-keyword">as const</span>;
+
+<span class="syntax-keyword">export function</span> <span class="syntax-function">AccountFunding</span>() {
+  <span class="syntax-keyword">return</span> &lt;LayerswapWidget config={config} /&gt;;
+}</code></pre>
+            </div>
+
+            <div class="code-panel" id="code-js" role="tabpanel" data-code-panel="js" hidden>
+              <div class="code-panel-bar"><span>layerswap.js</span><button type="button" data-copy-code>Copy</button></div>
+              <pre><code><span class="syntax-keyword">import</span> { mountWidget } <span class="syntax-keyword">from</span> <span class="syntax-string">'@layerswap/widget-js'</span>;
+
+<span class="syntax-keyword">const</span> handle = <span class="syntax-keyword">await</span> <span class="syntax-function">mountWidget</span>(
+  document.<span class="syntax-function">getElementById</span>(<span class="syntax-string">'layerswap'</span>),
+  {
+    config: {
+      apiKey: <span class="syntax-string">'YOUR_API_KEY'</span>,
+      version: <span class="syntax-string">'mainnet'</span>,
+    },
+  },
+);
+
+<span class="syntax-comment">// When your view is torn down:</span>
+handle.<span class="syntax-function">destroy</span>();</code></pre>
+            </div>
+
+            <div class="code-panel" id="code-api" role="tabpanel" data-code-panel="api" hidden>
+              <div class="code-panel-bar"><span>Canonical API flow</span><button type="button" data-copy-code>Copy</button></div>
+              <pre><code><span class="syntax-comment"># Base: https://api.layerswap.io/api/v2</span>
+<span class="syntax-comment"># Auth: X-LS-APIKEY: &lt;your key&gt;</span>
+
+GET  /limits?<span class="syntax-fade">source_network=…&amp;destination_network=…</span>
+GET  /quote?<span class="syntax-fade">source_network=…&amp;destination_network=…&amp;amount=…</span>
+POST /swaps
+
+<span class="syntax-comment"># Follow data.deposit_actions to fund the swap</span>
+GET  /swaps/{id}/deposit_actions?<span class="syntax-fade">source_address=…</span>
+
+<span class="syntax-comment"># Track until completed, failed, expired, or refunded</span>
+GET  /swaps/{id}</code></pre>
+            </div>
+          </div>
+        </div>
+        <p class="code-note"><span aria-hidden="true">i</span> React hosts should use <code>@layerswap/widget-react</code>. Vue, Angular, Svelte, and plain DOM hosts can use the ESM <code>@layerswap/widget-js</code> loader.</p>
+      </section>
+
+      <section class="swap-flow page-shell ruled-section" id="flow" aria-labelledby="flow-title">
+        <div class="section-intro compact-intro">
+          <p class="section-index">03</p>
+          <div>
+            <p class="eyebrow">How a swap works</p>
+            <h2 id="flow-title">One flow, clear ownership.</h2>
+          </div>
+        </div>
+
+        <ol class="flow-steps">
+          <li>
+            <span class="step-role role-app">Your app or Widget</span>
+            <strong>Quote</strong>
+            <small>Price a supported route and amount.</small>
+          </li>
+          <li>
+            <span class="step-role role-app">Your app or Widget</span>
+            <strong>Create swap</strong>
+            <small>Set the route, recipient, and correlation data.</small>
+          </li>
+          <li>
+            <span class="step-role role-user">User</span>
+            <strong>Fund</strong>
+            <small>Follow the returned funding instructions.</small>
+          </li>
+          <li>
+            <span class="step-role role-layerswap">Layerswap</span>
+            <strong>Execute</strong>
+            <small>Coordinate the supported route and payout.</small>
+          </li>
+          <li>
+            <span class="step-role role-destination">Destination</span>
+            <strong>Receive</strong>
+            <small>Funds arrive at the requested address or account.</small>
+          </li>
+        </ol>
+        <p class="flow-summary">Layerswap coordinates supported chains, assets, wallets, exchanges, funding methods, and destination transfers behind this flow.</p>
+      </section>
+
+      <section class="control-section page-shell ruled-section" aria-labelledby="control-title">
+        <div class="control-heading">
+          <div class="section-intro compact-intro">
+            <p class="section-index">04</p>
+            <div>
+              <p class="eyebrow">Shape the experience</p>
+              <h2 id="control-title">Fix what matters.<br />Leave the rest flexible.</h2>
+            </div>
+          </div>
+          <p>Widget controls vary by component. The dedicated Deposit Widget is the verified choice when your app must fix the receiving address.</p>
+        </div>
+
+        <div class="control-split">
+          <div class="control-column control-app">
+            <p class="control-label"><span></span>Your application can</p>
+            <ul>
+              <li><span>01</span>Fix the destination network and address with the Deposit Widget</li>
+              <li><span>02</span>Choose accepted destination tokens with the Deposit Widget</li>
+              <li><span>03</span>Prefill or lock route fields in the Full Widget</li>
+              <li><span>04</span>Configure theme, wallet providers, and loading behavior</li>
+              <li><span>05</span>React to creation, status, completion, and error callbacks</li>
+            </ul>
+          </div>
+          <div class="control-column control-user">
+            <p class="control-label"><span></span>The user can</p>
+            <ul>
+              <li><span>01</span>Choose a source network and token when those fields are not locked</li>
+              <li><span>02</span>Choose a wallet or account</li>
+              <li><span>03</span>Choose an available funding method in the Deposit Widget</li>
+              <li><span>04</span>Enter an amount within the route limits</li>
+              <li><span>05</span>Review the quote before funding</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="route-model" aria-label="Layerswap connects supported sources to supported destinations">
+          <div class="route-group">
+            <p>Sources</p>
+            <div><span>Wallets</span><span>Blockchains</span><span>Centralized exchanges</span></div>
+          </div>
+          <div class="route-center">
+            <span aria-hidden="true">→</span><strong>Layerswap</strong><span aria-hidden="true">→</span>
+          </div>
+          <div class="route-group route-group-destination">
+            <p>Destinations</p>
+            <div><span>Blockchains</span><span>Exchanges</span><span>App addresses &amp; accounts</span></div>
+          </div>
+        </div>
+        <div class="route-footnote">
+          <p>Supported paths are discovered from live route data—not assumed from a logo list.</p>
+          <a class="text-link" href="https://docs.layerswap.io/get-started/networks-and-tokens">Explore supported routes <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
+      <section class="ending-section page-shell ruled-section" aria-labelledby="ending-title">
+        <div class="ending-intro">
+          <p class="section-index">05</p>
+          <p class="eyebrow">Go deeper</p>
+          <h2 id="ending-title">Choose your next reader.</h2>
+        </div>
+        <div class="ending-fork">
+          <article class="ending-path">
+            <p class="path-label">For you</p>
+            <h3>Read the full docs</h3>
+            <p>API reference, configuration, callbacks, wallets, errors, CSP, SDK details, migration, and edge cases.</p>
+            <a class="button button-secondary" href="https://docs.layerswap.io/">Read full documentation <span aria-hidden="true">↗</span></a>
+            <div class="format-links">
+              <a href="https://docs.layerswap.io/widget/quickstart">Widget</a>
+              <a href="https://docs.layerswap.io/api/quickstart">API</a>
+              <a href="https://api.layerswap.io/swagger/v2/swagger.json">OpenAPI</a>
+            </div>
+          </article>
+
+          <article class="ending-path ending-ai">
+            <p class="path-label">For your coding agent</p>
+            <h3>Transfer the context, not the tabs.</h3>
+            <p>Copy a curated Markdown bundle with the decision model, current packages, API flow, constraints, and authoritative links.</p>
+            <button class="button button-primary" type="button" data-open-ai-context>Copy complete docs for AI <span aria-hidden="true">⌘</span></button>
+            <div class="format-links">
+              <button type="button" data-open-ai-context>llms.txt concept</button>
+              <button type="button" data-open-ai-context>Markdown preview</button>
+              <a href="https://api.layerswap.io/swagger/v2/swagger.json">OpenAPI</a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer page-shell">
+      <p><span class="wordmark-mark" aria-hidden="true"></span> Layerswap developer prototype</p>
+      <p>Verified against the documentation rewrite on this branch · August 2026</p>
+    </footer>
+
+    <dialog class="ai-dialog" id="ai-context-dialog" aria-labelledby="ai-dialog-title">
+      <div class="dialog-shell">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">Agent handoff</p>
+            <h2 id="ai-dialog-title">Give Layerswap context to your coding agent</h2>
+          </div>
+          <button class="dialog-close" type="button" data-close-dialog aria-label="Close dialog">×</button>
+        </div>
+        <p class="dialog-description">This prototype copies intentionally structured Markdown: integration guidance, verified constraints, working examples, and links to exhaustive reference material.</p>
+        <div class="agent-prompt">
+          <div class="agent-prompt-label"><span>Prompt preview</span><span>Markdown · curated</span></div>
+          <pre>Use Layerswap to add cross-chain funding to my application.
+
+Treat the context below as the authoritative integration starting point. Choose the smallest suitable integration surface, preserve verified constraints, and consult the linked reference before adding advanced behavior.
+
+## Product model
+Layerswap moves assets across supported networks and exchanges…</pre>
+        </div>
+        <div class="context-includes">
+          <p>Included in the copy</p>
+          <ul>
+            <li>Integration decision guide</li>
+            <li>React and JavaScript packages</li>
+            <li>Canonical API sequence</li>
+            <li>Configuration constraints</li>
+            <li>Reference links and open uncertainties</li>
+          </ul>
+        </div>
+        <div class="dialog-actions">
+          <button class="button button-primary" type="button" data-copy-ai-context>Copy complete context <span aria-hidden="true">⌘C</span></button>
+          <a class="button button-secondary" href="https://docs.layerswap.io/">Open full docs <span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="dialog-note">The production version should be generated from maintained source material—not by concatenating rendered pages.</p>
+      </div>
+    </dialog>
+
+    <div class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <template id="ai-context-template"># Layerswap integration context
+
+Use Layerswap to add cross-chain funding to my application. Treat this context as the authoritative starting point. Choose the smallest suitable integration surface and consult the linked exhaustive documentation before implementing advanced behavior.
+
+## What Layerswap does
+
+Layerswap moves assets between supported blockchain networks and exchanges. A swap has a source network/token, destination network/token, amount, destination address, funding instructions, and lifecycle status. Route availability is dynamic: check https://docs.layerswap.io/get-started/networks-and-tokens or the public discovery endpoints instead of hardcoding support.
+
+## Choose an integration
+
+1. Layerswap Widget — recommended for an embedded transfer experience. Layerswap provides the transfer UI, wallet flows, quotes, and execution. React hosts use `@layerswap/widget-react`; Vue, Angular, Svelte, and plain DOM hosts use the ESM `@layerswap/widget-js` loader.
+2. Hosted Page — use `https://layerswap.io/app` with supported query parameters when you want a link, redirect, or iframe and do not want to install a package.
+3. API — build the entire UI and funding flow. Layerswap provides route discovery, limits, quotes, swap creation, deposit actions, tracking, and execution APIs.
+
+The Full Swap Widget and Deposit Widget are different components. Use `LayerswapDepositWidget` when the application must supply and fix the destination address. Use `LayerswapWidget` when the user should choose both sides, or when route fields only need to be prefilled/locked.
+
+## React Widget minimum
+
+```tsx
+import { LayerswapWidget } from '@layerswap/widget-react';
+
+const config = {
+  apiKey: 'YOUR_API_KEY',
+  version: 'mainnet',
+  initialValues: {
+    to: 'BASE_MAINNET',
+    toAsset: 'USDC',
+    lockTo: true,
+    lockToAsset: true,
+  },
+} as const;
+
+export function AccountFunding() {
+  return <LayerswapWidget config={config} />;
+}
+```
+
+Important Widget constraints:
+- `react` and `react-dom` 18 or 19 are required peers for `@layerswap/widget-react`.
+- No CSS import or bundler configuration is required for the loader package.
+- Only one Layerswap widget may be live on a page at a time.
+- Keep `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` referentially stable.
+- The API key selects mainnet or testnet; the Widget `version` value must match the key environment.
+- `initialValues.amount` prefills an amount but does not lock it.
+- `depositMethod` accepts `wallet` or `deposit_address` in the Full Widget.
+- Use `config.theme` for Widget package theming. Named theme strings are a Hosted Page feature.
+- Callback names include `onFormChange`, `onSwapCreate`, `onSwapComplete`, `onSwapStatusChange`, `onSwapModalStateChange`, `onBackClick`, `onMenuNavigationChange`, and `onError`.
+
+React reference: https://docs.layerswap.io/widget/quickstart
+Configuration: https://docs.layerswap.io/widget/configuration
+Initial values and locks: https://docs.layerswap.io/widget/initial-values
+Callbacks: https://docs.layerswap.io/widget/events/overview
+Deposit Widget: https://docs.layerswap.io/widget/deposit-widget
+
+## JavaScript Widget minimum
+
+```js
+import { mountWidget } from '@layerswap/widget-js';
+
+const handle = await mountWidget(document.getElementById('layerswap'), {
+  config: { apiKey: 'YOUR_API_KEY', version: 'mainnet' },
+});
+
+handle.update({ config: nextConfig });
+handle.destroy();
+```
+
+`@layerswap/widget-js` is an npm ESM package, not a script-tag/UMD build. It requires a DOM and returns a handle with `update` and `destroy`. It does not accept React nodes or a host `wagmiConfig`.
+
+JavaScript reference: https://docs.layerswap.io/widget/vanilla-js
+
+## API flow
+
+Base URL: `https://api.layerswap.io/api/v2`
+Auth header: `X-LS-APIKEY: &lt;your key&gt;`
+
+1. Discover routes with `GET /networks`, `GET /sources`, and `GET /destinations`.
+2. Check `GET /limits` for the exact route.
+3. Request `GET /quote` with source/destination network and token plus amount.
+4. Create with `POST /swaps`; store `data.swap.id` and follow `data.deposit_actions`.
+5. When needed, request `GET /swaps/{id}/deposit_actions?source_address=...`.
+6. Have the user/integrator perform the returned funding action.
+7. Track with `GET /swaps/{id}` until a terminal status.
+
+Verified API cautions:
+- Successful responses are wrapped in `data`.
+- A missing key returns public mainnet behavior; an invalid key returns 403. Always send the key for correct environment and attribution.
+- The quote response has no expiry field. Do not present `receive_amount` as guaranteed without a current product contract.
+- Binding-level malformed requests can return an empty-body 400.
+- `reference_id` idempotency behavior is not confirmed; guard against duplicate creation in your application.
+- Polling cadence and webhook delivery semantics are not fully confirmed in the current docs.
+- Supplying a source-network `refund_address` is currently recommended because route-specific requirements are not fully documented.
+
+API quickstart: https://docs.layerswap.io/api/quickstart
+Errors: https://docs.layerswap.io/api/errors
+Lifecycle: https://docs.layerswap.io/concepts/swap-lifecycle
+OpenAPI: https://api.layerswap.io/swagger/v2/swagger.json
+
+## Product controls
+
+Verified controls differ by component:
+- Deposit Widget: the application supplies a fixed `destination`, accepted destination `tokens`, and `destinationAddress`.
+- Full Widget: `initialValues` can prefill, lock, or hide source/destination fields and assets.
+- Widget packages: configure theme, wallet provider filters/defaults, loading behavior, and callbacks.
+- User choices remain subject to active routes, configured locks/allow-lists, balances, and route limits.
+
+Do not claim universal network, asset, exchange, or funding-method support. Discover current availability from route data.</template>
+  </body>
+</html>

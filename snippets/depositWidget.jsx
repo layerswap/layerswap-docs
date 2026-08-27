@@ -1,4 +1,4 @@
-export const DepositWidget = () => {
+export const DepositAddressTool = () => {
     const StepActionButton = ({ onClick, disabled, ariaLabel, loadingText, primaryLabel, secondaryLabel, isSecondary }) => {
         const baseClass = 'inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full';
         const disabledClass = 'cursor-not-allowed text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700';
@@ -2192,7 +2192,7 @@ export const DepositWidget = () => {
                     scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
                 }
             `}} />
-            <div className="max-w-8xl lg:flex mx-auto px-0 lg:px-5"  >
+            <div className="deposit-address-page max-w-8xl lg:flex mx-auto px-0 lg:px-5"  >
                 {/* Desktop Navigation Sidebar */}
                 {windowWidth >= 768 && (
                     <nav id="sidebar-content" className="hidden sticky shrink-0 w-[18rem] lg:flex flex-col left-0 top-[6rem] bottom-0 right-auto border-r border-gray-100 dark:border-white/10 transition-transform duration-100 h-[95dvh]">
@@ -4079,4 +4079,3 @@ export const DepositWidget = () => {
         </>
     );
 };
-

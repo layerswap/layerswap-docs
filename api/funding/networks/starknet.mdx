@@ -1,0 +1,122 @@
+---
+title: "Starknet"
+description: "Execute the Starknet multicall returned in a deposit action."
+---
+
+On Starknet, `call_data` is a JSON-encoded array of calls. It normally contains a token transfer and a Watchdog `watch` call that lets Layerswap match the deposit.
+
+**Supported networks:** Starknet Mainnet, Starknet Sepolia
+
+```json
+[
+  {
+    "contractAddress": "0xTokenContract",
+    "entrypoint": "transfer",
+    "calldata": ["0xRecipient", "0xAmountLow", "0xAmountHigh"]
+  },
+  {
+    "contractAddress": "0xWatchdogContract",
+    "entrypoint": "watch",
+    "calldata": ["0xSequenceNumber"]
+  }
+]
+```
+
+Submit the complete array atomically — Starknet executes it natively as a single multicall transaction. Do not execute only the transfer or alter the `watch` call.
+
+## Transaction construction
+
+<Steps>
+  <Step title="Parse call_data">
+    Deserialize the JSON string into an array of Starknet call objects.
+  </Step>
+  <Step title="Execute via Account">
+    Pass the calls array to `account.execute()`. Starknet natively supports multicall, so all calls in the array are executed atomically in a single transaction.
+  </Step>
+  <Step title="Return the transaction hash">
+    The `execute` method returns an object with `transaction_hash`.
+  </Step>
+</Steps>
+
+## Full example
+
+The Server-side tab signs with a raw private key via starknet.js. The Browser tab connects to an injected wallet like ArgentX or Braavos via `get-starknet`. The starknet-react tab wraps it as a hook for React apps.
+
+<CodeGroup>
+```ts Server-side
+import { Account, RpcProvider, type Call } from 'starknet';
+
+async function executeStarknetDeposit(action, senderAddress, privateKey) {
+  const provider = new RpcProvider({ nodeUrl: action.network.node_url });
+  const account = new Account(provider, senderAddress, privateKey);
+
+  const calls: Call[] = JSON.parse(action.call_data);
+  if (!Array.isArray(calls) || calls.length === 0) {
+    throw new Error('Invalid Starknet deposit action');
+  }
+
+  const { transaction_hash } = await account.execute(calls);
+  if (!transaction_hash) {
+    throw new Error('No Starknet transaction hash returned');
+  }
+
+  // Optionally wait for confirmation.
+  await provider.waitForTransaction(transaction_hash);
+
+  return transaction_hash;
+}
+```
+
+```ts Browser
+import { connect } from 'get-starknet';
+import { type Call } from 'starknet';
+
+async function executeStarknetDeposit(action) {
+  const starknet = await connect();
+  if (!starknet?.isConnected || !starknet.account) {
+    throw new Error('Starknet wallet not connected');
+  }
+
+  const calls: Call[] = JSON.parse(action.call_data);
+  if (!Array.isArray(calls) || calls.length === 0) {
+    throw new Error('Invalid Starknet deposit action');
+  }
+
+  const { transaction_hash } = await starknet.account.execute(calls);
+  if (!transaction_hash) {
+    throw new Error('No Starknet transaction hash returned');
+  }
+
+  return transaction_hash;
+}
+```
+
+```ts starknet-react
+import { useAccount } from '@starknet-react/core';
+import { type Call } from 'starknet';
+
+function useStarknetDeposit() {
+  const { account } = useAccount();
+
+  async function executeDeposit(action) {
+    if (!account) {
+      throw new Error('Starknet account not connected');
+    }
+
+    const calls: Call[] = JSON.parse(action.call_data);
+    const { transaction_hash } = await account.execute(calls);
+    if (!transaction_hash) {
+      throw new Error('No Starknet transaction hash returned');
+    }
+
+    return transaction_hash;
+  }
+
+  return { executeDeposit };
+}
+```
+</CodeGroup>
+
+Connect the account to the network named in `action.network` before execution.
+
+Store `transaction_hash` and [track the swap](/api/track-swaps).

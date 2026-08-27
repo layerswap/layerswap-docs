@@ -1,0 +1,88 @@
+---
+title: "Fees"
+description: "Understand how Layerswap fees are structured, how they are calculated, and how to retrieve fee data from API quotes."
+icon: coins
+---
+
+Layerswap fees are designed to be transparent and predictable. Every quote includes a detailed cost breakdown so you know exactly what you're paying for. This page explains what makes up the cost of a transfer, how each part is calculated, and where to find it in the API.
+
+## Fee breakdown
+
+The total cost of a transfer is made up of three components:
+
+| Component | Description |
+|---|---|
+| **Layerswap fee** | A percentage-based service fee defined per route (e.g. 0.05%). This is Layerswap's commission for facilitating the transfer. |
+| **Bridge expenses** | Covers gas and network costs on the source and destination chains. This is typically a fixed USD amount, periodically updated to reflect current network conditions. On multi-provider routes, an external bridge may add a percentage-based component. |
+| **Market impact** | The price difference caused by on-chain swaps when the route involves a DEX. For same-token transfers (e.g. USDC → USDC) this is typically $0. |
+
+<Note>
+  The full breakdown is visible in the app by hovering over the fee indicator before confirming a transfer.
+</Note>
+
+## How fees are calculated
+
+**Layerswap fee** is calculated as a percentage of the transfer amount. The percentage varies by route — each source/destination pair has its own rate. Some routes may also include a small fixed USD component on top of the percentage.
+
+**Bridge expenses** are derived from the actual gas costs observed on recent transactions for that route. They cover:
+- The output transaction fee on the destination network
+- Sweeping fees (when deposit addresses are used)
+- Refuel fees (if native gas is sent to the destination address)
+
+**Market impact** only applies when the route involves an on-chain swap (e.g. bridging ETH on Arbitrum to USDC on Base). For direct token routes the market impact is $0. It can increase for larger amounts or routes with less liquidity.
+
+The Widget estimates market impact by comparing the USD value sent with the USD value received, then adding back service fees, blockchain fees, and Refuel so they are not counted as impact:
+
+```text
+requested value = requested_amount × source_token.price_in_usd
+
+received value = receive_amount × destination_token.price_in_usd
+
+market impact =
+  received value
+  − requested value
+  + (service_fee × source_token.price_in_usd)
+  + (blockchain_fee × source_token.price_in_usd)
+  + refuel.amount_in_usd
+```
+
+## Multi-provider routes
+
+Layerswap can chain its own liquidity with external bridges — CCTP, LayerZero, Axelar, CCIP, or native rollup bridges — to serve routes that aren't covered by direct liquidity alone.
+
+On these **multi-provider routes**, the bridge expenses may include costs from the external bridge, and the transfer time depends on the underlying protocol. For example, a route that uses CCTP + Layerswap may take around 20 minutes, while a direct Layerswap route typically completes in seconds.
+
+The availability of fast, direct routes depends on where liquidity is positioned at any given moment.
+
+## Quote fee fields
+
+| Field | Meaning |
+|---|---|
+| `blockchain_fee` | Network and provider execution costs for the selected route and configuration |
+| `service_fee` | Layerswap's service fee for executing the swap |
+| `total_fee` | Combined quote fees in source-token units; does not include `refuel_in_source` |
+| `total_fee_in_usd` | USD value of `total_fee` |
+| `fee_discount` | Discount applied when calculating the quote, when present |
+| `refuel_in_source` | Refuel amount expressed in source-token units when Refuel is enabled |
+
+These fields are returned in `data.quote`. See [`GET /quote`](/api-reference/swaps/get-quote) for the complete response schema.
+
+See [Refuel](/concepts/routes-quotes-limits#refuel) for details on how Refuel affects the quote and what is delivered to the recipient.
+
+## Fee structure by amount range
+
+[`GET /detailed_quote`](/api-reference/swaps/get-detailed-quote) returns an array of consecutive amount ranges for a route. It does not require an `amount`.
+
+Each item describes the fee structure, provider path, and estimated completion time for one range. When an amount moves into the next range, the applicable fees and providers may change.
+
+| Field | Meaning |
+|---|---|
+| `min_amount` / `max_amount` | Lower and upper bounds of the range in source-token units |
+| `min_amount_in_usd` / `max_amount_in_usd` | USD values of the lower and upper bounds |
+| `total_percentage_fee` | Percentage fee applied within the range |
+| `total_fixed_fee_in_source` | Fixed fee for the range in source-token units |
+| `total_fixed_fee_in_usd` | USD value of the fixed fee |
+| `avg_completion_milliseconds` | Estimated completion time for the range |
+| `path` | Ordered providers used for the range |
+
+Use `/detailed_quote` to inspect how pricing and execution change across amount ranges. Use `/quote` to calculate the expected outcome for a specific transfer amount.

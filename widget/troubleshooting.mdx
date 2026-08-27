@@ -1,0 +1,49 @@
+---
+title: "Troubleshooting"
+description: "Diagnose a blank or stuck Swap Widget or Deposit Widget: read the error, check your CSP, recover."
+---
+
+## First: read what the loader tells you
+
+Two places carry the diagnosis:
+
+1. **Your `onError` prop** receives a `ManifestError` with a `reason`.
+2. **The console** — on every successful load the loader prints a provenance line: `[layerswap/widget-js] widget <version> (<sha>, built <timestamp>)`. If you don't see it, the widget never finished loading.
+
+## By `ManifestError` reason
+
+| `reason` | What happened | Fix |
+|---|---|---|
+| `fetch` | The manifest couldn't be fetched — network failure, CORS, or your CSP blocking the CDN | Check the CSP below; check connectivity to the CDN origin. Transient failures recover by remounting the component |
+| `parse` | Manifest fetched but unreadable | Almost always an intercepting proxy/firewall rewriting the response |
+| `signature` | Integrity check failed — also raised when the browser has no WebCrypto (non-HTTPS contexts) | Serve your page over HTTPS; if it persists, report it — do not work around a signature failure |
+| `kill-switch` | Layerswap temporarily disabled new Widget loads for this channel | No change is required in your application; check the developer community for status |
+| `stale` | The signed manifest is past its validity window | Layerswap re-publishes to fix; already-loaded pages keep working, only new mounts fail. Note results are cached ~60s, so recovery can lag a minute |
+
+There is no other reason value — if you're matching on error strings, these five are the complete set.
+
+## Content Security Policy
+
+If your app ships a CSP, the widget needs the CDN origin in `script-src` and `connect-src`, the Layerswap API in `connect-src`, and `'unsafe-inline'` in `style-src` (styles inject at runtime).
+
+The production origin is `https://cdn.layerswap.io`. Copy the complete policy from [Widget delivery and security](/widget/delivery-and-security#recommended-content-security-policy).
+
+## Widget renders an alert instead of the UI
+
+"Only one Layerswap widget can be live per page" — you mounted two (any combination of the Swap Widget and Deposit Widget). Render one at a time. In the JavaScript package the second `mountWidget` call throws instead.
+
+## It loads, then my dev server breaks on hot reload
+
+Remounting is safe and is the recovery path for transient failures — each mount fetches fresh. But mixing `@layerswap/widget-react` and `@layerswap/widget-js` on one page throws at init; use one loader per page.
+
+## The same browser wallet appears twice
+
+wagmi v2 discovers EIP-6963 wallets automatically. If your host config also declares a generic `injected()` connector, reconnect can restore two connectors for the same extension. Remove the generic connector and rely on discovery, or set `multiInjectedProviderDiscovery: false` when you intentionally own discovery.
+
+## Changes cause avoidable provider rebuilds
+
+Keep `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` stable by hoisting or memoizing them. New object identities can rebuild provider lists and trigger additional renders; they do not normally remount the loader.
+
+## Still stuck
+
+Grab the console provenance line (or its absence), the `ManifestError.reason`, and your CSP header, and ask in the [developer community](https://t.me/layerswap_dev).

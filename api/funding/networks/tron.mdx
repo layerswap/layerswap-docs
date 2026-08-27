@@ -1,0 +1,123 @@
+---
+title: "Tron"
+description: "Build and submit memo-bearing TRC-20 deposit transactions on Tron."
+---
+
+import DepositoryDepositTron from "/snippets/depository-deposit-tron.mdx";
+
+For the standard Tron transfer flow, construct a TRC-20 `transfer(address,uint256)` transaction and add the returned `call_data` as UTF-8 transaction data. Layerswap uses that memo to match the deposit.
+
+**Supported networks:** Tron Mainnet, Tron Testnet (Shasta/Nile)
+
+## Full example
+
+The Server-side tab signs with a raw private key. The Browser tab uses a Tron wallet adapter (TronLink and similar) and its `signTransaction` method.
+
+<CodeGroup>
+```ts Server-side
+import { TronWeb } from 'tronweb';
+
+function utf8ToHex(value: string) {
+  return Array.from(new TextEncoder().encode(value))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function executeTronDeposit(action, senderAddress, privateKey) {
+  if (!action.token.contract) {
+    throw new Error('This example requires a TRC-20 action');
+  }
+
+  const tronWeb = new TronWeb({
+    fullNode: action.network.node_url,
+    solidityNode: action.network.node_url,
+    privateKey,
+  });
+
+  const { transaction: unsigned } =
+    await tronWeb.transactionBuilder.triggerSmartContract(
+      action.token.contract,
+      'transfer(address,uint256)',
+      { feeLimit: 100_000_000 },
+      [
+        { type: 'address', value: action.to_address },
+        { type: 'uint256', value: String(action.amount_in_base_units) },
+      ],
+      senderAddress,
+    );
+
+  const withMemo = await tronWeb.transactionBuilder.addUpdateData(
+    unsigned,
+    utf8ToHex(action.call_data),
+    'hex',
+  );
+
+  const signed = await tronWeb.trx.sign(withMemo);
+  const result = await tronWeb.trx.sendRawTransaction(signed);
+
+  if (!result.result) {
+    throw new Error(result.message || 'Tron broadcast failed');
+  }
+  return signed.txID;
+}
+```
+
+```ts Browser
+import { TronWeb } from 'tronweb';
+
+function utf8ToHex(value: string) {
+  return Array.from(new TextEncoder().encode(value))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function executeTronDeposit(action, senderAddress, signTransaction) {
+  if (!action.token.contract) {
+    throw new Error('This example requires a TRC-20 action');
+  }
+
+  const tronWeb = new TronWeb({
+    fullNode: action.network.node_url,
+    solidityNode: action.network.node_url,
+  });
+
+  const { transaction: unsigned } =
+    await tronWeb.transactionBuilder.triggerSmartContract(
+      action.token.contract,
+      'transfer(address,uint256)',
+      { feeLimit: 100_000_000 },
+      [
+        { type: 'address', value: action.to_address },
+        { type: 'uint256', value: String(action.amount_in_base_units) },
+      ],
+      senderAddress,
+    );
+
+  const withMemo = await tronWeb.transactionBuilder.addUpdateData(
+    unsigned,
+    utf8ToHex(action.call_data),
+    'hex',
+  );
+
+  const signed = await signTransaction(withMemo);
+  const result = await tronWeb.trx.sendRawTransaction(signed);
+
+  if (!result.result) {
+    throw new Error(result.message || 'Tron broadcast failed');
+  }
+  return signed.txID;
+}
+```
+</CodeGroup>
+
+Set the fee limit according to your integration's Tron policy. The example value is a cap, not an estimate. Using `amount_in_base_units` as a string avoids float rounding.
+
+## Funding via the Depository
+
+The examples above cover the standard transfer flow. If the swap was created with `use_depository: true`, the action targets Layerswap's on-chain [Depository](/api/funding/depository) contract instead of carrying the standard-transfer memo. On Tron the Depository supports **TRC-20 tokens only** — approve the contract, then call `depositERC20`:
+
+<DepositoryDepositTron />
+
+See [Funding methods](/concepts/funding-methods) for when to use each.
+
+Store the transaction id and [track the swap](/api/track-swaps).

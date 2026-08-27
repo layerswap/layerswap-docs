@@ -1,0 +1,76 @@
+---
+title: "Fund via the Depository contract"
+description: "Create and fund a swap through the Depository using the contract call returned by the API."
+---
+
+import DepositoryDepositEvm from "/snippets/depository-deposit-evm.mdx";
+import DepositoryDepositTron from "/snippets/depository-deposit-tron.mdx";
+
+For supported routes, the API returns a Depository contract address and encoded call that a wallet or smart contract can use to fund the swap. This method works well for server wallets, batched calls, and sponsored transactions. The EVM contract has been [audited by Hexens](https://hexens.io/audit-reports/layerswap-depository-mar-2026).
+
+## Create the swap
+
+```bash
+curl --request POST 'https://api.layerswap.io/api/v2/swaps' \
+  --header 'Content-Type: application/json' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY' \
+  --data '{
+    "source_network": "ETHEREUM_MAINNET",
+    "source_token": "USDC",
+    "destination_network": "ARBITRUM_MAINNET",
+    "destination_token": "USDC",
+    "destination_address": "0xRecipient",
+    "refund_address": "0xSourceNetworkRefundAddress",
+    "amount": 100,
+    "use_depository": true
+  }'
+```
+
+## Depository action fields
+
+The response includes `deposit_actions`. For the contract action:
+
+<ResponseField name="to_address" type="string">
+  Depository contract address and, for ERC-20 deposits, the approval spender.
+</ResponseField>
+
+<ResponseField name="call_data" type="string">
+  Encoded deposit call to submit unchanged.
+</ResponseField>
+
+<ResponseField name="encoded_args" type="string[] | null">
+  Function argument values in call order. Use them to reconstruct the contract call when needed.
+</ResponseField>
+
+<ResponseField name="amount_in_base_units" type="string">
+  Native transaction value in base units. This is normally `0` for an ERC-20 call.
+</ResponseField>
+
+<ResponseField name="gas_limit" type="string | null">
+  Gas estimate returned by the API, when available.
+</ResponseField>
+
+The API response is authoritative for the target and arguments.
+
+## Approve and submit the deposit action
+
+<Tabs>
+<Tab title="EVM (viem)">
+<DepositoryDepositEvm />
+
+For native deposits, the approval is skipped and the returned `amount_in_base_units` is sent as `value`. Never replace the swap ID, receiver, or target embedded in `call_data`.
+</Tab>
+<Tab title="Tron (TronWeb)">
+On Tron, the Depository supports TRC-20 actions. Approve `action.to_address`, wait for the approval to confirm, then call `depositERC20` with the returned `encoded_args`:
+
+<DepositoryDepositTron />
+</Tab>
+</Tabs>
+
+The examples' `feeLimit` and gas values are caps, not estimates — set them according to your execution policy. Do not reorder or replace the returned arguments.
+
+## Detect the deposit
+
+Store the submitted transaction hash, then use [`GET /swaps/by_transaction_hash/{hash}`](/api-reference/swaps/get-swap-by-transaction-hash) or [`GET /swaps/{id}`](/api-reference/swaps/get-swap-details). The swap then follows the normal [lifecycle](/concepts/swap-lifecycle).
+
+See the [Privy server wallets recipe](/api/recipes/privy-wallets) for batching approval and deposit in a sponsored server-wallet flow.

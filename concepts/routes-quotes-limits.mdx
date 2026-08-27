@@ -1,0 +1,65 @@
+---
+title: "Routes, quotes & limits"
+description: "How routes, quotes, and limits determine what you can move and what you'll receive."
+icon: "route"
+---
+
+Before creating a swap, confirm that the route is available, check the amount against its limits, and request a quote. These steps use live data and should be repeated whenever the route, amount, funding method, or Refuel setting changes.
+
+## Routes
+
+A **route** is a source→destination pair Layerswap can execute: source network (or exchange) \+ token → destination network \+ token. Route availability is live data and can change as network support, providers, and liquidity change. Discover routes dynamically instead of hardcoding supported pairs:
+
+- [`GET /networks`](/api-reference/swaps/get-networks) — every supported network and its tokens. Support alone does not guarantee that a particular source-to-destination route is currently available.
+- [`GET /sources`](/api-reference/swaps/get-sources) / [`GET /destinations`](/api-reference/swaps/get-destinations) — what's currently routable, with per-route token `status` and Refuel availability. Narrow the results using the `destination_network` and `destination_token` query parameters.
+- [`GET /connections`](/api-reference/swaps/get-connections) — all routable token pairs between two networks in one call.
+
+## Quotes
+
+A **quote** estimates the outcome of a transfer based on the selected route, amount, and options. It includes the expected receive amount, rate, slippage, estimated completion time, execution path, and costs.
+
+Use [`GET /quote`](/api-reference/swaps/get-quote) to request a quote for a selected route, amount, and options. The response includes:
+
+| Field | Meaning |
+| --- | --- |
+| `requested_amount` | Amount the user intends to send, denominated in the source token |
+| `receive_amount` | Estimated amount delivered in the destination token |
+| `min_receive_amount` | Minimum destination amount after applying the quote's slippage tolerance |
+| `rate` | Conversion rate applied between the source and destination assets |
+| `slippage` | Slippage tolerance used to calculate `min_receive_amount` |
+| `avg_completion_time` | Historical average completion time as a .NET-style duration string |
+| `path` | Ordered route providers expected to execute the swap |
+
+See [Fees](/concepts/fees) for a breakdown of the fees and optional Refuel cost returned with the quote.
+
+[`GET /detailed_quote`](/api-reference/swaps/get-detailed-quote) describes the fee structure and supported amount range for a route rather than pricing one specific amount. It returns an array containing fixed and percentage fee components, minimum and maximum amounts, provider-level details, and estimated completion time. See [Detailed fee data](/concepts/fees#fee-structure-by-amount-range) for the field breakdown.
+
+## Refuel
+
+**Refuel** is an optional destination gas top-up. It sends the recipient a small amount of the destination network's native token, allowing them to pay for a transaction after the swap completes.
+
+Refuel availability and amount depend on the destination route. When using the API, inspect the route's `refuel` data first. Pass `refuel=true` to `/limits` and `/quote`, then use the same value when creating the swap. Keeping these requests consistent ensures that the limits and quote match the swap being created.
+
+A Refuel-enabled quote exposes the feature in two places:
+
+- `data.refuel` describes the native token and amount delivered on the destination network.
+- [`data.quote.refuel_in_source`](/concepts/fees#quote-fee-fields) shows the corresponding amount deducted in source-token units.
+
+Refuel is paid from the source amount, so enabling it reduces `receive_amount`. The native-token top-up is sent separately and shown in `data.refuel`. Its cost appears in `refuel_in_source`, not `total_fee`.
+
+The Widget shows Refuel when it is available for the selected route and uses the selection when quoting and creating the swap. Set [`hideRefuel`](/widget/initial-values#hiding-ui-elements) to `true` to hide the option. When Refuel is enabled, the top-up can appear as a separate `refuel` transaction in the swap's `transactions` array.
+
+## Limits
+
+[`GET /limits`](/api-reference/swaps/get-swap-route-limits) returns the minimum and maximum source amounts accepted for the selected route configuration. Limits can depend on options such as the funding method, Refuel, and destination address, so pass the same relevant options to `/limits`, `/quote`, and swap creation.
+
+Refresh limits whenever the route or its configuration changes. If the amount is below or above the returned range, quote creation fails with `LESS_THAN_MIN_ERROR` or `GREATER_THAN_MAX_ERROR`.
+
+## Where this is used
+
+- API: [Build your first API swap](/api/quickstart) steps 1–2.
+- Widget and Hosted Page: routes and quoting happen inside the UI; constrain them with [initial values](/widget/initial-values) or [Hosted Page parameters](/hosted-page/setup).
+
+## Next
+
+[Swap lifecycle & statuses](/concepts/swap-lifecycle) explains what happens after a quote becomes a swap.

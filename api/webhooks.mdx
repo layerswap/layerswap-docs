@@ -1,0 +1,57 @@
+---
+title: "Webhooks"
+description: "Configure a Partner Dashboard webhook and verify Svix-signed deliveries."
+---
+
+Layerswap webhooks send swap status updates to an HTTPS endpoint configured per app in the Partner Dashboard.
+
+## Configure an endpoint
+
+1. Open the [Partner Dashboard](https://layerswap.io/dashboard).
+2. Select the organization and app.
+3. Open **Webhooks**, add the endpoint URL, and create the webhook.
+4. Copy the webhook secret and store it in your server's secret manager.
+
+See [Partner Dashboard](/resources/partner-dashboard) for the other app-level settings.
+
+## Verify every request
+
+Layerswap uses Svix for webhook delivery. Verify the raw request body and Svix signature headers with the app's webhook secret before parsing or acting on the payload. Follow the [Svix payload verification guide](https://docs.svix.com/receiving/verifying-payloads/how) for your server framework.
+
+Reject invalid signatures and keep verification ahead of any balance credit, order fulfillment, or database state transition.
+
+## Payload shape
+
+Webhook data describes the swap at the status available when the event is sent. Expect swap identifiers and lifecycle fields to be central, with quote and transaction data becoming available as processing progresses. A representative shape is:
+
+```json
+{
+  "swap": {
+    "id": "SWAP_ID",
+    "status": "ls_transfer_pending",
+    "destination_address": "0x...",
+    "requested_amount": 100,
+    "fail_reason": null,
+    "metadata": {
+      "reference_id": "your-external-id"
+    },
+    "transactions": []
+  },
+  "quote": {
+    "receive_amount": 99.5,
+    "min_receive_amount": 99.0
+  },
+  "deposit_actions": []
+}
+```
+
+Use the swap ID as the durable key, and fetch `GET /swaps/{id}` before executing irreversible business logic.
+
+## Receiver checklist
+
+- Read the raw body before JSON middleware changes it.
+- Verify the Svix signature and reject stale or invalid requests according to the verification library.
+- Deduplicate side effects by swap ID and resulting status or transaction hash.
+- Return a success response only after the event is durably accepted.
+- Process asynchronously when downstream work can exceed the request timeout.
+- Reconcile periodically with [Track swaps](/api/track-swaps).

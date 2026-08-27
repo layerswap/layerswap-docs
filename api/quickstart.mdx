@@ -1,0 +1,117 @@
+---
+title: "API quickstart"
+description: "Move ETH from Ethereum to Arbitrum through the API in four calls: quote, create, deposit, track."
+---
+
+```text
+Base URL:  https://api.layerswap.io/api/v2
+Auth:      X-LS-APIKEY: <your key>
+```
+
+Read endpoints (`/networks`, `/quote`, `/sources`, `/destinations`) are public — they work without a key. Send the key anyway so the environment and your app attribution are right.
+
+**If auth fails:** an *invalid* key returns `403` with `{"error": {"code": "API_KEY_FORBIDDEN", "message": "Api key forbidden"}}`. A *missing* key silently gives you public mainnet access — don't mistake it for a working testnet setup.
+
+<Steps>
+<Step title="Check the route and limits">
+
+```bash
+curl "https://api.layerswap.io/api/v2/limits?source_network=ETHEREUM_MAINNET&source_token=ETH&destination_network=ARBITRUM_MAINNET&destination_token=ETH" \
+  -H "X-LS-APIKEY: $LS_API_KEY"
+```
+
+Networks are identified by canonical ids like `ETHEREUM_MAINNET` — enumerate them with [`GET /networks`](/api-reference/swaps/get-networks), or use [`GET /sources`](/api-reference/swaps/get-sources) / [`GET /destinations`](/api-reference/swaps/get-destinations) to see what's routable from where.
+
+**If the route doesn't exist:** `404` — `{"error": {"code": "ROUTE_NOT_FOUND_ERROR", "message": "Route not found"}}`. The pair isn't currently supported; there is no partial success.
+
+**If a parameter is malformed** (bad enum value, missing required param): the API returns `400` **with an empty body** — no JSON. Treat empty-body 400s as validation failures and re-check parameter names and casing.
+
+</Step>
+<Step title="Get a quote">
+
+```bash
+curl "https://api.layerswap.io/api/v2/quote?source_network=ETHEREUM_MAINNET&source_token=ETH&destination_network=ARBITRUM_MAINNET&destination_token=ETH&amount=0.1" \
+  -H "X-LS-APIKEY: $LS_API_KEY"
+```
+
+```json
+{
+  "data": {
+    "quote": {
+      "requested_amount": 0.1,
+      "receive_amount": 0.09999856,
+      "min_receive_amount": 0.09999856,
+      "blockchain_fee": 0.00000043,
+      "service_fee": 0.00000102,
+      "total_fee": 0.00000145,
+      "total_fee_in_usd": 0.002769,
+      "avg_completion_time": "00:00:03.6643572",
+      "path": [{ "provider": "LAYERSWAP", "order": 0 }]
+    },
+    "refuel": null,
+    "reward": null
+  }
+}
+```
+
+Every successful response is wrapped in `data`. Fee semantics live in [Fees](/concepts/fees); `avg_completion_time` is a .NET-style duration string.
+
+<Warning title="🚧 Needs review — awaiting API answer (Q2.1)">The quote response has no expiry field. What rate applies if the user deposits later, and how long a quote should be treated as indicative, is pending a product answer. Until then: do not present `receive_amount` as guaranteed.</Warning>
+
+**If the amount is out of range:** compare against the `/limits` response from step 1 — quotes for amounts outside min/max fail.
+
+</Step>
+<Step title="Create the swap">
+
+```bash
+curl -X POST "https://api.layerswap.io/api/v2/swaps" \
+  -H "X-LS-APIKEY: $LS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_network": "ETHEREUM_MAINNET",
+    "source_token": "ETH",
+    "destination_network": "ARBITRUM_MAINNET",
+    "destination_token": "ETH",
+    "amount": 0.1,
+    "destination_address": "0xYourUsersAddress",
+    "refund_address": "0xYourSourceNetworkRefundAddress",
+    "reference_id": "your-unique-attempt-id"
+  }'
+```
+
+The response contains the swap (`data.swap.id`) and `data.deposit_actions` — the instructions for funding it. Store the id; it's your handle for tracking.
+
+<Warning title="🚧 Needs review — awaiting API answer (Q2.7)">When `refund_address` is required (routes involving a swap provider) and what error you get without it is unconfirmed. Recommendation until answered: always supply `refund_address` on the source network.</Warning>
+
+<Warning title="🚧 Needs review — awaiting API answer (Q2.4)">Whether `reference_id` deduplicates retries (idempotency) is unconfirmed — until then, guard against double-creating swaps on your side.</Warning>
+
+</Step>
+<Step title="Fund the swap">
+
+Each entry in `deposit_actions` tells you where and how to send the funds — `to_address`, `amount`, `amount_in_base_units`, and for contract interactions `call_data`. For this direct transfer, have the user's wallet send the exact amount to `to_address` on the source network.
+
+Other funding methods use the same swap object with different flags: [Depository contract calls](/api/funding/depository) (`use_depository`) and [gasless signatures](/api/funding/gasless) (`use_gasless`).
+
+**If the user sends an invalid amount:** inspect `fail_reason`; the swap may enter the [refund flow](/concepts/refunds). **If the user never sends:** the swap moves to `expired` after six hours. See [Swap lifecycle & statuses](/concepts/swap-lifecycle) instead of inferring recovery behavior.
+
+</Step>
+<Step title="Track to completion">
+
+```bash
+curl "https://api.layerswap.io/api/v2/swaps/$SWAP_ID" -H "X-LS-APIKEY: $LS_API_KEY"
+```
+
+`data.swap.status` walks the lifecycle: `user_transfer_pending` → deposit detected → `ls_transfer_pending` → `completed`. Terminal failure states are `failed`, `expired`, and `refunded`. The full state machine is in [Swap lifecycle & statuses](/concepts/swap-lifecycle); the separate PascalCase query vocabulary is in [Track swaps](/api/track-swaps).
+
+You can also look a swap up by its funding transaction: `GET /swaps/by_transaction_hash/{hash}`.
+
+<Warning title="🚧 Needs review — awaiting API answer (Q2.4/Q2.5)">Recommended polling cadence and webhook delivery semantics are unconfirmed. Poll conservatively, back off on failures, and configure [Webhooks](/api/webhooks) in the Partner Dashboard.</Warning>
+
+</Step>
+</Steps>
+
+## Next steps
+
+- Understand what you used: [Routes, quotes & limits](/concepts/routes-quotes-limits) and [Swap lifecycle & statuses](/concepts/swap-lifecycle)
+- Implement source-network actions: [Fund by transfer](/api/funding/transfer), [Depository](/api/funding/depository), or [Gasless deposits](/api/funding/gasless)
+- Prepare for launch with the [Production checklist](/resources/production-checklist)

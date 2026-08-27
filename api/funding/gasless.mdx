@@ -1,0 +1,63 @@
+---
+title: "Gasless deposits"
+description: "Fund a supported swap by signing EIP-712 typed data for a relayed deposit."
+---
+
+A gasless deposit asks the user to sign typed authorization data instead of broadcasting the source transaction. A relayer submits the deposit and pays source-network gas; its cost is reflected in the gasless quote.
+
+## Check support and pricing
+
+Read `supports_gasless_deposit` on the relevant network/token data. Pass `use_gasless=true` to `/limits`, `/quote`, or `/detailed_quote` so the displayed fees and receive amount match the intended funding method.
+
+## Create a gasless swap
+
+```bash focus={1,12}
+curl --request POST 'https://api.layerswap.io/api/v2/swaps' \
+  --header 'Content-Type: application/json' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY' \
+  --data '{
+    "source_network": "ETHEREUM_MAINNET",
+    "source_token": "USDC",
+    "destination_network": "ARBITRUM_MAINNET",
+    "destination_token": "ETH",
+    "destination_address": "0xRecipient",
+    "refund_address": "0xSourceNetworkRefundAddress",
+    "amount": 100,
+    "use_gasless": true
+  }'
+```
+
+## Fetch and sign the action
+
+Fetch deposit actions with the signer's address:
+
+```bash
+curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID/deposit_actions?source_address=0xSigner' \
+  --header 'X-LS-APIKEY: YOUR_API_KEY'
+```
+
+A supported gasless action has `type: "sign"` and a `typed_data` EIP-712 payload. Ask the wallet to sign that exact payload:
+
+```ts
+const action = response.data.deposit_actions.find((item) => item.type === 'sign');
+
+const signature = await window.ethereum.request({
+  method: 'eth_signTypedData_v4',
+  params: [signerAddress, JSON.stringify(action.typed_data)],
+});
+```
+
+## Submit the authorization
+
+```ts
+await fetch(`https://api.layerswap.io/api/v2/swaps/${swapId}/authorize`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-LS-APIKEY': apiKey,
+  },
+  body: JSON.stringify({ signature, signer_address: signerAddress }),
+});
+```
+
+Use `GET /swaps/{id}/authorize` to inspect the authorization resource and `GET /swaps/{id}` to track the swap lifecycle. If the action is unavailable or authorization fails, fall back to another [funding method](/concepts/funding-methods) rather than reconstructing typed data yourself.

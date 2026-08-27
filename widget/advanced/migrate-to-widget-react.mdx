@@ -1,0 +1,117 @@
+---
+title: "Migrating to @layerswap/widget-react"
+description: "Move from the self-bundled @layerswap/widget to the CDN-delivered @layerswap/widget-react."
+---
+
+`@layerswap/widget-react` replaces the self-bundled `@layerswap/widget` integration. The widget's code moves out of your bundle and onto Layerswap's signed CDN; your app keeps only a thin loader. The migration is mostly **deleting things**.
+
+## 1. Swap the packages
+
+```bash
+npm uninstall @layerswap/widget @layerswap/wallets zustand
+# plus any @layerswap/wallet-* packages you installed
+npm install @layerswap/widget-react
+```
+
+`react` and `react-dom` (18 or 19) are the only required peers. Keep `wagmi` only if you pass a `wagmiConfig` (it's a types-only peer for the widget).
+
+## 2. Replace the provider tree with one component
+
+```tsx
+// Before
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import '@layerswap/widget/index.css';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { createSVMProvider } from '@layerswap/wallet-svm';
+
+<LayerswapProvider
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  walletProviders={[createEVMProvider(), createSVMProvider()]}
+  callbacks={callbacks}
+>
+  <Swap />
+</LayerswapProvider>
+
+// After
+import { LayerswapWidget } from '@layerswap/widget-react';
+
+<LayerswapWidget
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  walletProvidersConfig={{ include: ['evm', 'solana'] }}
+  callbacks={callbacks}
+  fallback={<div>Loading widget…</div>}
+/>
+```
+
+What carries over unchanged:
+
+- **`config`** — `apiKey`, `version`, `theme`, `initialValues` keep working as-is.
+- **`callbacks`** — the same eight callback names and payloads remain available, including [`onSwapStatusChange`](/widget/events/on-swap-status-change) and [`onMenuNavigationChange`](/widget/events/on-menu-navigation-change).
+
+What's removed:
+
+- **The CSS import** (`@layerswap/widget/index.css`) — styles inject at runtime.
+- **The `walletProviders` array** and all `create*Provider()` factories.
+
+## 3. Map your wallet provider setup
+
+| Before (`walletProviders`) | After |
+|---|---|
+| Choosing which `create*Provider()`s to include | [`walletProvidersConfig.include` / `exclude`](/widget/wallets#filtering-chains) with provider ids (`'evm'`, `'starknet'`, `'solana'`, …) |
+| `createEVMProvider({ walletConnectConfigs })` | [`walletDefaults.walletConnect`](/widget/wallets#supplying-credentials) (`projectId` + app metadata) |
+| `createTONProvider({ tonConfigs })` | `walletDefaults.ton` (`tonApiKey`, `manifestUrl`) |
+| `createImmutablePassportProvider(...)` | `walletDefaults.immutablePassport` |
+| `createEVMProvider({ wagmiConfig })` ("Partial Integration") | The top-level [`wagmiConfig` prop](/widget/wagmi-config) |
+| Custom `WalletProvider` implementations | No equivalent in the loader-package model; contact the Layerswap team about your use case |
+
+<Warning title="🚧 Needs review — support link placeholder (Q3.8)">
+  Add the official support channel for custom-provider migration questions.
+</Warning>
+
+<Note>
+  The Solana provider id is `'solana'`, not `'svm'` (the legacy package name was `@layerswap/wallet-svm`).
+</Note>
+
+## 4. Delete your bundler workarounds
+
+All of the following are unnecessary with `@layerswap/widget-react` and can be removed:
+
+- `transpilePackages` entries for `@layerswap/*` in `next.config.ts`
+- webpack `resolve.fallback` / `externals` tweaks for `fs`, `net`, `tls`, `pino-pretty`, etc.
+- `vite-plugin-node-polyfills`, `stream-browserify`, `Buffer`/`process` globals
+- `ssr.noExternal` / `optimizeDeps.include` lists for `@layerswap/*`
+- `next/dynamic` wrappers with `ssr: false` — the component is SSR-safe by itself
+
+## 5. Migrate the Deposit Widget
+
+```tsx
+// Before
+import { Deposit } from '@layerswap/widget/deposit';
+import '@layerswap/widget/index.css';
+
+<Deposit
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  walletProviders={[createEVMProvider()]}
+  destination={{ network: 'BASE_MAINNET', tokens: ['USDC'] }}
+  destinationAddress="0x…"
+/>
+
+// After
+import { LayerswapDepositWidget } from '@layerswap/widget-react';
+
+<LayerswapDepositWidget
+  config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+  destination={{ network: 'BASE_MAINNET', tokens: ['USDC'] }}
+  destinationAddress="0x…"
+/>
+```
+
+The deposit-specific props (`destination`, `destinationAddress`, `mode`, `methods`, …) are unchanged — see the [Deposit Widget reference](/widget/deposit-widget#deposit-specific-props). For a deposit-address-only setup (previously "omit `walletProviders`"), pass `methods={['deposit_address']}`.
+
+## 6. Review the behavioral differences
+
+- **Widget updates roll forward automatically** on the CDN channel—you no longer pin the remote implementation through npm. Verify the final 2.x release-channel policy on release day. See [Widget delivery and security](/widget/delivery-and-security).
+- **One widget per page** (of either kind) — the widget keeps process-global state.
+- **Object props are compared by reference**—hoist `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` to module scope or memoize them to avoid provider rebuilds and extra renders.
+- **Loader-level props are new**: `fallback` (loading state), `onReady`, and `onError` for load failures — distinct from `callbacks.onError`.
+- **If you serve a CSP**, allowlist the widget CDN origin — see the [recommended CSP](/widget/delivery-and-security#recommended-content-security-policy).

@@ -1,0 +1,125 @@
+---
+title: "Solana"
+description: "Decode, refresh, sign, and submit the serialized Solana transaction returned in call_data."
+---
+
+For Solana, `call_data` is a base64-encoded serialized legacy `Transaction`. It already contains the native SOL or SPL-token transfer and a top-level memo used to match the deposit.
+
+## Transaction construction
+
+<Steps>
+  <Step title="Decode the transaction">
+    Convert the base64 `call_data` string into a `Transaction` object.
+  </Step>
+  <Step title="Set a fresh blockhash">
+    Fetch the latest blockhash from the Solana RPC and update the transaction so it doesn't expire before it's confirmed.
+  </Step>
+  <Step title="Validate balances (optional)">
+    Estimate the transaction fee and verify the sender has enough SOL for fees and enough of the source token for the transfer amount.
+  </Step>
+  <Step title="Sign the transaction">
+    Sign with the sender's keypair or wallet adapter.
+  </Step>
+  <Step title="Send and confirm">
+    Submit the signed transaction to the network and wait for confirmation.
+  </Step>
+</Steps>
+
+## Submit the prepared transaction
+
+Decode the transaction, replace its expired blockhash, sign it, and submit the signed bytes. The Server-side tab signs locally with a `Keypair`; the Browser tab uses a connected wallet adapter (Phantom, Solflare, and similar) and its `signTransaction` method.
+
+<CodeGroup>
+```ts Server-side
+import { Connection, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
+
+async function executeSolanaDeposit(action, senderKeypair) {
+  const connection = new Connection(action.network.node_url, 'confirmed');
+  const transaction = Transaction.from(Buffer.from(action.call_data, 'base64'));
+
+  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+  transaction.recentBlockhash = blockhash;
+  transaction.lastValidBlockHeight = lastValidBlockHeight;
+
+  return sendAndConfirmTransaction(connection, transaction, [senderKeypair], {
+    commitment: 'confirmed',
+  });
+}
+```
+
+```ts Browser
+import { Connection, Transaction } from '@solana/web3.js';
+
+async function executeSolanaDeposit(action, signTransaction) {
+  const connection = new Connection(action.network.node_url, 'confirmed');
+  const bytes = Uint8Array.from(atob(action.call_data), (char) => char.charCodeAt(0));
+  const transaction = Transaction.from(bytes);
+  const latest = await connection.getLatestBlockhash('confirmed');
+
+  transaction.recentBlockhash = latest.blockhash;
+  transaction.lastValidBlockHeight = latest.lastValidBlockHeight;
+
+  const signed = await signTransaction(transaction);
+  const signature = await connection.sendRawTransaction(signed.serialize());
+
+  await connection.confirmTransaction({
+    signature,
+    blockhash: latest.blockhash,
+    lastValidBlockHeight: latest.lastValidBlockHeight,
+  }, 'confirmed');
+
+  return signature;
+}
+```
+</CodeGroup>
+
+Do not remove, reorder, or replace the prepared instructions.
+
+## Resend until confirmed
+
+Under congestion a submitted transaction can be dropped before it lands. Resending the same signed bytes is safe — the signature deduplicates — so keep resubmitting until confirmation succeeds or the blockhash expires:
+
+```ts
+const signedBytes = signed.serialize();
+const signature = await connection.sendRawTransaction(signedBytes, { skipPreflight: true });
+
+const resend = setInterval(() => {
+  connection.sendRawTransaction(signedBytes, { skipPreflight: true }).catch(() => {});
+}, 2000);
+
+try {
+  await connection.confirmTransaction({
+    signature,
+    blockhash: latest.blockhash,
+    lastValidBlockHeight: latest.lastValidBlockHeight,
+  }, 'confirmed');
+} finally {
+  clearInterval(resend);
+}
+```
+
+If confirmation fails because the blockhash expired, refresh the blockhash and request a new signature before retrying.
+
+## If you construct the transaction yourself
+
+A custom transaction must do both of the following:
+
+1. Transfer the native SOL or SPL token to the returned destination.
+2. Add `swap.metadata.sequence_number` as a **top-level** instruction through the SPL Memo program.
+
+```ts
+import { PublicKey, TransactionInstruction } from '@solana/web3.js';
+
+const memoInstruction = new TransactionInstruction({
+  keys: [{ pubkey: sender, isSigner: true, isWritable: true }],
+  programId: new PublicKey('Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo'),
+  data: Buffer.from(String(swap.metadata.sequence_number), 'utf8'),
+});
+
+transaction.add(transferInstruction);
+transaction.add(memoInstruction);
+```
+
+An inner memo emitted through CPI is not used for matching. A transfer that reaches the correct address without the top-level memo can remain unmatched and expire. The safer default is to submit the prepared `call_data` transaction.
+
+Store the signature and [track the swap](/api/track-swaps).

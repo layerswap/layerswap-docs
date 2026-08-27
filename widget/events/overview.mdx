@@ -1,0 +1,44 @@
+---
+title: "Events overview"
+description: "Subscribe to widget events and receive swap status updates via the callbacks prop"
+---
+
+Events let you react to what happens inside the widget — form changes, swap creation and completion, status transitions, and errors. Pass them via the `callbacks` prop:
+
+```tsx
+import { LayerswapWidget } from '@layerswap/widget-react';
+
+// Module scope, so the callbacks object stays referentially stable
+const callbacks = {
+  onSwapCreate: (swap) => console.log('swap created', swap),
+  onSwapComplete: (swap) => console.log('swap complete', swap),
+  onError: (error) => console.warn('widget error', error),
+};
+
+export function App() {
+  return (
+    <LayerswapWidget
+      config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+      callbacks={callbacks}
+    />
+  );
+}
+```
+
+## Available callbacks
+
+- [**onFormChange**](/widget/events/on-form-change) — the swap form values changed (asset, amount, destination network, …).
+- [**onSwapCreate**](/widget/events/on-swap-create) — a new swap was successfully created after submitting the form.
+- [**onSwapComplete**](/widget/events/on-swap-complete) — a swap completed successfully.
+- [**onSwapStatusChange**](/widget/events/on-swap-status-change) — a swap's status changed (pending, completed, failed, …).
+- [**onSwapModalStateChange**](/widget/events/on-swap-modal-state-change) — the swap modal opened or closed.
+- [**onBackClick**](/widget/events/on-back-click) — the user clicked the back button in the swap flow.
+- [**onMenuNavigationChange**](/widget/events/on-menu-navigation-change) — the user navigated inside the widget menu.
+- [**onError**](/widget/events/on-error) — a runtime error occurred inside the widget.
+
+## Notes
+
+- **Keep the `callbacks` object referentially stable** — hoist it to module scope or memoize it, otherwise the widget re-initializes its callback wiring on every render.
+- **A throwing callback can't break the widget** — every callback invocation is wrapped in try/catch inside the widget.
+- **Payloads are typed as `unknown`** in the public package (`WidgetCallbacks`), so cast to the payload shapes documented on each event page.
+- `callbacks.onError` reports errors inside a running widget. Failures to *load* the widget surface through the top-level `onError` prop instead — see [Widget delivery and security](/widget/delivery-and-security#two-error-channels).
