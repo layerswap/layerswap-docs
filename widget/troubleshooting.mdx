@@ -1,6 +1,6 @@
 ---
 title: "Troubleshooting"
-description: "Diagnose a blank or stuck Layerswap Widget: read the error, check your CSP, recover."
+description: "Diagnose a blank or stuck Swap Widget or Deposit Widget: read the error, check your CSP, recover."
 ---
 
 ## First: read what the loader tells you
@@ -30,7 +30,7 @@ The production origin is `https://cdn.layerswap.io`. Copy the complete policy fr
 
 ## Widget renders an alert instead of the UI
 
-"Only one Layerswap widget can be live per page" — you mounted two (any combination of swap and deposit widgets). Render one at a time. In the JavaScript package the second `mountWidget` call throws instead.
+"Only one Layerswap widget can be live per page" — you mounted two (any combination of the Swap Widget and Deposit Widget). Render one at a time. In the JavaScript package the second `mountWidget` call throws instead.
 
 ## It loads, then my dev server breaks on hot reload
 

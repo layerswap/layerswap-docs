@@ -1,4 +1,4 @@
-export const DepositWidget = () => {
+export const DepositAddressTool = () => {
     const StepActionButton = ({ onClick, disabled, ariaLabel, loadingText, primaryLabel, secondaryLabel, isSecondary }) => {
         const baseClass = 'inline-flex items-center justify-center rounded-lg border-none px-4 py-2 text-sm font-semibold shadow-sm transition-colors w-full';
         const disabledClass = 'cursor-not-allowed text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700';

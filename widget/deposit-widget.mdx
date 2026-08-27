@@ -4,12 +4,12 @@ description: "A drop-in component that lets your users fund a fixed address — 
 tag: "NEW"
 ---
 
-The **Deposit Widget** (`LayerswapDepositWidget`) renders the deposit flow instead of the full swap form: you fix the destination — one network, its allowed tokens, and the recipient address — and the end user only picks **how to fund** the deposit. It can render inline on your page, or as a button that opens the widget in a dialog.
+The **Deposit Widget** (`LayerswapDepositWidget`) renders the deposit flow instead of the Swap Widget's form: you fix the destination — one network, its allowed tokens, and the recipient address — and the end user only picks **how to fund** the deposit. It can render inline on your page, or as a button that opens the widget in a dialog.
 
 It's delivered through the same verified CDN pipeline as [`LayerswapWidget`](/widget/quickstart) and accepts **all of the same props** plus the deposit-specific ones documented below.
 
 <Note title="Deposit Widget and Deposit tab are different">
-  `LayerswapDepositWidget` is a dedicated component for funding a destination fixed by your app. The **Deposit tab**—formerly called “Easy Deposit”—generates an address or QR code inside the full `LayerswapWidget` and can use the destination wallet connected by the user. Choose the component when your app must set the recipient before the user starts.
+  `LayerswapDepositWidget` is a dedicated component for funding a destination fixed by your app. The **Deposit tab**—formerly called “Easy Deposit”—generates an address or QR code inside the Swap Widget (`LayerswapWidget`) and can use the destination wallet connected by the user. Choose the component when your app must set the recipient before the user starts.
 </Note>
 
 ## When to choose it
@@ -21,7 +21,7 @@ Use the Deposit Widget when:
 - You want the widget to show only the funding methods supported for the selected destination.
 - You want the experience to render inline with your product or open from a branded button.
 
-Use the [Full Swap Widget](/widget/quickstart) when users need to choose the destination themselves. Use the [API](/api/quickstart) when you need to replace the method picker or own the complete funding interface.
+Use the [Swap Widget](/widget/quickstart) when users need to choose the destination themselves. Use the [API](/api/quickstart) when you need to replace the method picker or own the complete funding interface.
 
 ## How it works
 
@@ -87,7 +87,7 @@ By default every available method is offered. Pass `methods` as an allow-list to
 
 ### Wallets, theming, and callbacks
 
-Since the deposit widget takes all `LayerswapWidget` props, the same pages apply:
+Since the Deposit Widget takes all `LayerswapWidget` props, the same pages apply:
 
 - [Wallets](/widget/wallets) — filter chains with `walletProvidersConfig`, supply credentials with `walletDefaults`
 - [Sharing your wagmi config](/widget/wagmi-config) — reuse your app's EVM connection via `wagmiConfig`
@@ -101,7 +101,7 @@ Since the deposit widget takes all `LayerswapWidget` props, the same pages apply
 </ResponseField>
 
 <ResponseField name="destinationAddress" type="string" required>
-  The recipient address on the destination network. Fixed by you — the deposit widget never asks the user for it.
+  The recipient address on the destination network. Fixed by you — the Deposit Widget never asks the user for it.
 </ResponseField>
 
 <ResponseField name="mode" type='"inline" | "button"' default="inline">

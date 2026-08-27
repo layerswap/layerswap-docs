@@ -48,10 +48,6 @@ The available provider ids (`WalletProviderId`):
 | `paradex` | Paradex |
 | `imtblPassport` | Immutable Passport |
 
-<Warning>
-  The Solana id is `'solana'`, not `'svm'`.
-</Warning>
-
 ## Supplying credentials
 
 Some wallet services need your own credentials or metadata. Pass them via `walletDefaults`:
@@ -92,10 +88,6 @@ const walletDefaults = {
 <ResponseField name="immutablePassport" type="object">
   Immutable Passport client configuration. `publishableKey`, `clientId`, `redirectUri`, and `logoutRedirectUri` are all required. Immutable Passport appears only when this object is supplied.
 </ResponseField>
-
-<Note>
-  The provider id is `imtblPassport`, while the `walletDefaults` key is `immutablePassport`. This asymmetry is intentional in the current public types.
-</Note>
 
 ## Sharing your wagmi config
 

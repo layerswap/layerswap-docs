@@ -14,7 +14,7 @@ Choose this integration when all of the following are true:
 - you want a single embedded component to handle the method picker, quote, transfer instructions, and progress; and
 - you want the flow inline in your UI or behind a button that opens a dialog.
 
-If users should choose the destination, start with the [Full Swap Widget](/widget/quickstart). If you need complete control over the screens and funding logic, use the [API](/api/quickstart).
+If users should choose the destination, start with the [Swap Widget](/widget/quickstart). If you need complete control over the screens and funding logic, use the [API](/api/quickstart).
 
 ## 1. Install and render
 
@@ -43,7 +43,7 @@ export function DepositPage({ userAddress }: { userAddress: string }) {
 }
 ```
 
-`destination` (canonical network id + token symbols, case-insensitive) and `destinationAddress` are required — the widget never asks your user for an address. Only one Layerswap widget (of either kind) can be live per page; a second instance renders an alert instead.
+`destination` (canonical network id + token symbols, case-insensitive) and `destinationAddress` are required — the widget never asks your user for an address. Only one widget (of either kind) can be live per page; a second instance renders an alert instead.
 
 ## 2. Choose the funding methods you offer
 
@@ -60,7 +60,7 @@ Omit `methods` to offer everything: `wallet` (user connects and sends), `deposit
 
 ## 3. Detect completion
 
-Wire callbacks — same event system as the full widget:
+Wire callbacks — same event system as the Swap Widget:
 
 ```tsx
 const callbacks = {

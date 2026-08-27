@@ -1,9 +1,9 @@
 ---
-title: "Widget Quickstart"
-description: "Add the Layerswap Widget to your React app with @layerswap/widget-react — one package, no CSS imports, no bundler config."
+title: "Swap Widget Quickstart"
+description: "Add the Swap Widget to your React app with @layerswap/widget-react — one package, no CSS imports, no bundler config."
 ---
 
-The Layerswap Widget is delivered through **`@layerswap/widget-react`** — a thin React loader that fetches the widget at runtime from Layerswap's signed CDN. The widget code and its heavy dependencies (wallet SDKs, animation and form libraries) **never enter your bundle**: your app installs only the loader, and widget updates roll out automatically without you redeploying.
+The Swap Widget is delivered through **`@layerswap/widget-react`** — a thin React loader that fetches the widget at runtime from Layerswap's signed CDN. The widget code and its heavy dependencies (wallet SDKs, animation and form libraries) **never enter your bundle**: your app installs only the loader, and widget updates roll out automatically without you redeploying.
 
 <Note>
   Need to control the complete bundle? See [Self-bundled Widget](/widget/advanced/self-bundled). Existing self-bundled integrations can follow the [migration guide](/widget/advanced/migrate-to-widget-react).
@@ -57,7 +57,7 @@ That's the complete minimum integration. Compared with the self-bundled Widget, 
 ## Things to know
 
 <Warning>
-  **One Layerswap widget per page.** The widget keeps process-global state, so only one instance (of either `LayerswapWidget` or `LayerswapDepositWidget`) may be live per page at a time. If you need both, swap between them (e.g. with tabs) instead of rendering both.
+  **One widget per page.** The widget keeps process-global state, so only one instance (of either `LayerswapWidget` or `LayerswapDepositWidget`) may be live per page at a time. If you need both, swap between them (e.g. with tabs) instead of rendering both.
 </Warning>
 
 <Note>
