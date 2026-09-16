@@ -7,7 +7,7 @@
     "light": "#E05B8A",
     "dark": "#E05B8A"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon/favicon.svg",
   "navigation": {
     "tabs": [
       {
@@ -263,7 +263,8 @@
     "metatags": {
       "og:title": "Layerswap Docs",
       "og:description": "Layerswap makes cross-chain asset swapping & bridging accessible to everyone. Explore its features, supported networks, tokens, & integration options",
-      "og:logo": "/logo/dark.svg"
+      "og:logo": "/logo/dark.svg",
+      "apple-mobile-web-app-title": "Layerswap"
     },
     "indexing": "navigable"
   },
