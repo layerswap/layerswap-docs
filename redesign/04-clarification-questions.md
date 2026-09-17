@@ -22,7 +22,7 @@
 
 2.2. **`GET /swaps?statuses=` — what are the correct filter values for pending states?** Live testing: `Completed`/`Refunded`/`Failed` work; `user_transfer_pending`, `UserTransferPending`, and all case variants return empty-body 400s. *Either an API bug or hidden naming; docs can't state the mapping today.*
 
-2.3. **Widget-core `SwapStatus` has 10 values (`created`, `user_transfer_delayed`, `cancelled` beyond the documented 7). Can the API return these?** *The lifecycle page and every integrator's status handler depend on the complete list.*
+2.3. **Can the API return the widget-core `created` status?** *The lifecycle page and every integrator's status handler depend on the complete list.*
 
 2.4. **Rate limits: do any exist, at what thresholds, keyed how?** No headers are emitted. **Is `reference_id` an idempotency key for `POST /swaps`?** **What's the v2 versioning/deprecation policy?** *Production-readiness docs.*
 

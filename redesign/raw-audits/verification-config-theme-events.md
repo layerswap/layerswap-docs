@@ -43,7 +43,7 @@
 
 - `walletProvidersConfig`: `include` applied first (allowlist), then `exclude`; excluded chains never dynamic-import their SDKs (bundle-size win).
 - Only EVM (+ Passport when configured) load eagerly; other chains lazy-load on first connect-modal open.
-- Widget-core `SwapStatus` enum has **10 values**: created, user_transfer_pending, user_transfer_delayed, ls_transfer_pending, completed, failed, expired, cancelled, pending_refund, refunded — the API docs/spec show only 7 (`created`, `user_transfer_delayed`, `cancelled` extra). TEAM: are the extra 3 API-visible?
+- The API contract documents seven swap statuses: user_transfer_pending, ls_transfer_pending, completed, failed, expired, pending_refund, refunded. Confirm whether the widget-core `created` state is API-visible.
 - `InitialSettings` internal-only fields to keep undocumented: `signature`, `timestamp`, `apiKey`, `balances`, `coinbase_redirect`.
 - Immutable Passport OAuth callback subpath: `@layerswap/wallets/eager/imtbl-passport`.
 - Old global DepositSettings singleton is gone — multiple `<Deposit>` instances isolated per-context (affects one-widget-per-page wording for deposit).
