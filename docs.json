@@ -75,6 +75,8 @@
                   "widget/events/on-swap-create",
                   "widget/events/on-swap-complete",
                   "widget/events/on-swap-status-change",
+                  "widget/events/on-swap-lifecycle",
+                  "widget/events/on-telemetry",
                   "widget/events/on-swap-modal-state-change",
                   "widget/events/on-back-click",
                   "widget/events/on-menu-navigation-change",
@@ -523,7 +525,7 @@
     },
     {
       "source": "/integration/UI/Widget/WalletManagement/PartialIntegration",
-      "destination": "/widget/advanced/wallet-management"
+      "destination": "/widget/wagmi-config"
     },
     {
       "source": "/integration/UI/Widget/WalletManagement/CustomWalletManagement",

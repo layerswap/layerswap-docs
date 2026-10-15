@@ -42,7 +42,7 @@ description: "Configure the Swap Widget with its config object, callbacks, walle
 </ResponseField>
 
 <ResponseField name="wagmiConfig" type="Config (from wagmi)">
-  Your app's wagmi `Config`. When supplied, the widget's EVM provider adopts it — shared account, chain, and signer with your app. See [Sharing your wagmi config](/widget/wagmi-config).
+  Your app's wagmi `Config`. The EVM provider adopts the same instance and appends missing Layerswap EVM chains while preserving host transports — shared account, chain, signer, and lifecycle with your app. See [Sharing your wagmi config](/widget/wagmi-config).
 </ResponseField>
 
 <ResponseField name="fallback" type="ReactNode">

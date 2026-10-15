@@ -1,52 +1,82 @@
 ---
 title: "Wallet management"
-description: "Understand and configure wallet providers in the self-bundled Widget."
+description: "Choose and configure wallet providers in the self-bundled Widget."
 ---
 
 <Warning>
-  This page applies only to the self-bundled `@layerswap/widget` integration. The recommended loader packages build providers internally; see [Wallets](/widget/wallets).
+  This page applies only to self-bundled `@layerswap/widget` integrations. The recommended loader packages construct providers internally; see [Wallets](/widget/wallets).
 </Warning>
 
-The self-bundled Widget receives a `walletProviders` array through `LayerswapProvider`. Each provider implements a chain-family connection, balance, signing, and transaction contract.
+The self-bundled Widget receives a `walletProviders` array through `LayerswapProvider`. Each provider owns a wallet family's connection state and its balance, gas, signing, and transfer implementations.
 
 ## Choose an approach
 
+| Approach | Loading | Use when |
+|---|---|---|
+| `getDefaultProviders()` | EVM eager; other configured families lazy | You want the standard wallet set |
+| Lazy descriptors | Only selected SDKs load, when needed | You want a standard subset with a smaller initial bundle |
+| Individual eager factories | SDK enters the initial application bundle | You need chain-specific provider overrides |
+| Custom connection store | Controlled by your application | A third-party SDK owns wallet UX and state |
+
 <CardGroup cols={2}>
   <Card title="Native wallet packages" icon="box" href="/widget/advanced/native-wallet-packages">
-    Install Layerswap's packages for the chain families you support.
+    Choose the aggregator, lazy descriptors, or eager chain packages.
   </Card>
   <Card title="Custom wallet management" icon="code" href="/widget/advanced/custom-wallet-management">
     Adapt a third-party wallet system to the provider contract.
   </Card>
   <Card title="Provider reference" icon="plug" href="/widget/advanced/wallet-providers">
-    Package, factory, and credential setup by chain family.
+    Configure factory arguments, credentials, and host wagmi state.
+  </Card>
+  <Card title="Loader-package wallets" icon="arrow-right" href="/widget/wallets">
+    Configure wallet families without bundling their SDKs.
   </Card>
 </CardGroup>
 
-## Load settings before deriving chains
+## Build the provider array once
 
-`useChainConfigs` needs loaded Layerswap settings. Put the hook in a child rendered only after the load guard, which also preserves React's hook ordering:
+Provider factories receive the loaded network settings from `LayerswapProvider`; you do not need to fetch settings or derive chains before creating them.
 
 ```tsx
-import { LayerswapProvider, Swap, useSettings, WidgetLoading } from '@layerswap/widget';
-import { createEVMProvider, useChainConfigs } from '@layerswap/wallet-evm';
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { createStarknetProvider } from '@layerswap/wallet-starknet';
+import '@layerswap/widget/index.css';
 
-function ReadyWidget({ settings }) {
-  const { chains, transports } = useChainConfigs(settings.networks);
-  const walletProviders = [createEVMProvider({ chains, transports })];
+const walletConnectConfigs = {
+  projectId: 'YOUR_REOWN_PROJECT_ID',
+  name: 'Your App',
+  description: 'Your app description',
+  url: 'https://yourapp.com',
+  icons: ['https://yourapp.com/icon.png'],
+};
 
+const walletProviders = [
+  createEVMProvider({ walletConnectConfigs }),
+  createStarknetProvider(),
+];
+
+export function Widget() {
   return (
-    <LayerswapProvider config={{ apiKey: 'YOUR_API_KEY' }} walletProviders={walletProviders}>
+    <LayerswapProvider
+      config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+      walletProviders={walletProviders}
+    >
       <Swap />
     </LayerswapProvider>
   );
 }
-
-export function Widget() {
-  const { settings, loading } = useSettings({ apiKey: 'YOUR_API_KEY' });
-  if (loading || !settings) return <WidgetLoading />;
-  return <ReadyWidget settings={settings} />;
-}
 ```
 
-Keep the provider array stable when its inputs have not changed. Provider order does not change route availability; it changes which wallet families the UI can connect.
+Keep the array stable. Define it at module scope when its inputs are static, or memoize it when credentials or host-owned adapters can change. Rebuilding providers during render can reset provider-specific state and repeat initialization work.
+
+Provider order does not change route availability. It changes which wallet families the connection UI can use.
+
+## Reuse host wallet state
+
+- If the host already has a wagmi `Config`, pass it to `createEVMProvider({ wagmiConfig })`. See [Sharing your wagmi config](/widget/wagmi-config) for the chain-merging and lifecycle behavior.
+- If a third-party SDK does not expose wagmi, implement the current external-store contract in [Custom wallet management](/widget/advanced/custom-wallet-management).
+
+## Next step
+
+Configure service-specific prerequisites in [Wallet providers](/widget/advanced/wallet-providers), then test every enabled family with the [production checklist](/resources/production-checklist).

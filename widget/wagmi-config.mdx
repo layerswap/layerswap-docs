@@ -3,7 +3,7 @@ title: "Sharing your wagmi config"
 description: "Let the Widget reuse your app's EVM wallet connection and chain configuration."
 ---
 
-If your React app already runs wagmi, pass its `Config` to the Widget. The Widget adopts that config **verbatim**, so the account, connectors, chains, transports, signer, and connection lifecycle remain owned by your app.
+If your React app already runs wagmi, pass its `Config` to the Widget. The Widget adopts the same config instance, so the account, connectors, signer, hydration, and reconnect lifecycle remain owned by your app.
 
 ## Pass the same config
 
@@ -32,25 +32,77 @@ export function App() {
 
 `wagmi` is an optional, types-only peer of `@layerswap/widget-react`. Your application still installs and initializes wagmi normally.
 
-## Include every chain the Widget needs
+## Expected synchronization
 
-The Widget does not append Layerswap chains or transports to a host config. Add every EVM chain that users should select or switch to:
+- A wallet connected through your app appears as connected in the Widget.
+- A connection started from the Widget uses one of your wagmi connectors and updates the same config store.
+- Account, chain, and disconnect changes made in either interface are visible to the other.
+
+## Understand how chains are extended
+
+Your app does not need to predeclare every Layerswap EVM chain. When the EVM provider initializes, it appends any missing Layerswap-supported chains after your app's chains. Your existing chain order and default chain stay unchanged.
+
+For a chain already in your config, your transport wins. For a chain the Widget appends, the Widget also adds its default transport:
 
 ```ts title="wagmi.ts"
 import { createConfig, http } from 'wagmi';
-import { mainnet, arbitrum, base } from 'wagmi/chains';
+import { mainnet, base } from 'wagmi/chains';
 
 export const wagmiConfig = createConfig({
-  chains: [mainnet, arbitrum, base],
+  // Declare the chains and RPC transports your app owns.
+  chains: [mainnet, base],
   transports: {
     [mainnet.id]: http(),
-    [arbitrum.id]: http(),
     [base.id]: http(),
   },
 });
 ```
 
-Pass `wagmiConfig` on the first Widget render. A config supplied after initialization is ignored with a console warning. Because the host owns hydration and reconnect behavior, keep the Widget under the same `WagmiProvider` and query client as the rest of your app.
+Because the Widget updates the same wagmi config instance, the rest of your app can observe the appended chains. Keep authorization and UI decisions based on your own allowlists rather than assuming every entry in `config.chains` was declared by the host.
+
+Pass `wagmiConfig` on the first Widget render. A different config supplied after the EVM provider has initialized is ignored with a console warning. Because the host owns hydration and reconnect behavior, keep the Widget under the same `WagmiProvider` and query client as the rest of your app.
+
+## Keep connector ownership in the host
+
+When `wagmiConfig` is present, the Widget uses the connectors already registered in that config. Configure WalletConnect and its app metadata on your host's wagmi connector; `walletDefaults.walletConnect` does not rewrite an existing connector.
+
+A standard wagmi `walletConnect()` connector gives users the generic WalletConnect QR flow. The Widget does not automatically inject its per-wallet Reown registry connector into an external config, so registry-only wallet entries are not shown by default.
+
+### Show per-wallet Reown registry entries
+
+If your UI needs the Widget's searchable per-wallet registry, add the hidden connector to the host config:
+
+```bash
+npm install @layerswap/wallet-evm@^2 zustand@^4.5.7
+```
+
+The 2.0 self-bundled wallet packages declare Node.js 22 or later for the build toolchain.
+
+```ts title="wagmi.ts"
+import { createHiddenWalletConnectConnector } from '@layerswap/wallet-evm';
+import { createConfig, http } from 'wagmi';
+import { mainnet } from 'wagmi/chains';
+import { walletConnect } from 'wagmi/connectors';
+
+const projectId = 'YOUR_REOWN_PROJECT_ID';
+const metadata = {
+  name: 'Your App',
+  description: 'Your app description',
+  url: 'https://yourapp.com',
+  icons: ['https://yourapp.com/icon.png'],
+};
+
+export const wagmiConfig = createConfig({
+  chains: [mainnet],
+  transports: { [mainnet.id]: http() },
+  connectors: [
+    walletConnect({ projectId, metadata }),
+    createHiddenWalletConnectConnector({ projectId }),
+  ],
+});
+```
+
+The hidden connector does not add a second visible generic option. It is the execution connector behind wallet-specific deep links and QR entries returned by the Reown registry.
 
 ## Avoid duplicate injected wallets
 
@@ -59,5 +111,6 @@ wagmi v2 discovers EIP-6963 wallets by default. Declaring a generic `injected()`
 ## Notes
 
 - If `walletProvidersConfig` excludes `evm`, the Widget ignores `wagmiConfig`.
-- Add custom transport RPC endpoints to the [CSP `connect-src`](/widget/delivery-and-security#recommended-content-security-policy).
+- Add your custom transport RPC origins to the [CSP `connect-src`](/widget/delivery-and-security#recommended-content-security-policy).
+- Keep the `wagmiConfig` object stable. Recreating it can split wallet state between the host and the Widget.
 - The JavaScript loader does not accept `wagmiConfig`; this sharing path is React-only.

@@ -81,7 +81,7 @@ curl -X POST "https://api.layerswap.io/api/v2/swaps" \
 
 The response contains the swap (`data.swap.id`) and `data.deposit_actions` — the instructions for funding it. Store the id; it's your handle for tracking.
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.7)">When `refund_address` is required (routes involving a swap provider) and what error you get without it is unconfirmed. Recommendation until answered: always supply `refund_address` on the source network.</Warning>
+Provide a valid `refund_address` on the source network. See [Refunds](/concepts/refunds#refund-address) for the requirements. If a required refund address is missing, the API returns `REFUND_ADDRESS_MISSING`.
 
 <Warning title="🚧 Needs review — awaiting API answer (Q2.4)">Whether `reference_id` deduplicates retries (idempotency) is unconfirmed — until then, guard against double-creating swaps on your side.</Warning>
 
@@ -105,7 +105,9 @@ curl "https://api.layerswap.io/api/v2/swaps/$SWAP_ID" -H "X-LS-APIKEY: $LS_API_K
 
 You can also look a swap up by its funding transaction: `GET /swaps/by_transaction_hash/{hash}`.
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.4/Q2.5)">Recommended polling cadence and webhook delivery semantics are unconfirmed. Poll conservatively, back off on failures, and configure [Webhooks](/api/webhooks) in the Partner Dashboard.</Warning>
+Follow the [polling guidance](/api/track-swaps#polling-guidance) and stop at a terminal status. You can also configure [Webhooks](/api/webhooks) in the Partner Dashboard.
+
+<Warning title="🚧 Needs review — webhook delivery (Q2.5)">Webhook retry, ordering, and delivery guarantees remain unconfirmed. Handle duplicate events and verify the current swap status before acting.</Warning>
 
 </Step>
 </Steps>

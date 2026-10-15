@@ -1,104 +1,168 @@
 ---
 title: "Wallet providers"
-description: "Configure self-bundled Widget provider factories by chain family."
+description: "Configure self-bundled wallet factories by chain family."
 ---
 
 <Warning>
-  Provider factories are part of the self-bundled integration. Loader-package users configure built-in providers through [Wallets](/widget/wallets).
+  Provider factories are part of the self-bundled `@layerswap/widget` integration. Loader-package users configure built-in providers through [Wallets](/widget/wallets).
 </Warning>
 
 ## Provider matrix
 
-| Family | Install | Import and create |
-|---|---|---|
-| EVM | `@layerswap/wallet-evm` | `createEVMProvider` |
-| Bitcoin | `@layerswap/wallet-bitcoin` | `createBitcoinProvider()` |
-| Solana | `@layerswap/wallet-svm` | `createSVMProvider` |
-| Starknet | `@layerswap/wallet-starknet` | `createStarknetProvider` |
-| Fuel | `@layerswap/wallet-fuel` | `createFuelProvider()` |
-| TON | `@layerswap/wallet-ton` | `createTONProvider` |
-| Tron | `@layerswap/wallet-tron` | `createTronProvider()` |
-| Paradex | `@layerswap/wallet-paradex` | `createParadexProvider()` |
-| Immutable Passport | `@layerswap/wallet-imtbl-passport` | `createImmutablePassportProvider` |
+| Family | Install | Eager factory | Configuration |
+|---|---|---|---|
+| EVM | `@layerswap/wallet-evm` | `createEVMProvider` | Reown metadata or a host wagmi config |
+| Bitcoin | `@layerswap/wallet-bitcoin` | `createBitcoinProvider` | None |
+| Solana | `@layerswap/wallet-svm` | `createSVMProvider` | Optional Reown metadata for WalletConnect |
+| Starknet | `@layerswap/wallet-starknet` | `createStarknetProvider` | None |
+| Fuel | `@layerswap/wallet-fuel` | `createFuelProvider` | None |
+| TON | `@layerswap/wallet-ton` | `createTONProvider` | TON Center key and TON Connect manifest |
+| Tron | `@layerswap/wallet-tron` | `createTronProvider` | None |
+| Paradex | `@layerswap/wallet-paradex` | `createParadexProvider` | Install the EVM and Starknet peer packages |
+| Immutable Passport | `@layerswap/wallet-imtbl-passport` | `createImmutablePassportProvider` | Immutable Hub client, EVM provider, and callback route |
 
-Pass created providers to `LayerswapProvider`:
+Use the [native wallet packages](/widget/advanced/native-wallet-packages) when you prefer lazy descriptors from `@layerswap/wallets` instead of eager factories.
+
+## Configure a standard provider array
 
 ```tsx
 import { LayerswapProvider, Swap } from '@layerswap/widget';
 import { createEVMProvider } from '@layerswap/wallet-evm';
 import { createStarknetProvider } from '@layerswap/wallet-starknet';
+import '@layerswap/widget/index.css';
 
 const walletConnectConfigs = {
-  projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
-  appName: 'Your app',
+  projectId: 'YOUR_REOWN_PROJECT_ID',
+  name: 'Your App',
+  description: 'Your app description',
+  url: 'https://yourapp.com',
+  icons: ['https://yourapp.com/icon.png'],
 };
 
 const walletProviders = [
   createEVMProvider({ walletConnectConfigs }),
-  createStarknetProvider({ walletConnectConfigs }),
+  createStarknetProvider(),
 ];
 
 export function Widget() {
   return (
-    <LayerswapProvider config={{ apiKey: 'YOUR_API_KEY' }} walletProviders={walletProviders}>
+    <LayerswapProvider
+      config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+      walletProviders={walletProviders}
+    >
       <Swap />
     </LayerswapProvider>
   );
 }
 ```
 
+Create the array once. See [Wallet management](/widget/advanced/wallet-management#build-the-provider-array-once) when its inputs are dynamic.
+
+## EVM and WalletConnect
+
+`createEVMProvider()` has Layerswap fallback connection metadata, but production applications should pass their own Reown project and complete app identity:
+
+```ts
+import { createEVMProvider } from '@layerswap/wallet-evm';
+
+const evmProvider = createEVMProvider({
+  walletConnectConfigs: {
+    projectId: 'YOUR_REOWN_PROJECT_ID',
+    name: 'Your App',
+    description: 'Your app description',
+    url: 'https://yourapp.com',
+    icons: ['https://yourapp.com/icon.png'],
+  },
+});
+```
+
+The old `appName` field is not part of `WalletConnectConfig`; use `name`. The old `zkSyncModule` and `LoopringModule` examples also belong to the 1.x wallet stack and are not exported by the current 2.0 aggregator.
+
+### Reuse a host wagmi config
+
+Pass the same config object that your app gives to `WagmiProvider`:
+
+```ts
+import { createEVMProvider } from '@layerswap/wallet-evm';
+import { wagmiConfig } from './wagmi';
+import { walletConnectConfigs } from './wallet-config';
+
+const evmProvider = createEVMProvider({
+  wagmiConfig,
+  walletConnectConfigs,
+});
+```
+
+The provider adopts the host account, connectors, and reconnect lifecycle, then appends missing Layerswap EVM chains. See [Sharing your wagmi config](/widget/wagmi-config) for the merge rules and duplicate-injected-wallet guidance.
+
 ## Paradex
 
-Paradex peer-depends on the EVM and Starknet packages; it does not re-export their factories:
+Paradex peer-depends on the EVM and Starknet packages; it does not re-export their factories. Import each factory from its owning package:
 
 ```tsx
 import { createEVMProvider } from '@layerswap/wallet-evm';
 import { createStarknetProvider } from '@layerswap/wallet-starknet';
 import { createParadexProvider } from '@layerswap/wallet-paradex';
+import { walletConnectConfigs } from './wallet-config';
 
 const walletProviders = [
   createEVMProvider({ walletConnectConfigs }),
-  createStarknetProvider({ walletConnectConfigs }),
+  createStarknetProvider(),
   createParadexProvider(),
 ];
 ```
 
 ## TON
 
-TON requires an API key and a publicly accessible TON Connect manifest:
+Both fields are required. Omitting the TON provider is the correct way to hide TON wallets:
 
 ```tsx
 import { createTONProvider } from '@layerswap/wallet-ton';
 
 const tonProvider = createTONProvider({
   tonConfigs: {
-    tonApiKey: 'YOUR_TON_API_KEY',
+    tonApiKey: 'YOUR_TONCENTER_API_KEY',
     manifestUrl: 'https://yourapp.com/tonconnect-manifest.json',
   },
 });
 ```
 
-The manifest describes your app to TON wallets and must be reachable over HTTPS in production.
+Before rendering this provider, create a dedicated client API key and publish the manifest. Follow [Enable TON wallets](/widget/wallets#enable-ton-wallets) for the current key source, manifest JSON, hosting rules, and browser-credential warning.
 
 ## Immutable Passport
 
-Create an application in Immutable Hub and register the exact authentication and logout redirect URLs. Install both the Passport and EVM packages, then import their factories from their owning packages:
+Immutable Passport delegates wallet operations to EVM. Install and include both packages:
+
+```bash
+npm install @layerswap/wallet-imtbl-passport@^2 @layerswap/wallet-evm@^2
+```
 
 ```tsx
 import { createEVMProvider } from '@layerswap/wallet-evm';
 import { createImmutablePassportProvider } from '@layerswap/wallet-imtbl-passport';
+import { walletConnectConfigs } from './wallet-config';
 
-const imtblPassportConfigs = {
-  publishableKey: 'YOUR_PUBLISHABLE_KEY',
-  clientId: 'YOUR_CLIENT_ID',
-  redirectUri: 'https://yourapp.com/imtbl-redirect',
+const imtblPassportConfig = {
+  publishableKey: 'YOUR_IMMUTABLE_PUBLISHABLE_KEY',
+  clientId: 'YOUR_IMMUTABLE_CLIENT_ID',
+  redirectUri: 'https://yourapp.com/passport/callback',
   logoutRedirectUri: 'https://yourapp.com/',
 };
 
 const walletProviders = [
   createEVMProvider({ walletConnectConfigs }),
-  createImmutablePassportProvider({ imtblPassportConfigs }),
+  createImmutablePassportProvider({ imtblPassportConfig }),
 ];
 ```
 
-Your redirect route must render the Passport redirect handler exported by the package. The configured Hub URL and deployed route must match exactly.
+The factory key is singular: `imtblPassportConfig`. The older `imtblPassportConfigs` example does not match the current 2.0 type.
+
+Your callback route must call `imtblPassportLoginCallback(imtblPassportConfig)` after it loads in the browser. The old `<ImtblRedirect />` component was removed. Follow [Enable Immutable Passport](/widget/wallets#enable-immutable-passport) for Immutable Hub registration and a complete callback-page example.
+
+## Immutable X 1.x package
+
+`@layerswap/wallet-imtbl-x` is not part of the 2.0 provider set. Its latest published release targets `@layerswap/widget` 1.x, so do not combine it with the packages on this page. Existing 1.x applications should either keep that stack pinned together or remove the provider as part of a tested 2.0 migration.
+
+## Next step
+
+Run each enabled provider through the [production checklist](/resources/production-checklist), including connection cancellation, account switching, network switching, refresh, and service-specific callback failures.

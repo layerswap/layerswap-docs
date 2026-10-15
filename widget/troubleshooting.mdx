@@ -44,6 +44,14 @@ wagmi v2 discovers EIP-6963 wallets automatically. If your host config also decl
 
 Keep `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` stable by hoisting or memoizing them. New object identities can rebuild provider lists and trigger additional renders; they do not normally remount the loader.
 
+## Wallet is waiting to switch networks
+
+The send action switches the wallet to the source network before requesting a transfer or gasless signature. If a switch request is already pending, finish or dismiss it in the wallet before retrying. Adding a missing chain can require a separate switch confirmation. Use [`onSwapLifecycle`](/widget/events/on-swap-lifecycle) to distinguish a declined switch from a failed transfer.
+
+## Retrying a transfer
+
+After a rejected or unsubmitted attempt, use the widget's retry action. The widget refreshes provider deposit actions when safe and preserves progress once a transaction or gasless authorization has been submitted. Avoid creating another swap or sending a second transfer merely because detection is taking time; check the existing swap and transaction first.
+
 ## Still stuck
 
 Grab the console provenance line (or its absence), the `ManifestError.reason`, and your CSP header, and ask in the [developer community](https://t.me/layerswap_dev).

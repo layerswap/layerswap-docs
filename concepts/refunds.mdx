@@ -4,7 +4,7 @@ description: "Learn when and how Layerswap refunds a swap, what the refund addre
 icon: arrow-rotate-left
 ---
 
-When a swap cannot be completed after the user has sent funds, Layerswap automatically initiates a refund. The refund is always processed on the **source chain** in the **source token**. Gas fees for processing the refund transaction are deducted from the refund amount.
+When a swap cannot be completed after the user has sent funds, Layerswap may initiate a refund to `refund_address`. Refunds are processed on the **source chain** in the **source token**. Gas fees for processing the refund transaction are deducted from the refund amount.
 
 ## When does a refund happen?
 
@@ -13,9 +13,9 @@ When a swap cannot be completed after the user has sent funds, Layerswap automat
 - **Provider execution failure:** A swap provider (e.g. a DEX) encountered an error during execution.
 - **Destination chain unavailability:** The destination chain is unavailable due to an RPC outage or chain reorganization.
 
-Before refunding, Layerswap **retries execution automatically**. A refund is initiated only once retries are exhausted and a `refund_address` is available. Without a refund address, the swap remains `ls_transfer_pending` while Layerswap continues retrying.
+Layerswap may retry failed operations before initiating a refund. Retry behavior and timing depend on the failure; there is no single retry count or guaranteed refund time. An automatic refund requires a `refund_address`.
 
-{/* TODO(API): Confirm the retry cadence and number of attempts before a refund is initiated. */}
+Without a refund address, recovery depends on the failure. The swap may remain `ls_transfer_pending` while Layerswap retries or investigates, or move to `failed` if automatic recovery is exhausted. Check `fail_reason` when a swap fails.
 
 ## Refund statuses
 
@@ -31,8 +31,6 @@ See the [Swap lifecycle](/concepts/swap-lifecycle) for the full status flow and 
 ## Refund address
 
 You can provide a `refund_address` when creating a swap. This must be a valid address on the source network. If the swap route involves a swap provider, the refund address is **required**.
-
-{/* TODO(API, Q2.7): Confirm address validation rules and the exact set of routes for which `refund_address` is required. */}
 
 ## Refund amount
 
