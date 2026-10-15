@@ -1,15 +1,111 @@
 ---
 title: "Native wallet packages"
-description: "Self-bundled Widget wallet packages by chain family."
+description: "Choose lazy descriptors or eager chain packages for the self-bundled Widget."
 ---
 
 <Warning>
-  These packages apply only to the self-bundled Widget. `@layerswap/widget-react` and `@layerswap/widget-js` load their wallet implementations from the remote.
+  These packages apply only to the self-bundled `@layerswap/widget`. `@layerswap/widget-react` and `@layerswap/widget-js` load wallet implementations from the Layerswap remote; configure those integrations through [Wallets](/widget/wallets).
 </Warning>
 
-Install only the chain families your application exposes:
+Self-bundled applications have two supported package shapes:
 
-| Chain family | Package | Factory |
+- Use `@layerswap/wallets` for `getDefaultProviders()` and lazy per-chain descriptors.
+- Install individual `@layerswap/wallet-*` packages when you need an eager factory or chain-specific overrides.
+
+## Use the aggregator
+
+Install the Widget, the wallet aggregator, and its common peer dependencies:
+
+```bash
+npm install @layerswap/widget@^2 @layerswap/wallets@^2 zustand@^4.5.7 \
+  wagmi viem @tanstack/react-query @bigmi/client @bigmi/core @bigmi/react
+```
+
+<Note>
+  The published 2.0 self-bundled wallet packages declare Node.js 22 or later for the build toolchain.
+</Note>
+
+`getDefaultProviders()` creates the standard provider set. TON and Immutable Passport are conditional and appear only when their configuration is supplied:
+
+```tsx
+import { LayerswapProvider, Swap } from '@layerswap/widget';
+import { getDefaultProviders } from '@layerswap/wallets';
+import '@layerswap/widget/index.css';
+
+const walletProviders = getDefaultProviders({
+  walletConnect: {
+    projectId: 'YOUR_REOWN_PROJECT_ID',
+    name: 'Your App',
+    description: 'Your app description',
+    url: 'https://yourapp.com',
+    icons: ['https://yourapp.com/icon.png'],
+  },
+  ton: {
+    tonApiKey: 'YOUR_TONCENTER_API_KEY',
+    manifestUrl: 'https://yourapp.com/tonconnect-manifest.json',
+  },
+});
+
+export function Widget() {
+  return (
+    <LayerswapProvider
+      config={{ apiKey: 'YOUR_API_KEY', version: 'mainnet' }}
+      walletProviders={walletProviders}
+    >
+      <Swap />
+    </LayerswapProvider>
+  );
+}
+```
+
+Only EVM is eager in this setup. The other families are descriptors that load their SDK when needed; a restored wallet session can hydrate its descriptor earlier. This keeps unused chain SDKs out of the initial bundle.
+
+## Choose a subset
+
+Import descriptors from `@layerswap/wallets` to keep lazy loading while choosing the provider set yourself:
+
+```tsx
+import {
+  createEVMProvider,
+  createSVMDescriptor,
+  createStarknetDescriptor,
+  createTronDescriptor,
+} from '@layerswap/wallets';
+
+const walletConnectConfigs = {
+  projectId: 'YOUR_REOWN_PROJECT_ID',
+  name: 'Your App',
+  description: 'Your app description',
+  url: 'https://yourapp.com',
+  icons: ['https://yourapp.com/icon.png'],
+};
+
+const walletProviders = [
+  createEVMProvider({ walletConnectConfigs }),
+  createSVMDescriptor(walletConnectConfigs),
+  createStarknetDescriptor(),
+  createTronDescriptor(),
+];
+```
+
+The aggregator exports these current descriptors:
+
+| Family | Lazy descriptor |
+|---|---|
+| Bitcoin | `createBitcoinDescriptor()` |
+| Solana | `createSVMDescriptor(walletConnectConfigs?)` |
+| Starknet | `createStarknetDescriptor()` |
+| Fuel | `createFuelDescriptor()` |
+| TON | `createTONDescriptor(tonConfigs)` |
+| Tron | `createTronDescriptor()` |
+| Paradex | `createParadexDescriptor()` |
+| Immutable Passport | `createImmutablePassportDescriptor(imtblPassportConfig)` |
+
+## Use eager factories
+
+Install a chain package directly when you need its eager factory. Eager factories add that chain SDK to your application bundle immediately.
+
+| Chain family | Package | Eager factory |
 |---|---|---|
 | EVM | `@layerswap/wallet-evm` | `createEVMProvider` |
 | Bitcoin | `@layerswap/wallet-bitcoin` | `createBitcoinProvider` |
@@ -21,14 +117,8 @@ Install only the chain families your application exposes:
 | Paradex | `@layerswap/wallet-paradex` | `createParadexProvider` |
 | Immutable Passport | `@layerswap/wallet-imtbl-passport` | `createImmutablePassportProvider` |
 
-Use the published `wallet-imtbl-*` names shown in the table.
+Use the published `wallet-imtbl-*` spelling shown in the table. The old `wallet-immutable-*` names do not exist.
 
-Confirm their versions and peer dependencies with the 2.0.0 release before upgrading.
+## Next step
 
-## Install example
-
-```bash
-npm install @layerswap/widget @layerswap/wallet-evm @layerswap/wallet-starknet @layerswap/wallets zustand@^4.5.7
-```
-
-See [Wallet providers](/widget/advanced/wallet-providers) for factory and credential examples.
+See [Wallet providers](/widget/advanced/wallet-providers) for factory arguments, service credentials, host wagmi adoption, and the Immutable callback handler.

@@ -1,35 +1,42 @@
 ---
 title: onSwapStatusChange
-description: Triggered whenever a swap's status changes.
+description: Observe backend swap status transitions independently of wallet attempts and UI phases.
 ---
 
-The `onSwapStatusChange` callback fires from the Widget's Processing screen for `ls_transfer_pending`, `completed`, `failed`, and `expired`. Use it to mirror progress in your own UI or analytics.
+`onSwapStatusChange` reports observed API transitions into `ls_transfer_pending`, `completed`, `failed`, and `expired`. Use [`onSwapLifecycle`](/widget/events/on-swap-lifecycle) for wallet prompts, retries, refunds, blocked transfers, and UI progress.
 
 ```tsx
-<LayerswapWidget
-  config={widgetConfig}
-  callbacks={{
-    onSwapStatusChange: (event) => {
-      console.log("Swap status:", event)
-    },
-  }}
-/>
+import type { WidgetCallbacks } from '@layerswap/widget-react';
+
+const callbacks: WidgetCallbacks = {
+  onSwapStatusChange(event) {
+    console.info('Backend status changed', event.swapId, event.type);
+  },
+};
 ```
 
-### Callback Argument Value
+## Payload
 
-```TypeScript  theme={"system"}
+```ts
 type SwapStatusEvent = {
   type: SwapStatus;
   swapId: string;
-  path?: 'Processing';
+  path?: string;
+  fromAddress?: string;
+  toAddress?: string;
+  sourceNetwork?: string;
+  destinationNetwork?: string;
+  sourceToken?: string;
+  destinationToken?: string;
 };
-
-type EmittedSwapStatus =
-  | 'ls_transfer_pending'
-  | 'completed'
-  | 'failed'
-  | 'expired';
 ```
 
-`path` identifies the Widget screen that emitted the event; today the only value is `Processing`. See [Swap lifecycle & statuses](/concepts/swap-lifecycle) for the meaning of each status.
+`type` is the raw API status. The remaining fields are context captured at the transition. Address or route enrichment alone does not trigger another callback. There is no `phase` field on this event; UI phases belong to `onSwapLifecycle`.
+
+## Delivery rules
+
+Opening an existing swap from a URL or history establishes a silent baseline. Opening a completed swap therefore does not report a new completion. A swap explicitly created in this widget may report its first eligible status.
+
+The widget observes every backend status before filtering notifications. A transition from an unreported status into one of the four reported statuses can emit. An unchanged status does not emit again after a wallet retry, modal reopen, or Processing screen remount. A real transition away and back can emit again. History is bounded within the widget instance; this is not a durable, globally exactly-once stream.
+
+The UI can show completion or an input-transfer failure before the backend reaches a terminal status. Track that experience through `onSwapLifecycle`, and verify fulfillment through your backend using [swap tracking](/api/track-swaps).

@@ -6,10 +6,10 @@ description: "Subscribe to widget events and receive swap status updates via the
 Events let you react to what happens inside the widget — form changes, swap creation and completion, status transitions, and errors. Pass them via the `callbacks` prop:
 
 ```tsx
-import { LayerswapWidget } from '@layerswap/widget-react';
+import { LayerswapWidget, type WidgetCallbacks } from '@layerswap/widget-react';
 
 // Module scope, so the callbacks object stays referentially stable
-const callbacks = {
+const callbacks: WidgetCallbacks = {
   onSwapCreate: (swap) => console.log('swap created', swap),
   onSwapComplete: (swap) => console.log('swap complete', swap),
   onError: (error) => console.warn('widget error', error),
@@ -36,9 +36,12 @@ export function App() {
 - [**onMenuNavigationChange**](/widget/events/on-menu-navigation-change) — the user navigated inside the widget menu.
 - [**onError**](/widget/events/on-error) — a runtime error occurred inside the widget.
 
+- [**onSwapLifecycle**](/widget/events/on-swap-lifecycle) — wallet actions, UI phases, blocked transfers, retries, refunds, and flow closure.
+- [**onTelemetry**](/widget/events/on-telemetry) — optional form, interaction, and operation analytics.
+
 ## Notes
 
 - **Keep the `callbacks` object referentially stable** — hoist it to module scope or memoize it, otherwise the widget re-initializes its callback wiring on every render.
 - **A throwing callback can't break the widget** — every callback invocation is wrapped in try/catch inside the widget.
-- **Payloads are typed as `unknown`** in the public package (`WidgetCallbacks`), so cast to the payload shapes documented on each event page.
+- **Use `WidgetCallbacks` for contextual typing.** `onError`, `onSwapStatusChange`, `onSwapLifecycle`, and `onTelemetry` have dedicated public types. `onFormChange`, `onSwapCreate`, and `onSwapComplete` keep `unknown` payloads in the loader contract. Boolean, string, and no-argument callbacks retain their specific types. Principal event types are exported by `@layerswap/widget-react` and `@layerswap/widget-js`; lifecycle subtypes and category constants are available from `@layerswap/widget-types`.
 - `callbacks.onError` reports errors inside a running widget. Failures to *load* the widget surface through the top-level `onError` prop instead — see [Widget delivery and security](/widget/delivery-and-security#two-error-channels).

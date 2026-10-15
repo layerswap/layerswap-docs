@@ -8,8 +8,10 @@ With this path, your app installs `@layerswap/widget` and the wallet packages it
 ## Install
 
 ```bash
-npm install @layerswap/widget @layerswap/wallet-evm zustand@^4.5.7
+npm install @layerswap/widget@^2 @layerswap/wallet-evm@^2 zustand@^4.5.7 wagmi viem
 ```
+
+The published 2.0 self-bundled packages declare Node.js 22 or later for the build toolchain.
 
 ## Render the Widget
 
@@ -21,8 +23,11 @@ import '@layerswap/widget/index.css';
 const walletProviders = [
   createEVMProvider({
     walletConnectConfigs: {
-      projectId: 'YOUR_WALLETCONNECT_PROJECT_ID',
-      appName: 'Your app',
+      projectId: 'YOUR_REOWN_PROJECT_ID',
+      name: 'Your App',
+      description: 'Your app description',
+      url: 'https://yourapp.com',
+      icons: ['https://yourapp.com/icon.png'],
     },
   }),
 ];
@@ -44,9 +49,12 @@ Build `walletProviders` with the packages for the networks your app supports. Pa
 ## Configure credentials
 
 - Create `YOUR_API_KEY` in the [Partner Dashboard](/get-started/api-keys).
-- EVM, Starknet, and Solana WalletConnect providers need a WalletConnect project ID.
-- TON needs a TON API key and manifest URL.
+- Supply a Reown project id and complete app metadata when you want EVM or Solana WalletConnect support. Starknet does not use this configuration.
+- TON needs a TON Center API key and public TON Connect manifest.
+- Immutable Passport needs an Immutable Hub client, exact redirect URLs, and an OAuth callback route.
 - Use [Initial values & flows](/widget/initial-values) for route and form defaults.
+
+See the [wallet credential setup](/widget/wallets#supply-wallet-defaults) for Reown, TON, and Immutable prerequisites. The self-bundled factory argument names are mapped in the [provider reference](/widget/advanced/wallet-providers).
 
 ## Related guides
 

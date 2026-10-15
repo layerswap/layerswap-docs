@@ -4,7 +4,7 @@ description: "Understand the statuses a swap goes through from creation to compl
 icon: arrows-spin
 ---
 
-A swap progresses through a fixed set of statuses.
+A swap progresses through seven API statuses. The diagram shows the main paths; recovery depends on the failure.
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'background': 'transparent', 'lineColor': '#94a3b8', 'fontSize': '14px', 'edgeLabelBackground': 'transparent', 'tertiaryTextColor': '#ffffff'}}}%%
@@ -16,8 +16,9 @@ flowchart TB
     layerswapPending --> belowMinimum([Below minimum]) --> failed([failed])
     layerswapPending --> executionFailed([Execution failed]) --> hasRefundAddress{refund_address?}
     hasRefundAddress -->|Yes| pendingRefund([pending_refund])
-    hasRefundAddress -.->|No| retries([Retries])
+    hasRefundAddress -.->|No| retries([Retry or review])
     retries -.-> layerswapPending
+    retries -->|Cannot recover| failed
     pendingRefund --> confirmed([Confirmed on-chain]) --> refunded([refunded])
 
     classDef event fill:transparent,color:#cbd5e1,stroke:#334155,stroke-width:1px
@@ -39,8 +40,6 @@ flowchart TB
     class hasRefundAddress decision
 ```
 
-{/* TODO(API, Q2.3): The widget's internal enum knows three more states (`created`, `user_transfer_delayed`, `cancelled`). Confirm whether the API can return them to integrators; this page documents the seven statuses in the API contract today. */}
-
 ## Flow
 
 ### 1. `user_transfer_pending`
@@ -55,9 +54,9 @@ Swap is created. Layerswap is waiting for the user to complete the transaction i
 Layerswap is processing the swap. If something goes wrong during execution:
 
 - If deposited amount is **below the minimum** → `failed`
-- If the swap cannot be completed for any other reason (e.g. price moved beyond slippage tolerance) → Layerswap **retries automatically**.
-  - **With `refund_address`** → if retries are exhausted, moves to `pending_refund`
-  - **Without `refund_address`** → Layerswap keeps retrying. The swap remains in `ls_transfer_pending` until resolved.
+- Layerswap may retry failed operations. Retry behavior and timing depend on the failure.
+- **With `refund_address`** → a failure eligible for an automatic refund moves to `pending_refund`.
+- **Without `refund_address`** → the swap may remain `ls_transfer_pending` during retries or investigation, or move to `failed` if automatic recovery is exhausted.
 - If execution succeeds → `completed`
 
 ### 3. `completed`
@@ -70,13 +69,12 @@ Refund is sent to `refund_address` on the source chain in the source token, **mi
 
 ## What can go wrong
 
-| Scenario | With refund_address | Without refund_address |
-|---|---|---|
-| Deposited less than minimum | failed | failed |
-| No liquidity or route available across providers | Retries, then refunded | Retries |
-| Slippage tolerance cannot be met | Retries, then refunded | Retries |
-| Blockchain issue across multiple RPCs | Retries, then refunded | Retries |
-| DEX or DEX aggregator issue | Retries, then refunded | Retries |
+| Scenario | What to expect |
+|---|---|
+| Deposited less than minimum | `failed`; inspect `fail_reason` |
+| No liquidity or route available, slippage cannot be met, or a network/provider fails | Layerswap may retry. Recovery can require a refund, end in `failed`, or require investigation. Follow the returned status and `fail_reason`. |
+
+See [Refunds](/concepts/refunds) for the refund flow and address requirements.
 
 ## Transaction-level detail
 
@@ -88,15 +86,13 @@ Status names used in API responses are different from those accepted by the `GET
 
 See [Track swaps](/api/track-swaps) for the complete list of filter values.
 
-{/* TODO(API): Validate that GET /swaps status filters use different values from swap response statuses. If confirmed, update the backend so filters accept the same status values returned in responses, then update this section and the Track swaps mapping table. */}
-
 ## Observing status changes
 
 - **API**: poll [`GET /swaps/{id}`](/api-reference/swaps/get-swap-details), or look up by funding transaction with [`GET /swaps/by_transaction_hash/{hash}`](/api-reference/swaps/get-swap-by-transaction-hash).
 - **Webhooks**: receive dashboard-configured status updates — [Webhooks](/api/webhooks).
-- **Widget**: use [`onSwapStatusChange`](/widget/events/on-swap-status-change) to receive `{type, swapId, path?}`.
+- **Widget**: use [`onSwapStatusChange`](/widget/events/on-swap-status-change) for observed backend status transitions and [`onSwapLifecycle`](/widget/events/on-swap-lifecycle) for UI phases, wallet actions, retries, and refunds. UI progress can lead the API; neither callback replaces server-side fulfillment verification.
 
-{/* TODO(API): Confirm and document the recommended polling interval and rate limits for GET /swaps/{id}. */}
+Follow the [polling guidance](/api/track-swaps#polling-guidance): back off when the swap is unchanged or requests fail, and stop at a terminal status.
 
 ## Next
 

@@ -46,7 +46,7 @@ import { LayerswapWidget } from '@layerswap/widget-react';
 What carries over unchanged:
 
 - **`config`** — `apiKey`, `version`, `theme`, `initialValues` keep working as-is.
-- **`callbacks`** — the same eight callback names and payloads remain available, including [`onSwapStatusChange`](/widget/events/on-swap-status-change) and [`onMenuNavigationChange`](/widget/events/on-menu-navigation-change).
+- **`callbacks`** — existing callback names remain available, with newer typed contracts and two additional callbacks: [`onSwapLifecycle`](/widget/events/on-swap-lifecycle) and [`onTelemetry`](/widget/events/on-telemetry). Review the behavior changes below.
 
 What's removed:
 
@@ -109,6 +109,11 @@ import { LayerswapDepositWidget } from '@layerswap/widget-react';
 The deposit-specific props (`destination`, `destinationAddress`, `mode`, `methods`, …) are unchanged — see the [Deposit Widget reference](/widget/deposit-widget#deposit-specific-props). For a deposit-address-only setup (previously "omit `walletProviders`"), pass `methods={['deposit_address']}`.
 
 ## 6. Review the behavioral differences
+
+- **Cancellation analytics:** observe `wallet_action_rejected` on `onSwapLifecycle` for wallet transfer/signature declines; do not count them through the old transfer `onError` path.
+- **Backend status versus UI progress:** `onSwapStatusChange` reports observed backend transitions, with a silent baseline for existing swaps. Retries and modal reopen do not repeat unchanged statuses. UI phases and early UI completion belong to `onSwapLifecycle`.
+- **Error diagnostics:** callback error payloads contain data-only summaries rather than raw provider or Axios objects. Handle `CallbackError` and `SideEffectError` where relevant.
+
 
 - **Widget updates roll forward automatically** on the CDN channel—you no longer pin the remote implementation through npm. Verify the final 2.x release-channel policy on release day. See [Widget delivery and security](/widget/delivery-and-security).
 - **One widget per page** (of either kind) — the widget keeps process-global state.

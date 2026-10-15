@@ -34,6 +34,12 @@ See [Fees](/concepts/fees) for a breakdown of the fees and optional Refuel cost 
 
 [`GET /detailed_quote`](/api-reference/swaps/get-detailed-quote) describes the fee structure and supported amount range for a route rather than pricing one specific amount. It returns an array containing fixed and percentage fee components, minimum and maximum amounts, provider-level details, and estimated completion time. See [Detailed fee data](/concepts/fees#fee-structure-by-amount-range) for the field breakdown.
 
+## Completion-time warnings
+
+The Widget highlights quote estimates of at least five minutes as slow and at least twenty minutes as very slow. Before starting a very slow route, the swap form asks the user to continue or choose another route. The generated deposit-address flow skips this pre-creation confirmation.
+
+Cancelling that confirmation emits `form_confirmation_cancelled` with `reasonCode: 'slow_route_confirmation_cancelled'` through [`onSwapLifecycle`](/widget/events/on-swap-lifecycle); no swap is created by that submission. Completion estimates are historical averages, not delivery guarantees.
+
 ## Refuel
 
 **Refuel** is an optional destination gas top-up. It sends the recipient a small amount of the destination network's native token, allowing them to pay for a transaction after the swap completes.

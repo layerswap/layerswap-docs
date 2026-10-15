@@ -271,7 +271,7 @@ The `transactions` array contains both the source (`type: "input"`) and destinat
 
 | LI.FI expects | Layerswap field | Notes |
 |---|---|---|
-| `status` | `swap.status` | See [Swap Lifecycle](/concepts/swap-lifecycle) for full details. Values: `user_transfer_pending`, `user_transfer_delayed`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
+| `status` | `swap.status` | See [Swap Lifecycle](/concepts/swap-lifecycle) for full details. Values: `user_transfer_pending`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
 | `substatus` | `swap.fail_reason` | `null` on success; on failure: `received_less_than_valid_range`, `received_more_than_valid_range`, `swap_route_unavailable`, `degraded_quote` |
 | `receiving.txHash` | `transactions[type="output"].transaction_hash` | Destination chain tx hash |
 | `receiving.chainId` | `transactions[type="output"].network.chain_id` | Destination chain ID |

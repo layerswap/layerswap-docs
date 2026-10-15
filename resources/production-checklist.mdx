@@ -17,7 +17,7 @@ Use this checklist for Widget, Hosted Page, and API integrations. Complete the s
 
 - [ ] Prevent duplicate submissions in your UI and backend.
 - [ ] Store the swap ID, your per-attempt correlation ID, and the source transaction hash.
-- [ ] Provide a valid source-network `refund_address` while its exact requirement remains under review.
+- [ ] Provide a valid source-network `refund_address`.
 - [ ] Execute `deposit_actions` in order and use returned targets, calldata, memos, amounts, and decimals unchanged.
 - [ ] Show the user the selected network, token, amount, destination, and any required memo before signing.
 - [ ] Test rejected signatures, insufficient balances, wrong networks, wrong amounts, and abandoned funding.
@@ -26,16 +26,23 @@ Use this checklist for Widget, Hosted Page, and API integrations. Complete the s
 
 - [ ] Handle the full [swap lifecycle](/concepts/swap-lifecycle), including failure, expiry, and refund states.
 - [ ] Handle both JSON error envelopes and empty-body `400` responses.
-- [ ] Stop polling after a terminal state and back off on transient errors.
+- [ ] Follow the [polling guidance](/api/track-swaps#polling-guidance): stop at a terminal status and back off on unchanged status, transient errors, or rate limiting.
 - [ ] Verify webhooks with the Svix signature before parsing or acting.
 - [ ] Make webhook side effects idempotent and re-fetch the swap before irreversible fulfillment.
 - [ ] Provide the swap ID and transaction hash in support tooling.
 
 ## Widget and Hosted Page
 
+- [ ] Handle wallet declines through lifecycle events separately from runtime failures; test network-switch rejection and pending wallet prompts.
+- [ ] Verify an existing completed swap establishes a silent status baseline, retries do not repeat unchanged backend statuses, and UI phases are handled separately.
+- [ ] Test lifecycle duplicate suppression and real retries/recovery. If collecting telemetry, submit twice from one mounted form and verify swap correlation resets.
+- [ ] For iframe integrations, test the deployed Hosted Page on the actual production embedding origin, including wallet popups and mobile deep links.
+
 - [ ] Test the documented CSP in a production-like host.
 - [ ] Render only one widget—either a Swap Widget or a Deposit Widget—per page, and keep object props referentially stable.
-- [ ] Verify configured WalletConnect, TON, and Immutable Passport credentials and callback URLs.
+- [ ] Verify the Reown project origin allowlist and the app name, URL, and icon shown in WalletConnect prompts.
+- [ ] Fetch the TON Connect manifest without cookies or authentication, verify its CORS and icon URLs, and use a dedicated browser-safe TON Center key.
+- [ ] Register exact Immutable Passport authentication and logout URLs for every environment, load the callback route directly, and keep EVM enabled with Passport.
 - [ ] Test mobile wallets, popup blocking, refresh/reconnect, and narrow layouts.
 - [ ] For Hosted Page flows, verify attribution, address confirmation, and the server-side completion-correlation path.
 

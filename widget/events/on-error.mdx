@@ -29,7 +29,9 @@ type BaseErrorProps = {
   name?: string;
   message: string;
   stack?: string;
-  cause?: unknown;
+  cause?: ErrorSummary;
+  occurrenceId?: string;
+  reasonCode?: WalletErrorReasonCode;
 }
 ```
 
@@ -43,7 +45,7 @@ The `type` values and their extra fields:
 | `NotFound` | A requested resource wasn't found | — |
 | `SwapWithdrawalError` / `TransactionFailed` / `SwapCatchupError` | A wallet withdrawal / transaction failed | `swapId`, `transactionHash`, `fromAddress`, `toAddress` |
 | `GasMiscalculation` | Requested amount + gas exceeds wallet balance | `requestedAmount`, `walletBalance`, `calculatedGas`, `difference`, `network`, `token` |
-| `TransactionNotDetected` | A sent transaction wasn't detected on-chain in time | — |
+| `TransactionNotDetected` | A sent transaction wasn't detected on-chain in time | Optional `swapId`, `transactionHash`, `network` |
 | `ChainError` | Chain-level error (e.g. switching networks) | — |
 | `TransferError` | Transfer execution error | — |
 | `WalletError` | Wallet connection / interaction error | — |
@@ -51,10 +53,25 @@ The `type` values and their extra fields:
 | `MaxPriorityFeePerGasError` / `FeesPerGasError` / `GasPriceError` / `GasProviderError` | Gas estimation failed | — |
 | `AlertUI` | An alert was shown to the user inside the widget | — |
 
+`cause` and API response fields are data-only diagnostic summaries, not raw provider errors or Axios request/response objects. `ErrorSummary` contains optional diagnostic fields such as `name`, `message`, `stack`, `code`, and nested summaries. Do not rely on provider-specific object methods or arbitrary response fields.
+
+`occurrenceId` correlates observations of the same thrown object or cause; it is not a swap ID or a global exactly-once guarantee. `reasonCode` uses the normalized [wallet reason codes](/widget/events/on-swap-lifecycle#rejection-and-blocked-transfers).
+
+| Additional `type` | Meaning | Extra fields |
+| --- | --- | --- |
+| `CallbackError` | An ordinary host callback threw synchronously | Base error fields |
+| `SideEffectError` | A step after an already successful operation failed; the operation itself remains successful | `operation`, optional `swapId` |
+
+A throwing `onError` handler falls back to console reporting. Exceptions in `onTelemetry` are ignored. Keep callback handlers synchronous or handle asynchronous rejections within your handler.
+
+Wallet transfer/signature declines are reported through `onSwapLifecycle` as `wallet_action_rejected`, rather than through the transfer error path. Use the [lifecycle cancellation example](/widget/events/on-swap-lifecycle) when migrating cancellation analytics.
+
 Example of handling some categories:
 
 ```tsx
-const callbacks = {
+import type { WidgetCallbacks } from '@layerswap/widget-react';
+
+const callbacks: WidgetCallbacks = {
   onError: (error) => {
     switch (error.type) {
       case 'APIError':

@@ -1,0 +1,71 @@
+---
+title: onSwapLifecycle
+description: Observe wallet actions, transfer progress, retries, refunds, and flow closure.
+---
+
+`onSwapLifecycle` describes the user's journey through the widget, including steps before a swap exists. It complements [`onSwapStatusChange`](/widget/events/on-swap-status-change), which reports backend status transitions.
+
+```tsx
+import type { WidgetCallbacks } from '@layerswap/widget-react';
+
+const callbacks: WidgetCallbacks = {
+  onSwapLifecycle(event) {
+    if (event.step === 'wallet_action_rejected') {
+      console.info('Wallet action declined', event.swapId, event.reasonCode);
+    }
+    if (event.step === 'transfer_blocked') {
+      console.info('Transfer needs attention', event.reasonCode);
+    }
+  },
+};
+```
+
+## Payload
+
+`SwapLifecycleEvent` has four required fields:
+
+| Field | Meaning |
+| --- | --- |
+| `step` | Semantic action or observed state, such as `wallet_prompt_opened` |
+| `stage` | `form`, `swap_creation`, `wallet_connection`, `network_switch`, `wallet_action`, `input_transfer`, `output_transfer`, `refund`, `swap`, or `flow` |
+| `outcome` | `started`, `pending`, `succeeded`, `refunded`, `rejected`, `failed`, `cancelled`, `expired`, `delayed`, `abandoned`, `stalled`, or `blocked` |
+| `path` | Widget location that emitted the event |
+
+All other fields are optional:
+
+- Identity and diagnostics: `swapId`, `occurrenceId`, `reasonCode`, `reason`, `errorCode`, `action`, `provider`.
+- Transfer context: `transactionHash`, `inputTransactionHash`, `outputTransactionHash`, `refundTransactionHash`, `confirmations`, `maxConfirmations`.
+- Swap context: `status`, `phase`, `depositMethod`, `requestedAmount`, `fromAddress`, `toAddress`, `sourceNetwork`, `destinationNetwork`, `sourceToken`, `destinationToken`.
+
+Pre-creation events may have no `swapId`. `status` is the API status; `phase` is the resolved UI state and can lead the API. Step names and phase values can differ, for example `output_settling` and `settling_output`.
+
+## Journey steps
+
+| Journey | Steps |
+| --- | --- |
+| Form and creation | `form_submitted`, `form_confirmation_cancelled`, `swap_creation_started`, `swap_created`, `swap_creation_failed` |
+| Wallet connection | `wallet_connection_started`, `wallet_connected`, `wallet_connection_failed` |
+| Network switch | `network_switch_started`, `network_switched`, `network_switch_rejected`, `network_switch_failed` |
+| Wallet action | `awaiting_wallet_action`, `wallet_prompt_opened`, `wallet_action_rejected`, `wallet_action_failed` |
+| Funding | `awaiting_user_deposit`, `deposit_address_copied`, `transaction_submitted`, `gasless_authorization_submitted`, `gasless_authorization_failed`, `input_transaction_detected`, `input_transfer_pending`, `input_transfer_confirmed` |
+| Settlement | `output_transfer_pending`, `output_transaction_detected`, `output_settling`, `swap_completed`, `swap_failed`, `swap_delayed`, `swap_expired`, `swap_cancelled` |
+| Refund | `refund_pending`, `refund_completed` |
+| Recovery and closure | `retry_requested`, `transfer_blocked`, `flow_closed` |
+
+The shared step type also includes `flow_error` and `suspected_stall`. Their presence in the type does not guarantee that the widget emits them to hosts. Bridge analytics enrichment, including stall detection, journey IDs, and sequence numbers, is separate from this callback.
+
+## Rejection and blocked transfers
+
+Wallet transfer or signature declines use `wallet_action_rejected` with `outcome: 'rejected'` and `reasonCode: 'user_rejected'`; they do not invoke `onError` through the transfer rejection path. Network-switch declines use `network_switch_rejected`. Connection failures or cancellations use the wallet-connection steps; inspect the outcome and reason rather than treating every connection failure as a decline.
+
+Wallet reason codes are `user_rejected`, `unauthorized`, `insufficient_funds`, `gas_estimation_failed`, `contract_reverted`, `nonce_or_replacement`, `chain_not_added`, `wallet_disconnected`, `unsupported_method`, `invalid_parameters`, `internal_rpc_error`, `network_error`, `timeout`, `request_pending`, and `unknown_error`. `errorCode` retains the underlying provider/API code when available.
+
+`transfer_blocked` describes a UI condition that prevents transfer, without requiring an exception. Its reasons are `rpc_unhealthy`, `same_account_required`, `wallet_unsupported_for_network`, `deposit_actions_unavailable`, `swap_error`, `insufficient_balance`, `insufficient_gas`, `gasless_unavailable`, and `critical_price_impact`. A blocked state can recur after recovery.
+
+## Delivery and closure
+
+Repeated phase observations are suppressed within an attempt. All phase steps share one observation slot, so a real A → B → A recovery remains visible. Transaction observations are tracked separately by step. New outcomes, statuses, phases, failure causes, or transaction hashes can produce another observation; address and confirmation-count enrichment alone do not.
+
+User actions remain repeatable. Creation, connection, network-switch, wallet-prompt, and retry attempts reset lifecycle observations for that swap. Form submission and navigation can also reset lifecycle observations. These resets do not reset backend history for `onSwapStatusChange`.
+
+`flow_closed` describes closing the swap modal. Its outcome reflects the resolved UI state and can be `succeeded`, `refunded`, `failed`, or `abandoned`. It does not cancel the backend swap or guarantee page-unload tracking. Browser events are observations, not server-side fulfillment confirmation; use [swap tracking](/api/track-swaps) for that.

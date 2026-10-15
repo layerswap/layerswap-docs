@@ -47,7 +47,9 @@ Log the endpoint, parameter names, and correlation ID on an empty-body error, bu
 | `ROUTE_NOT_FOUND_ERROR` | The pair or rate is unavailable; refresh sources/destinations and let the user choose another route |
 | `GREATER_THAN_MAX_ERROR` | Amount is above the current route maximum; refresh `/limits` |
 | `LESS_THAN_MIN_ERROR` | Amount is below the current route minimum; refresh `/limits` |
-| `INVALID_ADDRESS_ERROR` | Destination or source address is invalid for the selected network |
+| `INVALID_ADDRESS_ERROR` | Destination, source, or refund address is invalid for the selected network |
+| `REFUND_ADDRESS_MISSING` | A required refund address is missing; provide a valid `refund_address` on the source network |
+| `BLACKLISTED_ADDRESS` | An address is blacklisted or belongs to a Layerswap-managed account; use another address |
 | `UNACTIVATED_ADDRESS_ERROR` | The destination account needs activation or a different route |
 | `PRICE_IMPACT_TOO_HIGH` | The current route and amount cannot be quoted within the accepted pricing constraint |
 | `UNEXPECTED_ERROR` | Generic server or validation error; use the message and status without relying on one recovery path |

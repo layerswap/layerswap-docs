@@ -1,22 +1,25 @@
 ---
 title: "Wallets"
-description: "How wallet support works in the widget — filtering chains and supplying credentials."
+description: "Choose wallet families and configure WalletConnect, TON, and Immutable Passport."
 ---
 
-The Widget supports wallets for its available networks by default. Configure wallet props only when you need to:
+Use this page with `@layerswap/widget-react` or `@layerswap/widget-js`. The Widget supplies its own wallet integrations; you configure only the wallet families and credentials your app needs.
 
-1. **Limit which chain wallets are available** — via `walletProvidersConfig`
-2. **Provide credentials for WalletConnect, TON, or Immutable Passport** — via `walletDefaults`
-
-If your app already runs wagmi, you can additionally [share your wagmi config](/widget/wagmi-config) so the widget reuses your users' EVM wallet connection.
+| Goal | Prop |
+|---|---|
+| Keep or remove wallet families | `walletProvidersConfig` |
+| Use your Reown project and app metadata | `walletDefaults.walletConnect` |
+| Enable TON wallets | `walletDefaults.ton` |
+| Enable Immutable Passport | `walletDefaults.immutablePassport` |
+| Reuse an existing EVM wallet connection | [`wagmiConfig`](/widget/wagmi-config) |
 
 <Note>
-  Coming from the self-bundled Widget? The `walletProviders` prop and `createEVMProvider()`-style factories do not exist in `@layerswap/widget-react`. See [Self-bundled Widget](/widget/advanced/self-bundled) or the [migration guide](/widget/advanced/migrate-to-widget-react).
+  Self-bundled `@layerswap/widget` integrations construct a `walletProviders` array instead. See [Wallet management](/widget/advanced/wallet-management).
 </Note>
 
-## Filtering chains
+## Filter wallet families
 
-Use `walletProvidersConfig` to limit which chain wallets users can connect:
+All wallet families that need no credentials are enabled by default. Use `include` as an allowlist or `exclude` as a blocklist:
 
 ```tsx
 // Only EVM and Solana wallets
@@ -25,74 +28,239 @@ Use `walletProvidersConfig` to limit which chain wallets users can connect:
   walletProvidersConfig={{ include: ['evm', 'solana'] }}
 />
 
-// Everything except Tron and Fuel
+// Every available family except Tron and Fuel
 <LayerswapWidget
   config={widgetConfig}
   walletProvidersConfig={{ exclude: ['tron', 'fuel'] }}
 />
 ```
 
-- `include` keeps only the listed wallet types; `exclude` removes the listed wallet types.
+When both fields are present, the Widget applies `include` first and then removes anything in `exclude`. An empty array is treated as no filter.
 
-The available provider ids (`WalletProviderId`):
+Filtering changes which wallets users can connect; it does not remove networks, tokens, or routes from the form. A filtered-out family never loads its wallet SDK. EVM initializes with the Widget, while the other enabled SDKs normally load when the wallet UI needs them; a restored session can hydrate its provider earlier.
 
-| Id | Chain family |
-|---|---|
-| `evm` | EVM chains (Ethereum, Base, Arbitrum, …) |
-| `starknet` | Starknet |
-| `solana` | Solana |
-| `bitcoin` | Bitcoin |
-| `ton` | TON |
-| `tron` | Tron |
-| `fuel` | Fuel |
-| `paradex` | Paradex |
-| `imtblPassport` | Immutable Passport |
+### Provider ids
 
-## Supplying credentials
+| Id | Wallet family | Extra setup |
+|---|---|---|
+| `evm` | EVM chains | Optional WalletConnect defaults or a shared wagmi config |
+| `starknet` | Starknet | None |
+| `solana` | Solana | Optional WalletConnect defaults |
+| `bitcoin` | Bitcoin | None |
+| `fuel` | Fuel | None |
+| `tron` | Tron | None |
+| `paradex` | Paradex | None |
+| `ton` | TON | `walletDefaults.ton`; omitted otherwise |
+| `imtblPassport` | Immutable Passport | `walletDefaults.immutablePassport`, an EVM provider, and an OAuth callback route |
 
-Some wallet services need your own credentials or metadata. Pass them via `walletDefaults`:
+<Warning>
+  The Immutable Passport provider id is `imtblPassport`, but its `walletDefaults` key is `immutablePassport`. Both spellings are intentional. If you use an `include` list for Passport, include both `evm` and `imtblPassport`.
+</Warning>
+
+## Supply wallet defaults
+
+Keep the object at module scope, or memoize it, so its identity stays stable across renders:
 
 ```tsx
-// Module scope, so the object stays referentially stable
-const walletDefaults = {
+import { LayerswapWidget, type WalletDefaults } from '@layerswap/widget-react';
+
+const widgetConfig = { apiKey: 'YOUR_API_KEY', version: 'mainnet' } as const;
+
+const walletDefaults: WalletDefaults = {
   walletConnect: {
-    projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // required for WalletConnect
+    projectId: 'YOUR_REOWN_PROJECT_ID',
     name: 'Your App',
     description: 'Your app description',
     url: 'https://yourapp.com',
     icons: ['https://yourapp.com/icon.png'],
   },
   ton: {
-    tonApiKey: 'YOUR_TON_API_KEY',
+    tonApiKey: 'YOUR_TONCENTER_API_KEY',
     manifestUrl: 'https://yourapp.com/tonconnect-manifest.json',
   },
   immutablePassport: {
-    publishableKey: 'YOUR_PUBLISHABLE_KEY',
-    clientId: 'YOUR_CLIENT_ID',
+    publishableKey: 'YOUR_IMMUTABLE_PUBLISHABLE_KEY',
+    clientId: 'YOUR_IMMUTABLE_CLIENT_ID',
     redirectUri: 'https://yourapp.com/passport/callback',
     logoutRedirectUri: 'https://yourapp.com/',
   },
 };
 
-<LayerswapWidget config={widgetConfig} walletDefaults={walletDefaults} />
+export function SwapPage() {
+  return <LayerswapWidget config={widgetConfig} walletDefaults={walletDefaults} />;
+}
 ```
 
-<ResponseField name="walletConnect" type="object">
-  Your [WalletConnect Cloud](https://cloud.walletconnect.com/) `projectId` (required for WalletConnect connections) plus optional app metadata (`name`, `description`, `url`, `icons`) shown in the wallet's connection prompt.
+The same `walletDefaults` shape can be passed to `mountWidget` or `mountDepositWidget` from `@layerswap/widget-js`.
+
+## Configure WalletConnect
+
+Create a project in the [Reown Dashboard](https://dashboard.reown.com/) and register the origins that may use its project id. Reown recommends an origin allowlist to prevent unauthorized use of the id; see its [Relay project guide](https://docs.reown.com/appkit/react/cloud/relay). Pass all five fields together so WalletConnect, MetaMask, and Coinbase prompts use your app's identity:
+
+<ResponseField name="projectId" type="string" required>
+  Your Reown project id.
 </ResponseField>
 
-<ResponseField name="ton" type="object">
-  TON wallet support configuration. Both `tonApiKey` and the `manifestUrl` of your [TON Connect manifest](https://docs.ton.org/develop/dapps/ton-connect/manifest) are required. TON wallets appear only when this object is supplied.
+<ResponseField name="name" type="string" required>
+  The app name shown by supported wallets.
 </ResponseField>
 
-<ResponseField name="immutablePassport" type="object">
-  Immutable Passport client configuration. `publishableKey`, `clientId`, `redirectUri`, and `logoutRedirectUri` are all required. Immutable Passport appears only when this object is supplied.
+<ResponseField name="description" type="string" required>
+  A short description of your app.
 </ResponseField>
 
-## Sharing your wagmi config
+<ResponseField name="url" type="string" required>
+  Your production app URL.
+</ResponseField>
 
-If your app already uses wagmi for EVM wallets, pass your `Config` as the `wagmiConfig` prop and the widget adopts it — same connected account, same chain, no second connect flow. This replaces the old "Partial Integration (EVM)" setup and has its own page:
+<ResponseField name="icons" type="string[]" required>
+  At least one public icon URL.
+</ResponseField>
+
+Injected wallets can work without this object. Supplying your own project id is recommended for production so your team owns the Reown project, origin allowlist, and connection metadata.
+
+## Enable TON wallets
+
+TON needs both `tonApiKey` and `manifestUrl` to work. Omit the entire `ton` object when TON should not appear in the wallet list.
+
+### 1. Create a TON Center key
+
+Follow TON's [API key guide](https://docs.ton.org/api/get-api-key) to create a key for the network and traffic level you expect.
+
+<Warning>
+  `walletDefaults` is browser-side configuration, so users can inspect `tonApiKey`. Use a dedicated client key with appropriate limits; never reuse a privileged backend credential.
+</Warning>
+
+### 2. Publish a TON Connect manifest
+
+Place `tonconnect-manifest.json` in your public assets:
+
+```json title="public/tonconnect-manifest.json"
+{
+  "url": "https://yourapp.com",
+  "name": "Your App",
+  "iconUrl": "https://yourapp.com/icon-180.png",
+  "termsOfUseUrl": "https://yourapp.com/terms",
+  "privacyPolicyUrl": "https://yourapp.com/privacy"
+}
+```
+
+`url`, `name`, and `iconUrl` are required. The policy URLs are optional. The manifest must:
+
+- Be available through an unauthenticated HTTPS `GET`
+- Return JSON without a bot or browser challenge
+- Allow cross-origin requests from wallets
+- Reference a public PNG or ICO icon; TON wallets do not support SVG manifest icons
+
+See the [TON Connect setup guide](https://docs.ton.org/applications/ton-connect/get-started) for the manifest requirements and troubleshooting steps.
+
+### 3. Pass both fields
+
+```tsx
+const walletDefaults: WalletDefaults = {
+  ton: {
+    tonApiKey: 'YOUR_TONCENTER_API_KEY',
+    manifestUrl: 'https://yourapp.com/tonconnect-manifest.json',
+  },
+};
+```
+
+Open the manifest URL in a private browser window before testing the Widget. You should receive `200 OK` and the JSON document without signing in.
+
+## Enable Immutable Passport
+
+Immutable Passport requires credentials, exact redirect registration, and a callback page. It delegates wallet activity to the EVM provider, so do not exclude `evm`.
+
+### 1. Register the Passport client
+
+In [Immutable Hub](https://hub.immutable.com/):
+
+1. Create or select a project.
+2. Under **Tools → Passport**, add a **Web** client.
+3. Copy its client id and your project's publishable key.
+4. Register the exact authentication and logout URLs used by your app.
+
+Register separate URLs for local, staging, and production environments. Immutable does not accept wildcard redirect URLs. The Hub values and the values passed to the Widget must match exactly, including the scheme, host, path, and trailing slash.
+
+See Immutable's [Passport client guide](https://docs.immutable.com/docs/products/hub/passport-clients) for environment-specific redirect registration.
+
+### 2. Share one configuration object
+
+The callback page needs the same values as the Widget. Put them in one client-safe module:
+
+```ts title="wallet-config.ts"
+import type { WalletDefaults, WalletProviderId } from '@layerswap/widget-react';
+import type { ImtblPassportConfig } from '@layerswap/wallet-imtbl-passport';
+
+export const immutablePassport: ImtblPassportConfig = {
+  publishableKey: 'YOUR_IMMUTABLE_PUBLISHABLE_KEY',
+  clientId: 'YOUR_IMMUTABLE_CLIENT_ID',
+  redirectUri: 'https://yourapp.com/passport/callback',
+  logoutRedirectUri: 'https://yourapp.com/',
+};
+
+export const walletDefaults: WalletDefaults = { immutablePassport };
+
+export const walletProvidersConfig: { include: WalletProviderId[] } = {
+  include: ['evm', 'imtblPassport'],
+};
+```
+
+The publishable key and client id identify a public browser client; do not put an Immutable secret key in this object.
+
+### 3. Handle the OAuth callback
+
+The old `ImtblRedirect` component is no longer part of the 2.0 wallet package. Install the callback helper and its peer dependencies:
+
+```bash
+npm install @layerswap/wallet-imtbl-passport@^2 @layerswap/wallet-core@^2 zustand@^4.5.7
+```
+
+The published 2.0 callback packages declare Node.js 22 or later for the build toolchain.
+
+Then render a client-side page at the exact `redirectUri` path:
+
+```tsx title="app/passport/callback/page.tsx"
+'use client';
+
+import { useEffect, useState } from 'react';
+import { imtblPassportLoginCallback } from '@layerswap/wallet-imtbl-passport';
+import { immutablePassport } from '../../../wallet-config';
+
+export default function PassportCallbackPage() {
+  const [status, setStatus] = useState<'loading' | 'complete' | 'error'>('loading');
+
+  useEffect(() => {
+    void imtblPassportLoginCallback(immutablePassport)
+      .then(() => setStatus('complete'))
+      .catch((error) => {
+        console.error('Immutable Passport callback failed', error);
+        setStatus('error');
+      });
+  }, []);
+
+  if (status === 'error') {
+    return <p>Could not complete sign-in. Close this window and try again.</p>;
+  }
+
+  return <p>{status === 'complete' ? 'Sign-in complete.' : 'Completing sign-in…'}</p>;
+}
+```
+
+For another router or framework, run `imtblPassportLoginCallback(immutablePassport)` once after the callback page loads in the browser.
+
+### 4. Test the complete flow
+
+Test sign-in, popup cancellation, refresh, and logout in each registered environment. A redirect mismatch usually appears as an Immutable configuration or authentication error before the callback page can complete.
+
+## Reuse your app's EVM connection
+
+If your React app already uses wagmi, pass the same `Config` to `LayerswapWidget` so the Widget uses the connected account and signer:
 
 <Card title="Sharing your wagmi config" icon="plug" href="/widget/wagmi-config">
-  Reuse your app's EVM wallet connection inside the widget
+  Configure shared EVM state, appended Layerswap chains, and reconnect ownership
 </Card>
+
+## Next step
+
+Add wallet checks to the [production checklist](/resources/production-checklist): test desktop extensions, mobile deep links, popup blocking, reconnect, TON manifest access, and every Immutable redirect URL.

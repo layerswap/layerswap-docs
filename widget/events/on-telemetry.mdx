@@ -1,0 +1,46 @@
+---
+title: onTelemetry
+description: Forward optional widget analytics to your own analytics service.
+---
+
+`onTelemetry` receives vendor-neutral analytics. No Grafana setup is required. Exceptions thrown by this optional callback are ignored so they do not interrupt the widget.
+
+```tsx
+import type { WidgetCallbacks } from '@layerswap/widget-react';
+
+const callbacks: WidgetCallbacks = {
+  onTelemetry(event) {
+    if (event.name === 'widget_operation') {
+      console.info(event.attributes.operation, event.attributes.duration_ms);
+    }
+  },
+};
+```
+
+## Event envelope
+
+Every `WidgetTelemetryEvent` has `name` and `attributes`. All events carry `attributes.schema_version: 1` and an `attributes.event_id` string. Additional attributes are primitive strings, numbers, booleans, or `undefined`.
+
+| `name` | Required event-specific attributes | Meaning |
+| --- | --- | --- |
+| `widget_flow` | `step` | Form engagement, validation, and lifecycle progression; optional `outcome` and `reason_code` |
+| `widget_interaction` | `action`, `trigger` | Semantic control activation |
+| `widget_operation` | `operation`, `operation_id`, `outcome`, `duration_ms` | Completed API or wallet operation measurement |
+
+Telemetry attributes use snake_case, while [`onSwapLifecycle`](/widget/events/on-swap-lifecycle) uses camelCase. Flow steps include `form_viewed`, `form_started`, `validation_shown`, and applicable lifecycle steps. Subscribing to both callbacks can observe the same journey transition twice; choose one source for each analytics metric.
+
+## Flow context
+
+Optional context includes `flow_id`, `submission_count`, `swap_id`, elapsed time, and progress flags. The mounted form can keep the same `flow_id` across multiple submissions. Each new submission clears the previous swap ID and transfer/deposit/completion flags, increments `submission_count`, and receives a new swap ID after creation. Do not treat `flow_id` as a unique per-swap identifier.
+
+`form_mode` identifies the active form: `cross-chain`, `exchange`, `deposit-address`, `deposit-widget-address`, or `deposit-widget-wallet`. These are analytics values, not configuration options.
+
+Flow events follow the mounted form and its current journey. They are not a complete history of swaps reopened from history or of every swap that continues processing in the background.
+
+## Operation measurements
+
+Operations are `quote_request`, `detailed_quote_request`, `limits_request`, `swap_creation`, `deposit_actions`, `balance_fetch`, `gas_estimation`, `wallet_connection`, `wallet_transfer`, `gasless_authorization`, and `gasless_authorization_status`.
+
+Operation outcomes are `succeeded`, `failed`, `cancelled`, `rejected`, `partial`, and `unavailable`. A measurement emits on completion, with elapsed `duration_ms`; there are no separate start and finish events. A successful gasless authorization measures authorization, not final on-chain settlement.
+
+The callback does not add the Hosted Page's analytics sanitizer to your application. Review your own collection and retention rules before forwarding event attributes.
