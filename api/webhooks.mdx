@@ -30,7 +30,7 @@ Layerswap sends swap updates through the Svix `partner` event type. The JSON bod
   "from": "ETHEREUM_MAINNET",
   "to": "BASE_MAINNET",
   "fee": 0.5,
-  "source_address": "0x...",
+  "source_address": null,
   "deposit_address": "0x...",
   "status": "PendingDeposit",
   "app_name": "YOUR_APP_CLIENT_ID",
@@ -61,6 +61,8 @@ Layerswap sends swap updates through the Svix `partner` event type. The JSON bod
 ```
 
 `id` is the swap ID, `reference_id` is your app's correlation reference, and `timestamp` is the webhook message creation time in Unix milliseconds. Transaction entries include `transaction_id`, `type`, `from`, `to`, `amount`, `usd_price`, `usd_value`, `created_date`, `timestamp`, `confirmations`, `max_confirmations`, and `explorer_url`.
+
+`source_address` is nullable. Regular swap webhooks return `null`; composite-swap webhooks populate it from the swap's source address.
 
 Webhook `status` values use PascalCase: `PendingDeposit`, `PendingWithdrawal`, `Completed`, `Failed`, `Expired`, `PendingRefund`, and `Refunded`. API swap responses use snake_case values; for example, webhook `PendingDeposit` corresponds to API `user_transfer_pending`, and `PendingWithdrawal` corresponds to `ls_transfer_pending`. See the [status mapping](/api/track-swaps#list-swaps-by-address).
 
