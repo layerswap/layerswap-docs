@@ -14,6 +14,18 @@ curl 'https://api.layerswap.io/api/v2/swaps/SWAP_ID' \
 
 Use `data.swap.status` for control flow and `data.swap.transactions` for input, output, refuel, and refund transaction details. See [Swap lifecycle & statuses](/concepts/swap-lifecycle).
 
+## Reference IDs and repeated requests
+
+Pass `reference_id` when creating a swap to correlate it with an action in your application. References are scoped to your app. Reusing a reference does not always return the original swap:
+
+| Existing swap status | Result of creating another swap with the same reference |
+| --- | --- |
+| `completed` or `ls_transfer_pending` | Creation is rejected with `DUPLICATE_REFERENCE_ID`. The error metadata includes the existing `SwapId`. |
+| `user_transfer_pending` | The existing swap is expired and its reference is changed. A replacement swap is created with the supplied reference. |
+| `failed`, `expired`, `pending_refund`, or `refunded` | A new swap is created with a timestamp appended to its reference. |
+
+Prevent concurrent submissions for the same user action. Store the returned swap ID and check whether a timed-out creation request succeeded before submitting another request. Reusing a reference can expire an unfunded swap whose deposit instructions you already displayed.
+
 ## List swaps by address
 
 `GET /swaps` requires `address` and accepts repeatable `statuses` filters:
@@ -37,7 +49,7 @@ Status filters are case-sensitive PascalCase values and are **not** the snake\_c
 
 Sending a response value such as `completed` or `user_transfer_pending` can return an empty-body `400`. Preserve the exact casing above.
 
-Other filters include `page`, repeatable `networks`, and `include_expired`. The page size is not documented.
+Other filters include `page`, repeatable `networks`, and `include_expired`. Pages start at 1, default to page 1, and contain up to 20 swaps ordered by creation date, newest first. When no explicit `statuses` filter is supplied, expired swaps are excluded unless `include_expired=true`.
 
 ## Find by transaction hash
 
@@ -55,8 +67,8 @@ This is useful after a wallet or server-wallet transaction has been submitted bu
 | Mechanism | Use it when | Caveat |
 | --- | --- | --- |
 | Widget events | Your embedded UI needs immediate client-side updates | Client events are not sufficient proof for crediting funds |
-| Poll `GET /swaps/{id}` | Your backend needs an authoritative status on demand | Cadence and rate limits are unpublished |
-| Webhooks | Your backend can receive pushes | Event, retry, ordering, and payload guarantees remain marked gaps |
+| Poll `GET /swaps/{id}` | Your backend needs an authoritative status on demand | Back off on unchanged statuses or failed requests |
+| Webhooks | Your backend can receive pushes | Deduplicate side effects and fetch the current swap status before fulfillment |
 | Explorer | Users or support need visibility | Treat it as a visibility tool, not backend settlement logic |
 
 For server-side fulfillment, confirm the API status even if the browser already emitted `onSwapComplete`.

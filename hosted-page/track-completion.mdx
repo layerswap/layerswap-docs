@@ -21,7 +21,7 @@ const params = new URLSearchParams({
 
 The created swap stores this value as `reference_id`. Store the session ID with the user action in your backend. When you list that user's swaps with `GET /swaps`, match `swap.metadata.reference_id` to your stored value and then track the matching swap by ID.
 
-`reference_id` idempotency is unconfirmed, so generate a new value for each attempt and do not treat it as a duplicate-creation guard.
+Use a unique `externalId` for each user flow and store the matching swap ID. Reusing a reference can replace an unfunded swap or reject creation; see [Reference IDs and repeated requests](/api/track-swaps#reference-ids-and-repeated-requests).
 
 ## Track by transaction hash
 

@@ -64,9 +64,7 @@ What's removed:
 | `createEVMProvider({ wagmiConfig })` ("Partial Integration") | The top-level [`wagmiConfig` prop](/widget/wagmi-config) |
 | Custom `WalletProvider` implementations | No equivalent in the loader-package model; contact the Layerswap team about your use case |
 
-<Warning title="🚧 Needs review — support link placeholder (Q3.8)">
-  Add the official support channel for custom-provider migration questions.
-</Warning>
+For help migrating a custom wallet provider, contact the [Layerswap developer community](/resources/support).
 
 <Note>
   The Solana provider id is `'solana'`, not `'svm'` (the legacy package name was `@layerswap/wallet-svm`).
@@ -110,7 +108,7 @@ The deposit-specific props (`destination`, `destinationAddress`, `mode`, `method
 
 ## 6. Review the behavioral differences
 
-- **Widget updates roll forward automatically** on the CDN channel—you no longer pin the remote implementation through npm. Verify the final 2.x release-channel policy on release day. See [Widget delivery and security](/widget/delivery-and-security).
+- **Widget updates roll forward automatically** on the CDN channel—you no longer pin the remote implementation through npm. See [Widget delivery and security](/widget/delivery-and-security).
 - **One widget per page** (of either kind) — the widget keeps process-global state.
 - **Object props are compared by reference**—hoist `config`, `callbacks`, `walletDefaults`, and `walletProvidersConfig` to module scope or memoize them to avoid provider rebuilds and extra renders.
 - **Loader-level props are new**: `fallback` (loading state), `onReady`, and `onError` for load failures — distinct from `callbacks.onError`.

@@ -77,7 +77,7 @@ All values are strings in the URL.
 | --- | --- |
 | `externalId` | Your correlation ID; stored on the created swap as `reference_id` |
 
-Use a unique, non-secret `externalId` for each user flow. It is correlation metadata, not an idempotency guarantee.
+Use a unique, non-secret `externalId` for each user flow. Store it with the corresponding user action so your backend can find the matching swap. See [Reference IDs and repeated requests](/api/track-swaps#reference-ids-and-repeated-requests) for reuse behavior.
 
 ## Named themes
 
@@ -133,4 +133,4 @@ Wallet connections can open a popup or external wallet application. Test the com
 
 ## Track the result
 
-The Hosted Page does not currently have a documented redirect-back or browser callback contract. See [Track completion](/hosted-page/track-completion) for verified server-side correlation options.
+Track completion through your backend using the Layerswap API. See [Track completion](/hosted-page/track-completion) for correlation by `externalId` or funding transaction hash.

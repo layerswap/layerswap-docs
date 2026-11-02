@@ -56,7 +56,7 @@ curl "https://api.layerswap.io/api/v2/quote?source_network=ETHEREUM_MAINNET&sour
 
 Every successful response is wrapped in `data`. Fee semantics live in [Fees](/concepts/fees); `avg_completion_time` is a .NET-style duration string.
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.1)">The quote response has no expiry field. What rate applies if the user deposits later, and how long a quote should be treated as indicative, is pending a product answer. Until then: do not present `receive_amount` as guaranteed.</Warning>
+Request a quote to preview the transfer. Swap creation calculates a new quote; use the quote returned with the created swap for its amounts and slippage. Refresh the preview when the route, amount, or options change.
 
 **If the amount is out of range:** compare against the `/limits` response from step 1 — quotes for amounts outside min/max fail.
 
@@ -81,9 +81,9 @@ curl -X POST "https://api.layerswap.io/api/v2/swaps" \
 
 The response contains the swap (`data.swap.id`) and `data.deposit_actions` — the instructions for funding it. Store the id; it's your handle for tracking.
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.7)">When `refund_address` is required (routes involving a swap provider) and what error you get without it is unconfirmed. Recommendation until answered: always supply `refund_address` on the source network.</Warning>
+Provide a valid source-network `refund_address`. It is required for routes involving a swap provider unless `use_deposit_address` is enabled. A missing required address returns `REFUND_ADDRESS_MISSING`. See [Refunds](/concepts/refunds#refund-address).
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.4)">Whether `reference_id` deduplicates retries (idempotency) is unconfirmed — until then, guard against double-creating swaps on your side.</Warning>
+Use `reference_id` to correlate a swap with an action in your application. Reusing it can replace an unfunded swap or reject creation, depending on the existing swap's status. See [Reference IDs and repeated requests](/api/track-swaps#reference-ids-and-repeated-requests) before retrying swap creation.
 
 </Step>
 <Step title="Fund the swap">
@@ -105,7 +105,7 @@ curl "https://api.layerswap.io/api/v2/swaps/$SWAP_ID" -H "X-LS-APIKEY: $LS_API_K
 
 You can also look a swap up by its funding transaction: `GET /swaps/by_transaction_hash/{hash}`.
 
-<Warning title="🚧 Needs review — awaiting API answer (Q2.4/Q2.5)">Recommended polling cadence and webhook delivery semantics are unconfirmed. Poll conservatively, back off on failures, and configure [Webhooks](/api/webhooks) in the Partner Dashboard.</Warning>
+For push notifications, configure [Webhooks](/api/webhooks) in the Partner Dashboard. Make receivers safe to process duplicate events and check the current swap status before fulfillment.
 
 </Step>
 </Steps>
