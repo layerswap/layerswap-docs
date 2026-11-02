@@ -216,7 +216,7 @@ The depository contract exposes two functions depending on the asset type:
 | `gasEstimate` | `deposit_actions[].gas_limit` | Gas units for contract call |
 | `feeCosts` | `quote.blockchain_fee`, `quote.service_fee`, `quote.total_fee` | Fee breakdown |
 | Contract params | `deposit_actions[]` | `to_address`, `call_data`, `amount_in_base_units`, `gas_limit` |
-| `deadline` | N/A | Currently not provided; quotes are valid for a reasonable window |
+| `deadline` | N/A | No deadline field is returned; swap creation calculates a new quote |
 
 ## 4. Transfer Status
 
@@ -271,7 +271,7 @@ The `transactions` array contains both the source (`type: "input"`) and destinat
 
 | LI.FI expects | Layerswap field | Notes |
 |---|---|---|
-| `status` | `swap.status` | See [Swap Lifecycle](/concepts/swap-lifecycle) for full details. Values: `user_transfer_pending`, `user_transfer_delayed`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
+| `status` | `swap.status` | See [Swap Lifecycle](/concepts/swap-lifecycle) for full details. Values: `user_transfer_pending`, `ls_transfer_pending`, `completed`, `failed`, `expired`, `pending_refund`, `refunded` |
 | `substatus` | `swap.fail_reason` | `null` on success; on failure: `received_less_than_valid_range`, `received_more_than_valid_range`, `swap_route_unavailable`, `degraded_quote` |
 | `receiving.txHash` | `transactions[type="output"].transaction_hash` | Destination chain tx hash |
 | `receiving.chainId` | `transactions[type="output"].network.chain_id` | Destination chain ID |

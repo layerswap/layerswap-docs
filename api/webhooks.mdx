@@ -22,30 +22,51 @@ Reject invalid signatures and keep verification ahead of any balance credit, ord
 
 ## Payload shape
 
-Webhook data describes the swap at the status available when the event is sent. Expect swap identifiers and lifecycle fields to be central, with quote and transaction data becoming available as processing progresses. A representative shape is:
+Layerswap sends swap updates through the Svix `partner` event type. The JSON body is a flat object containing the swap ID, status, route, reference, and transactions. For example:
 
 ```json
 {
-  "swap": {
-    "id": "SWAP_ID",
-    "status": "ls_transfer_pending",
-    "destination_address": "0x...",
-    "requested_amount": 100,
-    "fail_reason": null,
-    "metadata": {
-      "reference_id": "your-external-id"
-    },
-    "transactions": []
+  "id": "SWAP_ID",
+  "from": "ETHEREUM_MAINNET",
+  "to": "BASE_MAINNET",
+  "fee": 0.5,
+  "source_address": null,
+  "deposit_address": "0x...",
+  "status": "PendingDeposit",
+  "app_name": "YOUR_APP_CLIENT_ID",
+  "is_testnet": false,
+  "from_network": {
+    "name": "ETHEREUM_MAINNET",
+    "display_name": "Ethereum",
+    "logo": "https://example.com/ethereum.png"
   },
-  "quote": {
-    "receive_amount": 99.5,
-    "min_receive_amount": 99.0
+  "to_network": {
+    "name": "BASE_MAINNET",
+    "display_name": "Base",
+    "logo": "https://example.com/base.png"
   },
-  "deposit_actions": []
+  "asset": {
+    "asset": "USDC",
+    "display_name": "USD Coin",
+    "refuel": false,
+    "contract": "0x...",
+    "decimals": 6
+  },
+  "amount": 100,
+  "to_address": "0x...",
+  "reference_id": "your-external-id",
+  "transactions": [],
+  "timestamp": 1793577600000
 }
 ```
 
-Use the swap ID as the durable key, and fetch `GET /swaps/{id}` before executing irreversible business logic.
+`id` is the swap ID, `reference_id` is your app's correlation reference, and `timestamp` is the webhook message creation time in Unix milliseconds. Transaction entries include `transaction_id`, `type`, `from`, `to`, `amount`, `usd_price`, `usd_value`, `created_date`, `timestamp`, `confirmations`, `max_confirmations`, and `explorer_url`.
+
+`source_address` can be `null`.
+
+Webhook `status` values use PascalCase: `PendingDeposit`, `PendingWithdrawal`, `Completed`, `Failed`, `Expired`, `PendingRefund`, and `Refunded`. API swap responses use snake_case values; for example, webhook `PendingDeposit` corresponds to API `user_transfer_pending`, and `PendingWithdrawal` corresponds to `ls_transfer_pending`. See the [status mapping](/api/track-swaps#list-swaps-by-address).
+
+Use the swap ID as the durable key, and fetch `GET /swaps/{id}` before crediting funds or fulfilling an order. Apply business actions using the current swap status, and make repeated processing safe.
 
 ## Receiver checklist
 
