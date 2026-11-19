@@ -4032,10 +4032,12 @@ export const DepositAddressTool = () => {
                                     </p>
                                     <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
                                         <a
-                                            href="mailto:partners@layerswap.io"
+                                            href="https://layerswap.io/dashboard/chat"
+                                            target="_blank"
+                                            rel="noreferrer"
                                             className="inline-flex items-center gap-2 rounded-lg border-none bg-primary dark:bg-primary-light px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark dark:hover:bg-primary-light no-underline"
                                         >
-                                            ✉️ partners@layerswap.io
+                                            Chat with our team
                                         </a>
                                         <a
                                             href="https://t.me/layerswap_dev"
@@ -4043,7 +4045,7 @@ export const DepositAddressTool = () => {
                                             rel="noreferrer"
                                             className="inline-flex items-center gap-2 rounded-lg border-none bg-gradient-to-br from-[#2AABEE] to-[#229ED9] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-105 no-underline"
                                         >
-                                            💬 Join Dev Community
+                                            Join the public Telegram chat
                                         </a>
                                     </div>
                                 </div>

@@ -249,14 +249,18 @@
         "href": "https://t.me/layerswap_dev"
       },
       {
+        "label": "Book a demo",
+        "href": "https://cal.com/babgev/layerswap-demo"
+      },
+      {
         "label": "Github",
         "href": "https://github.com/layerswap/layerswapapp"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Book a demo",
-      "href": "https://cal.com/babgev/layerswap-demo"
+      "label": "Chat with us",
+      "href": "https://layerswap.io/dashboard/chat"
     }
   },
   "seo": {
@@ -298,6 +302,19 @@
           {
             "label": "Explorer",
             "href": "https://layerswap.io/explorer"
+          }
+        ]
+      },
+      {
+        "header": "Legal",
+        "items": [
+          {
+            "label": "Terms of Services",
+            "href": "/legal/terms-of-service"
+          },
+          {
+            "label": "Privacy Policy",
+            "href": "/legal/privacy-policy"
           }
         ]
       }
@@ -624,6 +641,78 @@
     {
       "source": "/integration/UI/Widget/WalletManagement/ImmutableXProvider",
       "destination": "/widget/advanced/wallet-providers"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/legal/privacy-policy"
+    },
+    {
+      "source": "/terms-of-services",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/terms-of-service",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/user-docs/privacy-policy",
+      "destination": "/legal/privacy-policy"
+    },
+    {
+      "source": "/user-docs/terms-of-services",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/user-docs/terms-of-service",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/user-docs/more-information/privacy-policy",
+      "destination": "/legal/privacy-policy"
+    },
+    {
+      "source": "/user-docs/more-information/terms-of-services",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/user-docs/more-information/terms-of-service",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/user-docs/information/privacy-policy",
+      "destination": "/legal/privacy-policy"
+    },
+    {
+      "source": "/user-docs/information/terms-of-services",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/user-docs/information/terms-of-service",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/more-information/privacy-policy",
+      "destination": "/legal/privacy-policy"
+    },
+    {
+      "source": "/more-information/terms-of-services",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/more-information/terms-of-service",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/information/privacy-policy",
+      "destination": "/legal/privacy-policy"
+    },
+    {
+      "source": "/information/terms-of-services",
+      "destination": "/legal/terms-of-service"
+    },
+    {
+      "source": "/information/terms-of-service",
+      "destination": "/legal/terms-of-service"
     }
   ]
 }
