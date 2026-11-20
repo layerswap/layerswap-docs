@@ -4045,7 +4045,7 @@ export const DepositAddressTool = () => {
                                             rel="noreferrer"
                                             className="inline-flex items-center gap-2 rounded-lg border-none bg-gradient-to-br from-[#2AABEE] to-[#229ED9] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-105 no-underline"
                                         >
-                                            Join the public Telegram chat
+                                            Join Dev Community
                                         </a>
                                     </div>
                                 </div>
