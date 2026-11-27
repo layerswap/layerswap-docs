@@ -203,6 +203,14 @@
         ]
       },
       {
+        "tab": "Legal",
+        "hidden": true,
+        "pages": [
+          "legal/terms-of-service",
+          "legal/privacy-policy"
+        ]
+      },
+      {
         "tab": "LI.FI Integration",
         "hidden": true,
         "pages": [
